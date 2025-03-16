@@ -1,0 +1,148 @@
+.description-span {
+  color: var(--black_900_02);
+}
+
+.description-span-1,
+.inuyasha-3,
+.select_other {
+  color: var(--green_a700) !important;
+  font-family: Poppins !important;
+}
+
+.onethousandfivehundredfortyfive,
+.ninehundredthirty,
+.ninehundredforty {
+  color: var(--white_0) !important;
+  padding: 0 34px;
+  font-family: Be Vietnam Pro;
+  font-size: 16px;
+  background-color: var(--green_a700) !important;
+  height: 54px;
+  min-width: 188px;
+  border-radius: 3px !important;
+}
+
+@media only screen and (max-width: 550px) {
+  .onethousandfivehundredfortyfive,
+  .ninehundredthirty,
+  .ninehundredforty {
+    padding: 0 var(--space-6xl);
+    margin-left: 0;
+  }
+}
+
+.row-10,
+.row-9 {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: var(--space-md) var(--space-2xl);
+}
+
+.gridcelltwo,
+.gridcellthree {
+  color: var(--gray_900_05) !important;
+  font-family: Roboto !important;
+}
+
+@media only screen and (max-width: 1050px) {
+  .gridcelltwo {
+    margin-left: 0;
+  }
+}
+
+.stackheaderlogo,
+.stackarrowleft,
+.stackprice {
+  height: 1600px;
+  background-color: var(--back);
+  position: relative;
+}
+
+@media only screen and (max-width: 1050px) {
+  .stackheaderlogo,
+  .stackarrowleft,
+  .stackprice {
+    height: auto;
+  }
+}
+
+.columnmv5bnthiz {
+  gap: 58px;
+  display: flex;
+  flex-direction: column;
+}
+
+@media only screen and (max-width: 1050px) {
+  .columnmv5bnthiz {
+    padding: 0 var(--space-6xl);
+  }
+}
+
+@media only screen and (max-width: 550px) {
+  .columnmv5bnthiz {
+    gap: 29px;
+  }
+}
+
+.image-11,
+.mv5bnthizja3mjl,
+.image_four {
+  object-fit: contain;
+  border-radius: var(--radius-9xl);
+}
+
+@media only screen and (max-width: 1050px) {
+  .image_four {
+    width: 100%;
+  }
+}
+
+.rowinuyasha,
+.row_seven,
+.row_six {
+  background-color: var(--white_0);
+  flex: 1;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  margin: auto;
+  height: max-content;
+}
+
+@media only screen and (max-width: 1050px) {
+  .rowinuyasha,
+  .row_seven,
+  .row_six {
+    flex-direction: column;
+    position: relative;
+  }
+}
+
+.price-1,
+.price-2,
+.price-3 {
+  color: var(--black_900_02) !important;
+  font-family: Be Vietnam Pro !important;
+  line-height: 25px;
+}
+
+.background {
+  position: relative;
+  background-color: var(--teal_50);
+  width: 32%;
+  display: flex;
+  justify-content: center;
+  padding: var(--space-6xl);
+  border-radius: var(--radius-6xl);
+  border: 1px solid var(--gray_300_01);
+}
+
+@media only screen and (max-width: 1050px) {
+  .background {
+    width: 100%;
+  }
+}
