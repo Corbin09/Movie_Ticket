@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Giang's Application20</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="Web site created using create-react-app">
+<!--    <link rel="stylesheet" type="text/css" href="/assets/css/index.css">-->
+    <link rel="stylesheet" type="text/css" href="/assets/css/font.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/component.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/DetailMovieticket.css">
+</head>
+<body>
+<div class="register">
+    <div class="stackheaderlogo">
+        <img src="" alt="Logo" class="image-11">
+    </div>
+    <div class="column-three-2">
+        <img src="" alt="Decoration" class="image-one-8">
+    </div>
+    <div class="column-two-7">
+        <header class="header" th:replace="~{fragments/header :: header}"></header>
+        <div class="column_one-10">
+            <div class="columnw5bnthiz container-lg">
+                <div class="stackw5bnthiz">
+                    <div class="movie">
+                        <img th:src="@{/images/{image}(image=${movie.image})}" alt="Movie Poster" class="w5bnthizja3rl1">
+                    </div>
+                    <div class="movihasya">
+                        <img th:if="${movie.imagePng != null}" th:src="@{/images/{image}(image=${movie.imagePng})}" class="imagepng" alt="Image">
+                        <h1 class="heading size-heading8xl" th:text="${movie.title}">INVASHA4</h1>
+                        <p class="text size-textlgi" th:text="${movie.description}">
+                            Get your tickets now for an amazing cinematic experience. From drama to comedy, there's a lot to enjoy.
+                        </p>
+                        <p class="description-3 ul text size-textlgi">
+                            <span class="description-span">Director:&nbsp;</span><span th:text="${movie.director}">Trần Thị Giang VIP Pro</span><br>
+                            <span class="description-span">Authors:&nbsp;</span><span th:text="${movie.authors}">Phan Giang, Lê Minh Hằng, Phan Thùy Ngân, Ngọc Anh, Nguyên Phương</span><br>
+                            <span class="description-span">Genre:&nbsp;</span><span th:text="${movie.genre}">Family</span><br>
+                            <span class="description-span">Premiere:&nbsp;</span><span th:text="${movie.premiereDate}">07/03/2025</span> | Times: <span th:text="${movie.duration} + ' minutes'">84 minutes</span>
+                        </p>
+                        <a th:href="@{/movies}">
+                            <button class="select_other ui button white_8 size-6xl fill">
+                                <img src="" alt="Arrow Down" class="arrow_down">
+                                SELECT OTHER MOVIE
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stackarowleft">
+        <div th:each="cinema : ${cinemas}" class="stackprice">
+            <p class="price-1 ul text size-textxl" th:text="${cinema.name} + ' - ' + ${cinema.address}">
+                BD Star Discovery - 8th Floor, TTTM Discovery - 302 Cau Giay, Hanoi
+            </p>
+            <div class="columnprice">
+                <div class="row-one-2">
+                    <a th:each="showtime : ${cinema.showtimes}" th:href="@{/booking/{id}(id=${showtime.id})}" target="_blank">
+                        <button class="ninehundredforty ui button green_a700 size-5xl fill" th:text="${showtime.time}">9:40</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional cinema layout with image -->
+        <div th:each="cinema : ${cinemasWithImage}" class="stackprice">
+            <div class="columnprice">
+                <div class="rowprice-1">
+                    <img th:src="@{/images/{image}(image=${cinema.picture})}" alt="Cinema Image" class="imagethirtyeigh">
+                    <p class="text ui text size-textxl">
+                        <span th:text="${cinema.name}">BD Star Pham Ngoc Thach</span><br>
+                        <span th:text="${cinema.address}">8th Floor of Vincom Shopping Center, 2 Pham Ngoc Thach, Dong Da</span>
+                    </p>
+                </div>
+                <div class="row-four">
+                    <div class="column-14">
+                        <a th:each="showtime : ${cinema.morningShowtimes}" th:href="@{/booking/{id}(id=${showtime.id})}" target="_blank">
+                            <div th:if="${!showtime.isFull}" class="container-2">
+                                <button class="ninehundredthirty ui button green_a700 size-5xl fill" th:text="${showtime.time}">10:10</button>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="row_three">
+                        <a th:each="showtime : ${cinema.eveningShowtimes}" th:href="@{/booking/{id}(id=${showtime.id})}" target="_blank">
+                            <div class="rowemail">
+                                <button class="ninehundredthirty ui button green_a700 size-5xl fill" th:text="${showtime.time}">17:15</button>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="background">
+        <div class="dialog">
+            <div class="document">
+                <div class="gridcalendar">
+                    <div class="rowarrowleft">
+                        <a href="#" onclick="prevMonth(); return false;" class="arrowleft_one">
+                            <img src="" alt="Arrowleft">
+                        </a>
+                        <div class="rowdec">
+                            <p class="dec ui text size-textlg" th:text="${currentMonth}">DEC</p>
+                            <p class="zipcode ui text size-textlg" th:text="${currentYear}">2025</p>
+                        </div>
+                        <a href="#" onclick="nextMonth(); return false;" class="arrowleft_one">
+                            <img src="" alt="Arrowright">
+                        </a>
+                    </div>
+
+                    <div class="gridcalendar-1">
+                        <!-- Weekday headers -->
+                        <div class="row-9">
+                            <h2 th:each="day : ${weekDays}" th:class="${day.isWeekend} ? 'gridcellthree ui heading size-headinglg' : 'gridcelltwo ui heading size-headinglg'" th:text="${day.short}">2</h2>
+                        </div>
+
+                        <!-- First week -->
+                        <div class="row-10" th:if="${weeks != null and weeks.size() > 0}">
+                            <h6 th:each="day : ${weeks[0].days}"
+                                th:class="${day.isToday} ? 'gridcelltwo ui heading size-headinglg today' : 'gridcelltwo ui heading size-headinglg'"
+                                th:classappend="${day.isPast} ? 'disabled' : ''"
+                                th:text="${day.dayOfMonth}"
+                                th:attr="data-date=${day.fullDate}"
+                                th:data-available="${day.hasShowtimes}"
+                                onclick="selectDate(this)">2</h6>
+                        </div>
+
+                        <!-- Second week -->
+                        <div class="row-10" th:if="${weeks != null and weeks.size() > 1}">
+                            <h6 th:each="day : ${weeks[1].days}"
+                                th:class="${day.isToday} ? 'gridcellthree ui heading size-headinglg today' : 'gridcellthree ui heading size-headinglg'"
+                                th:classappend="${day.isPast} ? 'disabled' : ''"
+                                th:text="${day.dayOfMonth}"
+                                th:attr="data-date=${day.fullDate}"
+                                th:data-available="${day.hasShowtimes}"
+                                onclick="selectDate(this)">3</h6>
+                        </div>
+
+                        <!-- Third week -->
+                        <div class="row-10" th:if="${weeks != null and weeks.size() > 2}">
+                            <h6 th:each="day : ${weeks[2].days}"
+                                th:class="${day.isToday} ? 'gridcellthree ui heading size-headinglg today' : 'gridcellthree ui heading size-headinglg'"
+                                th:classappend="${day.isPast} ? 'disabled' : ''"
+                                th:text="${day.dayOfMonth}"
+                                th:attr="data-date=${day.fullDate}"
+                                th:data-available="${day.hasShowtimes}"
+                                onclick="selectDate(this)">4</h6>
+                        </div>
+
+                        <!-- Fourth week -->
+                        <div class="row-9" th:if="${weeks != null and weeks.size() > 3}">
+                            <h6 th:each="day : ${weeks[3].days}"
+                                th:class="${day.isToday} ? 'gridcellthree ui heading size-headinglg today' : 'gridcellthree ui heading size-headinglg'"
+                                th:classappend="${day.isPast} ? 'disabled' : ''"
+                                th:text="${day.dayOfMonth}"
+                                th:attr="data-date=${day.fullDate}"
+                                th:data-available="${day.hasShowtimes}"
+                                onclick="selectDate(this)">5</h6>
+                        </div>
+
+                        <!-- Fifth week (if needed) -->
+                        <div class="row-9" th:if="${weeks != null and weeks.size() > 4}">
+                            <h6 th:each="day : ${weeks[4].days}"
+                                th:class="${day.isToday} ? 'gridcellthree ui heading size-headinglg today' : 'gridcellthree ui heading size-headinglg'"
+                                th:classappend="${day.isPast} ? 'disabled' : ''"
+                                th:text="${day.dayOfMonth}"
+                                th:attr="data-date=${day.fullDate}"
+                                th:data-available="${day.hasShowtimes}"
+                                onclick="selectDate(this)">6</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer class="footer" th:replace="~{fragments/footer :: footer}"></footer>
+<script th:inline="javascript">
+    function selectDate(element) {
+        // Don't select if disabled
+        if (element.classList.contains('disabled')) {
+            return;
+        }
+
+        // Remove selected class from all date elements
+        document.querySelectorAll('.gridcalendar-1 h6').forEach(function(el) {
+            el.classList.remove('selected');
+        });
+
+        // Add selected class to clicked element
+        element.classList.add('selected');
+
+        // Get the selected date
+        const selectedDate = element.getAttribute('data-date');
+        const movieId = [[${movie.id}]];
+
+        // Redirect to the same page with the selected date
+        window.location.href = '/movies/' + movieId + '?date=' + selectedDate;
+    }
+
+    function prevMonth() {
+        const currentMonth = [[${currentMonthNum}]];
+        const currentYear = [[${currentYear}]];
+
+        let prevMonth = currentMonth - 1;
+        let prevYear = currentYear;
+
+        if (prevMonth < 1) {
+            prevMonth = 12;
+            prevYear = prevYear - 1;
+        }
+
+        // Redirect to the same page with the new month and year
+        const movieId = [[${movie.id}]];
+        window.location.href = '/movies/' + movieId + '?month=' + prevMonth + '&year=' + prevYear;
+    }
+
+    function nextMonth() {
+        const currentMonth = [[${currentMonthNum}]];
+        const currentYear = [[${currentYear}]];
+
+        let nextMonth = currentMonth + 1;
+        let nextYear = currentYear;
+
+        if (nextMonth > 12) {
+            nextMonth = 1;
+            nextYear = nextYear + 1;
+        }
+
+        // Redirect to the same page with the new month and year
+        const movieId = [[${movie.id}]];
+        window.location.href = '/movies/' + movieId + '?month=' + nextMonth + '&year=' + nextYear;
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Mark today's date
+        const dateElements = document.querySelectorAll('.gridcalendar-1 h6[data-date]');
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+
+        dateElements.forEach(function(element) {
+            const date = element.getAttribute('data-date');
+            const available = element.getAttribute('data-available') === 'true';
+
+            if (date < todayStr || !available) {
+                element.classList.add('disabled');
+            }
+
+            if (date === todayStr) {
+                element.classList.add('today');
+            }
+        });
+
+        // Check if there's a date parameter in the URL and select that date
+        const urlParams = new URLSearchParams(window.location.search);
+        const dateParam = urlParams.get('date');
+
+        if (dateParam) {
+            const dateElement = document.querySelector(`.gridcalendar-1 h6[data-date="${dateParam}"]`);
+            if (dateElement && !dateElement.classList.contains('disabled')) {
+                dateElement.classList.add('selected');
+            }
+        }
+    });
+</script>
+
+<style>
+    .selected {
+        background-color: green;
+        color: white;
+    }
+
+    .today {
+        border: 2px solid gray;
+    }
+
+    .disabled {
+        color: lightgray;
+        cursor: not-allowed;
+    .disabled {
+    color: lightgray;
+    cursor: not-allowed;
+    pointer-events: none; /* Ngăn không cho click */
+    opacity: 0.6; /* Làm mờ để dễ nhận biết */
+}
+</style>
+</body>
+</html>
