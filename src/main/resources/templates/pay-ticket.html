@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8" />
+  <title>Giang&#39;s Application20</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Web site created using Thymeleaf" />
+<!--  <link rel="stylesheet" type="text/css" href="/assets/css/index.css" />-->
+  <link rel="stylesheet" type="text/css" href="/assets/css/font.css" />
+  <link rel="stylesheet" type="text/css" href="/assets/css/style.css" />
+  <link rel="stylesheet" type="text/css" href="/assets/css/component.css" />
+  <link rel="stylesheet" type="text/css" href="/assets/css/payticket.css" />
+</head>
+<body>
+<div class="register">
+  <div class="stackheaderlogo-1">
+    <div class="column_eight">
+      <div>
+        <div class="column-15">
+          <header class="header-1" th:replace="fragments/header :: header"></header>
+        </div>
+        <img th:src="${film.poster}" alt="Image" class="image" />
+      </div>
+      <div class="columninvasha-1">
+        <div class="row_two-1">
+          <div class="row_one-3">
+            <div class="rowinvasha-1 container-lg">
+              <h1 class="createan ui heading size-headingloXl">INVASHA</h1>
+            </div>
+          </div>
+          <div class="column_one-11 container-lg">
+            <img th:src="${film.poster}" alt="Image" class="image_three" />
+          </div>
+        </div>
+      </div>
+      <div class="column_seven">
+        <div class="column_four container-lg">
+          <div class="listm_lthn">
+            <div class="title-1">
+              <div class="row_three-3">
+                <div class="rowtwo-2">
+                  <button class="one-4 ui button gray_600 size-sm fill">B1</button>
+                  <h2 class="pickseat-3 ui heading size-headingx1">PICK SEAT</h2>
+                </div>
+              </div>
+              <div class="rowgroupthirtyp">
+                <h3 class="groupthirtyone ui heading size-headingx1">B2</h3>
+                <h4 class="pickseat-3 ui heading size-headingx1">POPCORN</h4>
+              </div>
+              <div class="rowgroupthirtyt">
+                <h5 class="groupthirtytwo ui heading size-headingx1">B3</h5>
+                <h6 class="pickseat-3 ui heading size-headingx1">PAY</h6>
+              </div>
+              <div class="rowgroupthirtyt-1">
+                <h6 class="groupthirtyone ui heading size-headingx1">B4</h6>
+                <h6 class="pickseat-3 ui heading size-headingx1">TICKET</h6>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="column-15">
+          <div class="linetwentytwo"></div>
+          <div class="linetwentythree"></div>
+        </div>
+      </div>
+      <div class="columnprice-1">
+        <div class="flex-col-center-start payment">
+          <h6 class="price-28 ui heading size-headingMd">CHOOSE PAYMENT METHOD</h6>
+          <div class="listcontrast">
+            <div class="rowcontrast">
+              <label class="ui radio">
+                <input type="radio" class="ui radio size-xs primary" value="contrast1" name="contrast" />
+              </label>
+              <div class="option">
+                <img src="" alt="Image" class="image-16" />
+                <p class="ui text size-textl">Cash payment (Physical currency transaction)</p>
+              </div>
+            </div>
+            <div class="line-79"></div>
+            <div class="rowcontrast">
+              <label class="ui radio">
+                <input type="radio" class="ui radio size-xs primary" value="contrast21" name="contrast2" />
+              </label>
+              <div class="option">
+                <img src="" alt="Image" class="image-16" />
+                <p class="ui text size-textl">Momo Wallet (Mobile money app (Vietnam))</p>
+              </div>
+            </div>
+            <div class="line-79"></div>
+            <div class="rowcontrast">
+              <label class="ui radio">
+                <input type="radio" class="ui radio size-xs primary" value="contrast31" name="contrast3" />
+              </label>
+              <div class="option">
+                <img src="" alt="Image" class="image-16" />
+                <p class="ui text size-textl">Viettel Money (Viettel&#39;s mobile payment service)</p>
+              </div>
+            </div>
+            <div class="line-79"></div>
+            <div class="rowcontrast">
+              <label class="ui radio">
+                <input type="radio" class="ui radio size-xs primary" value="contrast41" name="contrast4" />
+              </label>
+              <div class="option">
+                <img src="" alt="Image" class="image-16" />
+                <p class="ui text size-textl">Visa/Master/JCB (Global credit/debit card brands)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rowcancel">
+        <button class="cancel-1 ui button gray_900_04 size-3xl fill">CANCEL</button>
+        <a href="https://www.youtube.com/embed/bv8Fxk8sz7I" target="_blank">
+          <button class="next-1 ui button red_600_01 size-3xl fill">NEXT</button>
+        </a>
+      </div>
+      <div class="rowarrowright-2">
+        <div class="columnarroright-1">
+          <img src="" alt="Arrowright" class="arrowright_one-2" />
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="columnreminder">
+    <h2 class="ui heading size-single_line_body_small_strong">REMINDER:</h2>
+    <h3 class="description-4 ui heading size-single_line_body_small_strong">
+      Purchased tickets cannot be exchanged or refunded. The ticket code will be sent once to the email you&#39;ve entered. Please check your information carefully before proceeding.
+    </h3>
+  </div>
+  <footer class="footer-6" th:replace="fragments/footer :: footer"></footer>
+</div>
+</body>
+</html>
