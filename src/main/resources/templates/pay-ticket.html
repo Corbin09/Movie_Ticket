@@ -2,17 +2,17 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="utf-8" />
-  <title>Giang&#39;s Application20</title>
+  <title>Giang's Application20</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#000000" />
   <meta name="description" content="Web site created using Thymeleaf" />
-<!--  <link rel="stylesheet" type="text/css" href="/assets/css/index.css" />-->
   <link rel="stylesheet" type="text/css" href="/assets/css/font.css" />
   <link rel="stylesheet" type="text/css" href="/assets/css/style.css" />
   <link rel="stylesheet" type="text/css" href="/assets/css/component.css" />
   <link rel="stylesheet" type="text/css" href="/assets/css/payticket.css" />
 </head>
 <body>
+<!-- Main Payment Page -->
 <div class="register">
   <div class="stackheaderlogo-1">
     <div class="column_eight">
@@ -70,7 +70,7 @@
           <div class="listcontrast">
             <div class="rowcontrast">
               <label class="ui radio">
-                <input type="radio" class="ui radio size-xs primary" value="contrast1" name="contrast" />
+                <input type="radio" class="ui radio size-xs primary" value="cash" name="paymentMethod" checked />
               </label>
               <div class="option">
                 <img src="" alt="Image" class="image-16" />
@@ -80,7 +80,7 @@
             <div class="line-79"></div>
             <div class="rowcontrast">
               <label class="ui radio">
-                <input type="radio" class="ui radio size-xs primary" value="contrast21" name="contrast2" />
+                <input type="radio" class="ui radio size-xs primary" value="momo" name="paymentMethod" />
               </label>
               <div class="option">
                 <img src="" alt="Image" class="image-16" />
@@ -90,17 +90,17 @@
             <div class="line-79"></div>
             <div class="rowcontrast">
               <label class="ui radio">
-                <input type="radio" class="ui radio size-xs primary" value="contrast31" name="contrast3" />
+                <input type="radio" class="ui radio size-xs primary" value="viettel" name="paymentMethod" />
               </label>
               <div class="option">
                 <img src="" alt="Image" class="image-16" />
-                <p class="ui text size-textl">Viettel Money (Viettel&#39;s mobile payment service)</p>
+                <p class="ui text size-textl">Viettel Money (Viettel's mobile payment service)</p>
               </div>
             </div>
             <div class="line-79"></div>
             <div class="rowcontrast">
               <label class="ui radio">
-                <input type="radio" class="ui radio size-xs primary" value="contrast41" name="contrast4" />
+                <input type="radio" class="ui radio size-xs primary" value="card" name="paymentMethod" />
               </label>
               <div class="option">
                 <img src="" alt="Image" class="image-16" />
@@ -112,25 +112,313 @@
       </div>
       <div class="rowcancel">
         <button class="cancel-1 ui button gray_900_04 size-3xl fill">CANCEL</button>
-        <a href="https://www.youtube.com/embed/bv8Fxk8sz7I" target="_blank">
-          <button class="next-1 ui button red_600_01 size-3xl fill">NEXT</button>
-        </a>
+        <button id="nextButton" class="next-1 ui button red_600_01 size-3xl fill">NEXT</button>
       </div>
       <div class="rowarrowright-2">
         <div class="columnarroright-1">
           <img src="" alt="Arrowright" class="arrowright_one-2" />
         </div>
-
       </div>
     </div>
   </div>
   <div class="columnreminder">
     <h2 class="ui heading size-single_line_body_small_strong">REMINDER:</h2>
     <h3 class="description-4 ui heading size-single_line_body_small_strong">
-      Purchased tickets cannot be exchanged or refunded. The ticket code will be sent once to the email you&#39;ve entered. Please check your information carefully before proceeding.
+      Purchased tickets cannot be exchanged or refunded. The ticket code will be sent once to the email you've entered. Please check your information carefully before proceeding.
     </h3>
   </div>
   <footer class="footer-6" th:replace="fragments/footer :: footer"></footer>
 </div>
+
+<!-- Payment Failed Modal -->
+<dialog id="payment-failed-modal" aria-label="Modal" aria-modal="true" class="modal-dialog">
+  <div class="modal-content">
+    <h1 class="paymentfailed">Payment Failed</h1>
+    <p>Your payment was unsuccessful. Please try again or select another payment method.</p>
+    <div>
+      <h2>Order ID:</h2>
+      <p id="failedOrderId">725781397</p>
+    </div>
+    <div>
+      <h3>Payment method:</h3>
+      <p id="failedPaymentMethod">Momo</p>
+    </div>
+    <div>
+      <h4>Total amount:</h4>
+      <h5 id="failedTotalAmount">$99.00</h5>
+    </div>
+    <div>
+      <button class="retry_payment" id="retryPaymentBtn">Retry Payment</button>
+      <button class="pay_on_delivery" id="payOnDeliveryBtn">Pay on Delivery</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Payment Success Box -->
+<dialog id="payment-success-modal" aria-label="Modal" aria-modal="true" class="modal-dialog">
+  <div class="flex-col-center-center columnpaymentsu">
+    <img src="" alt="Imageforty" class="imageforty_one" />
+    <h2 class="paymentsuccess ui heading size-heading8xl">Payment success!</h2>
+    <h3 class="your ui heading size-text4xl">Your transaction has been completed.</h3>
+    <div class="columnview">
+      <button class="view_ticket ui button green_a700 size-8xl fill" id="viewTicketBtn">View Ticket</button>
+      <p></p>
+      <button class="back_to ui button gray_200 size-8xl fill" id="backToHomeBtn">Back to Homepage</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- QR Code Scan Modal -->
+<dialog id="qr-scan-modal" aria-label="Modal" aria-modal="true" class="modal-dialog">
+  <div class="column one-15 container-le">
+    <div class="scan">
+      <div>
+        <div class="columncreate">
+          <div class="rowheading3chn-1">
+            <div class="rowea880ef28585f5">
+              <img src="public/images/img_ea880ef28585f57.png" alt="ea880ef28585f5" class="ea880ef28585f5" />
+              <h1 class="heading3chn-2 ui heading size-heading2xl" id="paymentMethodTitle">Pay with Momo</h1>
+            </div>
+            <p class="heading3chn_one ui text size-text2xl" id="changeMethodBtn">Change other method</p>
+          </div>
+          <div class="linetwentyfour"></div>
+        </div>
+      </div>
+      <div class="rowheading3chn">
+        <div class="column-19">
+          <div class="columnheading3c-1">
+            <div class="row-23">
+              <img src="public/images/img_image_20.png" alt="Imagetwenty" class="imagetwenty_one" />
+            </div>
+            <div class="rowheading3chn-2">
+              <p class="heading3chn_two ui text size-text2xl">Total amount:</p>
+              <h2 class="heading3chn_two ui heading size-heading2xl">$99.00</h2>
+            </div>
+          </div>
+        </div>
+        <div class="columninyasha">
+          <h3 class="heading3chn ui heading size-text4xl">Scan QR code to pay</h3>
+          <div class="columngroupthre">
+            <div class="rowgroupthree">
+              <h4 class="groupthree ui heading size-heading3xl">1.</h4>
+              <p class="heading3chn-3 ui text size-text3xl" id="stepOneText">Open Momo Mobile Application on Phone</p>
+            </div>
+            <div class="rowgarrowleft">
+              <h5 class="groupfour ui heading size-heading3xl">2.</h5>
+              <div class="columnphscanlig">
+                <img src="public/images/img_ph_scan_light.svg" alt="Phscanlight" class="phscanlight_one" />
+                <p class="heading3chn-4 ui text size-text3xl" id="stepTwoText">On Momo, choose symbol Scan QR Code</p>
+              </div>
+            </div>
+            <div class="rowgroupfive">
+              <h5 class="groupfour ui heading size-heading3xl">3.</h5>
+              <p class="heading3chn-3 ui text size-text3xl">Scan QR code on this page to complete payment</p>
+            </div>
+          </div>
+          <div class="flex-col-center-center columnheading3c-2">
+            <p class="heading3chn-1 ui text size-text3xl">Transaction will end after</p>
+            <div class="rowgroupseven">
+              <h5 class="groupseven ui heading size-heading3xl" id="minutes">05</h5>
+              <h5 class="class-_ ui heading size-heading3xl">:</h5>
+              <h5 class="groupsix ui heading size-heading3xl" id="seconds">00</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Get all modals and buttons
+    const qrScanModal = document.getElementById("qr-scan-modal");
+    const paymentFailedModal = document.getElementById("payment-failed-modal");
+    const paymentSuccessModal = document.getElementById("payment-success-modal");
+    const nextButton = document.getElementById("nextButton");
+    const changeMethodBtn = document.getElementById("changeMethodBtn");
+    const viewTicketBtn = document.getElementById("viewTicketBtn");
+    const backToHomeBtn = document.getElementById("backToHomeBtn");
+    const retryPaymentBtn = document.getElementById("retryPaymentBtn");
+    const payOnDeliveryBtn = document.getElementById("payOnDeliveryBtn");
+
+    // For time countdown
+    let totalSeconds = 5 * 60; // 5 minutes
+    let timerInterval;
+
+    // Payment method title and step text mapping
+    const paymentMethodTexts = {
+      'momo': {
+        title: 'Pay with Momo',
+        stepOne: 'Open Momo Mobile Application on Phone',
+        stepTwo: 'On Momo, choose symbol Scan QR Code'
+      },
+      'viettel': {
+        title: 'Pay with Viettel Money',
+        stepOne: 'Open Viettel Money Application on Phone',
+        stepTwo: 'On Viettel Money, choose symbol Scan QR Code'
+      },
+      'card': {
+        title: 'Pay with Visa/Master/JCB',
+        stepOne: 'Open your Banking Application on Phone',
+        stepTwo: 'On your Banking app, choose symbol Scan QR Code'
+      }
+    };
+
+    // Update modal title and instructions based on payment method
+    function updateQRModalContent(paymentMethod) {
+      const titleElement = document.getElementById("paymentMethodTitle");
+      const stepOneText = document.getElementById("stepOneText");
+      const stepTwoText = document.getElementById("stepTwoText");
+      const failedPaymentMethod = document.getElementById("failedPaymentMethod");
+
+      // Update display text based on selected payment method
+      if (paymentMethodTexts[paymentMethod]) {
+        titleElement.textContent = paymentMethodTexts[paymentMethod].title;
+        stepOneText.textContent = paymentMethodTexts[paymentMethod].stepOne;
+        stepTwoText.textContent = paymentMethodTexts[paymentMethod].stepTwo;
+        failedPaymentMethod.textContent = paymentMethodTexts[paymentMethod].title.replace('Pay with ', '');
+      }
+    }
+
+    // Function to start countdown timer
+    function startCountdown() {
+      totalSeconds = 5 * 60; // Reset to 5 minutes
+      updateTimerDisplay();
+
+      // Clear existing interval if any
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+
+      timerInterval = setInterval(() => {
+        totalSeconds--;
+        updateTimerDisplay();
+
+       // Timer reached zero
+        if (totalSeconds <= 0) {
+          clearInterval(timerInterval);
+          qrScanModal.close();
+          paymentFailedModal.showModal();
+        }
+      }, 1000);
+    }
+
+    // Update the timer display
+    function updateTimerDisplay() {
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+
+      document.getElementById("minutes").textContent = minutes.toString().padStart(2, '0');
+      document.getElementById("seconds").textContent = seconds.toString().padStart(2, '0');
+    }
+
+    // Get selected payment method
+    function getSelectedPaymentMethod() {
+      const radioButtons = document.getElementsByName('paymentMethod');
+      for (const radioButton of radioButtons) {
+        if (radioButton.checked) {
+          return radioButton.value;
+        }
+      }
+      return 'cash'; // Default to cash if nothing selected
+    }
+
+    // Handle Next button click
+    nextButton.addEventListener('click', () => {
+      const selectedMethod = getSelectedPaymentMethod();
+
+      if (selectedMethod === 'cash') {
+        // For cash payment, redirect to view-ticket-cash.html
+        window.location.href = '/view-ticket-cash.html';
+      } else {
+        // For other payment methods, show QR code modal
+        updateQRModalContent(selectedMethod);
+        qrScanModal.showModal();
+        startCountdown();
+
+        // Set up QR scan modal click handler for successful payment
+        qrScanModal.addEventListener('click', (event) => {
+          const scanContent = qrScanModal.querySelector('.scan');
+          if (scanContent) {
+            const boundingRect = scanContent.getBoundingClientRect();
+
+            // Check if the click is inside the dialog content
+            const isInDialog =
+              boundingRect.top <= event.clientY &&
+              event.clientY <= boundingRect.top + boundingRect.height &&
+              boundingRect.left <= event.clientX &&
+              event.clientX <= boundingRect.left + boundingRect.width;
+
+            // If clicked inside and timer still running, show success
+            if (isInDialog && totalSeconds > 0) {
+              clearInterval(timerInterval);
+              qrScanModal.close();
+              paymentSuccessModal.showModal();
+            }
+          }
+        }, { once: true }); // Only trigger once to prevent multiple clicks
+      }
+    });
+
+    // Change payment method button
+    changeMethodBtn.addEventListener('click', () => {
+      clearInterval(timerInterval);
+      qrScanModal.close();
+    });
+
+    // Success modal buttons
+    viewTicketBtn.addEventListener('click', () => {
+      window.location.href = '/view-ticket.html';
+    });
+
+    backToHomeBtn.addEventListener('click', () => {
+      window.location.href = '/';
+    });
+
+    // Failed modal buttons
+    retryPaymentBtn.addEventListener('click', () => {
+      paymentFailedModal.close();
+      // Reset the form for retry
+      const selectedMethod = getSelectedPaymentMethod();
+      if (selectedMethod !== 'cash') {
+        updateQRModalContent(selectedMethod);
+        qrScanModal.showModal();
+        startCountdown();
+      }
+    });
+
+    payOnDeliveryBtn.addEventListener('click', () => {
+      paymentFailedModal.close();
+      // Switch to cash payment
+      const cashRadio = document.querySelector('input[value="cash"]');
+      if (cashRadio) {
+        cashRadio.checked = true;
+      }
+    });
+
+    // Handle ESC key for modals
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (qrScanModal.open) {
+          clearInterval(timerInterval);
+          qrScanModal.close();
+        }
+        if (paymentFailedModal.open) {
+          paymentFailedModal.close();
+        }
+        if (paymentSuccessModal.open) {
+          paymentSuccessModal.close();
+        }
+      }
+    });
+
+    // Check if failed status from URL (for simulation)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('status') === 'failed') {
+      paymentFailedModal.showModal();
+    }
+  });
+</script>
 </body>
 </html>
