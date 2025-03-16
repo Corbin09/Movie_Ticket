@@ -1,0 +1,124 @@
+/* General Styles */
+.line-73, .linetwentytwo {
+  background-color: var(--white_0);
+  width: 100%;
+}
+.line-73 { height: 0.25px; }
+.linetwentytwo { height: 2px; }
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive Adjustments */
+@media only screen and (max-width: 1050px) {
+  .rowcontrast, .row_three-3, .columnprice-1 { flex-direction: column; }
+  .rowcontrast, .columnprice-1 { margin-right: 0; }
+  .row_three-3 { margin: 0; }
+  .rowgroupthirtyo, .rowgroupthirtyt { width: 100%; padding: var(--space-6xl); }
+}
+
+@media only screen and (max-width: 550px) {
+  .option1, .image-16 { flex-direction: column; }
+  .image-16 { width: 100%; }
+  .payment { padding: var(--space-6xl); }
+}
+
+/* Component Specific Styles */
+.option1 {
+  gap: var(--space-xl);
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+
+.image-16 {
+  height: 320px;
+  object-fit: cover;
+}
+
+.one-4 {
+  color: var(--white_0) !important;
+  padding: 0 var(--space-md);
+  font-size: 17px;
+  font-weight: 600;
+  background-color: var(--gray_600) !important;
+  height: 32px;
+  min-width: 34px;
+  border-radius: 5px !important;
+}
+
+.groupthirtytwo {
+  height: 32px;
+  font-weight: 600 !important;
+  background-color: var(--deep_orange_a700);
+  width: 34px;
+  border-radius: var(--radius-xl);
+  @extend .flex-center;
+}
+
+.payment {
+  padding: var(--space-13xl) 0;
+  gap: var(--space-5xl);
+  background-color: var(--blue_gray_900);
+  width: 68%;
+  border-radius: var(--radius-8xl);
+  border: 1px solid var(--white_0);
+}
+
+.price-28 {
+  color: var(--green_a700) !important;
+  margin-left: 34px;
+}
+
+.listcontrast {
+  padding: 0 76px;
+  gap: var(--space-10xl);
+  @extend .flex-col;
+}
+
+.rowcancel {
+  gap: var(--space-8xl);
+  align-self: stretch;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cancel-1, .next-1 {
+  color: var(--white_0) !important;
+  padding: 0 34px;
+  letter-spacing: 2.1px;
+  font-family: Poppins;
+  font-size: 14px;
+  font-weight: 700;
+  height: 46px;
+  min-width: 380px;
+  border-radius: 5px !important;
+}
+
+.cancel-1 {
+  background-color: var(--gray_900_04) !important;
+  border: 1px solid var(--red_600_01);
+  color: var(--red_600_01) !important;
+}
+
+.next-1 {
+  background-color: var(--red_600_01) !important;
+}
+
+.footer-6 {
+  height: 100px;
+  margin-top: 100px;
+  padding: var(--space-2xl) 0;
+  display: flex;
+  background-color: var(--black_900);
+  justify-content: center;
+  align-items: flex-end;
+}
