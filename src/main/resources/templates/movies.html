@@ -1,10 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Movie Ticket Booking</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
+<header>
+    <nav class="navbar">
+        <div class="logo">Cinemas</div>
+        <ul class="nav-links">
+            <li><a href="/">Movies</a></li>
+            <li><a href="/showtime">Showtime</a></li>
+            <li><a href="/ticket">Ticket</a></li>
+            <li><a href="/movies">Movie</a></li>
+            <li><a href="/cinema">Cinema</a></li>
+            <li><a href="/news">News</a></li>
+        </ul>
+        <div class="nav-right">
+            <input type="text" placeholder="Search..." class="search-bar">
+            <button class="search-btn">🔍</button>
+            <a href="/signup" class="btn">Sign up</a>
+            <a href="/login" class="btn btn-primary">Sign in</a>
+        </div>
+    </nav>
+</header>
+
+<section class="banner">
+    <img src="/images/movie-banner.jpg" alt="Movie Banner">
+</section>
 
 </body>
 </html>

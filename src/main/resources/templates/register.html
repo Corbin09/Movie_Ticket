@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <script>
+        function validatePassword() {
+            var password = document.getElementById("password").value;
+            var confirmPassword = document.getElementById("confirmPassword").value;
+            var errorMessage = document.getElementById("error-message");
+
+            if (password !== confirmPassword) {
+                errorMessage.innerText = "Passwords do not match!";
+                return false;
+            }
+            errorMessage.innerText = ""; // Xóa lỗi nếu mật khẩu khớp
+            return true;
+        }
+    </script>
+</head>
+<body>
+<div class="login-container">
+    <h2>Register</h2>
+    <form th:action="@{/register}" method="post" onsubmit="return validatePassword()">
+        <div>
+            <label>Username:</label>
+            <input type="text" name="username" required>
+        </div>
+        <div>
+            <label>Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div>
+            <label>Confirm Password:</label>
+            <input type="password" id="confirmPassword" required>
+        </div>
+        <p id="error-message" style="color: red;"></p>
+        <button type="submit">Register</button>
+    </form>
+
+    <div th:if="${message}">
+        <p class="success-message" th:text="${message}"></p>
+    </div>
+
+    <div th:if="${param.error}">
+        <p class="error-message">Invalid password</p>
+    </div>
+</div>
+</body>
+</html>
