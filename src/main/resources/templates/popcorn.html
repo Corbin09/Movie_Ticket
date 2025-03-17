@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8" />
+  <title>Ticket Booking - Combo Selection</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Movie ticket booking system" />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/font.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/component.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/pick-seat.css}" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+<div class="register">
+  <div class="stackheaderlogo-3">
+    <div class="column_eight-1">
+      <div class="column_two-1">
+        <div class="rowcaptainameri">
+          <div class="column-15">
+            <header class="header-1" th:replace="fragments/header :: header"></header>
+            <img th:src="${film.poster}" alt="Film Poster" class="image" />
+          </div>
+          <div class="columninvasha-1">
+            <div class="row_two-1">
+              <div class="row_one-3">
+                <div class="rowinvasha-1 container-lg">
+                  <h1 class="createan ui heading size-headingloXl" th:text="${film.title}">Movie Title</h1>
+                </div>
+              </div>
+              <div class="column_one-11 container-lg">
+                <img th:src="${film.poster}" alt="Film Poster" class="image_three" />
+              </div>
+            </div>
+          </div>
+          <div class="column_seven">
+            <div class="column_four container-lg">
+              <div class="listm_lthn">
+                <div class="title-1">
+                  <div class="row_three-3">
+                    <div class="rowtwo-2">
+                      <button class="one-4 ui button gray_600 size-sm fill">01</button>
+                      <h2 class="pickseat-3 ui heading size-headingx1">PICK SEAT</h2>
+                    </div>
+                  </div>
+                  <div class="rowgroupthirtyp">
+                    <h3 class="groupthirtyone ui heading size-headingx1 active">02</h3>
+                    <h4 class="pickseat-3 ui heading size-headingx1">POPCORN</h4>
+                  </div>
+                  <div class="rowgroupthirtyt">
+                    <h5 class="groupthirtytwo ui heading size-headingx1">03</h5>
+                    <h6 class="pickseat-3 ui heading size-headingx1">PAY</h6>
+                  </div>
+                  <div class="rowgroupthirtyt-1">
+                    <h6 class="groupthirtyone ui heading size-headingx1">04</h6>
+                    <h6 class="pickseat-3 ui heading size-headingx1">TICKET</h6>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="tabpanel01" role="tabpanel" aria-labelledby="tab0" class="column_three-3 tabcontent">
+              <!-- Combo items container -->
+              <div class="combo-container">
+                <!-- Loop through combos with Thymeleaf, showing only combos for the current page -->
+                <div th:each="combo, comboStat : ${combos}"
+                     th:if="${comboStat.index >= (currentPage-1)*6 && comboStat.index < currentPage*6}"
+                     class="columnkids">
+                  <div class="rowkids_combo">
+                    <img th:src="@{${combo.imageUrl}}" th:alt="${combo.name}" class="kids_combo_one" />
+                  </div>
+                  <div class="row-14">
+                    <div class="rowkidscombo">
+                      <h4 class="kidscombo ui heading size-heading4" th:text="${combo.name}">COMBO NAME</h4>
+                      <p class="price-4 ui text size-text1" th:text="'$' + ${combo.price}">$15</p>
+                    </div>
+                    <button class="add ui button green_700N size-xs fill"
+                            th:onclick="'addCombo(' + ${combo.id} + ', \'' + ${combo.name} + '\', ' + ${combo.price} + ')'">ADD</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pagination -->
+              <div class="paginationwl">
+                <button class="icompagination-2 ui button white_8 size-md fill round"
+                        th:onclick="'changePage(1)'"
+                        th:disabled="${currentPage == 1}">
+                  <i class="fas fa-angle-double-left"></i>
+                </button>
+                <button class="icompagination-2 ui button white_8 size-md fill round"
+                        th:onclick="'changePage(' + ${currentPage - 1} + ')'"
+                        th:disabled="${currentPage == 1}">
+                  <i class="fas fa-angle-left"></i>
+                </button>
+
+                <!-- Generate pagination numbers based on total combos -->
+                <th:block th:with="totalPages=${(combos.size() + 5) / 6}">
+                  <button th:each="i : ${#numbers.sequence(1, totalPages)}"
+                          th:class="${i == currentPage} ? 'one-1 ui button green_700N size-xs fill round' : 'one-1 ui button white_8 size-xs fill round'"
+                          th:text="${i}"
+                          th:onclick="'changePage(' + ${i} + ')'">1</button>
+                </th:block>
+
+                <button class="icompagination-2 ui button white_8 size-md fill round"
+                        th:onclick="'changePage(' + ${currentPage + 1} + ')'"
+                        th:disabled="${currentPage == totalPages}">
+                  <i class="fas fa-angle-right"></i>
+                </button>
+                <button class="icompagination-2 ui button white_8 size-md fill round"
+                        th:onclick="'changePage(' + ${totalPages} + ')'"
+                        th:disabled="${currentPage == totalPages}">
+                  <i class="fas fa-angle-double-right"></i>
+                </button>
+              </div>
+
+              <!-- Selected items and total section -->
+              <div class="column9row7thse">
+                <div id="selected-combos-container" class="list9rowThiseat">
+                  <!-- Selected combos will be dynamically added here via JavaScript -->
+                </div>
+
+                <div class="price-4">
+                  <p class="total ui text size-textxl">Total:</p>
+                  <h2 id="total-price" class="price-5 ui heading size-headingxxl">$0</h2>
+                </div>
+
+                <div class="button-container">
+                  <button class="cancel-btn" onclick="window.location.href='pick-seat.html'">Cancel</button>
+                  <button class="next-btn" id="next-button" onclick="proceedToPayment()">Next</button>
+                </div>
+              </div>
+            </div>
+
+            <footer class="footer-6" th:replace="fragments/footer :: footer"></footer>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for combo selection functionality -->
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  // Get combos data from Thymeleaf model
+  const combos = /*[[${combos}]]*/ [];
+  const currentPage = /*[[${currentPage}]]*/ 1;
+  const totalPages = Math.ceil(combos.length / 6);
+
+  // Initialize selected combos array
+  let selectedCombos = [];
+
+  // Function to add a combo to selected list
+  function addCombo(id, name, price) {
+    // Check if this combo is already selected
+    const existingComboIndex = selectedCombos.findIndex(combo => combo.id === id);
+
+    if (existingComboIndex !== -1) {
+      // Increment quantity if already selected
+      selectedCombos[existingComboIndex].quantity++;
+      updateSelectedComboDisplay(selectedCombos[existingComboIndex]);
+    } else {
+      // Add new combo to selection
+      const newCombo = {
+        id: id,
+        name: name,
+        price: price,
+        quantity: 1
+      };
+      selectedCombos.push(newCombo);
+
+      // Create and add new combo element
+      addComboToDisplay(newCombo);
+    }
+
+    // Update total price
+    updateTotalPrice();
+  }
+
+  // Function to add a combo to the display
+  function addComboToDisplay(combo) {
+    const container = document.getElementById('selected-combos-container');
+
+    // Create new combo element
+    const comboElement = document.createElement('div');
+    comboElement.className = 'columncreate selected-combo-item';
+    comboElement.id = 'combo-' + combo.id;
+    comboElement.innerHTML = `
+      <div class="webcombo">
+        <p class="webcombo-1 ui text size-text16 combo-name">${combo.name}</p>
+        <p class="price-6 ui text size-text1 combo-price">$${combo.price}</p>
+      </div>
+      <button class="remove-combo" onclick="removeCombo(${combo.id})">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+
+    container.appendChild(comboElement);
+  }
+
+  // Function to update an existing combo display
+  function updateSelectedComboDisplay(combo) {
+    const comboElement = document.getElementById('combo-' + combo.id);
+    if (comboElement) {
+      const nameElement = comboElement.querySelector('.combo-name');
+      const priceElement = comboElement.querySelector('.combo-price');
+
+      nameElement.textContent = `${combo.name} (${combo.quantity})`;
+      priceElement.textContent = `$${(combo.price * combo.quantity).toFixed(2)}`;
+    }
+  }
+
+  // Function to remove a combo from selection
+  function removeCombo(id) {
+    // Find the combo in our selection
+    const comboIndex = selectedCombos.findIndex(combo => combo.id === id);
+
+    if (comboIndex !== -1) {
+      // Decrease quantity or remove if quantity is 1
+      if (selectedCombos[comboIndex].quantity > 1) {
+        selectedCombos[comboIndex].quantity--;
+        updateSelectedComboDisplay(selectedCombos[comboIndex]);
+      } else {
+        // Remove from array
+        selectedCombos.splice(comboIndex, 1);
+
+        // Remove from display
+        const comboElement = document.getElementById('combo-' + id);
+        if (comboElement) {
+          comboElement.remove();
+        }
+      }
+
+      // Update total price
+      updateTotalPrice();
+    }
+  }
+
+  // Function to update the total price
+  function updateTotalPrice() {
+    let total = 0;
+
+    // Add up prices of all selected combos
+    selectedCombos.forEach(combo => {
+      total += combo.price * combo.quantity;
+    });
+
+    // Get ticket price from session storage if available
+    const ticketPrice = parseFloat(sessionStorage.getItem('ticketPrice') || 0);
+    total += ticketPrice;
+
+    // Update the total price display
+    document.getElementById('total-price').textContent = '$' + total.toFixed(2);
+  }
+
+  // Function to change page
+  function changePage(page) {
+    if (page < 1 || page > totalPages) return;
+
+    // Update URL with new page parameter
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', page);
+    window.location.href = url.toString();
+  }
+
+  // Function to proceed to payment
+  function proceedToPayment() {
+    // Store selected combos in session storage
+    sessionStorage.setItem('selectedCombos', JSON.stringify(selectedCombos));
+
+    // Navigate to payment page
+    window.location.href = 'pay-ticket.html';
+  }
+
+  // Initialize page on load
+  document.addEventListener('DOMContentLoaded', function() {
+    // Load previously selected combos from session storage
+    const storedCombos = sessionStorage.getItem('selectedCombos');
+    if (storedCombos) {
+      selectedCombos = JSON.parse(storedCombos);
+
+      // Populate the selected combos container
+      selectedCombos.forEach(combo => {
+        addComboToDisplay(combo);
+        if (combo.quantity > 1) {
+          updateSelectedComboDisplay(combo);
+        }
+      });
+
+      // Update total price
+      updateTotalPrice();
+    }
+  });
+  /*]]>*/
+</script>
+</body>
+</html>
