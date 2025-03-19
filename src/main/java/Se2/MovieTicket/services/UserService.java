@@ -28,8 +28,14 @@ public class UserService {
     public User saveUser(String username, String password) {
         User user = new User();
         user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password)); // Mã hóa BCrypt
-        System.out.println("Encoded Password: " + passwordEncoder.encode(password));
+
+        String encodedPassword = passwordEncoder.encode(password); // Mã hóa 1 lần
+        user.setPassword(encodedPassword);
+
+        System.out.println("🔹 Saving User: " + username);
+        System.out.println("🔹 Encoded Password " + password + ": " + encodedPassword);
+
         return userRepository.save(user);
     }
+
 }

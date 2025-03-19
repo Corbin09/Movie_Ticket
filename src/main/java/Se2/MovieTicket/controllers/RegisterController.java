@@ -1,5 +1,6 @@
 package Se2.MovieTicket.controllers;
 
+import Se2.MovieTicket.models.User;
 import Se2.MovieTicket.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,16 +24,24 @@ public class RegisterController {
                                @RequestParam String password,
                                @RequestParam String confirmPassword,
                                Model model) {
-        // Kiểm tra mật khẩu nhập lại
+        System.out.println("🔹 Register Request: " + username);
+
         if (!password.equals(confirmPassword)) {
+            System.out.println("❌ Passwords do not match!");
             model.addAttribute("error", "Passwords do not match!");
             return "register";
         }
 
-        // Lưu user nếu mật khẩu hợp lệ
-        userService.saveUser(username, password);
-        model.addAttribute("message", "User registered successfully! You can now log in.");
-        System.out.println("User registered successfully!");
-        return "login";
+        try {
+            User savedUser = userService.saveUser(username, password);
+            System.out.println("✅ User saved: " + savedUser.getUsername());
+
+            model.addAttribute("message", "User registered successfully! You can now log in.");
+            return "login";
+        } catch (Exception e) {
+            System.out.println("❌ Error saving user: " + e.getMessage());
+            model.addAttribute("error", "An error occurred while saving the user. Please try again.");
+            return "register";
+        }
     }
 }

@@ -33,18 +33,14 @@ public class LoginController {
         Optional<User> user = userService.findByUsername(username);
         if (user.isPresent()) {
             String storedHash = user.get().getPassword();
-            System.out.println("🔹 Stored Hash (DB): "  + " " + username + " " + password);
 
             if (passwordEncoder.matches(password, storedHash)) {
-                System.out.println("✅ Login Successful!");
                 return "index";
             } else {
-                System.out.println("❌ Login Failed: Incorrect Password");
                 model.addAttribute("error", "Invalid username or password");
                 return "login";
             }
         } else {
-            System.out.println("❌ Login Failed: Username Not Found");
             model.addAttribute("error", "Invalid username or password");
             return "login";
         }

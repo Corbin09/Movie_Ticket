@@ -32,18 +32,19 @@
         </div>
         <div>
             <label>Confirm Password:</label>
-            <input type="password" id="confirmPassword" required>
+            <input type="password" id="confirmPassword" name="confirmPassword" required> <!-- Đảm bảo có name="confirmPassword" -->
         </div>
         <p id="error-message" style="color: red;"></p>
         <button type="submit">Register</button>
     </form>
+
 
     <div th:if="${message}">
         <p class="success-message" th:text="${message}"></p>
     </div>
 
     <div th:if="${param.error}">
-        <p class="error-message">Invalid password</p>
+        <p class="error-message">Passwords do not match!</p>
     </div>
 </div>
 </body>
