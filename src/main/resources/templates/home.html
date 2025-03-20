@@ -1,17 +1,5 @@
-<!--<!DOCTYPE html>-->
-<!--<html xmlns:th="http://www.thymeleaf.org">-->
-<!--<head>-->
-<!--    <title>Movie Ticket Booking</title>-->
-<!--    <link rel="stylesheet" th:href="@{/styles.css}">-->
-<!--</head>-->
-<!--<body>-->
-<!--<h1>Welcome to Movie Ticket Booking</h1>-->
-<!--<a th:href="@{/movies}">View Movies</a>-->
-<!--</body>-->
-<!--</html>-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -36,7 +24,6 @@
 
         .hero-banner {
             position: relative;
-            weight: 100%;
             height: 100vh;
             overflow: hidden;
             padding-top: 55px;
@@ -86,7 +73,6 @@
             border-radius: 8px;
             overflow: hidden;
             height: 350px;
-            weight: 200px;
             transition: transform 0.3s ease;
         }
 
@@ -111,42 +97,6 @@
         .movie-title {
             font-weight: bold;
             margin-bottom: 5px;
-        }
-
-        .pagination {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 5px;
-            border-radius: 20px;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-        }
-
-        .pagination-dot {
-            height: 10px;
-            width: 10px;
-            background-color: #bbb;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .pagination-dot.active {
-            background-color: #0ad021;
-        }
-
-        .coming-soon-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-        }
-
-        .coming-soon-card:hover {
-            transform: scale(1.05);
         }
 
         .movie-category {
@@ -192,6 +142,32 @@
         .page-number i {
             font-size: 15px;
         }
+
+        .pagination {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px;
+            border-radius: 20px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+        }
+
+        .pagination-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #bbb;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .pagination-dot.active {
+            background-color: #0ad021;
+        }
     </style>
 </head>
 
@@ -201,173 +177,165 @@
 
 <!-- Hero Banner -->
 <div class="hero-banner">
-    <img th:each="img, stat : ${bannerImages}" th:src="${img}" alt="Featured Movie" class="hero-image"
-         th:style="${stat.index == 0} ? 'display: block;' : 'display: none;'">
+    <div class="hero-slider">
+        <img th:each="film, stat : ${nowShowingMovies}" th:if="${stat.index < 3}"
+             th:src="${film.filmImg}" alt="Featured Movie" class="hero-image"
+             th:classappend="${stat.index == 0} ? 'active' : ''">
+    </div>
 
     <!-- Pagination -->
     <div class="pagination">
-        <div th:each="dot, stat : ${bannerImages}" class="pagination-dot"
+        <div th:each="film, stat : ${nowShowingMovies}" th:if="${stat.index < 3}" class="pagination-dot"
              th:classappend="${stat.index == 0} ? 'active' : ''"></div>
     </div>
 </div>
 
-<!-- Now Showing Section -->
+<!-- Movie Section - Now Showing -->
 <div class="movie-section">
     <h2 class="section-title">Now Showing</h2>
     <div class="movie-grid">
-        <!-- Movie Cards -->
-        <div class="movie-card" th:each="movie : ${nowShowingMovies}">
-            <img th:src="${movie.posterUrl}" th:alt="${movie.title}" class="movie-poster">
+        <div th:each="film : ${nowShowingMovies}" class="movie-card">
+            <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster">
             <div class="movie-info">
-                <div class="movie-title" th:text="${movie.title}">CAPTAIN AMERICA: THE WINTER SOLDIER</div>
-                <div class="movie-category" th:text="${movie.category}">130 min</div>
+                <div class="movie-title" th:text="${film.filmName}"></div>
+                <div class="movie-category" th:text="${film.filmCategories}"></div>
             </div>
         </div>
     </div>
 
-    <!-- Pagination Numbers for Now Showing -->
+    <!-- Pagination for Now Showing -->
     <div class="pagination-numbers">
-        <div class="page-number prev" th:classappend="${nowShowingCurrentPage <= 1} ? 'disabled' : ''">
+        <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing - 1}, currentPageComingSoon=${currentPageComingSoon})}"
+           class="page-number" th:if="${currentPageNowShowing > 1}">
             <i class="fas fa-chevron-left"></i>
-        </div>
-        <div th:each="i : ${#numbers.sequence(1, nowShowingTotalPages)}"
-             class="page-number" th:classappend="${nowShowingCurrentPage == i} ? 'active' : ''">
-            <span th:text="${i}">1</span>
-        </div>
-        <div class="page-number next" th:classappend="${nowShowingCurrentPage >= nowShowingTotalPages} ? 'disabled' : ''">
+        </a>
+
+        <a th:each="i : ${#numbers.sequence(1, totalPagesNowShowing)}"
+           th:href="@{/home(currentPageNowShowing=${i}, currentPageComingSoon=${currentPageComingSoon})}"
+           class="page-number" th:classappend="${currentPageNowShowing == i} ? 'active' : ''">
+            <span th:text="${i}"></span>
+        </a>
+
+        <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing + 1}, currentPageComingSoon=${currentPageComingSoon})}"
+           class="page-number" th:if="${currentPageNowShowing < totalPagesNowShowing}">
             <i class="fas fa-chevron-right"></i>
-        </div>
+        </a>
     </div>
 </div>
 
-<!-- Coming Soon Section -->
+<!-- Movie Section - Coming Soon -->
 <div class="movie-section">
-    <h2 class="section-title">Coming soon</h2>
+    <h2 class="section-title">Coming Soon</h2>
     <div class="movie-grid">
-        <!-- Coming Soon Movie Cards -->
-        <div class="movie-card" th:each="movie : ${comingSoonMovies}">
-            <img th:src="${movie.posterUrl}" th:alt="${movie.title}" class="movie-poster">
+        <div th:each="film : ${comingSoonMovies}" class="movie-card">
+            <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster">
             <div class="movie-info">
-                <div class="movie-title" th:text="${movie.title}">THE INSEPARABLE</div>
-                <div class="movie-category" th:text="${movie.category}">PG-13</div>
+                <div class="movie-title" th:text="${film.filmName}"></div>
+                <div class="movie-category" th:text="${film.filmCategories}"></div>
             </div>
         </div>
     </div>
 
-    <!-- Pagination Numbers for Coming Soon -->
+    <!-- Pagination for Coming Soon -->
     <div class="pagination-numbers">
-        <div class="page-number prev" th:classappend="${comingSoonCurrentPage <= 1} ? 'disabled' : ''">
+        <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing}, currentPageComingSoon=${currentPageComingSoon - 1})}"
+           class="page-number" th:if="${currentPageComingSoon > 1}">
             <i class="fas fa-chevron-left"></i>
-        </div>
-        <div th:each="i : ${#numbers.sequence(1, comingSoonTotalPages)}"
-             class="page-number" th:classappend="${comingSoonCurrentPage == i} ? 'active' : ''">
-            <span th:text="${i}">1</span>
-        </div>
-        <div class="page-number next" th:classappend="${comingSoonCurrentPage >= comingSoonTotalPages} ? 'disabled' : ''">
+        </a>
+
+        <a th:each="i : ${#numbers.sequence(1, totalPagesComingSoon)}"
+           th:href="@{/home(currentPageNowShowing=${currentPageNowShowing}, currentPageComingSoon=${i})}"
+           class="page-number" th:classappend="${currentPageComingSoon == i} ? 'active' : ''">
+            <span th:text="${i}"></span>
+        </a>
+
+        <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing}, currentPageComingSoon=${currentPageComingSoon + 1})}"
+           class="page-number" th:if="${currentPageComingSoon < totalPagesComingSoon}">
             <i class="fas fa-chevron-right"></i>
-        </div>
+        </a>
     </div>
 </div>
+
 
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
 
-<script th:inline="javascript">
+<script>
     document.addEventListener('DOMContentLoaded', function () {
-        const heroImages = document.querySelectorAll('.hero-image');
+        // Banner Slider Logic
+        const slides = document.querySelectorAll('.hero-image');
         const dots = document.querySelectorAll('.pagination-dot');
+        let currentSlide = 0;
 
-        // Banner rotation
+        function changeSlide() {
+            // Hide all slides and remove active class from all dots
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                dots[index].classList.remove('active');
+            });
+
+            // Show the current slide and add active class to corresponding dot
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
+        }
+
+        // Auto-slide every 5 seconds
+        setInterval(function () {
+            currentSlide = (currentSlide + 1) % slides.length; // loop through slides
+            changeSlide();
+        }, 5000); // 5 seconds for auto transition
+
+        // Set up click event on dots for manual slide control
         dots.forEach((dot, index) => {
             dot.addEventListener('click', function () {
-                dots.forEach(d => d.classList.remove('active'));
-                this.classList.add('active');
-
-                heroImages.forEach(img => {
-                    img.style.display = 'none';
-                });
-
-                heroImages[index].style.display = 'block';
                 currentSlide = index;
+                changeSlide();
             });
         });
 
-        // Auto slide for banner
-        let currentSlide = 0;
-        setInterval(() => {
-            currentSlide = (currentSlide + 1) % dots.length;
+        // Initial call to set the first slide active
+        changeSlide();
 
-            dots.forEach(d => d.classList.remove('active'));
-            dots[currentSlide].classList.add('active');
+        // Pagination Logic
+        const prevBtnsNowShowing = document.querySelectorAll('.page-number.prev')[0];
+        const nextBtnsNowShowing = document.querySelectorAll('.page-number.next')[0];
+        const prevBtnsComingSoon = document.querySelectorAll('.page-number.prev')[1];
+        const nextBtnsComingSoon = document.querySelectorAll('.page-number.next')[1];
 
-            heroImages.forEach(img => {
-                img.style.display = 'none';
-            });
-
-            heroImages[currentSlide].style.display = 'block';
-        }, 3000);
-
-        // Pagination for Now Showing and Coming Soon sections
-        setupPagination('nowShowing');
-        setupPagination('comingSoon');
-
-        function setupPagination(section) {
-            const container = section === 'nowShowing'
-                ? document.querySelector('.movie-section:nth-of-type(1) .pagination-numbers')
-                : document.querySelector('.movie-section:nth-of-type(2) .pagination-numbers');
-
-            const pageNumbers = container.querySelectorAll('.page-number:not(.prev):not(.next)');
-            const prevButton = container.querySelector('.prev');
-            const nextButton = container.querySelector('.next');
-
-            // Handle page number clicks
-            pageNumbers.forEach((number) => {
-                number.addEventListener('click', function() {
-                    if (!this.classList.contains('active')) {
-                        const pageNum = parseInt(this.textContent);
-                        window.location.href = updateUrlParameter(window.location.href,
-                            section + 'Page', pageNum);
-                    }
-                });
-            });
-
-            // Handle prev/next clicks
-            prevButton.addEventListener('click', function() {
-                if (!this.classList.contains('disabled')) {
-                    const activePage = container.querySelector('.page-number.active:not(.prev):not(.next)');
-                    const pageNum = parseInt(activePage.textContent) - 1;
-                    if (pageNum >= 1) {
-                        window.location.href = updateUrlParameter(window.location.href,
-                            section + 'Page', pageNum);
-                    }
-                }
-            });
-
-            nextButton.addEventListener('click', function() {
-                if (!this.classList.contains('disabled')) {
-                    const activePage = container.querySelector('.page-number.active:not(.prev):not(.next)');
-                    const pageNum = parseInt(activePage.textContent) + 1;
-                    const totalPages = pageNumbers.length;
-                    if (pageNum <= totalPages) {
-                        window.location.href = updateUrlParameter(window.location.href,
-                            section + 'Page', pageNum);
-                    }
-                }
-            });
-        }
-
-        // Helper to update URL parameters
-        function updateUrlParameter(url, param, value) {
-            var regex = new RegExp('([?&])' + param + '=.*?(&|$)', 'i');
-            var separator = url.indexOf('?') !== -1 ? '&' : '?';
-            if (url.match(regex)) {
-                return url.replace(regex, '$1' + param + '=' + value + '$2');
-            } else {
-                return url + separator + param + '=' + value;
+        // Handle "Now Showing" pagination button clicks
+        prevBtnsNowShowing.addEventListener('click', function () {
+            const currentPage = parseInt(document.querySelector('.page-number.active').textContent);
+            if (currentPage > 1) {
+                window.location.href = `/home?pageNowShowing=${currentPage - 1}`;
             }
-        }
+        });
+
+        nextBtnsNowShowing.addEventListener('click', function () {
+            const currentPage = parseInt(document.querySelector('.page-number.active').textContent);
+            const totalPages = parseInt(document.querySelectorAll('.page-number').length); // total page number for Now Showing
+            if (currentPage < totalPages) {
+                window.location.href = `/home?pageNowShowing=${currentPage + 1}`;
+            }
+        });
+
+        // Handle "Coming Soon" pagination button clicks
+        prevBtnsComingSoon.addEventListener('click', function () {
+            const currentPage = parseInt(document.querySelectorAll('.page-number.active')[1].textContent);
+            if (currentPage > 1) {
+                window.location.href = `/home?pageComingSoon=${currentPage - 1}`;
+            }
+        });
+
+        nextBtnsComingSoon.addEventListener('click', function () {
+            const currentPage = parseInt(document.querySelectorAll('.page-number.active')[1].textContent);
+            const totalPages = parseInt(document.querySelectorAll('.page-number').length); // total page number for Coming Soon
+            if (currentPage < totalPages) {
+                window.location.href = `/home?pageComingSoon=${currentPage + 1}`;
+            }
+        });
     });
 </script>
-</body>
 
+
+</body>
 </html>

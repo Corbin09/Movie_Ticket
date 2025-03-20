@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Cinema Ticket Booking - Filter</title>
+</head>
+<body>
+<h1>Filter All Entities</h1>
+
+<!-- Form cho từng entity -->
+<h2>Filter Actors</h2>
+<form action="#" th:action="@{/api/actors/filter}" method="get">
+  <input type="text" name="name" placeholder="Actor Name"/>
+  <button type="submit">Filter Actors</button>
+</form>
+
+<h2>Filter Films</h2>
+<form action="#" th:action="@{/api/films/filter}" method="get">
+  <input type="text" name="name" placeholder="Film Name"/>
+  <input type="date" name="releaseDateAfter" placeholder="Release Date After"/>
+  <input type="date" name="releaseDateBefore" placeholder="Release Date Before"/>
+  <input type="text" name="country" placeholder="Country"/>
+  <input type="text" name="type" placeholder="Film Type"/>
+  <input type="number" name="age" placeholder="Age Limit"/>
+  <button type="submit">Filter Films</button>
+</form>
+
+<h2>Filter Cinemas</h2>
+<form action="#" th:action="@{/api/cinemas/filter}" method="get">
+  <input type="text" name="name" placeholder="Cinema Name"/>
+  <input type="text" name="address" placeholder="Address"/>
+  <button type="submit">Filter Cinemas</button>
+</form>
+
+<h2>Filter Cinema Clusters</h2>
+<form action="#" th:action="@{/api/cinemaClusters/filter}" method="get">
+  <input type="text" name="name" placeholder="Cluster Name"/>
+  <button type="submit">Filter Cinema Clusters</button>
+</form>
+
+<h2>Filter Regions</h2>
+<form action="#" th:action="@{/api/regions/filter}" method="get">
+  <input type="text" name="name" placeholder="Region Name"/>
+  <button type="submit">Filter Regions</button>
+</form>
+
+<h2>Filter Rooms</h2>
+<form action="#" th:action="@{/api/rooms/filter}" method="get">
+  <input type="text" name="name" placeholder="Room Name"/>
+  <button type="submit">Filter Rooms</button>
+</form>
+
+<!-- Form tổng hợp -->
+<h2>Filter All Entities</h2>
+<form action="#" th:action="@{/api/filter}" method="get">
+  <input type="text" name="actorName" placeholder="Actor Name"/>
+  <input type="text" name="filmName" placeholder="Film Name"/>
+  <input type="text" name="cinemaName" placeholder="Cinema Name"/>
+  <input type="text" name="clusterName" placeholder="Cluster Name"/>
+  <input type="text" name="regionName" placeholder="Region Name"/>
+  <input type="text" name="roomName" placeholder="Room Name"/>
+  <button type="submit">Filter All</button>
+</form>
+
+<!-- Kết quả -->
+<div th:if="${results}">
+  <h2>Results:</h2>
+  <div>
+    <h3>Actors:</h3>
+    <ul>
+      <li th:each="actor : ${results.actors}" th:text="${actor.actorName}"></li>
+    </ul>
+  </div>
+  <div>
+    <h3>Films:</h3>
+    <ul>
+      <li th:each="film : ${results.films}" th:text="${film.filmName}"></li>
+    </ul>
+  </div>
+  <div>
+    <h3>Cinemas:</h3>
+    <ul>
+      <li th:each="cinema : ${results.cinemas}" th:text="${cinema.cinemaName}"></li>
+    </ul>
+  </div>
+  <div>
+    <h3>Cinema Clusters:</h3>
+    <ul>
+      <li th:each="cluster : ${results.clusters}" th:text="${cluster.clusterName}"></li>
+    </ul>
+  </div>
+  <div>
+    <h3>Regions:</h3>
+    <ul>
+      <li th:each="region : ${results.regions}" th:text="${region.regionName}"></li>
+    </ul>
+  </div>
+  <div>
+    <h3>Rooms:</h3>
+    <ul>
+      <li th:each="room : ${results.rooms}" th:text="${room.roomName}"></li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>
