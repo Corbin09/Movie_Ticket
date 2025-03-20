@@ -1,22 +1,32 @@
 package Se2.MovieTicket.controllers;
-
+import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import Se2.MovieTicket.dto.FilmDTO;
+import Se2.MovieTicket.impl.UserDetailsImpl;
 import Se2.MovieTicket.model.Film;
+import Se2.MovieTicket.model.User;
 import Se2.MovieTicket.service.FilmService;
 import Se2.MovieTicket.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.ui.Model;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/films")
 public class FilmController {
     @Autowired
     private FilmService filmService;
+    private static final Logger logger = LoggerFactory.getLogger(FilmController.class);
 
     @Autowired
     private UserService userService;
@@ -82,4 +92,73 @@ public class FilmController {
         List<Film> films = filmService.filterFilms(name, releaseDate, country, type, age);
         return new ResponseEntity<>(films, HttpStatus.OK);
     }
+
+    @GetMapping("/home")
+    public String home(
+            @RequestParam(defaultValue = "1") int currentPageNowShowing,
+            @RequestParam(defaultValue = "1") int currentPageComingSoon,
+            Model model, HttpServletRequest request) {
+
+        logger.info("Accessing home page");
+
+        // First try to get user from session
+        HttpSession session = request.getSession(false);
+        User sessionUser = null;
+        if (session != null) {
+            sessionUser = (User) session.getAttribute("user");
+            if (sessionUser != null) {
+                logger.info("User found in session: {}", sessionUser.getUsername());
+                model.addAttribute("user", sessionUser);
+            }
+        }
+
+        // If not in session, try from SecurityContext
+        if (sessionUser == null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                Optional<User> userOptional = userService.getUserById(userDetails.getId());
+
+                if (userOptional.isPresent()) {
+                    User user = userOptional.get();
+                    model.addAttribute("user", user);
+
+                    // Save to session for future requests
+                    if (session != null) {
+                        session.setAttribute("user", user);
+                        logger.info("User saved to session from SecurityContext");
+                    }
+                }
+            }
+        }
+
+        // Fetch paginated films for Now Showing and Coming Soon
+        int pageSize = 4; // Số lượng phim hiển thị trên mỗi trang
+
+        // Phân trang cho Now Showing
+        Page<Film> nowShowingPage = filmService.getNowShowingFilms(currentPageNowShowing, pageSize);
+        model.addAttribute("nowShowingMovies", nowShowingPage.getContent());
+        model.addAttribute("currentPageNowShowing", currentPageNowShowing);
+
+        // 🔥 Fix lỗi NullPointerException
+        int totalPagesNowShowing = (nowShowingPage != null) ? nowShowingPage.getTotalPages() : 1;
+        model.addAttribute("totalPagesNowShowing", totalPagesNowShowing);
+
+        // Phân trang cho Coming Soon
+        Page<Film> comingSoonPage = filmService.getComingSoonFilms(currentPageComingSoon, pageSize);
+        model.addAttribute("comingSoonMovies", comingSoonPage.getContent());
+        model.addAttribute("currentPageComingSoon", currentPageComingSoon);
+
+        // 🔥 Fix lỗi NullPointerException
+        int totalPagesComingSoon = (comingSoonPage != null) ? comingSoonPage.getTotalPages() : 1;
+        model.addAttribute("totalPagesComingSoon", totalPagesComingSoon);
+
+        // Fetch all films (previously used list)
+        List<Film> films = filmService.getAllFilms();
+        logger.info("Number of films retrieved: {}", films.size());
+        model.addAttribute("films", films);
+
+        return "home";
+    }
+
 }

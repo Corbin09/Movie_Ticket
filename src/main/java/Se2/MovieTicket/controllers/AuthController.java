@@ -13,6 +13,7 @@ import Se2.MovieTicket.impl.UserDetailsImpl;
 import Se2.MovieTicket.model.User;
 import Se2.MovieTicket.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -120,8 +121,8 @@ public class AuthController {
                 logger.info("Redirecting Admin to /pay-ticket");
                 return "redirect:/pay-ticket";
             } else if ("ROLE_USER".equals(role)) {
-                logger.info("Redirecting User to /View-movie-ticket");
-                return "redirect:/View-movie-ticket";
+                logger.info("Redirecting User to /home");
+                return "redirect:/home";
             } else {
                 logger.info("Redirecting to default index page");
                 return "redirect:/index";
@@ -337,4 +338,109 @@ public class AuthController {
 
         return "index";
     }
+
+//    @GetMapping("/home")
+//    public String homePage(Model model, HttpServletRequest request) {
+//        logger.info("Accessing home page");
+//
+//        // First try to get user from session
+//        HttpSession session = request.getSession(false);
+//        User sessionUser = null;
+//        if (session != null) {
+//            sessionUser = (User) session.getAttribute("user");
+//            if (sessionUser != null) {
+//                logger.info("User found in session: {}", sessionUser.getUsername());
+//                model.addAttribute("user", sessionUser);
+//            }
+//        }
+//
+//        // If not in session, try from SecurityContext
+//        if (sessionUser == null) {
+//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+//                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+//                Optional<User> userOptional = userService.getUserById(userDetails.getId());
+//
+//                if (userOptional.isPresent()) {
+//                    User user = userOptional.get();
+//                    model.addAttribute("user", user);
+//
+//                    // Save to session for future requests
+//                    if (session != null) {
+//                        session.setAttribute("user", user);
+//                        logger.info("User saved to session from SecurityContext");
+//                    }
+//                }
+//            }
+//        }
+//
+//        // Get list of films from the filmService
+//        List<Film> films = filmService.getAllFilms();
+//        logger.info("Number of films retrieved: {}", films.size());
+//
+//        // Add the list of films to the model
+//        model.addAttribute("films", films);
+//
+//        return "home";  // Return to home page
+//    }
+@GetMapping("/home")
+public String home(
+        @RequestParam(defaultValue = "1") int currentPageNowShowing,
+        @RequestParam(defaultValue = "1") int currentPageComingSoon,
+        Model model, HttpServletRequest request) {
+
+    logger.info("Accessing home page");
+
+    // First try to get user from session
+    HttpSession session = request.getSession(false);
+    User sessionUser = null;
+    if (session != null) {
+        sessionUser = (User) session.getAttribute("user");
+        if (sessionUser != null) {
+            logger.info("User found in session: {}", sessionUser.getUsername());
+            model.addAttribute("user", sessionUser);
+        }
+    }
+
+    // If not in session, try from SecurityContext
+    if (sessionUser == null) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            Optional<User> userOptional = userService.getUserById(userDetails.getId());
+
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                model.addAttribute("user", user);
+
+                // Save to session for future requests
+                if (session != null) {
+                    session.setAttribute("user", user);
+                    logger.info("User saved to session from SecurityContext");
+                }
+            }
+        }
+    }
+
+    // Fetch paginated films for Now Showing and Coming Soon
+    int size = 8; // Số lượng phim hiển thị trên mỗi trang
+    Page<Film> nowShowingPage = filmService.getNowShowingFilms(currentPageNowShowing, size);
+    Page<Film> comingSoonPage = filmService.getComingSoonFilms(currentPageComingSoon, size);
+
+    model.addAttribute("nowShowingMovies", nowShowingPage.getContent());
+    model.addAttribute("comingSoonMovies", comingSoonPage.getContent());
+
+    model.addAttribute("currentPageNowShowing", currentPageNowShowing);
+    model.addAttribute("totalPagesNowShowing", nowShowingPage.getTotalPages());
+
+    model.addAttribute("currentPageComingSoon", currentPageComingSoon);
+    model.addAttribute("totalPagesComingSoon", comingSoonPage.getTotalPages());
+
+    // Fetch all films (previously used list)
+    List<Film> films = filmService.getAllFilms();
+    logger.info("Number of films retrieved: {}", films.size());
+    model.addAttribute("films", films);
+
+    return "home";
+}
 }
