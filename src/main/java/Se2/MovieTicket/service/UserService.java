@@ -10,7 +10,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +27,24 @@ import java.util.stream.Collectors;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+
+
+    @Autowired
+    private EntityManager em;
+
+    public List<User> filterUsers(String username) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<User> cq = cb.createQuery(User.class);
+        Root<User> user = cq.from(User.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+        if (username != null && !username.isEmpty()) {
+            predicates.add(cb.like(user.get("username"), "%" + username + "%"));
+        }
+
+        cq.where(predicates.toArray(new Predicate[0]));
+        return em.createQuery(cq).getResultList();
+    }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -80,19 +104,60 @@ public class UserService {
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(role));
     }
 
-    private User getCurrentUser() {
+//    public User getCurrentUser() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        System.out.println("Authentication: " + authentication);
+//
+//        if (authentication == null || !authentication.isAuthenticated()) {
+//            System.out.println("No authentication or not authenticated");
+//            return null;
+//        }
+//
+//        Object principal = authentication.getPrincipal();
+//        System.out.println("Principal class: " + principal.getClass().getName());
+//        System.out.println("Principal: " + principal);
+//
+//        if (principal instanceof UserDetailsImpl) {
+//            Long userId = ((UserDetailsImpl) principal).getId();
+//            System.out.println("User ID: " + userId);
+//            User user = userRepository.findById(userId).orElse(null);
+//            System.out.println("Found user: " + user);
+//            return user;
+//        } else {
+//            System.out.println("Principal is not UserDetailsImpl");
+//        }
+//        return null;
+//    }
+
+
+    public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (authentication == null || !authentication.isAuthenticated()) {
             return null;
         }
 
         Object principal = authentication.getPrincipal();
+
+        // Check if it's your custom UserDetailsImpl
         if (principal instanceof UserDetailsImpl) {
             Long userId = ((UserDetailsImpl) principal).getId();
             return userRepository.findById(userId).orElse(null);
         }
+        // Check if it's Spring Security's default User object
+        else if (principal instanceof org.springframework.security.core.userdetails.User) {
+            String username = ((org.springframework.security.core.userdetails.User) principal).getUsername();
+            return userRepository.findByUsername(username).orElse(null);
+        }
+        // If it's a string (which can happen in some cases)
+        else if (principal instanceof String) {
+            String username = (String) principal;
+            return userRepository.findByUsername(username).orElse(null);
+        }
+
         return null;
     }
+
 
     public Collection<? extends GrantedAuthority> getAuthorities(Long userId) {
         Optional<User> currentUser = userRepository.findById(userId);
@@ -102,4 +167,10 @@ public class UserService {
             return Collections.emptyList(); // Or handle the case when the user is not found
         }
     }
+
+    public Optional<User> getUserByUsername(String username) {
+        // Assuming you have a userRepository field in your UserService class
+        return userRepository.findByUsername(username);
+    }
+
 }

@@ -26,7 +26,7 @@ public class TicketService {
         Ticket ticket = new Ticket();
         ticket.setOrderId(ticketDTO.getOrderId());
         ticket.setSeatId(ticketDTO.getSeatId());
-        ticket.setShowtimeId(ticketDTO.getShowtimeId());
+//        ticket.setShowtimeId(ticketDTO.getShowtimeId());
         ticket.setTicketPrice(ticketDTO.getTicketPrice());
         return ticketRepository.save(ticket);
     }
@@ -37,7 +37,7 @@ public class TicketService {
             Ticket ticket = ticketData.get();
             ticket.setOrderId(ticketDTO.getOrderId());
             ticket.setSeatId(ticketDTO.getSeatId());
-            ticket.setShowtimeId(ticketDTO.getShowtimeId());
+//            ticket.setShowtimeId(ticketDTO.getShowtimeId());
             ticket.setTicketPrice(ticketDTO.getTicketPrice());
             return ticketRepository.save(ticket);
         }
