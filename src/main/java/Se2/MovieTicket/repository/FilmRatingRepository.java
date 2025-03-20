@@ -12,4 +12,6 @@ import java.util.Optional;
 public interface FilmRatingRepository extends JpaRepository<FilmRating, Long> {
     @Query("SELECT fr FROM FilmRating fr WHERE fr.film.id = :filmId")
     Optional<FilmRating> findByFilmId(@Param("filmId") Long filmId);
+
+    void deleteByFilmId(Long filmId);
 }
