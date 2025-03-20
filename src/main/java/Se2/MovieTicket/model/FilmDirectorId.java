@@ -40,6 +40,10 @@ public class FilmDirectorId implements Serializable {
         return Objects.equals(filmId, that.filmId) &&
                 Objects.equals(directorId, that.directorId);
     }
+    @Override
+    public String toString() {
+        return "FilmDirectorId(filmId=" + filmId + ", directorId=" + directorId + ")";
+    }
 
     @Override
     public int hashCode() {

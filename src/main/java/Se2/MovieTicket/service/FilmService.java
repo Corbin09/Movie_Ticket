@@ -124,14 +124,15 @@ public class FilmService {
     }
 
     public Page<Film> getNowShowingFilms(int page, int size) {
-        List<Film> films = getFilmsByType("Now Showing");
-        return getPagedFilms(films, page, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return filmRepository.findByFilmType("Now Showing", pageable);
     }
 
     public Page<Film> getComingSoonFilms(int page, int size) {
-        List<Film> films = getFilmsByType("Coming Soon");
-        return getPagedFilms(films, page, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return filmRepository.findByFilmType("Coming Soon", pageable);
     }
+
 
     private Page<Film> getPagedFilms(List<Film> films, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);

@@ -101,7 +101,7 @@ public class FilmController {
 
         logger.info("Accessing home page");
 
-        // First try to get user from session
+        // Lấy user từ session nếu có
         HttpSession session = request.getSession(false);
         User sessionUser = null;
         if (session != null) {
@@ -112,7 +112,7 @@ public class FilmController {
             }
         }
 
-        // If not in session, try from SecurityContext
+        // Nếu không có user trong session, lấy từ SecurityContext
         if (sessionUser == null) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
@@ -123,7 +123,7 @@ public class FilmController {
                     User user = userOptional.get();
                     model.addAttribute("user", user);
 
-                    // Save to session for future requests
+                    // Lưu vào session để sử dụng cho các request sau
                     if (session != null) {
                         session.setAttribute("user", user);
                         logger.info("User saved to session from SecurityContext");
@@ -132,33 +132,28 @@ public class FilmController {
             }
         }
 
-        // Fetch paginated films for Now Showing and Coming Soon
-        int pageSize = 4; // Số lượng phim hiển thị trên mỗi trang
+        // Số lượng phim hiển thị trên mỗi trang
+        int pageSize = 4;
 
         // Phân trang cho Now Showing
         Page<Film> nowShowingPage = filmService.getNowShowingFilms(currentPageNowShowing, pageSize);
         model.addAttribute("nowShowingMovies", nowShowingPage.getContent());
         model.addAttribute("currentPageNowShowing", currentPageNowShowing);
-
-        // 🔥 Fix lỗi NullPointerException
-        int totalPagesNowShowing = (nowShowingPage != null) ? nowShowingPage.getTotalPages() : 1;
-        model.addAttribute("totalPagesNowShowing", totalPagesNowShowing);
+        model.addAttribute("totalPagesNowShowing", nowShowingPage.getTotalPages());
 
         // Phân trang cho Coming Soon
         Page<Film> comingSoonPage = filmService.getComingSoonFilms(currentPageComingSoon, pageSize);
         model.addAttribute("comingSoonMovies", comingSoonPage.getContent());
         model.addAttribute("currentPageComingSoon", currentPageComingSoon);
+        model.addAttribute("totalPagesComingSoon", comingSoonPage.getTotalPages());
 
-        // 🔥 Fix lỗi NullPointerException
-        int totalPagesComingSoon = (comingSoonPage != null) ? comingSoonPage.getTotalPages() : 1;
-        model.addAttribute("totalPagesComingSoon", totalPagesComingSoon);
-
-        // Fetch all films (previously used list)
+        // Lấy toàn bộ danh sách phim để hiển thị nếu cần
         List<Film> films = filmService.getAllFilms();
         logger.info("Number of films retrieved: {}", films.size());
         model.addAttribute("films", films);
 
         return "home";
     }
+
 
 }
