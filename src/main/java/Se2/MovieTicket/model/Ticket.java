@@ -26,9 +26,9 @@ public class Ticket {
     @JoinColumn(name = "seat_id", nullable = false)
     private Seat seat;
 
-    @ManyToOne
-    @JoinColumn(name = "showtime_id", nullable = false)
-    private Showtime showtime;
+//    @ManyToOne
+//    @JoinColumn(name = "showtime_id", nullable = false)
+//    private Showtime showtime;
 
     @Column(name = "ticket_price")
     private Double ticketPrice;
@@ -56,14 +56,14 @@ public class Ticket {
     public void setSeat(Seat seat) {
         this.seat = seat;
     }
-
-    public Showtime getShowtime() {
-        return showtime;
-    }
-
-    public void setShowtime(Showtime showtime) {
-        this.showtime = showtime;
-    }
+//
+//    public Showtime getShowtime() {
+//        return showtime;
+//    }
+//
+//    public void setShowtime(Showtime showtime) {
+//        this.showtime = showtime;
+//    }
 
     public Double getTicketPrice() {
         return ticketPrice;
@@ -87,10 +87,10 @@ public class Ticket {
         this.seat.setSeatId(seatId);
     }
 
-    public void setShowtimeId(Long showtimeId) {
-        if (this.showtime == null) {
-            this.showtime = new Showtime();
-        }
-        this.showtime.setShowtimeId(showtimeId);
-    }
+//    public void setShowtimeId(Long showtimeId) {
+//        if (this.showtime == null) {
+//            this.showtime = new Showtime();
+//        }
+//        this.showtime.setShowtimeId(showtimeId);
+//    }
 }

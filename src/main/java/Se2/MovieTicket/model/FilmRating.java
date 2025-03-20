@@ -70,4 +70,21 @@ public class FilmRating {
     public void setSumStar(Integer sumStar) {
         this.sumStar = sumStar;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+
+        // Include only the filmId (primary key) to avoid recursion
+        result = prime * result + ((filmId == null) ? 0 : filmId.hashCode());
+
+        // Include other fields
+        result = prime * result + ((filmRate == null) ? 0 : filmRate.hashCode());
+        result = prime * result + ((sumRate == null) ? 0 : sumRate.hashCode());
+        result = prime * result + ((sumStar == null) ? 0 : sumStar.hashCode());
+
+        return result;
+    }
+
 }

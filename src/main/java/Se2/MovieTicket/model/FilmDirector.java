@@ -50,4 +50,16 @@ public class FilmDirector {
     public void setDirector(Director director) {
         this.director = director;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+
+        // Include the composite key `FilmDirectorId` in the hash code calculation
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+
+        return result;
+    }
+
 }

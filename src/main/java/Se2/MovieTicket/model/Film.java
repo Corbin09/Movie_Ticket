@@ -15,7 +15,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Film {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -212,5 +212,33 @@ public class Film {
 
     public void setNews(Set<News> news) {
         this.news = news;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+
+        // Include all fields except `filmRating`
+        result = prime * result + ((filmId == null) ? 0 : filmId.hashCode());
+        result = prime * result + ((filmName == null) ? 0 : filmName.hashCode());
+        result = prime * result + ((filmImg == null) ? 0 : filmImg.hashCode());
+        result = prime * result + ((filmTrailer == null) ? 0 : filmTrailer.hashCode());
+        result = prime * result + ((releaseDate == null) ? 0 : releaseDate.hashCode());
+        result = prime * result + ((filmDescription == null) ? 0 : filmDescription.hashCode());
+        result = prime * result + ((ageLimit == null) ? 0 : ageLimit.hashCode());
+        result = prime * result + ((duration == null) ? 0 : duration.hashCode());
+        result = prime * result + ((filmType == null) ? 0 : filmType.hashCode());
+        result = prime * result + ((country == null) ? 0 : country.hashCode());
+
+        // Include collections if needed, ensure null is handled
+        result = prime * result + ((filmDirectors == null) ? 0 : filmDirectors.hashCode());
+        result = prime * result + ((filmActors == null) ? 0 : filmActors.hashCode());
+        result = prime * result + ((userReviews == null) ? 0 : userReviews.hashCode());
+        result = prime * result + ((filmCategories == null) ? 0 : filmCategories.hashCode());
+        result = prime * result + ((showtimes == null) ? 0 : showtimes.hashCode());
+        result = prime * result + ((news == null) ? 0 : news.hashCode());
+
+        return result;
     }
 }

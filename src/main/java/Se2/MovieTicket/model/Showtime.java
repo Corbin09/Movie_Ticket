@@ -42,9 +42,9 @@ public class Showtime {
     @Column(name = "show_time")
     private String showTime;
 
-    @OneToMany(mappedBy = "showtime", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private Set<Ticket> tickets;
+//    @OneToMany(mappedBy = "showtime", cascade = CascadeType.ALL)
+//    @JsonIgnore
+//    private Set<Ticket> tickets;
 
     @OneToMany(mappedBy = "showtime", cascade = CascadeType.ALL)
     @JsonIgnore
@@ -102,13 +102,13 @@ public class Showtime {
         this.showTime = showTime;
     }
 
-    public Set<Ticket> getTickets() {
-        return tickets;
-    }
-
-    public void setTickets(Set<Ticket> tickets) {
-        this.tickets = tickets;
-    }
+//    public Set<Ticket> getTickets() {
+//        return tickets;
+//    }
+//
+//    public void setTickets(Set<Ticket> tickets) {
+//        this.tickets = tickets;
+//    }
 
     public Set<SeatStatus> getSeatStatuses() {
         return seatStatuses;
