@@ -1,5 +1,5 @@
 package Se2.MovieTicket.service;
-
+import org.springframework.data.domain.PageImpl;
 import Se2.MovieTicket.dto.FilmDTO;
 import Se2.MovieTicket.model.Film;
 import Se2.MovieTicket.repository.FilmRepository;
@@ -9,8 +9,12 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -101,5 +105,39 @@ public class FilmService {
 
     public void deleteFilm(Long id) {
         filmRepository.deleteById(id);
+    }
+
+
+    private static final Logger logger = LoggerFactory.getLogger(FilmService.class);
+
+    public List<Film> getFilmsByType(String type) {
+        if (type != null && !type.isEmpty()) {
+            List<Film> films = filmRepository.findByFilmType(type);
+            if (!films.isEmpty()) {
+                logger.info("Số lượng phim '{}' tìm thấy: {}", type, films.size());
+            } else {
+                logger.warn("Không tìm thấy phim nào thuộc thể loại '{}'.", type);
+            }
+            return films;
+        }
+        return new ArrayList<>();
+    }
+
+    public Page<Film> getNowShowingFilms(int page, int size) {
+        List<Film> films = getFilmsByType("Now Showing");
+        return getPagedFilms(films, page, size);
+    }
+
+    public Page<Film> getComingSoonFilms(int page, int size) {
+        List<Film> films = getFilmsByType("Coming Soon");
+        return getPagedFilms(films, page, size);
+    }
+
+    private Page<Film> getPagedFilms(List<Film> films, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), films.size());
+        List<Film> pagedList = films.subList(start, end);
+        return new PageImpl<>(pagedList, pageable, films.size());
     }
 }
