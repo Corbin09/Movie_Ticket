@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title>Movie Portal Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Movie portal login page" />
+    <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/css/font.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/css/components.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/css/Login.css}" />
+</head>
+
+<body>
+<div class="register">
+    <div class="column_three">
+        <div class="column_two-1">
+            <div class="column-1">
+                <header class="header-1">
+                    <img th:src="@{/images/img_ellipse_2.png}" alt="Image" class="image" />
+                </header>
+            </div>
+            <div class="columnlogintoyo container-lg">
+                <div class="columnloginyo">
+                    <div class="columnloginyo">
+                        <h1 class="logintoyo ui heading size-headinglg">Login to your account</h1>
+
+                        <!-- Login Form with Thymeleaf -->
+                        <form th:action="@{/login}" method="post" th:object="${loginForm}">
+                            <div class="column_one-1">
+                                <div class="column_one-1">
+                                    <div class="rowemil">
+                                        <p class="emil-1 ui text size-textsm">Email</p>
+                                    </div>
+                                    <label class="email-2 ui input gray_400 size-sm outline">
+                                        <input name="email" th:field="*{email}" placeholder="email@gmail.com" type="email" required />
+                                    </label>
+                                    <div th:if="${#fields.hasErrors('email')}" class="ui message error" th:errors="*{email}">Email Error</div>
+                                </div>
+                                <div class="rowemil">
+                                    <p class="emil-3 ui text size-textsm">Password</p>
+                                </div>
+                                <div class="password-1 ui input gray_400 size-sm outline">
+                                    <input name="password" th:field="*{password}" placeholder="Enter your password" type="password" required />
+                                    <img th:src="@{/images/img_eye.svg}" alt="eye" />
+                                </div>
+                                <div th:if="${#fields.hasErrors('password')}" class="ui message error" th:errors="*{password}">Password Error</div>
+                            </div>
+
+                            <button type="submit" class="create_account ui button primary size-3xl fill round">Log In</button>
+                        </form>
+
+                        <div class="rowforgetpass">
+                            <a th:href="@{/forgot-password}">Forget Password?</a>
+                            <div>
+                                <p class="register_here ui text size-textsm">
+                                    <a th:href="@{/register}">Register Here.</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <img th:src="@{/images/img_ellipse_1.png}" alt="Image" class="image_one" />
+        </div>
+    </div>
+</div>
+</body>
+</html>

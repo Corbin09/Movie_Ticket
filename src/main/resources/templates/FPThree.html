@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8" />
+  <title th:text="${appTitle}">Giang's Application20</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Web site created using create-react-app" />
+  <img
+          alt="Logo"
+          th:src="@{/images/dhiwise-logo.png}"
+          style="width: 0px; height: 0px; display: none"
+  />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/font.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/components.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/FPThree.css}" />
+</head>
+<body>
+<div class="register">
+  <div class="column_three">
+    <div class="column_two-1">
+      <div class="column-1">
+        <header class="header-1">
+        </header>
+        <img th:src="@{/images/img_ellipse_2.2.png}" alt="Image" class="image">
+      </div>
+      <div class="columnarrowdown-1 container-lg">
+        <div class="signup-3">
+          <img th:src="@{/images/img_arrow_down.svg}" alt="Arrowdown" class="arrowdown_one">
+          <div class="wrapped-1">
+            <div class="columnsetnew">
+              <h1 class="setnew ui heading size-heading6xl" th:text="${resetPasswordTitle}">Set New Password</h1>
+              <p class="enteryour ui text size-textmd" th:text="${resetPasswordInstructions}">Enter your new password to complete the reset process</p>
+            </div>
+            <div class="columnsave_new">
+              <form th:action="@{/reset-password}" method="post" th:object="${passwordResetRequest}">
+                <input type="hidden" th:field="*{token}" />
+                <div class="newpassword">
+                  <div class="column">
+                    <p class="label ui text size-textxs">New Password</p>
+                    <label class="email-6 ui input gray_400 size-sm outline">
+                      <img th:src="@{/images/img_location.svg}" alt="Location" class="email-7">
+                      <input th:field="*{newPassword}" name="newPassword" placeholder="************" type="password" required>
+                      <img th:src="@{/images/img_eye_indigo_300.svg}" alt="Eye" class="email-7 toggle-password" data-target="newPassword">
+                    </label>
+                    <small class="error-message" th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}"></small>
+                  </div>
+                  <div class="column">
+                    <p class="label ui text size-textxs">Confirm New Password</p>
+                    <label class="email-6 ui input gray_400 size-sm outline">
+                      <img th:src="@{/images/img_location.svg}" alt="Location" class="email-7">
+                      <input th:field="*{confirmPassword}" name="confirmPassword" placeholder="Confirm new password" type="password" required>
+                      <img th:src="@{/images/img_eye_indigo_300.svg}" alt="Eye" class="email-7 toggle-password" data-target="confirmPassword">
+                    </label>
+                    <small class="error-message" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></small>
+                  </div>
+                  <div class="global-error" th:if="${passwordMismatch}" th:text="${passwordMismatch}"></div>
+                </div>
+                <button type="submit" class="create_account ui button primary size-3xl fill round" th:text="${saveButtonText}">Save New Password</button>
+              </form>
+            </div>
+            <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+          </div>
+        </div>
+      </div>
+      <img th:src="@{/images/img_ellipse_1.2.png}" alt="Image" class="image_one" />
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for password visibility toggle -->
+<script th:inline="javascript">
+  document.addEventListener('DOMContentLoaded', function() {
+      const toggleButtons = document.querySelectorAll('.toggle-password');
+
+      toggleButtons.forEach(button => {
+          button.addEventListener('click', function() {
+              const targetField = this.getAttribute('data-target');
+              const input = document.querySelector('input[name="' + targetField + '"]');
+
+              if (input.type === 'password') {
+                  input.type = 'text';
+                  this.src = /*[[@{/images/img_eye_indigo_300_visible.svg}]]*/ '';
+              } else {
+                  input.type = 'password';
+                  this.src = /*[[@{/images/img_eye_indigo_300.svg}]]*/ '';
+              }
+          });
+      });
+  });
+</script>
+</body>
+</html>

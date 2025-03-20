@@ -1,0 +1,55 @@
+.columnarrowdown-1 {
+    margin-top: -198px;
+    padding-left: 56px;
+    padding-right: 56px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    @media only screen and (max-width: 1050px) {
+        padding-left: var(--space-6xl);
+        padding-right: var(--space-6xl);
+    }
+}
+
+.signup-4 {
+    margin-right: 6px;
+    gap: var(--space-14xl);
+    display: flex;
+    background-color: var(--white_0);
+    width: 51%;
+    flex-direction: column;
+    padding: 58px 42px;
+    border-radius: var(--radius-4xl);
+    @media only screen and (max-width: 1050px) {
+        width: 100%;
+        margin-right: 6px;
+        padding: var(--space-6xl);
+    }
+}
+
+.wrapped-2 {
+    margin-bottom: 74px;
+    gap: var(--space-16xl);
+    display: flex;
+    flex-direction: column;
+}
+
+.checkmark_one {
+    height: 64px;
+    width: 12%;
+    object-fit: contain;
+}
+
+.columnyourpassw {
+    gap: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.yourpassword {
+    color: var(--blue_gray_900_02) !important;
+    width: 100%;
+    line-height: 38px;
+}

@@ -1,0 +1,10 @@
+.password-7 {
+    color: var(--text_secondary) !important;
+    padding-left: var(--space-3xl);
+    padding-right: var(--space-3xl);font-family: Poppins;
+    font-size: 14px;
+    gap: var(--space-2xl);
+    height: 48px;
+    box-sizing: 8px !important;
+    border: 1px solid var(--gray_400) !important;
+}

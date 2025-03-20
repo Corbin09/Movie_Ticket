@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8" />
+  <title th:text="${appTitle}">Giang's Application20</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Web site created using create-react-app" />
+  <img
+          alt="Logo"
+          th:src="@{/images/dhiwise-logo.png}"
+          style="width: 0px; height: 0px; display: none"
+  />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/font.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/components.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/FPFour.css}" />
+</head>
+
+<body>
+<div class="register">
+  <div class="column_two-4">
+    <div>
+      <div class="column_two-1">
+        <div class="column-1">
+          <header class="header-1">
+          </header>
+          <img th:src="@{/images/img_ellipse_2_3.png}" alt="Image" class="image" />
+        </div>
+
+        <div class="columnarrowdown-2 container-lg">
+          <div class="signup-4">
+            <img th:src="@{/images/img_arrow_down.svg}" alt="Arrowdown" class="arrowdown_one" />
+            <div class="wrapped-2">
+              <div class="title-1">
+                <img th:src="@{/images/img_checkmark_circle_2.svg}" alt="Checkmark" class="checkmark_one" />
+                <div class="columnyourpassw">
+                  <h1 class="yourpassword ui heading size-heading2xl" th:text="${passwordChangedTitle}">Your Password Successfully Changed</h1>
+                  <p class="enteryour ui text size-textmd" th:text="${passwordChangedMessage}">Sign in to your account with your new password</p>
+                </div>
+              </div>
+              <a th:href="@{/login}" class="login-link">
+                <button class="create_account ui button primary size-3xl fill round" th:text="${loginButtonText}">Log in</button>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <img th:src="@{/images/img_ellipse_1_3.png}" alt="Image" class="image_one" />
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

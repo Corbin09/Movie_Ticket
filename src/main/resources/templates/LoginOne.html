@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title>Giang's Application20</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Web site created using create-react-app" />
+    <img
+            alt="Logo"
+            th:src="@{https://appproject.dhiwise.com/dhiwise-logo.png}"
+            style="width: 0px; height: 0px; display: none"
+    />
+    <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/css/font.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/css/components.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/css/LoginOne.css}" />
+</head>
+
+<body>
+<div class="register">
+    <div class="column_three">
+        <div>
+            <div class="column_two-1">
+                <div class="column-1">
+                    <header class="header-1">
+                        <img th:src="@{/images/img_ellipse_2_400x112.png}" alt="Image" class="image" />
+                    </header>
+                </div>
+                <div class="columnlogintoyo container-lg">
+                    <div class="row_one">
+                        <div class="rowlogintoyo">
+                            <div class="flex-col-center-center signup">
+                                <h1 class="logintoyo ui heading size-headinglg" th:text="${pageTitle ?: 'Login to your account'}">Login to your account</h1>
+                                <div class="columng-lg">
+                                    <div class="columnemil">
+                                        <div class="rowemil">
+                                            <p class="emil-1 ui text size-textsm" th:text="${emailLabel ?: 'Email'}">Email</p>
+                                        </div>
+                                        <label class="email-2 ui input gray_400 size-sm outline">
+                                            <input name="email" th:placeholder="${emailPlaceholder ?: 'email@gmail.com'}" type="email" th:value="${email}" />
+                                        </label>
+                                    </div>
+                                    <div class="columnemil">
+                                        <div class="rowemil">
+                                            <p class="emil-3 ui text size-textsm" th:text="${passwordLabel ?: 'Password'}">Password</p>
+                                        </div>
+                                        <label class="password-1 ui input gray_400 size-sm outline">
+                                            <input name="password" th:placeholder="${passwordPlaceholder ?: 'Enter your password'}" type="password" />
+                                            <img th:src="@{/images/img_eye.svg}" alt="eye" class="eye" />
+                                        </label>
+                                    </div>
+                                </div>
+                                <button class="create_account ui button primary size-3xl fill round" th:text="${loginButtonText ?: 'Log In'}">Log In</button>
+                                <div class="rowforgetpass">
+                                    <a th:href="${forgetPasswordUrl ?: '#'}" target="_blank">
+                                        <p class="confirmation ui text size-textsm" th:text="${forgetPasswordText ?: 'Forget Password?'}">Forget Password?</p>
+                                    </a>
+                                    <a th:href="${registerUrl ?: '#'}" target="_blank">
+                                        <p class="registerhere ui text size-textsm" th:text="${registerText ?: 'Register Here'}">Register Here</p>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <img th:src="@{/images/img_ellipse_1_76x264.png}" alt="Image" class="image_one" />
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

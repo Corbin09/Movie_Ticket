@@ -1,0 +1,39 @@
+.signup-6 {
+    gap: var(--space-2xl);
+    background-color: var(--white_0);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px 44px;
+    border-radius: var(--radius-4xl);
+    @media only screen and (max-width: 1050px) {
+      padding: var(--space-2xl);
+    }
+  }
+
+  .columnoopuserna {
+    gap: var(--space-10xl);
+    display: flex;
+    align-self: stretch;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .password-10 {
+    color: var(--text_secondary) !important;
+    padding-left: var(--space-3xl);
+    padding-right: var(--space-3xl);
+    font-family: Poppins;
+    font-size: 14px;
+    gap: var(--space-2xl);
+    align-self: stretch;
+    height: 48px;
+    border-radius: 8px !important;
+    border: 1px solid var(--red_A700_01) !important;
+  }
+
+  .oopusernameor {
+    color: var(--red_300) !important;
+    font-family: Poppins !important;
+    text-transform: capitalize;
+  }
