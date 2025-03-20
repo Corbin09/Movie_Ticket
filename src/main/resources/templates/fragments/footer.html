@@ -7,7 +7,7 @@
             <!-- Logo Footer -->
             <div class="rowTalktous">
                 <div class="rowFooterlogo">
-                    <img th:src="@{/public/images/img_footer_logo.png}" alt="Footer Logo" class="footerlogo_one" />
+                    <img th:src="${/images/cinema_logo}" alt="Footer Logo" class="footerlogo_one" />
                     <p class="getyour ui text size-textlg">
                         Get your tickets now for an amazing cinematic experience.
                         From drama to comedy, there's a movie for everyone!
@@ -21,8 +21,8 @@
                     <p class="talktous_one ui heading size-headingmd">CONTACT US</p>
                 </a>
                 <p class="supportatcom ui text size-textlg">
-                    <a th:href="'mailto:' + ${contact.email}" th:text="${contact.email}">support@ercom.com</a><br />
-                    <span th:text="${contact.phone}">+66 2399 1145</span>
+                    <a href="mailto:support@ercom.com">support@ercom.com</a><br />
+                    <span>+66 2399 1145</span>
                 </p>
             </div>
 

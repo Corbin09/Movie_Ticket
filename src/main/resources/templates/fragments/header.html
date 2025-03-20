@@ -5,14 +5,14 @@
     <div class="row container-lg">
         <div class="columnheaderlog-6">
             <div class="rowheaderlogo-6">
-                <img src="" alt="Header Logo" class="headerlogo_one" />
+                <img th:src="${/images/cinema_logo}" alt="Header Logo" class="headerlogo_one" />
 
                 <div class="rowphanthuyngan">
                     <a href="#">
-                        <img th:src="${user.avatar}" alt="User Avatar" class="image-6"
-                             onerror="this.onerror=null; this.src='/public/images/default_avatar.png';" />
+                        <img th:src="${user.userImg}" alt="User Avatar" class="image-6"
+                             onerror="this.onerror=null; this.src='/static/images/anonyous.png';" />
                     </a>
-                    <p class="phanthuyngan ui text size-textlg" th:text="${user.name}">User Name</p>
+                    <p class="phanthuyngan ui text size-textlg" th:text="${user.username}">User Name</p>
                     <button class="log_out ui button size-xs gradient red_300_red_a700">Log out</button>
                 </div>
             </div>
