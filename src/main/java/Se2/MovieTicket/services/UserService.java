@@ -29,13 +29,12 @@ public class UserService {
         User user = new User();
         user.setUsername(username);
 
-        String encodedPassword = passwordEncoder.encode(password); // Mã hóa 1 lần
+        String encodedPassword = passwordEncoder.encode(password);
         user.setPassword(encodedPassword);
 
         System.out.println("🔹 Saving User: " + username);
-        System.out.println("🔹 Encoded Password " + password + ": " + encodedPassword);
+        System.out.println("🔹 Encoded Password: " + encodedPassword); // Debugging line
 
         return userRepository.save(user);
     }
-
 }

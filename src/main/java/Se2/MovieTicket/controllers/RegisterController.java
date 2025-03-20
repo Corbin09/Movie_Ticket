@@ -32,16 +32,10 @@ public class RegisterController {
             return "register";
         }
 
-        try {
-            User savedUser = userService.saveUser(username, password);
-            System.out.println("✅ User saved: " + savedUser.getUsername());
+        User savedUser = userService.saveUser(username, password);
+        System.out.println("✅ User saved: " + savedUser.getUsername()); // Debugging line
 
-            model.addAttribute("message", "User registered successfully! You can now log in.");
-            return "login";
-        } catch (Exception e) {
-            System.out.println("❌ Error saving user: " + e.getMessage());
-            model.addAttribute("error", "An error occurred while saving the user. Please try again.");
-            return "register";
-        }
+        model.addAttribute("message", "User registered successfully! You can now log in.");
+        return "login";
     }
 }
