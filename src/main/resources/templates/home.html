@@ -9,20 +9,22 @@
 </head>
 
 <body>
+
 <!-- Header -->
 <div th:replace="fragments/header :: header"></div>
 
 <!-- Hero Banner -->
 <div class="hero-banner">
-    <img src="/images/NhaGiaTien.png" alt="Featured Movie" class="hero-image">
-    <img src="/images/DarkNun.png" alt="Featured Movie" class="hero-image">
-    <img src="/images/den.jpg" alt="Featured Movie" class="hero-image">
+    <div class="hero-slider">
+        <img th:each="film, stat : ${nowShowingMovies}" th:if="${stat.index < 3}"
+             th:src="@{${film.filmImg}}" alt="Featured Movie"
+             class="hero-image" th:classappend="${stat.index == 0} ? 'active' : ''">
+    </div>
 
-    <!-- Pagination Default-->
+    <!-- Pagination Default -->
     <div class="pagination-default">
-        <div class="pagination-dot active"></div>
-        <div class="pagination-dot"></div>
-        <div class="pagination-dot"></div>
+        <div th:each="film, stat : ${nowShowingMovies}" th:if="${stat.index < 3}"
+             class="pagination-dot" th:classappend="${stat.index == 0} ? 'active' : ''"></div>
     </div>
 </div>
 
@@ -30,33 +32,38 @@
 <div class="movie-section">
     <h2 class="section-title">Now Showing</h2>
     <div class="movie-grid">
-        <!-- Now Showing Movie Cards -->
-        <div th:each="movie : ${nowShowingMovies}" class="movie-card">
-            <a th:href="@{'/movies/' + ${movie.id}}">
-            <div class="movie-poster-container">
-                <img th:src="@{'/movies/' + ${movie.id} + '/poster'}" th:alt="${movie.title}" class="movie-poster"/>
-            </div>
-            <div class="movie-info">
-                <div class="movie-meta">
-                    <span class="movie-category" th:text="${movie.category}">Horror</span>
-                    <span class="movie-release-date" th:text="${#temporals.format(movie.releaseDate, 'dd/MM/yyyy')}">28/02/2025</span>
-                    <span class="movie-duration" th:text="${movie.duration + ' min'}">114 min</span>
+        <div th:each="film : ${nowShowingMovies}" class="movie-card">
+            <a th:href="@{'/films/' + ${film.filmId}}">
+                <div class="movie-poster-container">
+                    <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
                 </div>
-                <div class="movie-title" th:text="${movie.title}">DARK NUNS - T13 - 2D</div>
-            </div>
+                <div class="movie-info">
+                    <div class="movie-meta">
+                        <span class="movie-category" th:text="${film.filmType}">Horror</span>
+                        <span class="movie-release-date"
+                              th:text="${#dates.format(film.releaseDate, 'dd/MM/yyyy')}">28/02/2025</span>
+                        <span class="movie-duration" th:text="${film.duration + ' min'}">114 min</span>
+                    </div>
+                    <div class="movie-title" th:text="${film.filmName}">DARK NUNS - T13 - 2D</div>
+                </div>
             </a>
         </div>
     </div>
 
-    <!-- Pagination Numbers for Now Showing -->
+    <!-- Pagination for Now Showing -->
     <div class="pagination" id="pagibar-now-showing">
-        <a href="#" class="prev">‹</a>
-        <a th:attr="data-page=${i}"
-           th:each="i: ${#numbers.sequence(0, nowShowingPages - 1)}"
-           th:href="@{'/now-showing?page=' + ${i}}"
-           th:class="${currentNowShowingPage == i ? 'active' : ''}"
-           th:text="${i + 1}"></a>
-        <a href="#" class="next">›</a>
+        <a th:if="${currentPageNowShowing > 1}"
+           th:href="@{/home(currentPageNowShowing=${currentPageNowShowing - 1}, currentPageComingSoon=${currentPageComingSoon})}"
+           class="prev">‹</a>
+
+        <a th:each="i : ${#numbers.sequence(1, totalPagesNowShowing)}"
+           th:href="@{/home(currentPageNowShowing=${i}, currentPageComingSoon=${currentPageComingSoon})}"
+           th:classappend="${currentPageNowShowing == i} ? 'active' : ''"
+           th:text="${i}"></a>
+
+        <a th:if="${currentPageNowShowing < totalPagesNowShowing}"
+           th:href="@{/home(currentPageNowShowing=${currentPageNowShowing + 1}, currentPageComingSoon=${currentPageComingSoon})}"
+           class="next">›</a>
     </div>
 </div>
 
@@ -64,89 +71,74 @@
 <div class="movie-section">
     <h2 class="section-title">Coming Soon</h2>
     <div class="movie-grid">
-        <!-- Coming Soon Movie Cards -->
-        <div th:each="movie : ${comingSoonMovies}" class="movie-card">
-            <a th:href="@{'/movies/' + ${movie.id}}">
+        <div th:each="film : ${comingSoonMovies}" class="movie-card">
+            <a th:href="@{'/films/' + ${film.filmId}}">
                 <div class="movie-poster-container">
-                    <img th:src="@{'/movies/' + ${movie.id} + '/poster'}" th:alt="${movie.title}" class="movie-poster"/>
+                    <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
                 </div>
                 <div class="movie-info">
                     <div class="movie-meta">
-                        <span class="movie-category" th:text="${movie.category}">Adventure</span>
-                        <span class="movie-release-date" th:text="${#temporals.format(movie.releaseDate, 'dd/MM/yyyy')}">14/02/2025</span>
-                        <span class="movie-duration" th:text="${movie.duration + ' min'}">114 min</span>
+                        <span class="movie-category" th:text="${film.filmType}">Adventure</span>
+                        <span class="movie-release-date"
+                              th:text="${#dates.format(film.releaseDate, 'dd/MM/yyyy')}">14/02/2025</span>
+                        <span class="movie-duration" th:text="${film.duration + ' min'}">114 min</span>
                     </div>
-                    <div class="movie-title" th:text="${movie.title}">CAPTAIN AMERICA - T13 - 2D</div>
+                    <div class="movie-title" th:text="${film.filmName}">CAPTAIN AMERICA - T13 - 2D</div>
                 </div>
             </a>
         </div>
     </div>
 
-    <!-- Pagination Numbers for Coming Soon -->
+    <!-- Pagination for Coming Soon -->
     <div class="pagination" id="pagibar-coming-soon">
-        <a href="#" class="prev">‹</a>
-        <a th:attr="data-page=${i}"
-           th:each="i: ${#numbers.sequence(0, comingSoonPages - 1)}"
-           th:href="@{'/coming-soon?page=' + ${i}}"
-           th:class="${currentComingSoonPage == i ? 'active' : ''}"
-           th:text="${i + 1}"></a>
-        <a href="#" class="next">›</a>
+        <a th:if="${currentPageComingSoon > 1}"
+           th:href="@{/home(currentPageNowShowing=${currentPageNowShowing}, currentPageComingSoon=${currentPageComingSoon - 1})}"
+           class="prev">‹</a>
+
+        <a th:each="i : ${#numbers.sequence(1, totalPagesComingSoon)}"
+           th:href="@{/home(currentPageNowShowing=${currentPageNowShowing}, currentPageComingSoon=${i})}"
+           th:classappend="${currentPageComingSoon == i} ? 'active' : ''"
+           th:text="${i}"></a>
+
+        <a th:if="${currentPageComingSoon < totalPagesComingSoon}"
+           th:href="@{/home(currentPageNowShowing=${currentPageNowShowing}, currentPageComingSoon=${currentPageComingSoon + 1})}"
+           class="next">›</a>
     </div>
 </div>
 
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
 
-<script th:inline="javascript">
-<!--    Pagination Default-->
+<script>
     document.addEventListener('DOMContentLoaded', function () {
-            const heroImages = document.querySelectorAll('.hero-image');
-            const dots = document.querySelectorAll('.pagination-dot');
+        const slides = document.querySelectorAll('.hero-image');
+        const dots = document.querySelectorAll('.pagination-dot');
+        let currentSlide = 0;
 
-            heroImages.forEach((img, index) => {
-                if (index === 0) {
-                    img.style.display = 'block';
-                } else {
-                    img.style.display = 'none';
-                }
+        function changeSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                dots[index]?.classList.remove('active');
             });
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide]?.classList.add('active');
+        }
 
-            dots.forEach((dot, index) => {
-                dot.addEventListener('click', function () {
-                    dots.forEach(d => d.classList.remove('active'));
-                    this.classList.add('active');
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % slides.length;
+            changeSlide();
+        }, 3000);
 
-                    heroImages.forEach(img => {
-                        img.style.display = 'none';
-                    });
-
-                    heroImages[index].style.display = 'block';
-                    currentSlide = index;
-
-                    console.log(`Switched to slide ${index + 1}`);
-                });
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', function () {
+                currentSlide = index;
+                changeSlide();
             });
+        });
 
-            let currentSlide = 0;
-            setInterval(() => {
-                currentSlide = (currentSlide + 1) % dots.length;
-
-                dots.forEach(d => d.classList.remove('active'));
-                dots[currentSlide].classList.add('active');
-
-                heroImages.forEach(img => {
-                    img.style.display = 'none';
-                });
-
-                heroImages[currentSlide].style.display = 'block';
-
-                console.log(`Automatically switched to slide ${currentSlide + 1}`);
-            }, 3000);
+        changeSlide();
     });
-
-<!--    Pagination Number-->
-
 </script>
-</body>
 
+</body>
 </html>
