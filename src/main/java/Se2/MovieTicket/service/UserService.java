@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -27,7 +29,10 @@ import java.util.stream.Collectors;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
-
+//    @Autowired
+//    private BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private EntityManager em;
@@ -54,28 +59,38 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public User createUser (UserDTO userDTO) {
+
+    public User createUser(UserDTO userDTO) {
         User user = new User();
         user.setUsername(userDTO.getUsername());
-        user.setPassword(userDTO.getPassword());
-        user.setUserImg(userDTO.getUserImg());
+        user.setPassword(userDTO.getPassword()); // Bỏ mã hóa vì đã được mã hóa trước đó
         user.setEmail(userDTO.getEmail());
         user.setPhoneNumber(userDTO.getPhoneNumber());
         user.setSex(userDTO.getSex());
         user.setDateOfBirth(userDTO.getDateOfBirth());
-        user.setRole(userDTO.getRole());
-        user.setResetToken(userDTO.getResetToken());
-        user.setResetTokenExpire(userDTO.getResetTokenExpire());
-        user.setStatus(userDTO.getStatus());
-        return userRepository.save(user);
+        user.setRole(userDTO.getRole() != null ? userDTO.getRole() : "USER");
+        user.setStatus(userDTO.getStatus() != null ? userDTO.getStatus() : "Active");
+        user.setUserImg("/static/images/anonymous.jpg");
+
+        System.out.println("Saving user: " + user.toString());
+
+        User savedUser = userRepository.save(user);
+        System.out.println("Saved user ID: " + savedUser.getUserId());
+
+        return savedUser;
     }
+
+
+
 
     public User updateUser (Long id, UserDTO userDTO) {
         Optional<User> userData = userRepository.findById(id);
         if (userData.isPresent()) {
             User user = userData.get();
             user.setUsername(userDTO.getUsername());
-            user.setPassword(userDTO.getPassword());
+            if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            }
             user.setUserImg(userDTO.getUserImg());
             user.setEmail(userDTO.getEmail());
             user.setPhoneNumber(userDTO.getPhoneNumber());
@@ -104,59 +119,31 @@ public class UserService {
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(role));
     }
 
-//    public User getCurrentUser() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        System.out.println("Authentication: " + authentication);
-//
-//        if (authentication == null || !authentication.isAuthenticated()) {
-//            System.out.println("No authentication or not authenticated");
-//            return null;
-//        }
-//
-//        Object principal = authentication.getPrincipal();
-//        System.out.println("Principal class: " + principal.getClass().getName());
-//        System.out.println("Principal: " + principal);
-//
-//        if (principal instanceof UserDetailsImpl) {
-//            Long userId = ((UserDetailsImpl) principal).getId();
-//            System.out.println("User ID: " + userId);
-//            User user = userRepository.findById(userId).orElse(null);
-//            System.out.println("Found user: " + user);
-//            return user;
-//        } else {
-//            System.out.println("Principal is not UserDetailsImpl");
-//        }
-//        return null;
-//    }
+
 
 
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() == null) {
             return null;
         }
 
         Object principal = authentication.getPrincipal();
 
-        // Check if it's your custom UserDetailsImpl
         if (principal instanceof UserDetailsImpl) {
             Long userId = ((UserDetailsImpl) principal).getId();
             return userRepository.findById(userId).orElse(null);
-        }
-        // Check if it's Spring Security's default User object
-        else if (principal instanceof org.springframework.security.core.userdetails.User) {
+        } else if (principal instanceof org.springframework.security.core.userdetails.User) {
             String username = ((org.springframework.security.core.userdetails.User) principal).getUsername();
             return userRepository.findByUsername(username).orElse(null);
-        }
-        // If it's a string (which can happen in some cases)
-        else if (principal instanceof String) {
-            String username = (String) principal;
-            return userRepository.findByUsername(username).orElse(null);
+        } else if (principal instanceof String) {
+            return userRepository.findByUsername((String) principal).orElse(null);
         }
 
         return null;
     }
+
 
 
     public Collection<? extends GrantedAuthority> getAuthorities(Long userId) {

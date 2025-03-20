@@ -1,0 +1,41 @@
+//package Se2.MovieTicket.controllers;
+//
+//import Se2.MovieTicket.model.User;
+//import Se2.MovieTicket.service.UserService;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.stereotype.Controller;
+//import org.springframework.ui.Model;
+//import org.springframework.web.bind.annotation.GetMapping;
+//import org.springframework.web.bind.annotation.PostMapping;
+//import org.springframework.web.bind.annotation.RequestParam;
+//
+//@Controller
+//public class RegisterController {
+//    @Autowired
+//    private UserService userService;
+//
+//    @GetMapping("/signup")
+//    public String showRegisterForm() {
+//        return "register";
+//    }
+//
+//    @PostMapping("/register")
+//    public String registerUser(@RequestParam String username,
+//                               @RequestParam String password,
+//                               @RequestParam String confirmPassword,
+//                               Model model) {
+//        System.out.println("🔹 Register Request: " + username);
+//
+//        if (!password.equals(confirmPassword)) {
+//            System.out.println("❌ Passwords do not match!");
+//            model.addAttribute("error", "Passwords do not match!");
+//            return "register";
+//        }
+//
+//        User savedUser = userService.createUser(username, password);
+//        System.out.println("✅ User saved: " + savedUser.getUsername()); // Debugging line
+//
+//        model.addAttribute("message", "User registered successfully! You can now log in.");
+//        return "login";
+//    }
+//}

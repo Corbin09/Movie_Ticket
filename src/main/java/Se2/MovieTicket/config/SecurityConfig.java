@@ -1,5 +1,6 @@
 package Se2.MovieTicket.config;
 
+import Se2.MovieTicket.repository.UserRepository;
 import Se2.MovieTicket.service.CustomUserDetailsService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -33,7 +34,8 @@ public class SecurityConfig {
     private CustomUserDetailsService userDetailsService;
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -65,10 +67,14 @@ public class SecurityConfig {
                         .securityContextRepository(httpSessionSecurityContextRepository())
                         .requireExplicitSave(true)
                 )
-                .csrf(csrf -> csrf.disable());
+                // ✅ BẬT lại CSRF
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/**") // Nếu có API cần bỏ qua CSRF
+                );
 
         return http.build();
     }
+
 
     @Bean
     public SecurityContextRepository httpSessionSecurityContextRepository() {
@@ -95,21 +101,14 @@ public class SecurityConfig {
         return (request, response, authentication) -> {
             String username = authentication.getName();
             System.out.println("✅ Đăng nhập thành công cho user: " + username);
-            System.out.println("✅ Authorities: " + authentication.getAuthorities());
 
             // Lưu user vào session
             HttpSession session = request.getSession();
             session.setAttribute("username", username);
 
-            // Lưu user object vào session để dùng trong views
-            Optional<User> userOptional = userService.getUserByUsername(username);
-            if (userOptional.isPresent()) {
-                session.setAttribute("user", userOptional.get());
-                System.out.println("✅ Session set: user = " + userOptional.get().getUsername());
-            }
-
-            System.out.println("✅ Session ID: " + session.getId());
-            System.out.println("✅ Session set: username = " + session.getAttribute("username"));
+            // Lấy thông tin user trực tiếp từ UserRepository
+            Optional<User> userOptional = userRepository.findByUsername(username);
+            userOptional.ifPresent(user -> session.setAttribute("user", user));
 
             boolean isAdmin = authentication.getAuthorities().stream()
                     .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
@@ -125,4 +124,5 @@ public class SecurityConfig {
             }
         };
     }
+
 }

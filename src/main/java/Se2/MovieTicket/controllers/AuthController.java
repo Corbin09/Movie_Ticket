@@ -1,6 +1,7 @@
 package Se2.MovieTicket.controllers;
 
 import Se2.MovieTicket.model.Film;
+import Se2.MovieTicket.repository.UserRepository;
 import Se2.MovieTicket.service.FilmService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Controller;
@@ -28,6 +30,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -134,6 +139,12 @@ public class AuthController {
         }
     }
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder; // Mã hóa mật khẩu
+
+//    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    @Autowired
+    private UserRepository userRepository;
     @GetMapping("/register")
     public String registerPage(Model model) {
         logger.info("Accessing registration page");
@@ -142,43 +153,54 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(User user, Model model) {
+    public String register(@RequestParam("dateOfBirth") String dateOfBirthStr, User user, Model model) {
         try {
             logger.info("Attempting to register user: {}", user.getUsername());
 
-            // Check if username already exists by checking all users
-            List<User> allUsers = userService.getAllUsers();
-            boolean usernameExists = allUsers.stream()
-                    .anyMatch(existingUser -> existingUser.getUsername().equals(user.getUsername()));
-
-            if (usernameExists) {
+            // Kiểm tra username đã tồn tại chưa
+            if (userRepository.findByUsername(user.getUsername()).isPresent()) {
                 logger.warn("Username already exists: {}", user.getUsername());
                 model.addAttribute("error", "Username already exists");
+                model.addAttribute("user", user);
                 return "register";
             }
 
-            // Check if email already exists
-            boolean emailExists = user.getEmail() != null && allUsers.stream()
-                    .anyMatch(existingUser -> user.getEmail().equals(existingUser.getEmail()));
-
-            if (emailExists) {
+            // Kiểm tra email đã tồn tại chưa
+            if (user.getEmail() != null && userRepository.findByEmail(user.getEmail()).isPresent()) {
                 logger.warn("Email already exists: {}", user.getEmail());
                 model.addAttribute("error", "Email already exists");
+                model.addAttribute("user", user);
                 return "register";
             }
 
-            // Convert User to UserDTO
+            // Mã hóa mật khẩu trước khi lưu
+            String encodedPassword = passwordEncoder.encode(user.getPassword());
+
+            // Ép kiểu dateOfBirth từ String về Date
+            Date dateOfBirth = null;
+            try {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                dateFormat.setLenient(false);
+                dateOfBirth = dateFormat.parse(dateOfBirthStr);
+            } catch (ParseException e) {
+                logger.error("Invalid date format: {}", dateOfBirthStr);
+                model.addAttribute("error", "Invalid date format. Please use yyyy-MM-dd.");
+                model.addAttribute("user", user);
+                return "register";
+            }
+
+            // Convert User thành UserDTO
             UserDTO userDTO = new UserDTO();
             userDTO.setUsername(user.getUsername());
-            userDTO.setPassword(user.getPassword());
+            userDTO.setPassword(encodedPassword);
             userDTO.setEmail(user.getEmail());
             userDTO.setPhoneNumber(user.getPhoneNumber());
             userDTO.setSex(user.getSex());
-            userDTO.setDateOfBirth(user.getDateOfBirth());
-            userDTO.setRole("User"); // Set default role for new users
-            userDTO.setStatus("Active"); // Set default status
+            userDTO.setDateOfBirth(dateOfBirth);
+            userDTO.setRole("USER");
+            userDTO.setStatus("ACTIVE");
 
-            // Save user to database
+            // Lưu user vào database
             userService.createUser(userDTO);
 
             logger.info("User registered successfully: {}", user.getUsername());
@@ -186,6 +208,7 @@ public class AuthController {
         } catch (Exception e) {
             logger.error("Registration failed: {}", e.getMessage());
             model.addAttribute("error", "Registration failed: " + e.getMessage());
+            model.addAttribute("user", user);
             return "register";
         }
     }
@@ -339,50 +362,7 @@ public class AuthController {
         return "index";
     }
 
-//    @GetMapping("/home")
-//    public String homePage(Model model, HttpServletRequest request) {
-//        logger.info("Accessing home page");
-//
-//        // First try to get user from session
-//        HttpSession session = request.getSession(false);
-//        User sessionUser = null;
-//        if (session != null) {
-//            sessionUser = (User) session.getAttribute("user");
-//            if (sessionUser != null) {
-//                logger.info("User found in session: {}", sessionUser.getUsername());
-//                model.addAttribute("user", sessionUser);
-//            }
-//        }
-//
-//        // If not in session, try from SecurityContext
-//        if (sessionUser == null) {
-//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
-//                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-//                Optional<User> userOptional = userService.getUserById(userDetails.getId());
-//
-//                if (userOptional.isPresent()) {
-//                    User user = userOptional.get();
-//                    model.addAttribute("user", user);
-//
-//                    // Save to session for future requests
-//                    if (session != null) {
-//                        session.setAttribute("user", user);
-//                        logger.info("User saved to session from SecurityContext");
-//                    }
-//                }
-//            }
-//        }
-//
-//        // Get list of films from the filmService
-//        List<Film> films = filmService.getAllFilms();
-//        logger.info("Number of films retrieved: {}", films.size());
-//
-//        // Add the list of films to the model
-//        model.addAttribute("films", films);
-//
-//        return "home";  // Return to home page
-//    }
+
 @GetMapping("/home")
 public String home(
         @RequestParam(defaultValue = "1") int currentPageNowShowing,
