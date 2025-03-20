@@ -1,21 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Register</title>
+  <title>Register</title>
+  <link rel="stylesheet" th:href="@{/css/login.css}">
+  <script>
+    function validatePassword() {
+        var password = document.getElementById("password").value;
+        var confirmPassword = document.getElementById("confirmPassword").value;
+        var errorMessage = document.getElementById("error-message");
+
+        if (password !== confirmPassword) {
+            errorMessage.innerText = "Passwords do not match!";
+            return false;
+        }
+        errorMessage.innerText = "";
+        return true;
+    }
+  </script>
 </head>
 <body>
-<h2>Register</h2>
-<form action="/register" method="post">
+<div class="login-container">
+  <h2>Register</h2>
+  <form th:action="@{/register}" method="post" onsubmit="return validatePassword()">
+
+    <!-- Username -->
     <div>
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
+      <label>Username:</label>
+      <input type="text" name="username" required>
     </div>
+
+    <!-- Password -->
     <div>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
+      <label>Password:</label>
+      <input type="password" id="password" name="password" required>
     </div>
+
+    <!-- Confirm Password -->
+    <div>
+      <label>Confirm Password:</label>
+      <input type="password" id="confirmPassword" name="confirmPassword" required>
+    </div>
+
+    <!-- Email -->
+    <div>
+      <label>Email:</label>
+      <input type="email" name="email">
+    </div>
+
+    <!-- Phone Number -->
+    <div>
+      <label>Phone Number:</label>
+      <input type="text" name="phoneNumber">
+    </div>
+
+    <!-- User Image -->
+    <div>
+      <label>Profile Image URL:</label>
+      <input type="text" name="userImg" placeholder="Enter image URL">
+    </div>
+
+    <!-- Gender -->
+    <div>
+      <label>Gender:</label>
+      <select name="sex">
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <!-- Date of Birth -->
+    <div>
+      <label>Date of Birth:</label>
+      <input type="date" name="dateOfBirth">
+    </div>
+
+    <!-- Role (Hidden Field) -->
+    <input type="hidden" name="role" value="USER">
+
+    <!-- Status (Hidden Field) -->
+    <input type="hidden" name="status" value="ACTIVE">
+
+    <!-- Submit Button -->
+    <p id="error-message" style="color: red;"></p>
     <button type="submit">Register</button>
-</form>
+  </form>
+
+  <!-- Success or Error Messages -->
+  <div th:if="${message}">
+    <p class="success-message" th:text="${message}"></p>
+  </div>
+  <div th:if="${param.error}">
+    <p class="error-message">Registration failed. Please check your input!</p>
+  </div>
+</div>
 </body>
 </html>
