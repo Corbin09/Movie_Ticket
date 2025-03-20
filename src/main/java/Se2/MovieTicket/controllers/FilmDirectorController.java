@@ -4,6 +4,7 @@ package Se2.MovieTicket.controllers;
 import Se2.MovieTicket.model.FilmDirector;
 import Se2.MovieTicket.model.FilmDirectorId;
 import Se2.MovieTicket.repository.FilmDirectorRepository;
+import Se2.MovieTicket.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,19 +17,22 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/film-directors")
 public class FilmDirectorController {
-
     @Autowired
     private FilmDirectorRepository filmDirectorRepository;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping
     public ResponseEntity<List<FilmDirector>> getAllFilmDirectors() {
+        if (!userService.hasRole("Admin") && !userService.hasRole("User ")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         try {
             List<FilmDirector> filmDirectors = new ArrayList<>(filmDirectorRepository.findAll());
-
             if (filmDirectors.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-
             return new ResponseEntity<>(filmDirectors, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -37,21 +41,24 @@ public class FilmDirectorController {
 
     @GetMapping("/{filmId}/{directorId}")
     public ResponseEntity<FilmDirector> getFilmDirectorById(@PathVariable("filmId") Long filmId, @PathVariable("directorId") Long directorId) {
+        if (!userService.hasRole("Admin") && !userService.hasRole("User ")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         Optional<FilmDirector> filmDirectorData = filmDirectorRepository.findByFilmIdAndDirectorId(filmId, directorId);
-
         return filmDirectorData.map(filmDirector -> new ResponseEntity<>(filmDirector, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/film/{filmId}")
     public ResponseEntity<List<FilmDirector>> getDirectorsByFilmId(@PathVariable("filmId") Long filmId) {
+        if (!userService.hasRole("Admin") && !userService.hasRole("User ")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         try {
             List<FilmDirector> filmDirectors = filmDirectorRepository.findByFilmId(filmId);
-
             if (filmDirectors.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-
             return new ResponseEntity<>(filmDirectors, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -60,13 +67,14 @@ public class FilmDirectorController {
 
     @GetMapping("/director/{directorId}")
     public ResponseEntity<List<FilmDirector>> getFilmsByDirectorId(@PathVariable("directorId") Long directorId) {
+        if (!userService.hasRole("Admin") && !userService.hasRole("User ")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         try {
             List<FilmDirector> filmDirectors = filmDirectorRepository.findByDirectorId(directorId);
-
             if (filmDirectors.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-
             return new ResponseEntity<>(filmDirectors, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -75,6 +83,9 @@ public class FilmDirectorController {
 
     @PostMapping
     public ResponseEntity<FilmDirector> createFilmDirector(@RequestBody FilmDirector filmDirector) {
+        if (!userService.hasRole("Admin")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         try {
             FilmDirector newFilmDirector = filmDirectorRepository.save(filmDirector);
             return new ResponseEntity<>(newFilmDirector, HttpStatus.CREATED);
@@ -84,13 +95,13 @@ public class FilmDirectorController {
     }
 
     @DeleteMapping("/{filmId}/{directorId}")
-    public ResponseEntity<HttpStatus> deleteFilmDirector(
-            @PathVariable("filmId") Long filmId,
-            @PathVariable("directorId") Long directorId) {
+    public ResponseEntity<HttpStatus> deleteFilmDirector(@PathVariable("filmId") Long filmId, @PathVariable("directorId") Long directorId) {
+        if (!userService.hasRole("Admin")) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         try {
             FilmDirectorId filmDirectorId = new FilmDirectorId(filmId, directorId);
             Optional<FilmDirector> filmDirector = filmDirectorRepository.findById(filmDirectorId);
-
             if (filmDirector.isPresent()) {
                 filmDirectorRepository.delete(filmDirector.get());
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -101,6 +112,4 @@ public class FilmDirectorController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 }
