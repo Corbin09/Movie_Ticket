@@ -1,35 +1,21 @@
 package Se2.MovieTicket.Model;
 
 import jakarta.persistence.*;
-
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "movies")
 public class Movie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String title;
+    private String posterImage;
     private String posterUrl;
     private String category;
-    private String duration;
-    private String status; // "Now Showing" or "Coming Soon"
-    private Date releaseDate;
-    private String description;
+    private int duration; // Minute
+    private String status; // "Now Showing" hoặc "Coming Soon"
+    private LocalDate releaseDate;
 
-    // Constructors
-    public Movie() {
-    }
-
-    public Movie(String title, String category, String posterUrl) {
-        this.title = title;
-        this.category = category;
-        this.posterUrl = posterUrl;
-    }
-
-    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -46,12 +32,12 @@ public class Movie {
         this.title = title;
     }
 
-    public String getPosterUrl() {
-        return posterUrl;
+    public String getPosterImage() {
+        return posterImage;
     }
 
-    public void setPosterUrl(String posterUrl) {
-        this.posterUrl = posterUrl;
+    public void setPosterImage(String posterImage) {
+        this.posterImage = posterImage;
     }
 
     public String getCategory() {
@@ -62,11 +48,11 @@ public class Movie {
         this.category = category;
     }
 
-    public String getDuration() {
+    public int getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 
@@ -78,19 +64,19 @@ public class Movie {
         this.status = status;
     }
 
-    public Date getReleaseDate() {
+    public LocalDate getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(Date releaseDate) {
+    public void setReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
     }
 
-    public String getDescription() {
-        return description;
+    public String getPosterUrl() {
+        return posterUrl;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
     }
 }
