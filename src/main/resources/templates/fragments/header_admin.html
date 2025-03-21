@@ -1,0 +1,77 @@
+<!-- header_admin.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    .admin-header {
+        background-color: #000;
+        padding: 15px 0;
+        width: 100%;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo {
+        height: 40px;
+    }
+
+    .admin-user-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .admin-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .admin-name {
+        color: white;
+        font-weight: 500;
+    }
+
+    .admin-logout-btn {
+        background: linear-gradient(to right, #ff3333, #ff0066);
+        color: white;
+        border: none;
+        padding: 5px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+<header class="admin-header">
+  <div class="container">
+    <img th:src="@{/images/cinema_logo.png}" alt="Cinema Logo" class="logo">
+
+    <div class="admin-user-section">
+      <img th:src="${admin.userImg}" alt="Admin Avatar" class="admin-avatar"
+           onerror="this.onerror=null; this.src='/static/images/anonymous.png';">
+      <span class="admin-name" th:text="${admin.username}">Admin Name</span>
+      <a th:href="@{/logout}" class="admin-logout-btn">Log out</a>
+    </div>
+  </div>
+</header>
+</body>
+</html>
