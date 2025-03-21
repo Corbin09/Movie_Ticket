@@ -133,7 +133,7 @@
       background-color: #0a4322;
     }
 
-    .error-message {
+    .field-error {
       color: #f44336;
       font-size: 14px;
       margin-top: 5px;
@@ -143,7 +143,11 @@
     .success-message {
       color: #127b40;
       font-size: 14px;
-      margin-top: 5px;
+      margin-top: 15px;
+      padding: 10px;
+      background-color: rgba(18, 123, 64, 0.1);
+      border-radius: 4px;
+      text-align: center;
       font-family: 'Poppins', sans-serif;
     }
 
@@ -162,6 +166,39 @@
 
     .login-link a:hover {
       text-decoration: underline;
+    }
+
+    .form-group input.error,
+    .form-group input.is-invalid {
+      border-color: #f44336;
+    }
+
+    .registration-success {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .registration-success h3 {
+      color: #127b40;
+      margin-bottom: 15px;
+    }
+
+    .registration-success p {
+      margin-bottom: 20px;
+    }
+
+    .back-to-login-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #127b40;
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .back-to-login-btn:hover {
+      background-color: #0a4322;
     }
 
     @media (max-width: 1200px) {
@@ -188,58 +225,6 @@
       }
     }
   </style>
-  <script>
-    function validatePassword() {
-      var password = document.getElementById("password").value;
-      var confirmPassword = document.getElementById("confirmPassword").value;
-      var errorMessage = document.getElementById("error-message");
-
-      if (password !== confirmPassword) {
-        errorMessage.innerText = "Passwords do not match!";
-        return false;
-      }
-      errorMessage.innerText = "";
-      return true;
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      // Password toggle visibility function for password field
-      const passwordInput = document.getElementById('password');
-      const togglePassword = document.getElementById('togglePassword');
-
-      togglePassword.addEventListener('click', function() {
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-
-        // Toggle icon classes
-        if (type === 'password') {
-          togglePassword.classList.remove('fa-eye');
-          togglePassword.classList.add('fa-eye-slash');
-        } else {
-          togglePassword.classList.remove('fa-eye-slash');
-          togglePassword.classList.add('fa-eye');
-        }
-      });
-
-      // Password toggle visibility function for confirm password field
-      const confirmPasswordInput = document.getElementById('confirmPassword');
-      const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
-
-      toggleConfirmPassword.addEventListener('click', function() {
-        const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        confirmPasswordInput.setAttribute('type', type);
-
-        // Toggle icon classes
-        if (type === 'password') {
-          toggleConfirmPassword.classList.remove('fa-eye');
-          toggleConfirmPassword.classList.add('fa-eye-slash');
-        } else {
-          toggleConfirmPassword.classList.remove('fa-eye-slash');
-          toggleConfirmPassword.classList.add('fa-eye');
-        }
-      });
-    });
-  </script>
 </head>
 <body>
 <!-- Welcome Text -->
@@ -248,57 +233,74 @@
   Begin your cinematic adventure now with our ticketing platform!
 </div>
 
+<!-- Registration Success Message (shown after successful registration) -->
+<div class="register-container" th:if="${param.registered}" style="display: none;">
+  <div class="registration-success">
+    <h3>Registration Successful!</h3>
+    <p>Your account has been created successfully.</p>
+    <a th:href="@{/login}" class="back-to-login-btn">Back to Login</a>
+  </div>
+</div>
+
 <!-- Register Form -->
-<div class="register-container">
+<div class="register-container" th:unless="${param.registered}">
   <h2 class="form-title">Register</h2>
-  <form th:action="@{/register}" method="post" onsubmit="return validatePassword()">
+  <form id="registerForm" th:action="@{/register}" method="post" onsubmit="return validateForm()">
 
     <!-- Username -->
     <div class="form-group">
-      <label>Username:</label>
-      <input type="text" name="username" required>
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required>
+      <div class="field-error" id="username-error"></div>
+      <div class="field-error" th:if="${usernameError}" th:text="${usernameError}"></div>
     </div>
 
     <!-- Password -->
     <div class="form-group">
-      <label>Password:</label>
+      <label for="password">Password:</label>
       <div class="password-field">
         <input type="password" id="password" name="password" required>
         <i id="togglePassword" class="fas fa-eye-slash toggle-password"></i>
       </div>
+      <div class="field-error" id="password-error"></div>
     </div>
 
     <!-- Confirm Password -->
     <div class="form-group">
-      <label>Confirm Password:</label>
+      <label for="confirmPassword">Confirm Password:</label>
       <div class="password-field">
         <input type="password" id="confirmPassword" name="confirmPassword" required>
         <i id="toggleConfirmPassword" class="fas fa-eye-slash toggle-password"></i>
       </div>
+      <div class="field-error" id="confirmPassword-error"></div>
     </div>
 
     <!-- Email -->
     <div class="form-group">
-      <label>Email:</label>
-      <input type="email" name="email">
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email">
+      <div class="field-error" id="email-error"></div>
+      <div class="field-error" th:if="${emailError}" th:text="${emailError}"></div>
     </div>
 
     <!-- Phone Number -->
     <div class="form-group">
-      <label>Phone Number:</label>
-      <input type="text" name="phoneNumber">
+      <label for="phoneNumber">Phone Number:</label>
+      <input type="text" id="phoneNumber" name="phoneNumber">
+      <div class="field-error" id="phoneNumber-error"></div>
     </div>
 
     <!-- User Image -->
     <div class="form-group">
-      <label>Profile Image URL:</label>
-      <input type="text" name="userImg" placeholder="Enter image URL">
+      <label for="userImg">Profile Image URL:</label>
+      <input type="text" id="userImg" name="userImg" placeholder="Enter image URL">
+      <div class="field-error" id="userImg-error"></div>
     </div>
 
     <!-- Gender -->
     <div class="form-group">
-      <label>Gender:</label>
-      <select name="sex">
+      <label for="sex">Gender:</label>
+      <select id="sex" name="sex">
         <option value="Male">Male</option>
         <option value="Female">Female</option>
         <option value="Other">Other</option>
@@ -307,8 +309,9 @@
 
     <!-- Date of Birth -->
     <div class="form-group">
-      <label>Date of Birth:</label>
-      <input type="date" name="dateOfBirth">
+      <label for="dateOfBirth">Date of Birth:</label>
+      <input type="date" id="dateOfBirth" name="dateOfBirth">
+      <div class="field-error" id="dateOfBirth-error"></div>
     </div>
 
     <!-- Role (Hidden Field) -->
@@ -318,7 +321,6 @@
     <input type="hidden" name="status" value="ACTIVE">
 
     <!-- Submit Button -->
-    <p id="error-message" class="error-message"></p>
     <button type="submit" class="submit-btn">Register</button>
 
     <!-- Login Link -->
@@ -327,13 +329,151 @@
     </div>
   </form>
 
-  <!-- Success or Error Messages -->
-  <div th:if="${message}">
-    <p class="success-message" th:text="${message}"></p>
-  </div>
-  <div th:if="${param.error}">
-    <p class="error-message">Registration failed. Please check your input!</p>
-  </div>
+  <!-- General Error Message -->
+  <div th:if="${error}" class="success-message" style="color: #f44336;" th:text="${error}"></div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Password toggle visibility function for password field
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('togglePassword');
+
+    togglePassword.addEventListener('click', function() {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+
+      // Toggle icon classes
+      if (type === 'password') {
+        togglePassword.classList.remove('fa-eye');
+        togglePassword.classList.add('fa-eye-slash');
+      } else {
+        togglePassword.classList.remove('fa-eye-slash');
+        togglePassword.classList.add('fa-eye');
+      }
+    });
+
+    // Password toggle visibility function for confirm password field
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+
+    toggleConfirmPassword.addEventListener('click', function() {
+      const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      confirmPasswordInput.setAttribute('type', type);
+
+      // Toggle icon classes
+      if (type === 'password') {
+        toggleConfirmPassword.classList.remove('fa-eye');
+        toggleConfirmPassword.classList.add('fa-eye-slash');
+      } else {
+        toggleConfirmPassword.classList.remove('fa-eye-slash');
+        toggleConfirmPassword.classList.add('fa-eye');
+      }
+    });
+
+    // Clear error messages when input changes
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.addEventListener('input', function() {
+        const errorElement = document.getElementById(input.id + '-error');
+        if (errorElement) {
+          errorElement.textContent = '';
+        }
+        input.style.borderColor = '#ccc';
+      });
+    });
+  });
+
+  function validateForm() {
+    let isValid = true;
+
+    // Clear all previous error messages
+    const errorElements = document.querySelectorAll('.field-error');
+    errorElements.forEach(el => el.textContent = '');
+
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => input.style.borderColor = '#ccc');
+
+    // Username validation
+    const username = document.getElementById('username');
+    if (!username.value.trim()) {
+      showError(username, 'Username is required');
+      isValid = false;
+    }
+
+    // Password validation
+    const password = document.getElementById('password');
+    if (!password.value) {
+      showError(password, 'Password is required');
+      isValid = false;
+    } else if (password.value.length < 6) {
+      showError(password, 'Password must be at least 6 characters');
+      isValid = false;
+    }
+
+    // Confirm password validation
+    const confirmPassword = document.getElementById('confirmPassword');
+    if (password.value !== confirmPassword.value) {
+      showError(confirmPassword, 'Passwords do not match');
+      isValid = false;
+    }
+
+    // Email validation (if provided)
+    const email = document.getElementById('email');
+    if (email.value && !isValidEmail(email.value)) {
+      showError(email, 'Please enter a valid email address');
+      isValid = false;
+    }
+
+    // Phone number validation (if provided)
+    const phoneNumber = document.getElementById('phoneNumber');
+    if (phoneNumber.value && !isValidPhoneNumber(phoneNumber.value)) {
+      showError(phoneNumber, 'Please enter a valid phone number');
+      isValid = false;
+    }
+
+    // Image URL validation (if provided)
+    const userImg = document.getElementById('userImg');
+    if (userImg.value && !isValidURL(userImg.value)) {
+      showError(userImg, 'Please enter a valid URL');
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  function showError(input, message) {
+    input.style.borderColor = '#f44336';
+    const errorElement = document.getElementById(input.id + '-error');
+    if (errorElement) {
+      errorElement.textContent = message;
+    }
+  }
+
+  function isValidEmail(email) {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+  }
+
+  function isValidPhoneNumber(phone) {
+    const re = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+    return re.test(phone);
+  }
+
+  function isValidURL(url) {
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Show registration success container and hide register form if registration was successful
+  if (window.location.href.includes('?registered')) {
+    document.querySelector('.register-container').style.display = 'none';
+    document.querySelector('.register-container[style]').style.display = 'block';
+  }
+</script>
 </body>
 </html>
