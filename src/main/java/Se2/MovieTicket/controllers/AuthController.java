@@ -308,8 +308,8 @@ public class AuthController {
         if (sessionUser  == null) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
-                UserDetailsImpl userDetails = (User DetailsImpl) authentication.getPrincipal();
-                Optional<User> userOptional = userService.getUser ById(userDetails.getId());
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                Optional<User> userOptional = userService.getUserById(userDetails.getId());
 
                 if (userOptional.isPresent()) {
                     User user = userOptional.get();
