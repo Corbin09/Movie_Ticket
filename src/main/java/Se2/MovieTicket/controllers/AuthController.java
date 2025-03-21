@@ -8,6 +8,7 @@ import Se2.MovieTicket.service.FilmService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import Se2.MovieTicket.dto.LoginRequest;
@@ -28,10 +29,14 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -159,77 +164,121 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestParam("dateOfBirth") String dateOfBirthStr, User user, Model model) {
-        try {
-            logger.info("Attempting to register user: {}", user.getUsername());
+    public String register(HttpServletRequest request, Model model) {
+        // Extract form data
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        String confirmPassword = request.getParameter("confirmPassword");
+        String email = request.getParameter("email");
+        String phoneNumber = request.getParameter("phoneNumber");
+        String userImg = request.getParameter("userImg");
+        String sex = request.getParameter("sex");
+        String dateOfBirthStr = request.getParameter("dateOfBirth");
 
-            // Kiểm tra username đã tồn tại chưa
-            if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-                logger.warn("Username already exists: {}", user.getUsername());
-                model.addAttribute("error", "Username already exists");
-                model.addAttribute("user", user);
+        // Validate username (required)
+        if (username == null || username.trim().isEmpty()) {
+            model.addAttribute("usernameError", "Username is required");
+            return "register";
+        }
+
+        // Check if username already exists
+        if (userRepository.findByUsername(username).isPresent()) {
+            model.addAttribute("usernameError", "Username already exists");
+            return "register";
+        }
+
+        // Validate password (required and min length)
+        if (password == null || password.trim().isEmpty()) {
+            model.addAttribute("passwordError", "Password is required");
+            return "register";
+        }
+
+        if (password.length() < 6) {
+            model.addAttribute("passwordError", "Password must be at least 6 characters");
+            return "register";
+        }
+
+        // Confirm passwords match
+        if (!password.equals(confirmPassword)) {
+            model.addAttribute("confirmPasswordError", "Passwords do not match");
+            return "register";
+        }
+
+        // Validate email (if provided)
+        if (email != null && !email.isEmpty()) {
+            String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+            if (!email.matches(emailRegex)) {
+                model.addAttribute("emailError", "Please enter a valid email address");
                 return "register";
             }
 
-            // Kiểm tra email đã tồn tại chưa
-            if (user.getEmail() != null && userRepository.findByEmail(user.getEmail()).isPresent()) {
-                logger.warn("Email already exists: {}", user.getEmail());
-                model.addAttribute("error", "Email already exists");
-                model.addAttribute("user", user);
+            // Check if email already exists
+            if (userRepository.findByEmail(email).isPresent()) {
+                model.addAttribute("emailError", "Email already exists");
                 return "register";
             }
+        }
 
-            // Mã hóa mật khẩu trước khi lưu
-            String encodedPassword = passwordEncoder.encode(user.getPassword());
+        // Validate phone number (if provided)
+        if (phoneNumber != null && !phoneNumber.isEmpty()) {
+            String phoneRegex = "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$";
+            if (!phoneNumber.matches(phoneRegex)) {
+                model.addAttribute("phoneNumberError", "Please enter a valid phone number");
+                return "register";
+            }
+        }
 
-            // Ép kiểu dateOfBirth từ String về Date
-            Date dateOfBirth = null;
+        // Validate image URL (if provided)
+        if (userImg != null && !userImg.isEmpty()) {
+            try {
+                new URL(userImg);
+            } catch (MalformedURLException e) {
+                model.addAttribute("userImgError", "Please enter a valid URL");
+                return "register";
+            }
+        }
+
+        // Validate and parse date of birth (if provided)
+        Date dateOfBirth = null;
+        if (dateOfBirthStr != null && !dateOfBirthStr.isEmpty()) {
             try {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 dateFormat.setLenient(false);
                 dateOfBirth = dateFormat.parse(dateOfBirthStr);
             } catch (ParseException e) {
-                logger.error("Invalid date format: {}", dateOfBirthStr);
-                model.addAttribute("error", "Invalid date format. Please use yyyy-MM-dd.");
-                model.addAttribute("user", user);
+                model.addAttribute("dateOfBirthError", "Invalid date format. Please use yyyy-MM-dd.");
                 return "register";
             }
+        }
 
-            // Convert User thành UserDTO
+        try {
+            // Encode password
+            String encodedPassword = passwordEncoder.encode(password);
+
+            // Create UserDTO
             UserDTO userDTO = new UserDTO();
-            userDTO.setUsername(user.getUsername());
+            userDTO.setUsername(username);
             userDTO.setPassword(encodedPassword);
-            userDTO.setEmail(user.getEmail());
-            userDTO.setPhoneNumber(user.getPhoneNumber());
-            userDTO.setSex(user.getSex());
+            userDTO.setEmail(email);
+            userDTO.setPhoneNumber(phoneNumber);
+            userDTO.setUserImg(userImg);
+            userDTO.setSex(sex);
             userDTO.setDateOfBirth(dateOfBirth);
             userDTO.setRole("USER");
             userDTO.setStatus("ACTIVE");
 
-            // Lưu user vào database
+            // Save user
             userService.createUser(userDTO);
+            logger.info("User registered successfully: {}", username);
 
-            logger.info("User registered successfully: {}", user.getUsername());
+            // Redirect to login page with success message
             return "redirect:/login?registered";
+
         } catch (Exception e) {
             logger.error("Registration failed: {}", e.getMessage());
             model.addAttribute("error", "Registration failed: " + e.getMessage());
-            model.addAttribute("user", user);
             return "register";
         }
-    }
-
-    @GetMapping("/logout")
-    public String logout(HttpServletRequest request, HttpServletResponse response) {
-        logger.info("Processing logout request");
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-            new SecurityContextLogoutHandler().logout(request, response, authentication);
-            logger.info("User logged out successfully");
-        }
-
-        return "redirect:/login?logout";
     }
 
     @GetMapping("/access-denied")
