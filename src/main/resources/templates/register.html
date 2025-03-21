@@ -3,64 +3,300 @@
 <head>
   <title>Register</title>
   <link rel="stylesheet" th:href="@{/css/login.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(to right, #0a4322, #127b40, #0a4322);
+      color: #333;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .welcome-text {
+      position: fixed;
+      top: 50%;
+      left: 10%;
+      transform: translateY(-50%);
+      width: 35%;
+      max-width: 450px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 300;
+      font-style: italic; /* Only the welcome text is italic */
+      font-size: 43px;
+      line-height: 1.3;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.44) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+      z-index: 10;
+    }
+
+    .register-container {
+      background-color: #FFFFFF;
+      border-radius: 10px;
+      padding: 30px;
+      width: 500px;
+      margin-left: auto;
+      margin-right: 10%;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-title {
+      font-size: 24px;
+      margin-bottom: 25px;
+      color: #333;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: transparent;
+      color: #333;
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .form-group select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 1em;
+      padding-right: 30px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #aee09f;
+    }
+
+    .password-field {
+      position: relative;
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #666;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #127b40;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 15px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .submit-btn:hover {
+      background-color: #0a4322;
+    }
+
+    .error-message {
+      color: #f44336;
+      font-size: 14px;
+      margin-top: 5px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .success-message {
+      color: #127b40;
+      font-size: 14px;
+      margin-top: 5px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .login-link {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .login-link a {
+      color: #127b40;
+      text-decoration: none;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 1200px) {
+      body {
+        flex-direction: column;
+        padding-top: 100px;
+      }
+
+      .welcome-text {
+        position: relative;
+        top: 0;
+        left: 0;
+        transform: none;
+        width: 90%;
+        max-width: 500px;
+        margin: 0 auto 40px;
+        text-align: center;
+      }
+
+      .register-container {
+        margin: 0 auto;
+        width: 90%;
+        max-width: 500px;
+      }
+    }
+  </style>
   <script>
     function validatePassword() {
-        var password = document.getElementById("password").value;
-        var confirmPassword = document.getElementById("confirmPassword").value;
-        var errorMessage = document.getElementById("error-message");
+      var password = document.getElementById("password").value;
+      var confirmPassword = document.getElementById("confirmPassword").value;
+      var errorMessage = document.getElementById("error-message");
 
-        if (password !== confirmPassword) {
-            errorMessage.innerText = "Passwords do not match!";
-            return false;
-        }
-        errorMessage.innerText = "";
-        return true;
+      if (password !== confirmPassword) {
+        errorMessage.innerText = "Passwords do not match!";
+        return false;
+      }
+      errorMessage.innerText = "";
+      return true;
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Password toggle visibility function for password field
+      const passwordInput = document.getElementById('password');
+      const togglePassword = document.getElementById('togglePassword');
+
+      togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+
+        // Toggle icon classes
+        if (type === 'password') {
+          togglePassword.classList.remove('fa-eye');
+          togglePassword.classList.add('fa-eye-slash');
+        } else {
+          togglePassword.classList.remove('fa-eye-slash');
+          togglePassword.classList.add('fa-eye');
+        }
+      });
+
+      // Password toggle visibility function for confirm password field
+      const confirmPasswordInput = document.getElementById('confirmPassword');
+      const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+
+      toggleConfirmPassword.addEventListener('click', function() {
+        const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirmPasswordInput.setAttribute('type', type);
+
+        // Toggle icon classes
+        if (type === 'password') {
+          toggleConfirmPassword.classList.remove('fa-eye');
+          toggleConfirmPassword.classList.add('fa-eye-slash');
+        } else {
+          toggleConfirmPassword.classList.remove('fa-eye-slash');
+          toggleConfirmPassword.classList.add('fa-eye');
+        }
+      });
+    });
   </script>
 </head>
 <body>
-<div class="login-container">
-  <h2>Register</h2>
+<!-- Welcome Text -->
+<div class="welcome-text">
+  Welcome.<br>
+  Begin your cinematic adventure now with our ticketing platform!
+</div>
+
+<!-- Register Form -->
+<div class="register-container">
+  <h2 class="form-title">Register</h2>
   <form th:action="@{/register}" method="post" onsubmit="return validatePassword()">
 
     <!-- Username -->
-    <div>
+    <div class="form-group">
       <label>Username:</label>
       <input type="text" name="username" required>
     </div>
 
     <!-- Password -->
-    <div>
+    <div class="form-group">
       <label>Password:</label>
-      <input type="password" id="password" name="password" required>
+      <div class="password-field">
+        <input type="password" id="password" name="password" required>
+        <i id="togglePassword" class="fas fa-eye-slash toggle-password"></i>
+      </div>
     </div>
 
     <!-- Confirm Password -->
-    <div>
+    <div class="form-group">
       <label>Confirm Password:</label>
-      <input type="password" id="confirmPassword" name="confirmPassword" required>
+      <div class="password-field">
+        <input type="password" id="confirmPassword" name="confirmPassword" required>
+        <i id="toggleConfirmPassword" class="fas fa-eye-slash toggle-password"></i>
+      </div>
     </div>
 
     <!-- Email -->
-    <div>
+    <div class="form-group">
       <label>Email:</label>
       <input type="email" name="email">
     </div>
 
     <!-- Phone Number -->
-    <div>
+    <div class="form-group">
       <label>Phone Number:</label>
       <input type="text" name="phoneNumber">
     </div>
 
     <!-- User Image -->
-    <div>
+    <div class="form-group">
       <label>Profile Image URL:</label>
       <input type="text" name="userImg" placeholder="Enter image URL">
     </div>
 
     <!-- Gender -->
-    <div>
+    <div class="form-group">
       <label>Gender:</label>
       <select name="sex">
         <option value="Male">Male</option>
@@ -70,7 +306,7 @@
     </div>
 
     <!-- Date of Birth -->
-    <div>
+    <div class="form-group">
       <label>Date of Birth:</label>
       <input type="date" name="dateOfBirth">
     </div>
@@ -82,8 +318,13 @@
     <input type="hidden" name="status" value="ACTIVE">
 
     <!-- Submit Button -->
-    <p id="error-message" style="color: red;"></p>
-    <button type="submit">Register</button>
+    <p id="error-message" class="error-message"></p>
+    <button type="submit" class="submit-btn">Register</button>
+
+    <!-- Login Link -->
+    <div class="login-link">
+      Already Have An Account? <a th:href="@{/login}">Log In</a>
+    </div>
   </form>
 
   <!-- Success or Error Messages -->
