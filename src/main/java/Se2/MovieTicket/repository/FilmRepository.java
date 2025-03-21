@@ -16,7 +16,8 @@ import java.util.Optional;
 public interface FilmRepository extends JpaRepository<Film, Long> {
     @Query("SELECT f FROM Film f WHERE LOWER(f.filmName) LIKE LOWER(CONCAT('%', :name, '%'))")
     List<Film> searchByFilmName(@Param("name") String name);
-
+    // Method query để tìm kiếm theo tên phim, bỏ qua chữ hoa chữ thường
+    Page<Film> findByFilmNameContainingIgnoreCase(String name, Pageable pageable);
     @Query("SELECT f FROM Film f WHERE f.releaseDate > :date")
     List<Film> findByReleaseDateAfter(@Param("date") Date date);
 
@@ -43,4 +44,30 @@ public interface FilmRepository extends JpaRepository<Film, Long> {
 
     @Query("SELECT f FROM Film f JOIN f.filmActors fa WHERE fa.actor.actorId = :actorId")
     List<Film> findByActorId(@Param("actorId") Long actorId);
+
+    // Existing methods
+    List<Film> findByReleaseDateBeforeOrderByReleaseDateDesc(Date currentDate);
+
+    List<Film> findByReleaseDateAfterOrderByReleaseDateAsc(Date currentDate);
+
+    Page<Film> findByReleaseDateBeforeOrderByReleaseDateDesc(Date currentDate, Pageable pageable);
+
+    Page<Film> findByReleaseDateAfterOrderByReleaseDateAsc(Date currentDate, Pageable pageable);
+
+    @Query("SELECT DISTINCT f FROM Film f " +
+            "LEFT JOIN f.filmActors fa " +
+            "LEFT JOIN fa.actor a " +
+            "LEFT JOIN f.filmDirectors fd " +
+            "LEFT JOIN fd.director d " +
+            "LEFT JOIN f.showtimes s " +
+            "LEFT JOIN s.cinema c " +
+            "LEFT JOIN c.cinemaCluster cc " +
+            "WHERE LOWER(f.filmName) LIKE CONCAT('%', :searchTerm, '%') " +
+            "OR LOWER(f.filmType) LIKE CONCAT('%', :searchTerm, '%') " +
+            "OR LOWER(a.actorName) LIKE CONCAT('%', :searchTerm, '%') " +
+            "OR LOWER(d.directorName) LIKE CONCAT('%', :searchTerm, '%') " +
+            "OR LOWER(c.cinemaName) LIKE CONCAT('%', :searchTerm, '%') " +
+            "OR LOWER(cc.clusterName) LIKE CONCAT('%', :searchTerm, '%')")
+    Page<Film> findBySearchTerm(@Param("searchTerm") String searchTerm, Pageable pageable);
+
 }

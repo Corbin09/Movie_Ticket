@@ -53,9 +53,10 @@
     color: white;
     border: none;
     padding: 5px 15px;
-    border-radius: 5px;
+    border-radius: 12px;
     cursor: pointer;
     font-size: 14px;
+    text-decoration: none;
 }
 
 .header-bottom {
@@ -78,6 +79,7 @@
     padding-bottom: 5px;
 }
 
+/* Gạch dưới hiển thị cho mục active */
 .nav-menu a.active::after {
     content: "";
     position: absolute;
@@ -97,15 +99,27 @@
     border: none;
     padding: 8px 35px 8px 15px;
     border-radius: 20px;
-    width: 200px;
+    width: 280px;
     font-size: 14px;
 }
 
-.search-icon {
+.search-btn {
     position: absolute;
-    right: 12px;
+    right: 14px;  /* Căn chỉnh để button nằm đúng bên phải */
     top: 50%;
     transform: translateY(-50%);
-    color: #666;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-icon {
+    color: #666;
+    font-size: 18px;  /* Tăng kích cỡ icon cho dễ nhìn */
+    pointer-events: none;  /* Chặn click vào icon, buộc phải click vào button */
 }

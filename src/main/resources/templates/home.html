@@ -6,15 +6,145 @@
     <title> Home </title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/home.css}" />
+    <link rel="stylesheet" th:href="@{/css/header_user.css}">
+    <!-- Font Awesome -->
+    <!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">-->
+
+    <style>
+        .search-results-section {
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.6); /* Adds transparency for gradient harmony */
+    border-radius: 8px;
+    color: white; /* Ensure text remains visible */
+}
+
+        .search-results-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-results-title h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #0ad021; /* Matches active pagination dot */
+}
+
+
+        .search-query {
+            font-style: italic;
+            color: #555;
+        }
+
+        .search-count {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .clear-search {
+    background-color: rgba(255, 69, 0, 0.9); /* Transparent red */
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s; text-decoration: none;
+}
+
+
+        .clear-search:hover {
+    background-color: #ff4e00; /* Bright orange on hover */
+}
+        .no-results-message {
+            text-align: center;
+            padding: 40px 0;
+            color: #555;
+        }
+
+        .no-results-message i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .no-results-message h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .no-results-message p {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 
 <body>
 
 <!-- Header -->
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="~{fragments/header_user :: header}"></div>
 
-<!-- Hero Banner -->
-<div class="hero-banner">
+<!-- Search Results Section (only shows when search is performed) -->
+<div class="search-results-section" th:if="${searchPerformed}">
+    <div class="search-results-title">
+        <div>
+            <h2>Search Results</h2>
+            <p class="search-query">for "<span th:text="${searchQuery}"></span>"</p>
+            <p class="search-count" th:text="${searchResultsCount} + ' results found'"></p>
+        </div>
+        <a th:href="@{/home}" class="clear-search">Clear Search</a>
+    </div>
+
+    <!-- When search has results -->
+    <div class="movie-grid" th:if="${not #lists.isEmpty(searchResults)}">
+        <div th:each="film : ${searchResults}" class="movie-card">
+            <a th:href="@{'/films/' + ${film.filmId}}">
+                <div class="movie-poster-container">
+                    <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
+                </div>
+                <div class="movie-info">
+                    <div class="movie-meta">
+                        <span class="movie-category" th:text="${film.filmType}">Category</span>
+                        <span class="movie-release-date"
+                              th:text="${#dates.format(film.releaseDate, 'dd/MM/yyyy')}">Release Date</span>
+                        <span class="movie-duration" th:text="${film.duration + ' min'}">Duration</span>
+                    </div>
+                    <div class="movie-title" th:text="${film.filmName}">Film Name</div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- When search has no results -->
+    <div class="no-results-message" th:if="${#lists.isEmpty(searchResults)}">
+        <i class="fas fa-search"></i>
+        <h3>No results found</h3>
+        <p>We couldn't find any movies matching "<span th:text="${searchQuery}"></span>"</p>
+        <p>Try checking your spelling or using different keywords</p>
+    </div>
+
+    <!-- Pagination for Search Results -->
+    <div class="pagination" id="pagibar-search-results" th:if="${not #lists.isEmpty(searchResults)}">
+        <a th:if="${currentPageSearch > 1}"
+           th:href="@{/user-search(query=${searchQuery}, page=${currentPageSearch - 1})}"
+           class="prev">‹</a>
+
+        <a th:each="i : ${#numbers.sequence(1, totalPagesSearch)}"
+           th:href="@{/user-search(query=${searchQuery}, page=${i})}"
+           th:classappend="${currentPageSearch == i} ? 'active' : ''"
+           th:text="${i}"></a>
+
+        <a th:if="${currentPageSearch < totalPagesSearch}"
+           th:href="@{/user-search(query=${searchQuery}, page=${currentPageSearch + 1})}"
+           class="next">›</a>
+    </div>
+</div>
+
+<!-- Hero Banner (show only when not searching) -->
+<div class="hero-banner" th:if="${!searchPerformed}">
     <div class="hero-slider">
         <img th:each="film, stat : ${nowShowingMovies}" th:if="${stat.index < 3}"
              th:src="@{${film.filmImg}}" alt="Featured Movie"
@@ -28,8 +158,8 @@
     </div>
 </div>
 
-<!-- Now Showing Section -->
-<div class="movie-section">
+<!-- Now Showing Section (show only when not searching) -->
+<div class="movie-section" th:if="${!searchPerformed}">
     <h2 class="section-title">Now Showing</h2>
     <div class="movie-grid">
         <div th:each="film : ${nowShowingMovies}" class="movie-card">
@@ -67,8 +197,8 @@
     </div>
 </div>
 
-<!-- Coming Soon Section -->
-<div class="movie-section">
+<!-- Coming Soon Section (show only when not searching) -->
+<div class="movie-section" th:if="${!searchPerformed}">
     <h2 class="section-title">Coming Soon</h2>
     <div class="movie-grid">
         <div th:each="film : ${comingSoonMovies}" class="movie-card">

@@ -67,6 +67,16 @@ public class FilmService {
         return filmRepository.findAll();
     }
 
+
+
+//    public Page<Film> searchFilms(String name, Pageable pageable) {
+//        if (name != null && !name.isEmpty()) {
+//            return filmRepository.findByFilmNameContainingIgnoreCase(name, pageable);  // Paginated query
+//        } else {
+//            return filmRepository.findAll(pageable);  // Return all films paginated if no query
+//        }
+//    }
+
     public Optional<Film> getFilmById(Long id) {
         return filmRepository.findById(id);
     }
@@ -140,5 +150,32 @@ public class FilmService {
         int end = Math.min((start + pageable.getPageSize()), films.size());
         List<Film> pagedList = films.subList(start, end);
         return new PageImpl<>(pagedList, pageable, films.size());
+    }
+
+    public List<Film> findNowShowingFilms() {
+        Date currentDate = new Date();
+        return filmRepository.findByReleaseDateBeforeOrderByReleaseDateDesc(currentDate);
+    }
+
+    public List<Film> findComingSoonFilms() {
+        Date currentDate = new Date();
+        return filmRepository.findByReleaseDateAfterOrderByReleaseDateAsc(currentDate);
+    }
+
+    public Page<Film> findNowShowingFilmsWithPagination(Pageable pageable) {
+        Date currentDate = new Date();
+        return filmRepository.findByReleaseDateBeforeOrderByReleaseDateDesc(currentDate, pageable);
+    }
+
+    public Page<Film> findComingSoonFilmsWithPagination(Pageable pageable) {
+        Date currentDate = new Date();
+        return filmRepository.findByReleaseDateAfterOrderByReleaseDateAsc(currentDate, pageable);
+    }
+
+    // New search method
+    public Page<Film> searchFilms(String query, Pageable pageable) {
+        // Convert query to lowercase for case-insensitive search
+        String searchQuery = "%" + query.toLowerCase() + "%";
+        return filmRepository.findBySearchTerm(searchQuery, pageable);
     }
 }

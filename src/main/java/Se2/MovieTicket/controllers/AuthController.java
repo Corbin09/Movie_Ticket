@@ -427,64 +427,98 @@ public class AuthController {
     }
 
 
-@GetMapping("/home")
-public String home(
-        @RequestParam(defaultValue = "1") int currentPageNowShowing,
-        @RequestParam(defaultValue = "1") int currentPageComingSoon,
-        Model model, HttpServletRequest request) {
+    @GetMapping("/home")
+    public String home(
+            @RequestParam(defaultValue = "1") int currentPageNowShowing,
+            @RequestParam(defaultValue = "1") int currentPageComingSoon,
+            Model model, HttpServletRequest request) {
 
-    logger.info("Accessing home page");
+        logger.info("Accessing home page");
 
-    // First try to get user from session
-    HttpSession session = request.getSession(false);
-    User sessionUser = null;
-    if (session != null) {
-        sessionUser = (User) session.getAttribute("user");
-        if (sessionUser != null) {
-            logger.info("User found in session: {}", sessionUser.getUsername());
-            model.addAttribute("user", sessionUser);
+        // First try to get user from session
+        HttpSession session = request.getSession(false);
+        User sessionUser = null;
+        if (session != null) {
+            sessionUser = (User) session.getAttribute("user");
+            if (sessionUser != null) {
+                logger.info("User found in session: {}", sessionUser.getUsername());
+                model.addAttribute("user", sessionUser);
+            }
         }
-    }
 
-    // If not in session, try from SecurityContext
-    if (sessionUser == null) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            Optional<User> userOptional = userService.getUserById(userDetails.getId());
+        // If not in session, try from SecurityContext
+        if (sessionUser == null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                Optional<User> userOptional = userService.getUserById(userDetails.getId());
 
-            if (userOptional.isPresent()) {
-                User user = userOptional.get();
-                model.addAttribute("user", user);
+                if (userOptional.isPresent()) {
+                    User user = userOptional.get();
+                    model.addAttribute("user", user);
 
-                // Save to session for future requests
-                if (session != null) {
-                    session.setAttribute("user", user);
-                    logger.info("User saved to session from SecurityContext");
+                    // Save to session for future requests
+                    if (session != null) {
+                        session.setAttribute("user", user);
+                        logger.info("User saved to session from SecurityContext");
+                    }
                 }
             }
         }
+
+        // Fetch paginated films for Now Showing and Coming Soon
+        int size = 8; // Số lượng phim hiển thị trên mỗi trang
+        Page<Film> nowShowingPage = filmService.getNowShowingFilms(currentPageNowShowing, size);
+        Page<Film> comingSoonPage = filmService.getComingSoonFilms(currentPageComingSoon, size);
+
+        model.addAttribute("nowShowingMovies", nowShowingPage.getContent());
+        model.addAttribute("comingSoonMovies", comingSoonPage.getContent());
+
+        model.addAttribute("currentPageNowShowing", currentPageNowShowing);
+        model.addAttribute("totalPagesNowShowing", nowShowingPage.getTotalPages());
+
+        model.addAttribute("currentPageComingSoon", currentPageComingSoon);
+        model.addAttribute("totalPagesComingSoon", comingSoonPage.getTotalPages());
+
+        // Fetch all films (previously used list)
+        List<Film> films = filmService.getAllFilms();
+        logger.info("Number of films retrieved: {}", films.size());
+        model.addAttribute("films", films);
+// Add flag to indicate that we're not in search mode
+        model.addAttribute("searchPerformed", false);
+
+        // **Add currentPage to set the active tab in Thymeleaf**
+        model.addAttribute("currentPage", "home");
+
+        return "home";  // Trả về trang template home.html
+    }
+    @GetMapping("/showtime")
+    public String showtime(Model model) {
+        model.addAttribute("currentPage", "showtime");
+        return "showtime";
     }
 
-    // Fetch paginated films for Now Showing and Coming Soon
-    int size = 8; // Số lượng phim hiển thị trên mỗi trang
-    Page<Film> nowShowingPage = filmService.getNowShowingFilms(currentPageNowShowing, size);
-    Page<Film> comingSoonPage = filmService.getComingSoonFilms(currentPageComingSoon, size);
+    @GetMapping("/news")
+    public String news(Model model) {
+        model.addAttribute("currentPage", "news");
+        return "news";
+    }
 
-    model.addAttribute("nowShowingMovies", nowShowingPage.getContent());
-    model.addAttribute("comingSoonMovies", comingSoonPage.getContent());
 
-    model.addAttribute("currentPageNowShowing", currentPageNowShowing);
-    model.addAttribute("totalPagesNowShowing", nowShowingPage.getTotalPages());
 
-    model.addAttribute("currentPageComingSoon", currentPageComingSoon);
-    model.addAttribute("totalPagesComingSoon", comingSoonPage.getTotalPages());
 
-    // Fetch all films (previously used list)
-    List<Film> films = filmService.getAllFilms();
-    logger.info("Number of films retrieved: {}", films.size());
-    model.addAttribute("films", films);
 
-    return "home";
-}
+
+
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+        logger.info("User logging out");
+
+        // Xóa tất cả các session attribute
+        session.invalidate();  // Hủy toàn bộ session hiện tại
+
+        // Chuyển hướng người dùng về trang login với thông báo logout thành công
+        return "redirect:/login?logout";
+    }
 }

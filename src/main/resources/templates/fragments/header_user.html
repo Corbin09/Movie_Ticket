@@ -1,177 +1,52 @@
-<!-- header_user.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Cinema Website</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
+    <title>Header Fragment</title>
 
-        .header {
-            background-color: #000;
-            padding: 15px 0;
-            width: 100%;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        /* Top row with logo and user info */
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            height: 40px;
-        }
-
-        .user-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .username {
-            color: white;
-            font-weight: 500;
-        }
-
-        .logout-btn {
-            background: linear-gradient(to right, #ff3333, #ff0066);
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        /* Bottom row with navigation and search */
-        .header-bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .nav-menu {
-            display: flex;
-            list-style: none;
-            gap: 30px;
-        }
-
-        .nav-menu a {
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            position: relative;
-            padding-bottom: 5px;
-        }
-
-        .nav-menu a.active::after {
-            content: "";
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: white;
-        }
-
-        .search-form {
-            position: relative;
-        }
-
-        .search-input {
-            background-color: white;
-            border: none;
-            padding: 8px 35px 8px 15px;
-            border-radius: 20px;
-            width: 200px;
-            font-size: 14px;
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #666;
-            cursor: pointer;
-        }
-    </style>
 </head>
 <body>
-<header class="header">
+<header class="header" th:fragment="header">
     <div class="container">
-        <!-- Top row: Logo and User section -->
         <div class="header-top">
             <img th:src="@{/images/cinema_logo.png}" alt="Cinema Logo" class="logo">
-
             <div class="user-section">
                 <img th:src="${user.userImg}" alt="User Avatar" class="user-avatar"
-                     onerror="this.onerror=null; this.src='/static/images/anonymous.png';">
+                     onerror="this.src='/static/images/anonymous.png';">
                 <span class="username" th:text="${user.username}">User Name</span>
                 <a th:href="@{/logout}" class="logout-btn">Log out</a>
             </div>
         </div>
 
-        <!-- Bottom row: Navigation and Search -->
         <div class="header-bottom">
             <ul class="nav-menu">
-                <li>
-                    <a th:href="@{/home}" th:class="${currentPage == 'home' ? 'active' : ''}">Home</a>
-                </li>
-                <li>
-                    <a th:href="@{/showtime}" th:class="${currentPage == 'showtime' ? 'active' : ''}">Showtime</a>
-                </li>
-                <li>
-                    <a th:href="@{/news}" th:class="${currentPage == 'news' ? 'active' : ''}">News</a>
-                </li>
+                <li><a th:href="@{/home}" th:classappend="${currentPage == 'home' ? 'active' : ''}">Home</a></li>
+                <li><a th:href="@{/showtime}" th:classappend="${currentPage == 'showtime' ? 'active' : ''}">Showtime</a></li>
+                <li><a th:href="@{/news}" th:classappend="${currentPage == 'news' ? 'active' : ''}">News</a></li>
             </ul>
 
-            <form th:action="@{/search}" method="GET" class="search-form">
+            <form th:action="@{/user-search}" method="GET" class="search-form">
                 <input type="text" name="query" placeholder="Search..." class="search-input">
-                <i class="fas fa-search search-icon"></i>
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search search-icon"></i>
+                </button>
             </form>
         </div>
     </div>
 </header>
 
 <script>
-    // Handle search form submission
     document.querySelector('.search-form').addEventListener('submit', function(event) {
         const query = document.querySelector('.search-input').value.trim();
         if (!query) {
-            event.preventDefault(); // Prevent empty submissions
+            event.preventDefault();
         }
     });
 
-    // Allow clicking on the search icon to submit the form
     document.querySelector('.search-icon').addEventListener('click', function() {
         document.querySelector('.search-form').submit();
     });
 </script>
+
 </body>
 </html>
-
