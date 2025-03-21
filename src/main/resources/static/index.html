@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Multilingual Website</title>
+  <script>
+    function changeLanguage(lang) {
+        fetch(`/api/messages?key=welcome.message&lang=` + lang)
+            .then(response => response.text())
+            .then(text => document.getElementById("welcomeMessage").innerText = text);
+
+        fetch(`/api/messages?key=login.button&lang=` + lang)
+            .then(response => response.text())
+            .then(text => document.getElementById("loginButton").innerText = text);
+    }
+  </script>
+</head>
+<body>
+<h1 id="welcomeMessage">Welcome</h1>
+<button id="loginButton">Login</button>
+<br><br>
+<button onclick="changeLanguage('en')">English</button>
+<button onclick="changeLanguage('vi')">Tiếng Việt</button>
+</body>
+</html>
