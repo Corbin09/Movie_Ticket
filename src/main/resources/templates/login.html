@@ -3,40 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <title>Login Page</title>
-    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <!-- Updated Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Import Poppins font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #0a4322, #127b40, #0a4322);
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        .login-container {
+            width: 420px; /* Increased width */
+            padding: 25px; /* Slightly reduced padding */
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            box-sizing: border-box;
+        }
+        h2 {
+            text-align: center;
+            color: #0a4322;
+            margin-top: 0;
+            margin-bottom: 18px; /* Reduced margin */
+            font-weight: 600;
+            font-size: 20px; /* Smaller heading */
+        }
+        label {
+            display: block;
+            margin: 8px 0 5px; /* Reduced margin */
+            color: #333;
+            font-weight: 400; /* Removed bold */
+            font-size: 14px; /* Smaller label text */
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 9px; /* Slightly smaller padding */
+            margin: 4px 0 12px; /* Reduced margin */
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px; /* Smaller input text */
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #1DE782;
+            box-shadow: 0 0 3px rgba(29, 231, 130, 0.3);
+        }
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+        .password-container i {
+            position: absolute;
+            top: 63%; /* Center vertically relative to input field */
+            transform: translateY(-50%); /* Center precisely */
+            right: 15px;
+            cursor: pointer;
+            color: #777;
+            font-size: 14px; /* Smaller icon */
+        }
+        button {
+            width: 100%;
+            padding: 10px; /* Smaller padding */
+            background: #1DE782;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 15px; /* Smaller text */
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 4px; /* Reduced margin */
+            font-family: 'Poppins', sans-serif;
+        }
+        button:hover {
+            background: #19c772;
+        }
+        .error-message {
+            color: #ff3333;
+            text-align: center;
+            margin-bottom: 12px; /* Reduced margin */
+            font-size: 14px; /* Smaller text */
+        }
+        .logout-message {
+            color: #0a4322;
+            text-align: center;
+            margin-bottom: 12px; /* Reduced margin */
+            font-size: 14px; /* Smaller text */
+        }
+        .register-container {
+            display: block;
+            text-align: center;
+            margin-top: 16px; /* Reduced margin */
+            color: #333;
+            font-weight: 400;
+            font-size: 14px; /* Smaller text */
+        }
+        .register-container a {
+            color: #008300;
+            text-decoration: none;
+            margin-left: 4px; /* Reduced margin */
+            font-weight: 400; /* Removed bold */
+        }
+        .register-container a:hover {
+            color: #1DE782;
+        }
+    </style>
 </head>
 <body>
 <div class="login-container">
-    <h2>Login</h2>
-
-    <!-- Hiển thị thông báo lỗi khi đăng nhập sai -->
+    <h2>Login to your account</h2>
     <div th:if="${param.error}">
         <p class="error-message">Invalid username or password</p>
     </div>
-
-    <!-- Hiển thị thông báo khi đăng xuất thành công -->
     <div th:if="${param.logout}">
         <p class="logout-message">You have been logged out</p>
     </div>
-
     <form th:action="@{/login}" method="post">
         <div>
             <label>Username:</label>
             <input type="text" name="username" placeholder="Enter your username" required>
         </div>
-        <div>
+        <div class="password-container">
             <label>Password:</label>
-            <input type="password" name="password" placeholder="Enter your password" required>
+            <input type="password" name="password" placeholder="Enter your password" required id="password">
+            <i class="fas fa-eye-slash" id="togglePassword" onclick="togglePasswordVisibility()"></i>
         </div>
-
-        <!-- Thêm CSRF Token -->
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
-        <button type="submit">Login</button>
+        <button type="submit">Log in</button>
     </form>
-
-    <!-- Link chuyển hướng đến trang đăng ký -->
-    <a href="/register">Don't have an account? Register here</a>
+    <div class="register-container">
+        Don't have an account? <a href="/register">Register Here</a>
+    </div>
 </div>
+
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById("password");
+        const toggleIcon = document.getElementById("togglePassword");
+
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            toggleIcon.classList.remove("fa-eye-slash");
+            toggleIcon.classList.add("fa-eye");
+        } else {
+            passwordInput.type = "password";
+            toggleIcon.classList.remove("fa-eye");
+            toggleIcon.classList.add("fa-eye-slash");
+        }
+    }
+</script>
 </body>
 </html>
