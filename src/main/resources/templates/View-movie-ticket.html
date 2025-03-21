@@ -26,21 +26,21 @@
             <div class="columnw5bnthiz container-lg">
                 <div class="stackw5bnthiz">
                     <div class="movie">
-                        <img th:src="@{/images/{image}(image=${movie.image})}" alt="Movie Poster" class="w5bnthizja3rl1">
+                        <img th:src="${film.filmImg}" alt="Movie Poster" class="w5bnthizja3rl1">
                     </div>
                     <div class="movihasya">
-                        <img th:if="${movie.imagePng != null}" th:src="@{/images/{image}(image=${movie.imagePng})}" class="imagepng" alt="Image">
-                        <h1 class="heading size-heading8xl" th:text="${movie.title}">INVASHA4</h1>
-                        <p class="text size-textlgi" th:text="${movie.description}">
+                        <img th:if="${film.filmImg != null}" th:src="${film.filmImg})}" class="imagepng" alt="Image">
+                        <h1 class="heading size-heading8xl" th:text="${film.filmName}">INVASHA4</h1>
+                        <p class="text size-textlgi" th:text="${film.filmDescription}">
                             Get your tickets now for an amazing cinematic experience. From drama to comedy, there's a lot to enjoy.
                         </p>
                         <p class="description-3 ul text size-textlgi">
-                            <span class="description-span">Director:&nbsp;</span><span th:text="${movie.director}">Trần Thị Giang VIP Pro</span><br>
-                            <span class="description-span">Authors:&nbsp;</span><span th:text="${movie.authors}">Phan Giang, Lê Minh Hằng, Phan Thùy Ngân, Ngọc Anh, Nguyên Phương</span><br>
-                            <span class="description-span">Genre:&nbsp;</span><span th:text="${movie.genre}">Family</span><br>
-                            <span class="description-span">Premiere:&nbsp;</span><span th:text="${movie.premiereDate}">07/03/2025</span> | Times: <span th:text="${movie.duration} + ' minutes'">84 minutes</span>
+                            <span class="description-span">Director:&nbsp;</span><span th:text="${film.filmDirectors}">Trần Thị Giang VIP Pro</span><br>
+                            <span class="description-span">Authors:&nbsp;</span><span th:text="${film.filmActors}">Phan Giang, Lê Minh Hằng, Phan Thùy Ngân, Ngọc Anh, Nguyên Phương</span><br>
+                            <span class="description-span">Genre:&nbsp;</span><span th:text="${film.filmCategories}">Family</span><br>
+                            <span class="description-span">Premiere:&nbsp;</span><span th:text="${film.releaseDate}">07/03/2025</span> | Times: <span th:text="${film.duration} + ' minutes'">84 minutes</span>
                         </p>
-                        <a th:href="@{/movies}">
+                        <a th:href="@{/films}">
                             <button class="select_other ui button white_8 size-6xl fill">
                                 <img src="" alt="Arrow Down" class="arrow_down">
                                 SELECT OTHER MOVIE
@@ -54,12 +54,12 @@
 
     <div class="stackarowleft">
         <div th:each="cinema : ${cinemas}" class="stackprice">
-            <p class="price-1 ul text size-textxl" th:text="${cinema.name} + ' - ' + ${cinema.address}">
+            <p class="price-1 ul text size-textxl" th:text="${cinema.cinemaName} + ' - ' + ${cinema.address}">
                 BD Star Discovery - 8th Floor, TTTM Discovery - 302 Cau Giay, Hanoi
             </p>
             <div class="columnprice">
                 <div class="row-one-2">
-                    <a th:each="showtime : ${cinema.showtimes}" th:href="@{/booking/{id}(id=${showtime.id})}" target="_blank">
+                    <a th:each="showtime : ${cinema.showtimes}" th:href="" target="_blank">
                         <button class="ninehundredforty ui button green_a700 size-5xl fill" th:text="${showtime.time}">9:40</button>
                     </a>
                 </div>
@@ -67,25 +67,25 @@
         </div>
 
         <!-- Additional cinema layout with image -->
-        <div th:each="cinema : ${cinemasWithImage}" class="stackprice">
+        <div th:each="cinema : ${cinemas}" class="stackprice">
             <div class="columnprice">
                 <div class="rowprice-1">
-                    <img th:src="@{/images/{image}(image=${cinema.picture})}" alt="Cinema Image" class="imagethirtyeigh">
+                    <img th:src="" alt="Cinema Image" class="imagethirtyeigh">
                     <p class="text ui text size-textxl">
-                        <span th:text="${cinema.name}">BD Star Pham Ngoc Thach</span><br>
+                        <span th:text="${cinema.cinemaName}">BD Star Pham Ngoc Thach</span><br>
                         <span th:text="${cinema.address}">8th Floor of Vincom Shopping Center, 2 Pham Ngoc Thach, Dong Da</span>
                     </p>
                 </div>
                 <div class="row-four">
                     <div class="column-14">
-                        <a th:each="showtime : ${cinema.morningShowtimes}" th:href="@{/booking/{id}(id=${showtime.id})}" target="_blank">
-                            <div th:if="${!showtime.isFull}" class="container-2">
+                        <a th:each="showtime : ${cinema.showtimes}" th:href="@{/booking/{id}(id=${showtime.id})}" target="_blank">
+                            <div class="container-2">
                                 <button class="ninehundredthirty ui button green_a700 size-5xl fill" th:text="${showtime.time}">10:10</button>
                             </div>
                         </a>
                     </div>
                     <div class="row_three">
-                        <a th:each="showtime : ${cinema.eveningShowtimes}" th:href="@{/booking/{id}(id=${showtime.id})}" target="_blank">
+                        <a th:each="showtime : ${cinema.showtimes}" th:href="" target="_blank">
                             <div class="rowemail">
                                 <button class="ninehundredthirty ui button green_a700 size-5xl fill" th:text="${showtime.time}">17:15</button>
                             </div>
