@@ -36,6 +36,10 @@ public class Cinema {
     @JsonIgnore
     private Set<Room> rooms;
 
+    @OneToMany(mappedBy = "cinema", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Set<Showtime> showtimes;
+
     @ManyToOne
     @JoinColumn(name = "region_id") // Thêm ánh xạ đến Region
     @JsonIgnore
@@ -75,6 +79,22 @@ public class Cinema {
 
     public Set<Room> getRooms() {
         return rooms;
+    }
+
+    public Set<Showtime> getShowtimes() {
+        return showtimes;
+    }
+
+    public void setShowtimes(Set<Showtime> showtimes) {
+        this.showtimes = showtimes;
+    }
+
+    public Region getRegion() {
+        return region;
+    }
+
+    public void setRegion(Region region) {
+        this.region = region;
     }
 
     public void setRooms(Set<Room> rooms) {

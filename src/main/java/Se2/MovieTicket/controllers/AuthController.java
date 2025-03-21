@@ -1,7 +1,9 @@
 package Se2.MovieTicket.controllers;
 
+import Se2.MovieTicket.model.Cinema;
 import Se2.MovieTicket.model.Film;
 import Se2.MovieTicket.repository.UserRepository;
+import Se2.MovieTicket.service.CinemaService;
 import Se2.MovieTicket.service.FilmService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -127,10 +129,10 @@ public class AuthController {
                 return "redirect:/pay-ticket";
             } else if ("ROLE_USER".equals(role)) {
                 logger.info("Redirecting User to /home");
-                return "redirect:/home";
+                return "redirect:/View-movie-ticket";
             } else {
                 logger.info("Redirecting to default index page");
-                return "redirect:/index";
+                return "redirect:/home";
             }
         } catch (Exception e) {
             logger.error("Login failed: {}", e.getMessage());
@@ -145,6 +147,10 @@ public class AuthController {
 //    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CinemaService cinemaService;
+
     @GetMapping("/register")
     public String registerPage(Model model) {
         logger.info("Accessing registration page");
@@ -279,7 +285,7 @@ public class AuthController {
     }
 
     @GetMapping("/View-movie-ticket")
-    public String viewMovieTicket(Model model, HttpServletRequest request) {
+    public String viewMovieTicket(@RequestParam("id") Long filmId, Model model, HttpServletRequest request) {
         logger.info("Accessing view movie ticket page");
 
         if (!userService.hasRole("ROLE_USER")) {
@@ -289,21 +295,21 @@ public class AuthController {
 
         // First try to get user from session
         HttpSession session = request.getSession(false);
-        User sessionUser = null;
+        User sessionUser  = null;
         if (session != null) {
-            sessionUser = (User) session.getAttribute("user");
-            if (sessionUser != null) {
-                logger.info("User found in session: {}", sessionUser.getUsername());
-                model.addAttribute("user", sessionUser);
+            sessionUser  = (User ) session.getAttribute("user");
+            if (sessionUser  != null) {
+                logger.info("User  found in session: {}", sessionUser .getUsername());
+                model.addAttribute("user", sessionUser );
             }
         }
 
         // If not in session, try from SecurityContext
-        if (sessionUser == null) {
+        if (sessionUser  == null) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
-                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-                Optional<User> userOptional = userService.getUserById(userDetails.getId());
+                UserDetailsImpl userDetails = (User DetailsImpl) authentication.getPrincipal();
+                Optional<User> userOptional = userService.getUser ById(userDetails.getId());
 
                 if (userOptional.isPresent()) {
                     User user = userOptional.get();
@@ -312,19 +318,28 @@ public class AuthController {
                     // Save to session for future requests
                     if (session != null) {
                         session.setAttribute("user", user);
-                        logger.info("User saved to session from SecurityContext");
+                        logger.info("User  saved to session from SecurityContext");
                     }
                 }
             }
         }
 
-        List<Film> films = filmService.getAllFilms();
-        logger.info("Number of films retrieved: {}", films.size());
-        model.addAttribute("films", films);
+        // Lấy thông tin phim theo ID
+        Optional<Film> filmOptional = filmService.getFilmById(filmId);
+        if (filmOptional.isPresent()) {
+            Film film = filmOptional.get();
+            model.addAttribute("film", film);
+        } else {
+            logger.warn("Film not found with ID: {}", filmId);
+            return "redirect:/films"; // Hoặc trang lỗi nếu không tìm thấy phim
+        }
+
+        // Lấy danh sách các rạp chiếu
+        List<Cinema> cinemas = cinemaService.getAllCinemas();
+        model.addAttribute("cinemas", cinemas);
 
         return "View-movie-ticket";
     }
-
     @GetMapping("/index")
     public String index(Model model, HttpServletRequest request) {
         logger.info("Accessing index page");

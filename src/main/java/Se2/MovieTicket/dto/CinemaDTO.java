@@ -1,6 +1,9 @@
 package Se2.MovieTicket.dto;
 
+import Se2.MovieTicket.model.Showtime;
 import lombok.Data;
+
+import java.util.Set;
 
 @Data
 public class CinemaDTO {
@@ -8,6 +11,7 @@ public class CinemaDTO {
     private String cinemaName;
     private String address;
     private Long clusterId;
+    private Set<Showtime> showtimes;
 
     public Long getCinemaId() {
         return cinemaId;
