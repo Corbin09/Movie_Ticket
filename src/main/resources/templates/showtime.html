@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title> Showtime </title>
+    <link rel="stylesheet" th:href="@{/css/showtime.css}" />
+</head>
+
+<body>
+<div class="showtime-container">
+    <!-- Header -->
+    <header class="site-header" th:replace="fragments/header :: header">
+    </header>
+
+    <!-- Footer -->
+    <footer class="site-footer" th:replace="fragments/footer :: footer">
+    </footer>
+
+    <div class="location-selector">
+        <div class="city-dropdown">
+            <div class="city-name" th:text="${selectedCity != null ? selectedCity : 'Hanoi'}">Hanoi</div>
+            <img class="dropdown-icon" th:src="@{/img/mingcute-down-fill.svg}" />
+        </div>
+        <div class="cinema-dropdown-wrapper">
+            <div class="cinema-dropdown">
+                <div class="cinema-name" th:text="${selectedCinema != null ? selectedCinema.cinemaName : 'CGV Vincom Ba Trieu'}">CGV Vincom Ba Trieu</div>
+                <img class="dropdown-icon" th:src="@{/img/mingcute-down-fill.svg}" />
+            </div>
+        </div>
+    </div>
+
+    <div class="date-selector">
+        <div th:each="date, iterStat : ${availableDates}" class="date-button" th:classappend="${iterStat.first} ? 'active' : ''">
+            <div class="date-text" th:text="${#dates.format(date, 'd/M')}">3/3</div>
+        </div>
+    </div>
+
+    <p class="age-restriction-note">
+        <span class="note-label">Note</span>
+        <span class="note-content">: Viewers under 13 years old can only select showtimes that end before 10:00 PM, and viewers under 16 years old can only select showtimes that end before 11:00 PM.</span>
+    </p>
+
+    <div class="movies-container">
+        <div class="movies-grid">
+            <div th:each="film : ${films}" class="movie-card">
+                <div class="poster-container">
+                    <img th:src="@{${film.filmImg}}" th:alt="${film.filmName}" class="poster-image">
+                </div>
+                <div class="movie-details">
+                    <div class="movie-metadata">
+                        <div class="metadata-row">
+                            <div class="movie-genre" th:text="${film.filmCategories != null && !film.filmCategories.isEmpty() ? film.filmCategories.iterator().next().category.categoryName : 'N/A'}">Horror</div>
+                            <div class="movie-duration" th:text="${film.duration} + ' minutes'">114 minutes</div>
+                        </div>
+                        <div class="movie-format">
+                            <div class="format-text" th:text="${film.filmType}">2D</div>
+                        </div>
+                    </div>
+                    <div class="movie-title" th:text="${film.filmName} + (${film.ageLimit != null && film.ageLimit > 0 ? ' - T' + film.ageLimit : ''})">THE DARK NUN - T16</div>
+                    <div class="movie-origin" th:text="'Origin: ' + ${film.country}">Origin: South Korea</div>
+                    <div class="release-date" th:text="'Release date: ' + ${#dates.format(film.releaseDate, 'dd/MM/yyyy')}">Release date: 28/02/2025</div>
+                    <div class="age-rating">
+                        <p class="rating-text" th:text="'T' + ${film.ageLimit} + ' - The film is rated for viewers aged ' + ${film.ageLimit} + ' and above (' + ${film.ageLimit} + '+).'">T13 - The film is rated for viewers aged 13 and above (13+).</p>
+                    </div>
+                    <div class="showtime-section">
+                        <div class="section-title">Showtime</div>
+                        <div th:each="showtime : ${filmShowtimes.get(film.filmId)}" class="time-button">
+                            <div class="time-text" th:text="${showtime.showTime}">19:10</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        const buttons = document.querySelectorAll(".date-button");
+
+        buttons.forEach(button => {
+            button.addEventListener("click", function() {
+                // Remove "active" class from all buttons
+                buttons.forEach(btn => btn.classList.remove("active"));
+
+                // Add "active" class to clicked button
+                this.classList.add("active");
+
+                // Get the selected date
+                const selectedDate = this.querySelector(".date-text").textContent;
+
+                // Redirect to showtimes page with selected date
+                window.location.href = /*[[@{/showtimes}]]*/ '/showtimes' +
+                    '?cinemaId=' + /*[[${selectedCinema != null ? selectedCinema.cinemaId : ''}]]*/ '' +
+                    '&date=' + selectedDate;
+            });
+        });
+    });
+</script>
+</body>
+
+</html>
