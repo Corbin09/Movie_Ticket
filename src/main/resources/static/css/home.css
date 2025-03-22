@@ -17,61 +17,109 @@
 .adding-margin {
 height: 117px;
 }
-        .hero-banner {
-            position: relative;
-            weight: 100%;
-            height: 100vh;
-            overflow: hidden;
-            padding-top: 60px;
-        }
+/* Hero Banner / Slider Improvements */
+.hero-banner {
+    position: relative;
+    width: 100%;
+    height: 500px; /* Fixed height for consistency */
+    margin-top: 30px; /* Add space after header instead of negative top */
+    overflow: hidden;
+}
 
-        .hero-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: brightness(0.8);
-        }
+.hero-slider {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
 
-        .pagination-default {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 5px;
-            border-radius: 20px;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-        }
+.hero-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Maintains aspect ratio without distortion */
+    display: none; /* Hide all by default */
+    transition: opacity 0.5s ease; /* Smooth transition between slides */
+}
 
-        .pagination-dot {
-            height: 10px;
-            width: 10px;
-            background-color: #bbb;
-            border-radius: 50%;
-            cursor: pointer;
-        }
+.hero-image.active {
+    display: block;
+    z-index: 1;
+}
 
-        .pagination-dot.active {
-            background-color: #0ad021;
-        }
+/* Pagination Dots Positioning */
+.pagination-default {
+    position: absolute;
+    bottom: 30px; /* Position closer to bottom */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 10;
+    padding: 8px 12px;
+    background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent background */
+    border-radius: 20px;
+}
 
-        .movie-section {
-            padding: 20px;
-            margin-top: 20px;
-            width: 80%;
-            margin-left: auto;
-            margin-right: auto;
-        }
+.pagination-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pagination-dot:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.pagination-dot.active {
+    background-color: #0ad021;
+    transform: scale(1.2); /* Slightly enlarge active dot */
+}
+
+/* Remove the adding-margin class that's creating dead space */
+.adding-margin {
+    height: 30px; /* Reduce this from 117px to just enough for spacing */
+}
+
+/* Fix container width */
+.content-container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Ensure movie sections maintain consistent width */
+.movie-section {
+    width: 100%; /* Use parent container width */
+    margin-top: 40px;
+    padding: 0; /* Remove padding and let container control spacing */
+}
+
+/* Ensure smooth scrolling for section navigation */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Improved section for scroll targeting */
+.section-anchor {
+    display: block;
+    height: 0;
+    margin-top: -60px; /* Offset for fixed header */
+    padding-top: 60px;
+    visibility: hidden;
+}
 
         .section-title {
             margin-bottom: 20px;
             font-size: 20px;
             font-weight: bold;
             display: flex;
-            align-items: center;
+            align-items: center; margin-left: 27px;
         }
 
         .section-title::before {
@@ -84,24 +132,27 @@ height: 117px;
             margin-right: 10px;
         }
 
-        .movie-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(3, auto);
-            gap: 20px;
-            justify-content: center;
-            padding: 20px;
-        }
+/* Update movie-grid CSS */
+.movie-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+    justify-content: center;
+    padding: 20px;
+    width: 100%;
+    margin: 0 auto;
+}
 
-        .movie-card {
-            display: block;
-            text-decoration: none;
-            background-color: #112e1a;
-            padding: 15px;
-            border-radius: 12px;
-            width: 220px;
-            overflow: hidden;
-        }
+/* Update movie-card CSS */
+.movie-card {
+    display: block;
+    text-decoration: none;
+    background-color: #112e1a;
+    padding: 15px;
+    border-radius: 12px;
+    width: 220px; /* Make cards take full width of their grid cell */
+    overflow: hidden;
+}
 
         .movie-poster-container {
             width: 100%;
@@ -193,7 +244,61 @@ height: 117px;
             content: "›";
         }
 
+/* Thêm vào CSS hiện có */
+    .pagination a.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
 
+    .pagination a:not(:first-child):not(:last-child):hover {
+        transform: none; /* Bỏ hiệu ứng phóng to */
+        background-color: #ff8c42; /* Màu cam nhạt khi hover */
+        color: white;
+        box-shadow: none; /* Bỏ đổ bóng */
+    }
 
+    /* Hiệu ứng transition cho movie-grid */
+    .movie-grid {
+        transition: opacity 0.3s ease;
+    }
 
+    body.page-transitioning .movie-grid {
+        opacity: 0.3;
+    }
 
+    /* Đảm bảo nút trang 1 luôn active khi mặc định */
+    .pagination a:not(:first-child):not(:last-child):first-of-type.active {
+        background-color: #C10000; /* Màu đỏ active */
+        color: white;
+    }
+
+.search-results-section {margin: 79px 0 0;}
+.search-results-title {margin-left: 25px;}
+
+/* Proper responsive behavior for mobile */
+@media screen and (max-width: 992px) {
+    .movie-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .movie-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        padding: 15px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .movie-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .movie-card {
+        padding: 10px;
+    }
+}

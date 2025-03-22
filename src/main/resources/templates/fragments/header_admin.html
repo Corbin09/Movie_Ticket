@@ -1,19 +1,19 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8">
-  <title>Header Fragment</title>
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--  <meta charset="UTF-8">-->
+<!--  <title>Header Fragment</title>-->
 
-</head>
-<body>
-<header class="header" th:fragment="header_admin">
-  <div class="container">
-    <div class="header-top">
-      <img th:src="@{/images/cinema_logo.png}" alt="Cinema Logo" class="logo">
-      <div class="user-section">
-        <img th:src="${user.userImg}" alt="User Avatar" class="user-avatar"
-             onerror="this.src='/static/images/anonymous.png';">
-        <span class="username" th:text="${user.username}">User Name</span>
-        <a th:href="@{/logout}" class="logout-btn">Log out</a>
-      </div>
-    </div> </div></header>
+<!--</head>-->
+<!--<body>-->
+<!--<header class="header" th:fragment="header_admin">-->
+<!--  <div class="container">-->
+<!--    <div class="header-top">-->
+<!--      <img th:src="@{/images/cinema_logo.png}" alt="Cinema Logo" class="logo">-->
+<!--      <div class="user-section">-->
+<!--        <img th:src="${user.userImg}" alt="User Avatar" class="user-avatar"-->
+<!--             onerror="this.src='/static/images/anonymous.png';">-->
+<!--        <span class="username" th:text="${user.username}">User Name</span>-->
+<!--        <a th:href="@{/logout}" class="logout-btn">Log out</a>-->
+<!--      </div>-->
+<!--    </div> </div></header>-->

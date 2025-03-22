@@ -13,26 +13,29 @@
   <div class="header">
     <div class="container">
       <div class="header-top">
+        <div class="to-menu">
         <img th:src="@{/images/cinema_logo.png}" alt="Cinema Logo" class="logo">
+        <!-- Sidebar Toggle Button for Mobile -->
+          <div class="sidebar-toggle" id="sidebar-toggle">
+            <i class="fas fa-bars"></i>
+          </div>
+
+        </div>
 
         <!-- User Section: Hiển thị Avatar và Username -->
         <div class="user-section">
-          <img th:src="${user.userImg}" alt="User Avatar" class="user-avatar" onerror="this.src='/static/images/anonymous.png';">
-          <span class="username" th:text="${user.username}">User Name</span>
+          <img th:src="${user.userImg}" alt="User  Avatar" class="user-avatar" onerror="this.src='/static/images/anonymous.png';">
+          <span class="username" th:text="${user.username}">User  Name</span>
           <a th:href="@{/logout}" class="logout-btn">Log out</a>
         </div>
 
-        <!-- Sidebar Toggle Button for Mobile -->
-        <div class="sidebar-toggle" id="sidebar-toggle">
-          <i class="fas fa-bars"></i>
-        </div>
+
       </div>
     </div>
   </div>
 
   <!-- Sidebar Fragment -->
   <div class="sidebar" id="sidebar">
-
     <nav class="sidebar-nav">
       <ul>
         <li><a th:href="@{/dashboard}" th:class="${active == 'dashboard'} ? 'active' : ''"><i class="fas fa-th-large"></i><span class="nav-text">Dashboard</span></a></li>
@@ -46,35 +49,28 @@
       </ul>
     </nav>
   </div>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <script>
-    <!-- JavaScript: Sidebar toggle -->
+    // JavaScript: Sidebar toggle
     document.addEventListener('DOMContentLoaded', function() {
-    const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const body = document.body;
+      const sidebar = document.getElementById('sidebar');
+      const sidebarToggle = document.getElementById('sidebar-toggle');
+      const overlay = document.getElementById('sidebar-overlay');
+      const body = document.body;
 
-    // Create overlay if it doesn't exist
-    let overlay = document.querySelector('.sidebar-overlay');
-    if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.className = 'sidebar-overlay';
-    body.appendChild(overlay);
-    }
+      // Toggle sidebar on button click
+      sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        body.classList.toggle('sidebar-open');
+      });
 
-    // Toggle sidebar on button click
-    sidebarToggle.addEventListener('click', function() {
-    sidebar.classList.add('active');
-    overlay.classList.add('active');
-    body.classList.add('sidebar-open');
-    });
-
-
-    // Close sidebar when clicking overlay
-    overlay.addEventListener('click', function() {
-    sidebar.classList.remove('active');
-    overlay.classList.remove('active');
-    body.classList.remove('sidebar-open');
-    });
+      // Close sidebar when clicking overlay
+      overlay.addEventListener('click', function() {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        body.classList.remove('sidebar-open');
+      });
     });
   </script>
 </header>

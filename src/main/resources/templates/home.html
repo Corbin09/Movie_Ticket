@@ -87,8 +87,10 @@
 <body>
 
 <!-- Header -->
+<div class="content-container">
 <div th:replace="~{fragments/header_user :: header_user}"></div>
 <div class="adding-margin"></div>
+
 <!-- Search Results Section (only shows when search is performed) -->
 <div class="search-results-section" th:if="${searchPerformed}">
     <div class="search-results-title">
@@ -128,20 +130,18 @@
         <p>Try checking your spelling or using different keywords</p>
     </div>
 
-    <!-- Pagination for Search Results -->
+    <!-- HTML mới cho pagination "Search Results" -->
     <div class="pagination" id="pagibar-search-results" th:if="${not #lists.isEmpty(searchResults)}">
-        <a th:if="${currentPageSearch > 1}"
-           th:href="@{/user-search(query=${searchQuery}, page=${currentPageSearch - 1})}"
-           class="prev">‹</a>
+        <a th:href="@{/user-search(query=${searchQuery}, page=${currentPageSearch - 1})}"
+           class="prev" th:classappend="${currentPageSearch <= 1 ? 'disabled' : ''}">‹</a>
 
         <a th:each="i : ${#numbers.sequence(1, totalPagesSearch)}"
            th:href="@{/user-search(query=${searchQuery}, page=${i})}"
            th:classappend="${currentPageSearch == i} ? 'active' : ''"
            th:text="${i}"></a>
 
-        <a th:if="${currentPageSearch < totalPagesSearch}"
-           th:href="@{/user-search(query=${searchQuery}, page=${currentPageSearch + 1})}"
-           class="next">›</a>
+        <a th:href="@{/user-search(query=${searchQuery}, page=${currentPageSearch + 1})}"
+           class="next" th:classappend="${currentPageSearch >= totalPagesSearch ? 'disabled' : ''}">›</a>
     </div>
 </div>
 
@@ -182,20 +182,18 @@
         </div>
     </div>
 
-    <!-- Pagination for Now Showing -->
+    <!-- HTML mới cho pagination "Now Showing" -->
     <div class="pagination" id="pagibar-now-showing">
-        <a th:if="${currentPageNowShowing > 1}"
-           th:href="@{/home(currentPageNowShowing=${currentPageNowShowing - 1}, currentPageComingSoon=${currentPageComingSoon})}"
-           class="prev">‹</a>
+        <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing - 1}, currentPageComingSoon=${currentPageComingSoon})}"
+           class="prev" th:classappend="${currentPageNowShowing <= 1 ? 'disabled' : ''}">‹</a>
 
         <a th:each="i : ${#numbers.sequence(1, totalPagesNowShowing)}"
            th:href="@{/home(currentPageNowShowing=${i}, currentPageComingSoon=${currentPageComingSoon})}"
            th:classappend="${currentPageNowShowing == i} ? 'active' : ''"
            th:text="${i}"></a>
 
-        <a th:if="${currentPageNowShowing < totalPagesNowShowing}"
-           th:href="@{/home(currentPageNowShowing=${currentPageNowShowing + 1}, currentPageComingSoon=${currentPageComingSoon})}"
-           class="next">›</a>
+        <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing + 1}, currentPageComingSoon=${currentPageComingSoon})}"
+           class="next" th:classappend="${currentPageNowShowing >= totalPagesNowShowing ? 'disabled' : ''}">›</a>
     </div>
 </div>
 
@@ -221,56 +219,209 @@
         </div>
     </div>
 
-    <!-- Pagination for Coming Soon -->
+    <!-- HTML mới cho pagination "Coming Soon" -->
     <div class="pagination" id="pagibar-coming-soon">
-        <a th:if="${currentPageComingSoon > 1}"
-           th:href="@{/home(currentPageNowShowing=${currentPageNowShowing}, currentPageComingSoon=${currentPageComingSoon - 1})}"
-           class="prev">‹</a>
+        <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing}, currentPageComingSoon=${currentPageComingSoon - 1})}"
+           class="prev" th:classappend="${currentPageComingSoon <= 1 ? 'disabled' : ''}">‹</a>
 
         <a th:each="i : ${#numbers.sequence(1, totalPagesComingSoon)}"
            th:href="@{/home(currentPageNowShowing=${currentPageNowShowing}, currentPageComingSoon=${i})}"
            th:classappend="${currentPageComingSoon == i} ? 'active' : ''"
            th:text="${i}"></a>
 
-        <a th:if="${currentPageComingSoon < totalPagesComingSoon}"
-           th:href="@{/home(currentPageNowShowing=${currentPageNowShowing}, currentPageComingSoon=${currentPageComingSoon + 1})}"
-           class="next">›</a>
+        <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing}, currentPageComingSoon=${currentPageComingSoon + 1})}"
+           class="next" th:classappend="${currentPageComingSoon >= totalPagesComingSoon ? 'disabled' : ''}">›</a>
     </div>
 </div>
 
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const slides = document.querySelectorAll('.hero-image');
-        const dots = document.querySelectorAll('.pagination-dot');
-        let currentSlide = 0;
+        // Hero slider functionality with improved transitions
+    const slides = document.querySelectorAll('.hero-slider .hero-image');
+    const dots = document.querySelectorAll('.pagination-default .pagination-dot');
+    let currentSlide = 0;
+    let slideInterval;
 
-        function changeSlide() {
-            slides.forEach((slide, index) => {
+    function showSlide(index) {
+        // Hide all slides with fadeout
+        slides.forEach(slide => {
+            slide.style.opacity = 0;
+            setTimeout(() => {
+                slide.style.display = 'none';
                 slide.classList.remove('active');
-                dots[index]?.classList.remove('active');
-            });
-            slides[currentSlide].classList.add('active');
-            dots[currentSlide]?.classList.add('active');
-        }
-
-        setInterval(() => {
-            currentSlide = (currentSlide + 1) % slides.length;
-            changeSlide();
-        }, 3000);
-
-        dots.forEach((dot, index) => {
-            dot.addEventListener('click', function () {
-                currentSlide = index;
-                changeSlide();
-            });
+            }, 300);
         });
 
-        changeSlide();
+        // Remove active from all dots
+        dots.forEach(dot => {
+            dot.classList.remove('active');
+        });
+
+        // Show current slide with fadein
+        setTimeout(() => {
+            slides[index].style.display = 'block';
+            setTimeout(() => {
+                slides[index].style.opacity = 1;
+                slides[index].classList.add('active');
+            }, 50);
+
+            dots[index].classList.add('active');
+        }, 300);
+    }
+
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    // Initialize slider
+    slides.forEach(slide => {
+        slide.style.opacity = 0;
+        slide.style.transition = 'opacity 0.5s ease';
+    });
+    showSlide(0);
+
+    // Auto-rotate slides with reset on manual navigation
+    function startSlideshow() {
+        // Clear any existing interval
+        if (slideInterval) {
+            clearInterval(slideInterval);
+        }
+
+        // Set new interval
+        slideInterval = setInterval(nextSlide, 5000);
+    }
+
+    // Start the slideshow
+    startSlideshow();
+
+    // Manual navigation with dots
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', function() {
+            currentSlide = index;
+            showSlide(currentSlide);
+            startSlideshow(); // Reset interval
+        });
+    });
+
+    // Add scroll tracking with improved position calculation
+    function addSectionAnchors() {
+        // Add invisible anchor elements for better scrolling
+        const sections = [
+            { id: 'now-showing', selector: '.movie-section:nth-of-type(1)' },
+            { id: 'coming-soon', selector: '.movie-section:nth-of-type(2)' },
+            { id: 'search-results', selector: '.search-results-section' }
+        ];
+
+        sections.forEach(section => {
+            const element = document.querySelector(section.selector);
+            if (element) {
+                const anchor = document.createElement('span');
+                anchor.id = section.id + '-anchor';
+                anchor.className = 'section-anchor';
+                element.insertBefore(anchor, element.firstChild);
+            }
+        });
+    }
+
+    // Call the function to add anchors
+    addSectionAnchors();
+
     });
 </script>
+<script>
+    // IMPROVED PAGINATION SCROLL HANDLING
+document.addEventListener('DOMContentLoaded', function () {
+    // Define section identifiers and their selectors
+    const sectionSelectors = {
+        'now-showing': '.movie-section:nth-of-type(1)',
+        'coming-soon': '.movie-section:nth-of-type(2)',
+        'search-results': '.search-results-section'
+    };
 
+    // Process click events on pagination links
+    const allPaginationLinks = document.querySelectorAll('.pagination a:not(.disabled)');
+    allPaginationLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            let sectionId = null;
+
+            // Identify which section was clicked
+            const paginationContainer = this.closest('.pagination');
+            if (paginationContainer) {
+                if (paginationContainer.id === 'pagibar-now-showing') {
+                    sectionId = 'now-showing';
+                } else if (paginationContainer.id === 'pagibar-coming-soon') {
+                    sectionId = 'coming-soon';
+                } else if (paginationContainer.id === 'pagibar-search-results') {
+                    sectionId = 'search-results';
+                }
+            }
+
+            if (sectionId) {
+                // Store both section ID and an exact Y-offset for more precise scrolling
+                const targetSection = document.querySelector(sectionSelectors[sectionId]);
+                if (targetSection) {
+                    const headerOffset = 132; // Adjust based on your header height
+                    const sectionPosition = targetSection.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+
+                    // Save both section ID and exact position
+                    localStorage.setItem('scrollToSection', sectionId);
+                    localStorage.setItem('scrollPosition', sectionPosition);
+                    localStorage.setItem('scrollTimestamp', Date.now()); // Add timestamp to ensure freshness
+                }
+            }
+        });
+    });
+
+    // Handle scrolling after page load
+    const scrollToSection = localStorage.getItem('scrollToSection');
+    const scrollPosition = localStorage.getItem('scrollPosition');
+    const scrollTimestamp = localStorage.getItem('scrollTimestamp');
+
+    // Only use stored scroll data if it's recent (within last 5 seconds)
+    const isRecentScroll = scrollTimestamp && (Date.now() - parseInt(scrollTimestamp) < 5000);
+
+    if (scrollToSection && scrollPosition && isRecentScroll) {
+        // Use requestAnimationFrame for more reliable scrolling after DOM is rendered
+        window.requestAnimationFrame(() => {
+            // Try direct position first (more precise)
+            window.scrollTo({
+                top: parseInt(scrollPosition),
+                behavior: 'auto' // Use 'auto' for immediate jump to position
+            });
+
+            // As a backup, also try to scroll to the section element
+            setTimeout(() => {
+                const targetSelector = sectionSelectors[scrollToSection];
+                if (targetSelector) {
+                    const targetElement = document.querySelector(targetSelector);
+                    if (targetElement) {
+                        const headerHeight = 132;
+                        const sectionTitle = targetElement.querySelector('.section-title');
+                        const scrollTarget = sectionTitle || targetElement;
+
+                        const offsetPosition = scrollTarget.getBoundingClientRect().top +
+                                              window.pageYOffset - headerHeight;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'auto'
+                        });
+                    }
+                }
+
+                // Clear the stored data regardless of success
+                localStorage.removeItem('scrollToSection');
+                localStorage.removeItem('scrollPosition');
+                localStorage.removeItem('scrollTimestamp');
+            }, 100);
+        });
+    }
+});
+</script>
 </body>
 </html>

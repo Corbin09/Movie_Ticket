@@ -32,14 +32,13 @@
 
 .user-section {
     display: flex;
-    align-items: center;
+    align-items: center; gap: 10px;
 }
 
 .username {
     color: white;
     font-weight: 500;
-    font-size: 15px;
-    margin: 0 10px;
+    font-size: 15px; margin-right: 15px;
 }
 
 .logout-btn {
@@ -56,7 +55,6 @@
     height: 35px;
     border-radius: 50%;
     object-fit: cover;
-    margin-right: 10px;
 }
 
 /* Sidebar Toggle Button */
@@ -64,19 +62,17 @@
     display: none;
     color: white;
     font-size: 20px;
-    cursor: pointer;
-    top: 12px; left: 120px;
+    cursor: pointer; margin-left: 10px;
 }
 
 /* Sidebar */
 .sidebar {
     position: fixed;
     top: 68px;
-    left: -240px; /* Hidden by default */
+    left: 0px;
     width: 240px;
     height: calc(100vh - 68px);
     background-color: #0a2713;
-    transition: all 0.3s ease;
     z-index: 1010;
     overflow-y: auto;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
@@ -86,32 +82,33 @@
     left: 0;
 }
 
-
-
 .sidebar-nav ul {
     list-style: none;
     padding-top: 10px;
 }
 
 .sidebar-nav li {
-    margin: 0;
+    margin: 10px 0;
 }
 
 .sidebar-nav a {
-    padding: 12px 20px;
+    padding: 12px 60px; /* Increased right padding */
     display: flex;
     align-items: center;
     color: #f4f4f4;
     text-decoration: none;
-    transition: all 0.3s;
 }
+
 
 .sidebar-nav a:hover,
 .sidebar-nav a.active {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-left: 4px solid #ff3333;
+   background-color: rgba(255, 255, 255, 0.1);
+color: #09b54f;
+    border-left: 4px solid white; /* Viền trái màu trắng */ padding-left: 55px;
 }
 
+
+.to-menu {display: flex; flex-direction: row; align-item: center;}
 .sidebar-nav a i {
     margin-right: 10px;
     width: 20px;
@@ -128,7 +125,6 @@
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1005;
     display: none;
-    transition: all 0.3s ease;
 }
 
 .sidebar-overlay.active {
@@ -152,7 +148,7 @@ body.sidebar-open {
 
     .sidebar-toggle {
         display: block;
-        order: 2;
+        order: 2; margin-top: 14px;
     }
 
     .logo {
@@ -163,12 +159,14 @@ body.sidebar-open {
         order: 3;
     }
 
-    .sidebar-close {
-        display: block;
-    }
-
     .sidebar {
-        width: 240px;
+        width: 200px;
         left: -240px;
     }
+    .sidebar-nav a {
+        padding: 12px 40px;
+    } .sidebar-nav a:hover,
+      .sidebar-nav a.active {
+           padding-left: 35px;
+      }
 }
