@@ -14,7 +14,9 @@
             margin: 0;
             padding: 0;
         }
-
+.adding-margin {
+height: 117px;
+}
         .hero-banner {
             position: relative;
             weight: 100%;

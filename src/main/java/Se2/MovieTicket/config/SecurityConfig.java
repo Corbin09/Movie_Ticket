@@ -118,7 +118,7 @@ public class SecurityConfig {
             if (isAdmin) {
                 response.sendRedirect("/pay-ticket");
             } else if (isUser) {
-                response.sendRedirect("/View-movie-ticket");
+                response.sendRedirect("/index");
             } else {
                 response.sendRedirect("/home");
             }

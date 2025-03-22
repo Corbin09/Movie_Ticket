@@ -11,6 +11,11 @@
     <link rel="stylesheet" type="text/css" href="/static/css/style.css">
     <link rel="stylesheet" type="text/css" href="/static/css/component.css">
     <link rel="stylesheet" type="text/css" href="/static/css/DetailMovieticket.css">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+
 </head>
 <body>
 <div class="register">
@@ -21,7 +26,12 @@
         <img src="" alt="Decoration" class="image-one-8">
     </div>
     <div class="column-two-7">
-        <header class="header" th:replace="~{fragments/header :: header}"></header>
+        <header class="header" th:replace="~{fragments/header_admin :: header}"></header>
+        <!-- Sidebar Toggle Button -->
+        <div th:replace="~{fragments/sidebar :: sidebar-toggle}"></div>
+
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
         <div class="column_one-10">
             <div class="columnw5bnthiz container-lg">
                 <div class="stackw5bnthiz">

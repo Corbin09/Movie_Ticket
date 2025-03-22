@@ -11,6 +11,8 @@
   <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
   <link rel="stylesheet" type="text/css" th:href="@{/css/component.css}"/>
   <link rel="stylesheet" type="text/css" th:href="@{/css/payticket.css}"/>
+  <link rel="stylesheet" th:href="@{/css/header_user.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
 </head>
 <body>
 <!-- Main Payment Page -->
@@ -19,7 +21,8 @@
     <div class="column_eight">
       <div>
         <div class="column-15">
-          <header class="header-1" th:replace="~{fragments/header :: header}"></header>
+          <!-- Header -->
+          <div th:replace="~{fragments/header_user :: header_admin}"></div>
         </div>
 <!--        <img th:src="${film.filmImg}" alt="Image" class="image" />-->
       </div>

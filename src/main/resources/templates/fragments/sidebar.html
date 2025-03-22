@@ -1,10 +1,122 @@
+<!-- sidebar.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema Sidebar</title>
 </head>
 <body>
+<!-- Sidebar Fragment -->
+<div th:fragment="sidebar" class="sidebar" id="sidebar">
+    <!-- Close button for mobile view -->
+    <div class="sidebar-close" id="sidebar-close">
+        <i class="fas fa-times"></i>
+    </div>
 
+    <!-- Navigation Links -->
+    <nav class="sidebar-nav">
+        <ul>
+            <li>
+                <a th:href="@{/dashboard}" th:class="${active == 'dashboard'} ? 'active' : ''">
+                    <i class="fas fa-th-large"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/movies}" th:class="${active == 'movies'} ? 'active' : ''">
+                    <i class="fas fa-film"></i>
+                    <span class="nav-text">Movies</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/cinemas}" th:class="${active == 'cinemas'} ? 'active' : ''">
+                    <i class="fas fa-video"></i>
+                    <span class="nav-text">Cinemas</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/showtimes}" th:class="${active == 'showtimes'} ? 'active' : ''">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span class="nav-text">Showtimes</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/rooms}" th:class="${active == 'rooms'} ? 'active' : ''">
+                    <i class="fas fa-users"></i>
+                    <span class="nav-text">Rooms</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/orders}" th:class="${active == 'orders'} ? 'active' : ''">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span class="nav-text">Orders</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/users}" th:class="${active == 'users'} ? 'active' : ''">
+                    <i class="fas fa-user"></i>
+                    <span class="nav-text">Users</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/}" th:class="${active == 'homepage'} ? 'active' : ''">
+                    <i class="fas fa-home"></i>
+                    <span class="nav-text">Homepage</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<!-- Mobile Toggle Button -->
+<div th:fragment="sidebar-toggle" class="sidebar-toggle" id="sidebar-toggle">
+    <i class="fas fa-bars"></i>
+</div>
+<script>
+    // sidebar.js
+
+document.addEventListener('DOMContentLoaded', function() {
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const sidebarClose = document.getElementById('sidebar-close');
+  const body = document.body;
+
+  // Create overlay element
+  const overlay = document.createElement('div');
+  overlay.className = 'sidebar-overlay';
+  body.appendChild(overlay);
+
+  // Toggle sidebar on button click
+  sidebarToggle.addEventListener('click', function() {
+    sidebar.classList.add('active');
+    overlay.classList.add('active');
+    body.classList.add('sidebar-open');
+  });
+
+  // Close sidebar when clicking close button
+  sidebarClose.addEventListener('click', function() {
+    sidebar.classList.remove('active');
+    overlay.classList.remove('active');
+    body.classList.remove('sidebar-open');
+  });
+
+  // Close sidebar when clicking on overlay
+  overlay.addEventListener('click', function() {
+    sidebar.classList.remove('active');
+    overlay.classList.remove('active');
+    body.classList.remove('sidebar-open');
+  });
+
+  // Close sidebar when window is resized to larger size
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 992) {
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+      body.classList.remove('sidebar-open');
+    }
+  });
+});
+</script>
 </body>
 </html>

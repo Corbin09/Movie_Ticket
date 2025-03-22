@@ -1,0 +1,156 @@
+/* footer.css */
+
+/* Font import */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Footer styles */
+.footer {
+  background-color: #000;
+  color: #fff;
+  padding: 30px 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+/* Logo and intro text - Updated to be on the same row */
+.footer-logo-section {
+  display: flex;
+  align-items: center;
+  flex: 2;
+  min-width: 400px;
+  margin-right: 20px;
+}
+
+.logo {
+  color: #0f0;
+  font-size: 24px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+  white-space: nowrap;
+}
+
+.logo-icon {
+  margin-right: 10px;
+  font-size: 32px;
+}
+
+.intro-text {
+  color: #ccc;
+  font-size: 14px;
+  max-width: 400px;
+  font-weight: 300;
+}
+
+/* Contact section */
+.contact-section {
+  flex: 1;
+  min-width: 200px; margin-left: 30px;
+}
+
+.section-title-footer {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  letter-spacing: 0.5px;
+}
+
+.contact-info {
+  color: #ccc;
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.contact-info a {
+  color: #ccc;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.contact-info a:hover {
+  text-decoration: underline;
+  color: #0f0;
+}
+
+/* Social media section */
+.social-section {
+  flex: 1;
+  min-width: 150px; margin-right: -60px;
+}
+
+.social-icons {
+  display: flex;
+  gap: 15px;
+}
+
+.social-icon {
+  color: #fff;
+  font-size: 28px;
+  transition: color 0.3s;
+}
+
+.social-icon:hover {
+  color: #0f0;
+}
+
+/* Colored icons */
+.fa-facebook-square {
+  color: #4267B2;
+}
+
+.fa-twitter-square {
+  color: #1DA1F2;
+}
+
+.fa-github-square {
+  color: #6e5494;
+}
+
+/* Copyright */
+.copyright {
+  text-align: center;
+  font-size: 12px;
+  color: #ffffff;
+  padding-top: 20px;
+  border-top: 1px solid #ffffff;
+  font-weight: 300;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .footer-logo-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .logo {
+    margin-bottom: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+  }
+
+  .footer-logo-section,
+  .contact-section,
+  .social-section {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinema Header and Sidebar</title>
+  <link rel="stylesheet" href="/static/css/header_sidebar.css"> <!-- Link tới file CSS -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<!-- Header và Sidebar Fragment -->
+<header th:fragment="header_sidebar">
+  <div class="header">
+    <div class="container">
+      <div class="header-top">
+        <img th:src="@{/images/cinema_logo.png}" alt="Cinema Logo" class="logo">
+
+        <!-- User Section: Hiển thị Avatar và Username -->
+        <div class="user-section">
+          <img th:src="${user.userImg}" alt="User Avatar" class="user-avatar" onerror="this.src='/static/images/anonymous.png';">
+          <span class="username" th:text="${user.username}">User Name</span>
+          <a th:href="@{/logout}" class="logout-btn">Log out</a>
+        </div>
+
+        <!-- Sidebar Toggle Button for Mobile -->
+        <div class="sidebar-toggle" id="sidebar-toggle">
+          <i class="fas fa-bars"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar Fragment -->
+  <div class="sidebar" id="sidebar">
+
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a th:href="@{/dashboard}" th:class="${active == 'dashboard'} ? 'active' : ''"><i class="fas fa-th-large"></i><span class="nav-text">Dashboard</span></a></li>
+        <li><a th:href="@{/movies}" th:class="${active == 'movies'} ? 'active' : ''"><i class="fas fa-film"></i><span class="nav-text">Movies</span></a></li>
+        <li><a th:href="@{/cinemas}" th:class="${active == 'cinemas'} ? 'active' : ''"><i class="fas fa-video"></i><span class="nav-text">Cinemas</span></a></li>
+        <li><a th:href="@{/showtimes}" th:class="${active == 'showtimes'} ? 'active' : ''"><i class="fas fa-calendar-alt"></i><span class="nav-text">Showtimes</span></a></li>
+        <li><a th:href="@{/rooms}" th:class="${active == 'rooms'} ? 'active' : ''"><i class="fas fa-users"></i><span class="nav-text">Rooms</span></a></li>
+        <li><a th:href="@{/orders}" th:class="${active == 'orders'} ? 'active' : ''"><i class="fas fa-file-invoice-dollar"></i><span class="nav-text">Orders</span></a></li>
+        <li><a th:href="@{/users}" th:class="${active == 'users'} ? 'active' : ''"><i class="fas fa-user"></i><span class="nav-text">Users</span></a></li>
+        <li><a th:href="@{/}" th:class="${active == 'homepage'} ? 'active' : ''"><i class="fas fa-home"></i><span class="nav-text">Homepage</span></a></li>
+      </ul>
+    </nav>
+  </div>
+  <script>
+    <!-- JavaScript: Sidebar toggle -->
+    document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const body = document.body;
+
+    // Create overlay if it doesn't exist
+    let overlay = document.querySelector('.sidebar-overlay');
+    if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    body.appendChild(overlay);
+    }
+
+    // Toggle sidebar on button click
+    sidebarToggle.addEventListener('click', function() {
+    sidebar.classList.add('active');
+    overlay.classList.add('active');
+    body.classList.add('sidebar-open');
+    });
+
+
+    // Close sidebar when clicking overlay
+    overlay.addEventListener('click', function() {
+    sidebar.classList.remove('active');
+    overlay.classList.remove('active');
+    body.classList.remove('sidebar-open');
+    });
+    });
+  </script>
+</header>
+
+</body>
+</html>

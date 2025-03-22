@@ -134,7 +134,7 @@ public class AuthController {
                 return "redirect:/pay-ticket";
             } else if ("ROLE_USER".equals(role)) {
                 logger.info("Redirecting User to /home");
-                return "redirect:/View-movie-ticket";
+                return "redirect:/index";
             } else {
                 logger.info("Redirecting to default index page");
                 return "redirect:/home";

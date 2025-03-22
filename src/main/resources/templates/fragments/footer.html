@@ -1,47 +1,50 @@
-<!-- Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+<!-- footer.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema Footer</title>
+</head>
+<body>
+<!-- Footer Fragment -->
+<footer th:fragment="footer" class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <!-- Logo and Intro Section - Now in same row -->
+            <div class="footer-logo-section">
+                <img th:src="@{/images/cinema_logo.png}" alt="Cinema Logo" class="logo">
 
-<footer class="footer">
-    <div class="rowlineone_one container-lg">
-        <div class="columnfooterlog">
-            <!-- Logo Footer -->
-            <div class="rowTalktous">
-                <div class="rowFooterlogo">
-                    <img th:src="@{/images/cinema_logo}" alt="Footer Logo" class="footerlogo_one" />
-                    <p class="getyour ui text size-textlg">
-                        Get your tickets now for an amazing cinematic experience.
-                        From drama to comedy, there's a movie for everyone!
-                    </p>
-                </div>
-            </div>
-
-            <!-- Contact Us -->
-            <div class="flex-col-center-start talktous">
-                <a href="#">
-                    <p class="talktous_one ui heading size-headingmd">CONTACT US</p>
-                </a>
-                <p class="supportatcom ui text size-textlg">
-                    <a href="mailto:support@ercom.com">support@ercom.com</a><br />
-                    <span>+66 2399 1145</span>
+                <p class="intro-text">
+                    Get your tickets now for an amazing cinematic experience. From drama to comedy, there's a movie for everyone!
                 </p>
             </div>
 
-            <!-- Follow Us -->
-            <div class="columntalktous">
-                <p class="talktous_one ui heading size-headingmd">FOLLOW US</p>
-                <div class="divflex-2">
-                    <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook fa-2x"></i></a>
-                    <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter fa-2x"></i></a>
-                    <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram fa-2x"></i></a>
+            <!-- Contact Section -->
+            <div class="contact-section">
+                <h3 class="section-title-footer">CONTACT US</h3>
+                <div class="contact-info">
+                    <a href="mailto:support@ercom.com">support@ercom.com</a><br>
+                    <span>+66 2399 1145</span>
+                </div>
+            </div>
+
+            <!-- Social Media Section -->
+            <div class="social-section">
+                <h3 class="section-title-footer">FOLLOW US</h3>
+                <div class="social-icons">
+                    <a href="#" class="social-icon"><i class="fab fa-facebook-square"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-twitter-square"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-github-square"></i></a>
                 </div>
             </div>
         </div>
 
         <!-- Copyright -->
-        <div class="columnlineone">
-            <p class="copyright2025 ui text size-textmd">
-                Copyright 2025. NCC All Rights Reservered. Dev by SE2.vn
-            </p>
+        <div class="copyright">
+            Copyright 2025. NCC All Rights Reserved. Dev by SE2.vn
         </div>
     </div>
 </footer>
+</body>
+</html>

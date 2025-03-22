@@ -1,0 +1,68 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;  /* Font chữ chính */
+}
+
+.header {
+    background-color: #000;
+    padding: 10px 0;  /* Giảm padding để tránh chiếm nhiều không gian */
+    width: 100%;
+    position: fixed;
+    z-index: 1000;
+}
+
+.container {
+    width: 90%;                /* Tăng độ rộng sát lề hơn */
+    max-width: 1400px;         /* Giới hạn chiều rộng tối đa */
+    margin: 0 auto;            /* Căn giữa */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;                 /* Khoảng cách nhỏ giữa các phần tử */
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    height: 48px;  /* Tăng nhẹ kích thước logo */
+}
+
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;  /* Khoảng cách giữa avatar và username */
+}
+
+.user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.username {
+    color: white;
+    font-weight: 500;
+    font-size: 15px;            /* Font chữ vừa đủ để dễ đọc */
+}
+
+.logout-btn {
+    background: linear-gradient(to right, #ff3333, #ff0066);  /* Màu gradient cho nút */
+    color: white;
+    border: none;
+    padding: 6px 12px;           /* Padding vừa vặn hơn */
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background 0.3s ease;  /* Thêm hiệu ứng hover */
+}
+
+.logout-btn:hover {
+    background: linear-gradient(to right, #ff6666, #ff3399);  /* Hiệu ứng hover đổi màu */
+}

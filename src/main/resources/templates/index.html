@@ -2,10 +2,12 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Movie Ticket Booking</title>
-    <link rel="stylesheet" th:href="@{/styles.css}">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
 </head>
 <body>
-<h1>Welcome to Movie Ticket Booking</h1>
-<a th:href="@{/movies}">View Movies</a>
+<header class="header" th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></header>
+
 </body>
 </html>

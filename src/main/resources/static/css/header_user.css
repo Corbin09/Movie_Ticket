@@ -2,13 +2,14 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;  /* Đổi font chữ sang Poppins */
 }
 
 .header {
     background-color: #000;
     padding: 15px 0;
-    width: 100%;
+    width: 100%; position: fixed; z-index: 1000;
+
 }
 
 .container {
@@ -122,4 +123,7 @@
     color: #666;
     font-size: 18px;  /* Tăng kích cỡ icon cho dễ nhìn */
     pointer-events: none;  /* Chặn click vào icon, buộc phải click vào button */
+}
+.logo {
+    height: 50px;  /* Đổi chiều cao của logo thành 50px */
 }
