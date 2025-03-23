@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/cinemas")
+@RequestMapping("/admin/cinemas")
 public class CinemaController {
     @Autowired
     private CinemaService cinemaService;

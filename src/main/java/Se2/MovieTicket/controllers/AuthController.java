@@ -287,7 +287,7 @@ public class AuthController {
         return "error/access-denied";
     }
 
-    @GetMapping("/pay-ticket")
+    @GetMapping("/admin/pay-ticket")
     public String payTicket(Model model, HttpServletRequest request) {
         logger.info("Accessing pay-ticket page");
 
