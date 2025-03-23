@@ -1,6 +1,7 @@
 package Se2.MovieTicket.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,7 +27,7 @@ public class PopcornCombo {
     private Double comboPrice;
 
     @OneToMany(mappedBy = "popcornCombo", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @JsonManagedReference
     private Set<PopcornOrder> popcornOrders;
 
     public Long getComboId() {

@@ -1,6 +1,9 @@
 package Se2.MovieTicket.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +15,8 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"film", "director"})
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class FilmDirector {
     @EmbeddedId
     private FilmDirectorId id;
@@ -19,14 +24,13 @@ public class FilmDirector {
     @ManyToOne
     @MapsId("filmId")
     @JoinColumn(name = "film_id", nullable = false)
-    @JsonIgnore
-    @ToString.Exclude
+    @JsonBackReference
     private Film film;
 
     @ManyToOne
     @MapsId("directorId")
     @JoinColumn(name = "director_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Director director;
 
     public FilmDirectorId getId() {
@@ -67,6 +71,7 @@ public class FilmDirector {
     public String toString() {
         return "FilmDirector{" +
                 "id=" + id +
+                // Don't include the full film or director objects, just their IDs
                 ", filmId=" + (film != null ? film.getFilmId() : "null") +
                 ", directorId=" + (director != null ? director.getDirectorId() : "null") +
                 '}';

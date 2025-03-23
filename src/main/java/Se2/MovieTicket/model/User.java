@@ -193,6 +193,7 @@ package Se2.MovieTicket.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -254,15 +255,15 @@ public class User {
     private String status;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @JsonManagedReference
     private Set<UserReview> userReviews;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @JsonManagedReference
     private Set<Order> orders;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @JsonManagedReference
     private Set<UserLikeFilm> userLikeFilms;
 
     public Long getUserId() {

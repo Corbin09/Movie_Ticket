@@ -1,10 +1,12 @@
 package Se2.MovieTicket.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Date;
 
@@ -13,6 +15,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"seat", "showtime"})
 public class SeatStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,12 +24,12 @@ public class SeatStatus {
 
     @ManyToOne
     @JoinColumn(name = "seat_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Seat seat;
 
     @ManyToOne
     @JoinColumn(name = "showtime_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Showtime showtime;
 
     @Column(name = "seat_status", nullable = false)

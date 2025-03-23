@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -25,4 +27,9 @@ public interface CinemaRepository extends JpaRepository<Cinema, Long> {
             @Param("filmId") Long filmId,
             @Param("date") String date
     );
+
+    @Query("SELECT c, s FROM Cinema c JOIN c.showtimes s WHERE s.film.filmId = :filmId AND s.showDate = :showDate")
+    List<Object[]> findCinemasWithShowtimesByFilmAndDate(@Param("filmId") Long filmId, @Param("showDate") LocalDate showDate);
+
+
 }

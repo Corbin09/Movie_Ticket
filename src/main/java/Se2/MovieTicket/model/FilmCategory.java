@@ -1,16 +1,22 @@
 package Se2.MovieTicket.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "category_film")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"film", "category"})
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class FilmCategory {
     @EmbeddedId
     private FilmCategoryId id;
@@ -18,13 +24,13 @@ public class FilmCategory {
     @ManyToOne
     @MapsId("filmId")
     @JoinColumn(name = "film_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Film film;
 
     @ManyToOne
     @MapsId("categoryId")
     @JoinColumn(name = "category_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Category category;
 
     public FilmCategoryId getId() {

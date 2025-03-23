@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -25,4 +27,12 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
 
     @Query("SELECT s FROM Showtime s WHERE s.showDate = :showDate")
     List<Showtime> findByShowDate(@Param("showDate") Date showDate);
+
+    @Query("SELECT s FROM Showtime s WHERE s.film.filmId = :filmId AND s.showDate = :showDate AND s.cinema.cinemaId = :cinemaId")
+    List<Showtime> findByFilmIdAndShowDateAndCinemaId(@Param("filmId") Long filmId,
+                                                      @Param("showDate") Date showDate,
+                                                      @Param("cinemaId") Long cinemaId);
+
+    @Query("SELECT COUNT(s) FROM Showtime s WHERE s.film.filmId = :filmId AND CAST(s.showDate AS LocalDate) = :showDate")
+    Integer countByFilmIdAndShowDate(@Param("filmId") Long filmId, @Param("showDate") LocalDate showDate);
 }

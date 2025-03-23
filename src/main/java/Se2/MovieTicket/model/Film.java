@@ -1,11 +1,8 @@
 package Se2.MovieTicket.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 import java.util.Objects;
@@ -17,6 +14,9 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@ToString(exclude = {"filmDirectors", "filmActors", "filmCategories", "showtimes"})
+@EqualsAndHashCode(exclude = {"filmDirectors", "filmActors", "filmCategories", "showtimes", "userReviews", "news", "filmRating"})
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "filmId")
 public class Film {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,32 +51,32 @@ public class Film {
     @Column(name = "country")
     private String country;
 
-    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<FilmDirector> filmDirectors;
 
-    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<FilmActor> filmActors;
 
-    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<UserReview> userReviews;
 
     @OneToOne(mappedBy = "film", fetch = FetchType.LAZY)
-    @JsonIgnore
+//    @JsonManagedReference
     private FilmRating filmRating;
 
-    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<FilmCategory> filmCategories;
 
-    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<Showtime> showtimes;
 
-    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<News> news;
 
     public Long getFilmId() {
@@ -215,38 +215,5 @@ public class Film {
         this.news = news;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
 
-        // Include all fields except `filmRating`
-        result = prime * result + ((filmId == null) ? 0 : filmId.hashCode());
-        result = prime * result + ((filmName == null) ? 0 : filmName.hashCode());
-        result = prime * result + ((filmImg == null) ? 0 : filmImg.hashCode());
-        result = prime * result + ((filmTrailer == null) ? 0 : filmTrailer.hashCode());
-        result = prime * result + ((releaseDate == null) ? 0 : releaseDate.hashCode());
-        result = prime * result + ((filmDescription == null) ? 0 : filmDescription.hashCode());
-        result = prime * result + ((ageLimit == null) ? 0 : ageLimit.hashCode());
-        result = prime * result + ((duration == null) ? 0 : duration.hashCode());
-        result = prime * result + ((filmType == null) ? 0 : filmType.hashCode());
-        result = prime * result + ((country == null) ? 0 : country.hashCode());
-
-        // Include collections if needed, ensure null is handled
-        result = prime * result + ((filmDirectors == null) ? 0 : filmDirectors.hashCode());
-        result = prime * result + ((filmActors == null) ? 0 : filmActors.hashCode());
-        result = prime * result + ((userReviews == null) ? 0 : userReviews.hashCode());
-        result = prime * result + ((filmCategories == null) ? 0 : filmCategories.hashCode());
-        result = prime * result + ((showtimes == null) ? 0 : showtimes.hashCode());
-        result = prime * result + ((news == null) ? 0 : news.hashCode());
-
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Film film = (Film) o;
-        return Objects.equals(filmId, film.filmId) && Objects.equals(filmName, film.filmName) && Objects.equals(filmImg, film.filmImg) && Objects.equals(filmTrailer, film.filmTrailer) && Objects.equals(releaseDate, film.releaseDate) && Objects.equals(filmDescription, film.filmDescription) && Objects.equals(ageLimit, film.ageLimit) && Objects.equals(duration, film.duration) && Objects.equals(filmType, film.filmType) && Objects.equals(country, film.country) && Objects.equals(filmDirectors, film.filmDirectors) && Objects.equals(filmActors, film.filmActors) && Objects.equals(userReviews, film.userReviews) && Objects.equals(filmRating, film.filmRating) && Objects.equals(filmCategories, film.filmCategories) && Objects.equals(showtimes, film.showtimes) && Objects.equals(news, film.news);
-    }
 }

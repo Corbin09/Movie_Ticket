@@ -3,6 +3,7 @@ package Se2.MovieTicket.dto;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class FilmDTO {
@@ -16,6 +17,10 @@ public class FilmDTO {
     private Integer duration;
     private String filmType;
     private String country;
+    private List<String> directorNames;
+    private List<String> actorNames;
+    private List<String> categoryNames;
+    private Double averageRating;
 
     public Long getFilmId() {
         return filmId;
@@ -95,5 +100,37 @@ public class FilmDTO {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public List<String> getDirectorNames() {
+        return directorNames;
+    }
+
+    public void setDirectorNames(List<String> directorNames) {
+        this.directorNames = directorNames;
+    }
+
+    public List<String> getActorNames() {
+        return actorNames;
+    }
+
+    public void setActorNames(List<String> actorNames) {
+        this.actorNames = actorNames;
+    }
+
+    public List<String> getCategoryNames() {
+        return categoryNames;
+    }
+
+    public void setCategoryNames(List<String> categoryNames) {
+        this.categoryNames = categoryNames;
+    }
+
+    public Double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
     }
 }

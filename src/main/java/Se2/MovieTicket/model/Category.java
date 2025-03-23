@@ -1,11 +1,11 @@
 package Se2.MovieTicket.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Set;
 
@@ -15,6 +15,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@ToString(exclude = {"filmCategories"})
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "categoryId")
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +27,7 @@ public class Category {
     private String categoryName;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @JsonManagedReference
     private Set<FilmCategory> filmCategories;
 
     public Long getCategoryId() {

@@ -1,5 +1,6 @@
 package Se2.MovieTicket.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,13 +21,13 @@ public class UserReview {
     @ManyToOne
     @MapsId("userId")
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private User user;
 
     @ManyToOne
     @MapsId("filmId")
     @JoinColumn(name = "film_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Film film;
 
     @Column(name = "comments")

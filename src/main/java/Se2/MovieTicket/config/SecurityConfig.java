@@ -2,9 +2,11 @@ package Se2.MovieTicket.config;
 
 import Se2.MovieTicket.repository.UserRepository;
 import Se2.MovieTicket.service.CustomUserDetailsService;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -177,5 +179,9 @@ public class SecurityConfig {
 //            }
 //        };
 //    }
+@Bean
+public Jackson2ObjectMapperBuilderCustomizer jacksonCustomizer() {
+    return builder -> builder.featuresToDisable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+}
 
 }

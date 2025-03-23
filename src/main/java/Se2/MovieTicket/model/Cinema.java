@@ -1,11 +1,11 @@
 package Se2.MovieTicket.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Set;
 
@@ -15,6 +15,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@ToString(exclude = {"cinemaCluster", "rooms", "showtimes", "region"})
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "cinemaId")
 public class Cinema {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,20 +31,20 @@ public class Cinema {
 
     @ManyToOne
     @JoinColumn(name = "cluster_id")
-    @JsonIgnore
+    @JsonBackReference
     private CinemaCluster cinemaCluster;
 
-    @OneToMany(mappedBy = "cinema", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "cinema", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<Room> rooms;
 
-    @OneToMany(mappedBy = "cinema", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "cinema", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<Showtime> showtimes;
 
     @ManyToOne
     @JoinColumn(name = "region_id") // Thêm ánh xạ đến Region
-    @JsonIgnore
+    @JsonBackReference
     private Region region;
 
     public Long getCinemaId() {

@@ -6,6 +6,8 @@ import Se2.MovieTicket.repository.ShowtimeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,5 +50,11 @@ public class ShowtimeService {
 
     public void deleteShowtime(Long id) {
         showtimeRepository.deleteById(id);
+    }
+    public boolean hasShowtimesForFilmAndDate(Long filmId, LocalDate date) {
+        // Truy vấn cơ sở dữ liệu để kiểm tra xem có suất chiếu nào
+        // cho phim và ngày được chỉ định hay không
+        Integer count = showtimeRepository.countByFilmIdAndShowDate(filmId, date);
+        return count != null && count > 0;
     }
 }

@@ -1,10 +1,13 @@
 package Se2.MovieTicket.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Date;
 import java.util.Set;
@@ -14,6 +17,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"user", "showtime"})
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,12 +26,12 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonIgnore
+    @JsonBackReference
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "showtime_id")
-    @JsonIgnore
+    @JsonBackReference
     private Showtime showtime;
 
     @Column(name = "order_date")
@@ -35,11 +39,11 @@ public class Order {
     private Date orderDate;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @JsonManagedReference
     private Set<Ticket> tickets;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @JsonManagedReference
     private Set<PopcornOrder> popcornOrders;
 
     @Column(name = "total_price", nullable = false)

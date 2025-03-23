@@ -82,4 +82,5 @@ public class SearchController {
         model.addAttribute("totalPagesSearch", searchResultsPage.getTotalPages());
 
         return "home"; // Reuse the home template
-    }}
+    }
+}

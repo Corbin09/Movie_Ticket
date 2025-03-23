@@ -1,11 +1,11 @@
 package Se2.MovieTicket.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Set;
 
@@ -14,7 +14,9 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"cinema", "seats", "showtimes"})
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "roomId")
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,15 +28,16 @@ public class Room {
 
     @ManyToOne
     @JoinColumn(name = "cinema_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
+
     private Cinema cinema;
 
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<Seat> seats;
 
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<Showtime> showtimes;
 
     public Long getRoomId() {

@@ -1,10 +1,11 @@
 package Se2.MovieTicket.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 import java.util.Set;
@@ -14,25 +15,27 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"film", "room", "cinema", "seatStatuses", "orders"})
+@EqualsAndHashCode(exclude = {"film", "room", "cinema", "seatStatuses", "orders"})
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "showtimeId")
 public class Showtime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "showtime_id")
     private Long showtimeId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "film_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Film film;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
-    @JsonIgnore
     private Room room;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cinema_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Cinema cinema;
 
     @Column(name = "show_date")
@@ -43,15 +46,13 @@ public class Showtime {
     private String showTime;
 
 //    @OneToMany(mappedBy = "showtime", cascade = CascadeType.ALL)
-//    @JsonIgnore
+//
 //    private Set<Ticket> tickets;
 
-    @OneToMany(mappedBy = "showtime", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "showtime", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<SeatStatus> seatStatuses;
 
-    @OneToMany(mappedBy = "showtime", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "showtime", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Order> orders;
 
     public Long getShowtimeId() {

@@ -14,7 +14,7 @@
 
     <style>
         .search-results-section {
-    margin: 30px 0;
+    margin: 15px 0 0;
     padding: 20px;
     background: rgba(0, 0, 0, 0.6); /* Adds transparency for gradient harmony */
     border-radius: 8px;
@@ -133,33 +133,33 @@
 
     <!-- HTML mới cho pagination "Search Results" -->
     <div class="pagination" id="pagibar-search-results" th:if="${not #lists.isEmpty(searchResults)}">
-        <a th:href="@{/user-search(query=${searchQuery}, page=${currentPageSearch - 1})}"
-           class="prev" th:classappend="${currentPageSearch <= 1 ? 'disabled' : ''}">‹</a>
+        <a th:href="@{/user-search(query=${searchQuery}, page=${(currentPageSearch ?: 1) - 1 <= 0 ? 1 : (currentPageSearch ?: 1) - 1})}"
+           class="prev" th:classappend="${(currentPageSearch ?: 1) <= 1 ? 'disabled' : ''}">‹</a>
 
-        <a th:each="i : ${#numbers.sequence(1, totalPagesSearch)}"
+        <a th:each="i : ${#numbers.sequence(1, totalPagesSearch ?: 1)}"
            th:href="@{/user-search(query=${searchQuery}, page=${i})}"
-           th:classappend="${currentPageSearch == i} ? 'active' : ''"
+           th:classappend="${(currentPageSearch ?: 1) == i ? 'active' : ''}"
            th:text="${i}"></a>
 
-        <a th:href="@{/user-search(query=${searchQuery}, page=${currentPageSearch + 1})}"
-           class="next" th:classappend="${currentPageSearch >= totalPagesSearch ? 'disabled' : ''}">›</a>
+        <a th:href="@{/user-search(query=${searchQuery}, page=${(currentPageSearch ?: 1) + 1 > (totalPagesSearch ?: 1) ? (totalPagesSearch ?: 1) : (currentPageSearch ?: 1) + 1})}"
+           class="next" th:classappend="${(currentPageSearch ?: 1) >= (totalPagesSearch ?: 1) ? 'disabled' : ''}">›</a>
     </div>
 </div>
+<div th:if="${!searchPerformed}">
+    <!-- Hero Banner (show only when not searching) -->
+    <div class="hero-banner" th:if="${!searchPerformed}">
+        <div class="hero-slider">
+            <img th:each="film, stat : ${nowShowingMovies}" th:if="${stat.index < 3}"
+                 th:src="@{${film.filmImg}}" alt="Featured Movie"
+                 class="hero-image" th:classappend="${stat.index == 0} ? 'active' : ''">
+        </div>
 
-<!-- Hero Banner (show only when not searching) -->
-<div class="hero-banner" th:if="${!searchPerformed}">
-    <div class="hero-slider">
-        <img th:each="film, stat : ${nowShowingMovies}" th:if="${stat.index < 3}"
-             th:src="@{${film.filmImg}}" alt="Featured Movie"
-             class="hero-image" th:classappend="${stat.index == 0} ? 'active' : ''">
+        <!-- Pagination Default -->
+        <div class="pagination-default">
+            <div th:each="film, stat : ${nowShowingMovies}" th:if="${stat.index < 3}"
+                 class="pagination-dot" th:classappend="${stat.index == 0} ? 'active' : ''"></div>
+        </div>
     </div>
-
-    <!-- Pagination Default -->
-    <div class="pagination-default">
-        <div th:each="film, stat : ${nowShowingMovies}" th:if="${stat.index < 3}"
-             class="pagination-dot" th:classappend="${stat.index == 0} ? 'active' : ''"></div>
-    </div>
-</div>
 
     <!-- For Now Showing section -->
     <div class="movie-grid">
@@ -181,21 +181,20 @@
         </div>
     </div>
 
-
-    <!-- HTML mới cho pagination "Now Showing" -->
+    <!-- Pagination cho Now Showing -->
     <div class="pagination" id="pagibar-now-showing">
-        <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing - 1}, currentPageComingSoon=${currentPageComingSoon})}"
-           class="prev" th:classappend="${currentPageNowShowing <= 1 ? 'disabled' : ''}">‹</a>
+        <a th:href="@{/home(currentPageNowShowing=${(currentPageNowShowing ?: 1) - 1 <= 0 ? 1 : (currentPageNowShowing ?: 1) - 1}, currentPageComingSoon=${currentPageComingSoon ?: 1})}"
+           class="prev" th:classappend="${(currentPageNowShowing ?: 1) <= 1 ? 'disabled' : ''}">‹</a>
 
-        <a th:each="i : ${#numbers.sequence(1, totalPagesNowShowing)}"
-           th:href="@{/home(currentPageNowShowing=${i}, currentPageComingSoon=${currentPageComingSoon})}"
-           th:classappend="${currentPageNowShowing == i} ? 'active' : ''"
+        <a th:each="i : ${#numbers.sequence(1, totalPagesNowShowing ?: 1)}"
+           th:href="@{/home(currentPageNowShowing=${i}, currentPageComingSoon=${currentPageComingSoon ?: 1})}"
+           th:classappend="${(currentPageNowShowing ?: 1) == i ? 'active' : ''}"
            th:text="${i}"></a>
 
-        <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing + 1}, currentPageComingSoon=${currentPageComingSoon})}"
-           class="next" th:classappend="${currentPageNowShowing >= totalPagesNowShowing ? 'disabled' : ''}">›</a>
+        <a th:href="@{/home(currentPageNowShowing=${(currentPageNowShowing ?: 1) + 1 > (totalPagesNowShowing ?: 1) ? (totalPagesNowShowing ?: 1) : (currentPageNowShowing ?: 1) + 1}, currentPageComingSoon=${currentPageComingSoon ?: 1})}"
+           class="next" th:classappend="${(currentPageNowShowing ?: 1) >= (totalPagesNowShowing ?: 1) ? 'disabled' : ''}">›</a>
     </div>
-</div>
+
 
 <!-- For Coming Soon section -->
 <div class="movie-grid">
@@ -217,24 +216,24 @@
     </div>
 </div>
 
-    <!-- HTML mới cho pagination "Coming Soon" -->
-    <div class="pagination" id="pagibar-coming-soon">
-        <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing}, currentPageComingSoon=${currentPageComingSoon - 1})}"
-           class="prev" th:classappend="${currentPageComingSoon <= 1 ? 'disabled' : ''}">‹</a>
+<!-- Pagination cho Coming Soon -->
+<div class="pagination" id="pagibar-coming-soon">
+    <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing ?: 1}, currentPageComingSoon=${(currentPageComingSoon ?: 1) - 1 <= 0 ? 1 : (currentPageComingSoon ?: 1) - 1})}"
+       class="prev" th:classappend="${(currentPageComingSoon ?: 1) <= 1 ? 'disabled' : ''}">‹</a>
 
-        <a th:each="i : ${#numbers.sequence(1, totalPagesComingSoon)}"
-           th:href="@{/home(currentPageNowShowing=${currentPageNowShowing}, currentPageComingSoon=${i})}"
-           th:classappend="${currentPageComingSoon == i} ? 'active' : ''"
-           th:text="${i}"></a>
+    <a th:each="i : ${#numbers.sequence(1, totalPagesComingSoon ?: 1)}"
+       th:href="@{/home(currentPageNowShowing=${currentPageNowShowing ?: 1}, currentPageComingSoon=${i})}"
+       th:classappend="${(currentPageComingSoon ?: 1) == i ? 'active' : ''}"
+       th:text="${i}"></a>
 
-        <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing}, currentPageComingSoon=${currentPageComingSoon + 1})}"
-           class="next" th:classappend="${currentPageComingSoon >= totalPagesComingSoon ? 'disabled' : ''}">›</a>
-    </div>
+    <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing ?: 1}, currentPageComingSoon=${(currentPageComingSoon ?: 1) + 1 > (totalPagesComingSoon ?: 1) ? (totalPagesComingSoon ?: 1) : (currentPageComingSoon ?: 1) + 1})}"
+       class="next" th:classappend="${(currentPageComingSoon ?: 1) >= (totalPagesComingSoon ?: 1) ? 'disabled' : ''}">›</a>
 </div>
-
+</div>
+</div>
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
-</div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

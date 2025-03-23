@@ -1,11 +1,11 @@
 package Se2.MovieTicket.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Set;
 
@@ -15,6 +15,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@ToString(exclude = {"cinemas"})
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "clusterId")
 public class CinemaCluster {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,8 +26,8 @@ public class CinemaCluster {
     @Column(name = "cluster_name", nullable = false)
     private String clusterName;
 
-    @OneToMany(mappedBy = "cinemaCluster", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "cinemaCluster", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<Cinema> cinemas;
 
     public Long getClusterId() {

@@ -1,5 +1,6 @@
 package Se2.MovieTicket.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,12 +22,12 @@ public class News {
 
     @ManyToOne
     @JoinColumn(name = "film_id")
-    @JsonIgnore
+    @JsonBackReference
     private Film film;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonIgnore
+    @JsonBackReference
     private User user;
 
     @Column(name = "new_content")

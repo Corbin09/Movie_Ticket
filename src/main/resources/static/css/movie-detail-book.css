@@ -224,6 +224,7 @@ a {
 
 .has-showtime {
     font-weight: 600;
+    color: green;
 }
 
 /* Showtimes Section */
@@ -374,4 +375,73 @@ a {
     .cinema-info p {
         font-size: 0.8rem;
     }
-}
+    .day.empty {
+        background: transparent;
+        border: none;
+        cursor: default;
+    }
+
+    .day.disabled {
+        opacity: 0.5;
+        color: #999;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+   /* Enhanced styling for month/year selectors */
+   #month-selector, #year-selector {
+       padding: 8px 12px;
+       margin: 0 5px;
+       font-size: 0.95rem;
+       border-radius: var(--border-radius);
+       border: 1px solid var(--border-color);
+       background-color: white;
+       color: var(--text-color);
+       cursor: pointer;
+       font-weight: 500;
+       transition: var(--transition);
+       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+       -webkit-appearance: none; /* Remove default styling on some browsers */
+       -moz-appearance: none;
+       appearance: none;
+       background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+       background-repeat: no-repeat;
+       background-position: right 10px center;
+       background-size: 12px;
+       padding-right: 30px;
+   }
+
+   #month-selector:hover, #year-selector:hover {
+       border-color: var(--primary-color);
+   }
+
+   #month-selector:focus, #year-selector:focus {
+       outline: none;
+       border-color: var(--primary-color);
+       box-shadow: 0 0 0 2px rgba(0, 166, 81, 0.2);
+   }
+
+   /* Update styling for days outside current month */
+   .day.other-month {
+       color: #ccc;
+       font-weight: normal;
+       background-color: rgba(0,0,0,0.02);
+   }
+
+   .day.other-month:hover:not(.disabled) {
+       background-color: rgba(0,0,0,0.05);
+       color: #aaa;
+   }
+
+   .current-month {
+       display: flex;
+       align-items: center;
+       justify-content: center;
+
+   }
+
+  .disabled {
+      opacity: 0.5; /* Làm cho ngày mờ */
+      pointer-events: none; /* Ngăn không cho click vào ngày */
+      cursor: not-allowed; /* Thay đổi con trỏ chuột khi hover */
+  }

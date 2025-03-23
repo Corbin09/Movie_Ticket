@@ -1,5 +1,6 @@
 package Se2.MovieTicket.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,11 +20,12 @@ public class Ticket {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
-    @JsonIgnore
+    @JsonBackReference
     private Order order;
 
     @ManyToOne
     @JoinColumn(name = "seat_id", nullable = false)
+    @JsonBackReference
     private Seat seat;
 
 //    @ManyToOne
