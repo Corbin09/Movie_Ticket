@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -15,7 +16,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Film {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -240,5 +241,12 @@ public class Film {
         result = prime * result + ((news == null) ? 0 : news.hashCode());
 
         return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Film film = (Film) o;
+        return Objects.equals(filmId, film.filmId) && Objects.equals(filmName, film.filmName) && Objects.equals(filmImg, film.filmImg) && Objects.equals(filmTrailer, film.filmTrailer) && Objects.equals(releaseDate, film.releaseDate) && Objects.equals(filmDescription, film.filmDescription) && Objects.equals(ageLimit, film.ageLimit) && Objects.equals(duration, film.duration) && Objects.equals(filmType, film.filmType) && Objects.equals(country, film.country) && Objects.equals(filmDirectors, film.filmDirectors) && Objects.equals(filmActors, film.filmActors) && Objects.equals(userReviews, film.userReviews) && Objects.equals(filmRating, film.filmRating) && Objects.equals(filmCategories, film.filmCategories) && Objects.equals(showtimes, film.showtimes) && Objects.equals(news, film.news);
     }
 }

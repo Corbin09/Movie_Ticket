@@ -11,7 +11,7 @@ public class CinemaDTO {
     private String cinemaName;
     private String address;
     private Long clusterId;
-    private Set<Showtime> showtimes;
+    private Set<ShowtimeDTO> showtimes;
 
     public Long getCinemaId() {
         return cinemaId;
@@ -43,5 +43,14 @@ public class CinemaDTO {
 
     public void setClusterId(Long clusterId) {
         this.clusterId = clusterId;
+    }
+
+    // Add getter and setter for showtimes
+    public Set<ShowtimeDTO> getShowtimes() {
+        return showtimes;
+    }
+
+    public void setShowtimes(Set<ShowtimeDTO> showtimes) {
+        this.showtimes = showtimes;
     }
 }

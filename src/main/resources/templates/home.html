@@ -103,9 +103,10 @@
     </div>
 
     <!-- When search has results -->
+    <!-- For search results section -->
     <div class="movie-grid" th:if="${not #lists.isEmpty(searchResults)}">
         <div th:each="film : ${searchResults}" class="movie-card">
-            <a th:href="@{'/films/' + ${film.filmId}}">
+            <a th:href="@{'/View-movie-ticket?id=' + ${film.filmId}}">
                 <div class="movie-poster-container">
                     <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
                 </div>
@@ -160,12 +161,10 @@
     </div>
 </div>
 
-<!-- Now Showing Section (show only when not searching) -->
-<div class="movie-section" th:if="${!searchPerformed}">
-    <h2 class="section-title">Now Showing</h2>
+    <!-- For Now Showing section -->
     <div class="movie-grid">
         <div th:each="film : ${nowShowingMovies}" class="movie-card">
-            <a th:href="@{'/films/' + ${film.filmId}}">
+            <a th:href="@{'/View-movie-ticket?id=' + ${film.filmId}}">
                 <div class="movie-poster-container">
                     <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
                 </div>
@@ -182,6 +181,7 @@
         </div>
     </div>
 
+
     <!-- HTML mới cho pagination "Now Showing" -->
     <div class="pagination" id="pagibar-now-showing">
         <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing - 1}, currentPageComingSoon=${currentPageComingSoon})}"
@@ -197,27 +197,25 @@
     </div>
 </div>
 
-<!-- Coming Soon Section (show only when not searching) -->
-<div class="movie-section" th:if="${!searchPerformed}">
-    <h2 class="section-title">Coming Soon</h2>
-    <div class="movie-grid">
-        <div th:each="film : ${comingSoonMovies}" class="movie-card">
-            <a th:href="@{'/films/' + ${film.filmId}}">
-                <div class="movie-poster-container">
-                    <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
+<!-- For Coming Soon section -->
+<div class="movie-grid">
+    <div th:each="film : ${comingSoonMovies}" class="movie-card">
+        <a th:href="@{'/View-movie-ticket?id=' + ${film.filmId}}">
+            <div class="movie-poster-container">
+                <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
+            </div>
+            <div class="movie-info">
+                <div class="movie-meta">
+                    <span class="movie-category" th:text="${film.filmType}">Adventure</span>
+                    <span class="movie-release-date"
+                          th:text="${#dates.format(film.releaseDate, 'dd/MM/yyyy')}">14/02/2025</span>
+                    <span class="movie-duration" th:text="${film.duration + ' min'}">114 min</span>
                 </div>
-                <div class="movie-info">
-                    <div class="movie-meta">
-                        <span class="movie-category" th:text="${film.filmType}">Adventure</span>
-                        <span class="movie-release-date"
-                              th:text="${#dates.format(film.releaseDate, 'dd/MM/yyyy')}">14/02/2025</span>
-                        <span class="movie-duration" th:text="${film.duration + ' min'}">114 min</span>
-                    </div>
-                    <div class="movie-title" th:text="${film.filmName}">CAPTAIN AMERICA - T13 - 2D</div>
-                </div>
-            </a>
-        </div>
+                <div class="movie-title" th:text="${film.filmName}">CAPTAIN AMERICA - T13 - 2D</div>
+            </div>
+        </a>
     </div>
+</div>
 
     <!-- HTML mới cho pagination "Coming Soon" -->
     <div class="pagination" id="pagibar-coming-soon">

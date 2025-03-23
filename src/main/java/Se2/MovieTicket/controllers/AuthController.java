@@ -134,10 +134,10 @@ public class AuthController {
                 return "redirect:/pay-ticket";
             } else if ("ROLE_USER".equals(role)) {
                 logger.info("Redirecting User to /home");
-                return "redirect:/index";
+                return "redirect:/home";
             } else {
                 logger.info("Redirecting to default index page");
-                return "redirect:/home";
+                return "redirect:/index";
             }
         } catch (Exception e) {
             logger.error("Login failed: {}", e.getMessage());
