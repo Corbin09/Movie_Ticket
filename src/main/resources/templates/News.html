@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title> News </title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" th:href="@{/css/news.css}" />
+</head>
+
+<body>
+<!-- Header -->
+<div th:replace="fragments/header :: header"></div>
+<section class="latest-news">
+  <h2>LATEST NEWS</h2>
+  <div class="news-container">
+    <div class="main-news" th:each="news : ${latestNews}">
+      <img th:src="${news.image}" alt="News Image">
+      <h3 th:text="${news.title}"></h3>
+      <p th:text="${news.content}"></p>
+      <span th:text="'Date: ' + ${#dates.format(news.date, 'dd/MM/yyyy')}"></span>
+      <span th:text="'Write by: ' + ${news.author}"></span>
+    </div>
+    <div class="news-list">
+      <div class="news-item" th:each="review : ${newsReviews}">
+        <img th:src="${review.image}" alt="Review Image">
+        <p th:text="'Review: ' + ${review.title}"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="movie-section">
+  <h2>VIETNAMESE MOVIES</h2>
+  <div class="movie-grid">
+    <div th:each="film : ${vietnameseMovies}" class="movie-card">
+      <a th:href="@{'/films/' + ${film.filmId}}">
+        <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
+        <div class="movie-info">
+          <p th:text="${film.filmType}"></p>
+          <p th:text="${#dates.format(film.releaseDate, 'dd/MM/yyyy')}"></p>
+          <p th:text="${film.filmName}"></p>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Pagination for Vietnamese Movies -->
+<div class="pagination" id="pagination-vietnamese-movies">
+  <a th:if="${currentVietnamesePage > 0}" th:href="@{'/vietnamese-movies?page=' + ${currentVietnamesePage - 1}}" class="prev">‹</a>
+
+  <a th:each="i : ${#numbers.sequence(0, vietnamesePages - 1)}"
+     th:href="@{'/vietnamese-movies?page=' + ${i}}"
+     th:class="${currentVietnamesePage == i ? 'active' : ''}"
+     th:text="${i + 1}"></a>
+
+  <a th:if="${currentVietnamesePage < vietnamesePages - 1}" th:href="@{'/vietnamese-movies?page=' + ${currentVietnamesePage + 1}}" class="next">›</a>
+</div>
+
+<section class="movie-section">
+  <h2>INTERNATIONAL MOVIES</h2>
+  <div class="movie-grid">
+    <div th:each="film : ${internationalMovies}" class="movie-card">
+      <a th:href="@{'/films/' + ${film.filmId}}">
+        <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
+        <div class="movie-info">
+          <p th:text="${film.filmType}"></p>
+          <p th:text="${#dates.format(film.releaseDate, 'dd/MM/yyyy')}"></p>
+          <p th:text="${film.filmName}"></p>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Pagination for International Movies -->
+<div class="pagination" id="pagination-international-movies">
+  <a th:if="${currentInternationalPage > 0}" th:href="@{'/international-movies?page=' + ${currentInternationalPage - 1}}" class="prev">‹</a>
+
+  <a th:each="i : ${#numbers.sequence(0, internationalPages - 1)}"
+     th:href="@{'/international-movies?page=' + ${i}}"
+     th:class="${currentInternationalPage == i ? 'active' : ''}"
+     th:text="${i + 1}"></a>
+
+  <a th:if="${currentInternationalPage < internationalPages - 1}" th:href="@{'/international-movies?page=' + ${currentInternationalPage + 1}}" class="next">›</a>
+</div>
+<!-- Footer -->
+<div th:replace="fragments/footer :: footer"></div>
+
+
