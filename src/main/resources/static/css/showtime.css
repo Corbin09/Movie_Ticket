@@ -1,0 +1,242 @@
+:root {
+            --white: rgba(255, 255, 255, 1);
+        }
+        * {
+            -webkit-font-smoothing: antialiased;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0px;
+            height: 100%;
+        }
+
+        .showtime-container {
+            position: relative;
+            width: 1280px;
+            height: 1889px;
+            background-color: rgba(255, 255, 255, 1.0);
+            border: 1px solid;
+            border-color: #000000;
+            background: linear-gradient(180deg,
+                    rgba(1, 15, 5, 1) 0%,
+                    rgba(19, 96, 38, 1) 100%);
+        }
+/* Location Selector */
+.location-selector {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.city-dropdown, .cinema-dropdown {
+    padding: 10px 15px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    background-color: #ffffff;
+}
+
+.city-dropdown.active, .cinema-dropdown.active {
+    background-color: #103c21;
+}
+
+/* Dropdown Icon */
+.dropdown-icon {
+    width: 12px;
+    margin-left: 8px;
+}
+
+/* Date Selector */
+.date-selector {
+    display: flex;
+    justify-content: center;
+    margin: 15px 0;
+    gap: 8px;
+}
+
+/* Date Button */
+.date-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 15px;
+    min-width: 50px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.801);
+    color: white;
+    cursor: pointer;
+    background-color: transparent;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    white-space: nowrap;
+}
+
+.date-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #e54141;
+}
+
+.date-button:first-child {
+    background-color: #8f0501;
+}
+
+.date-button.active {
+    background-color: #8f0501 !important;
+}
+
+.date-button:not(.active) {
+    background-color: transparent;
+}
+
+
+/* Age Restriction Note */
+.age-restriction-note {
+    text-align: center;
+    margin: 10px 0;
+    font-size: 14px;
+    color: #f5ab0b;
+}
+
+.note-label {
+    font-weight: bold;
+}
+
+/* Movie Container */
+.movies-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Movie Grid */
+.movies-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    width: 920px;
+}
+
+/* Movie Card */
+.movie-card {
+    display: flex;
+    width: 450px;
+    height: 220px;
+    border-radius: 12px;
+    padding: 15px;
+    gap: 15px;
+    transition: transform 0.3s;
+    border: 1px solid rgb(255, 255, 255);
+    align-items: stretch;
+}
+
+.movie-card:hover {
+    transform: scale(1.02);
+}
+
+/* Movie Poster */
+.poster-container {
+    flex: 0 0 120px;
+    height: 100%;
+}
+
+.poster-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    background-color: gray;
+}
+
+/* Movie Details */
+.movie-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Movie Metadata */
+.movie-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+
+.movie-metadata {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    width: 100%;
+}
+
+.metadata-row {
+    display: flex;
+    flex-grow: 1;
+}
+
+.movie-genre {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.movie-duration {
+    margin-left: auto;
+}
+
+.movie-format {
+    margin-left: 10px;
+}
+
+/* Movie Origin & Release Date */
+.movie-origin,
+.release-date {
+    font-size: 12px;
+    color: rgb(255, 255, 255);
+}
+
+/* Age Rating */
+.age-rating {
+    font-size: 12px;
+    color: #e6322c;
+    font-weight: bold;
+}
+
+.showtime-section {
+    border-radius: 5px;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.section-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.time-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.time-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    color: white;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap;
+    min-width: 50px;
+    border: 1px solid white;
+}
+
+.time-text {
+    text-align: center;
+}

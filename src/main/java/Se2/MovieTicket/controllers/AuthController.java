@@ -528,10 +528,10 @@ package Se2.MovieTicket.controllers;
 import Se2.MovieTicket.dto.*;
 import Se2.MovieTicket.model.Cinema;
 import Se2.MovieTicket.model.Film;
+import Se2.MovieTicket.model.Region;
 import Se2.MovieTicket.repository.UserRepository;
-import Se2.MovieTicket.service.CinemaService;
-import Se2.MovieTicket.service.FilmService;
-import Se2.MovieTicket.service.ShowtimeService;
+import Se2.MovieTicket.service.*;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -540,9 +540,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import Se2.MovieTicket.impl.UserDetailsImpl;
 import Se2.MovieTicket.model.User;
-import Se2.MovieTicket.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -555,10 +556,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -584,7 +582,8 @@ public class AuthController {
     private ShowtimeService showtimeService;
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private RegionService regionService;
     @Autowired
     private FilmService filmService;
 
@@ -663,7 +662,7 @@ public class AuthController {
 
             if ("ROLE_ADMIN".equals(role)) {
                 logger.info("Redirecting Admin to /pay-ticket");
-                return "redirect:/pay-ticket";
+                return "redirect:/showtime";
             } else if ("ROLE_USER".equals(role)) {
                 logger.info("Redirecting User to /home");
                 return "redirect:/index";
@@ -1167,11 +1166,6 @@ public class AuthController {
 
         return "home";  // Trả về trang template home.html
     }
-    @GetMapping("/showtime")
-    public String showtime(Model model) {
-        model.addAttribute("currentPage", "showtime");
-        return "showtime";
-    }
 
     @GetMapping("/news")
     public String news(Model model) {
@@ -1180,20 +1174,212 @@ public class AuthController {
     }
 
 
+    @GetMapping("/showtime")
+    public String getShowtimes(
+            @RequestParam(required = false) Long regionId,
+            @RequestParam(required = false) Long cinemaId,
+            @RequestParam(required = false) String date,
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "10") int size,
+            Model model, HttpServletRequest request) {
 
+        logger.info("Accessing showtimes page with filters - regionId: {}, cinemaId: {}, date: {}, page: {}, size: {}",
+                regionId, cinemaId, date, page, size);
 
+        // Handle user session and security
+        handleUserSession(model, request);
 
+        // Get all regions for dropdown
+        List<Region> regions = regionService.getAllRegions();
+        model.addAttribute("regions", regions);
 
+        // Handle region selection
+        Region selectedRegion = null;
+        if (regionId != null) {
+            selectedRegion = regionService.getRegionById(regionId).orElse(null);
+            model.addAttribute("selectedRegion", selectedRegion);
+        }
 
+        // If region is selected, get cinemas for that region
+        List<CinemaDTO> cinemas = new ArrayList<>();
+        if (selectedRegion != null) {
+            cinemas = cinemaService.getCinemasByRegionId(regionId);
+            model.addAttribute("cinemas", cinemas);
+        }
 
-    @GetMapping("/logout")
-    public String logout(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
-        logger.info("User logging out");
+        // Handle cinema selection
+        Cinema selectedCinema = null;
+        if (cinemaId != null) {
+            selectedCinema = cinemaService.getCinemaById(cinemaId).orElse(null);
+            model.addAttribute("selectedCinema", selectedCinema);
+        }
 
-        // Xóa tất cả các session attribute
-        session.invalidate();  // Hủy toàn bộ session hiện tại
+        // Get available dates for selected cinema
+        List<LocalDate> availableDates = new ArrayList<>();
+        if (selectedCinema != null) {
+            availableDates = showtimeService.getAvailableDatesForCinema(cinemaId);
+        }
+        model.addAttribute("availableDates", availableDates);
 
-        // Chuyển hướng người dùng về trang login với thông báo logout thành công
-        return "redirect:/login?logout";
+        // Process date parameter
+        LocalDate selectedDate = processDateParameter(date);
+        model.addAttribute("selectedDate", selectedDate);
+
+        // Create pageable for pagination
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        // Get films based on filters
+        Page<FilmDTO> filmsPage = Page.empty(); // Initialize empty page
+        if (selectedRegion != null && selectedCinema != null && selectedDate != null) {
+            filmsPage = filmService.getFilmsByCinemaAndDate(cinemaId, selectedDate, pageable);
+        }
+
+        model.addAttribute("films", filmsPage.getContent());
+
+        // Add pagination information
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", filmsPage.getTotalPages());
+        model.addAttribute("totalItems", filmsPage.getTotalElements());
+
+        // Get showtimes for each film
+        Map<Long, List<ShowtimeDTO>> filmShowtimes = new HashMap<>();
+        for (FilmDTO film : filmsPage.getContent()) {
+            List<ShowtimeDTO> showtimes = showtimeService.getShowtimesByFilmAndCinemaAndDate(film.getFilmId(), cinemaId, selectedDate);
+            filmShowtimes.put(film.getFilmId(), showtimes);
+        }
+        model.addAttribute("filmShowtimes", filmShowtimes);
+
+        // Age restriction note
+        model.addAttribute("ageRestriction", true);
+
+        return "showtime";
     }
-}
+
+    // New method to get available dates for a specific cinema
+    @GetMapping("/api/available-dates")
+    @ResponseBody
+    public List<LocalDate> getAvailableDates(@RequestParam Long cinemaId) {
+        logger.info("API request for available dates in cinema: {}", cinemaId);
+        return showtimeService.getAvailableDatesForCinema(cinemaId);
+    }
+
+
+
+    /**
+     * API endpoint to get cinemas for a specific region
+     */
+    @GetMapping("/api/cinemas")
+    @ResponseBody
+    public List<CinemaDTO> getCinemasByRegion(@RequestParam Long regionId) {
+        logger.info("API request for cinemas in region: {}", regionId);
+        return cinemaService.getCinemasByRegionId(regionId);
+    }
+
+    /**
+     * Process and validate date parameter
+     */
+    private LocalDate processDateParameter(String dateStr) {
+        LocalDate selectedDate;
+        LocalDate today = LocalDate.now();
+
+        if (dateStr != null && !dateStr.isEmpty()) {
+            try {
+                // Try to parse the provided date
+                selectedDate = LocalDate.parse(dateStr);
+
+                // Ensure the date is not in the past
+                if (selectedDate.isBefore(today)) {
+                    logger.warn("Selected date is in the past: {}. Using today's date instead.", dateStr);
+                    selectedDate = today;
+                }
+            } catch (DateTimeParseException e) {
+                logger.warn("Invalid date format: {}. Using today's date instead.", dateStr);
+                selectedDate = today;
+            }
+        } else {
+            // Default to today if no date provided
+            selectedDate = today;
+            logger.info("No date provided, using today's date: {}", selectedDate);
+        }
+
+        return selectedDate;
+    }
+
+    /**
+     * Generate a list of available dates for selection (next 7 days including today)
+     */
+    private List<LocalDate> getAvailableDates(LocalDate selectedDate) {
+        LocalDate today = LocalDate.now();
+        List<LocalDate> dates = new ArrayList<>();
+
+        // Add today and next 6 days
+        for (int i = 0; i < 7; i++) {
+            dates.add(today.plusDays(i));
+        }
+
+        return dates;
+    }
+
+    /**
+     * Handle user session and add user to model if authenticated
+     */
+    private void handleUserSession(Model model, HttpServletRequest request) {
+        // Get user from session or SecurityContext
+        HttpSession session = request.getSession(false);
+        User sessionUser = (session != null) ? (User) session.getAttribute("user") : null;
+
+        if (sessionUser == null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                sessionUser = userService.getUserById(userDetails.getId()).orElse(null);
+
+                if (sessionUser != null && session != null) {
+                    session.setAttribute("user", sessionUser);
+                    logger.info("User saved to session from SecurityContext");
+                }
+            }
+        }
+
+        if (sessionUser != null) {
+            logger.info("User found: {}", sessionUser.getUsername());
+            model.addAttribute("user", sessionUser);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@GetMapping("/logout")
+public String logout(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+    logger.info("User logging out");
+
+    // Xóa tất cả session attributes và hủy session hiện tại
+    session.invalidate();
+
+    // Xóa JSESSIONID cookie để tránh các vấn đề về session fixation
+    Cookie cookie = new Cookie("JSESSIONID", null);
+    cookie.setPath("/");
+    cookie.setHttpOnly(true);
+    cookie.setMaxAge(0);  // Xóa cookie ngay lập tức
+    response.addCookie(cookie);
+
+    // Chuyển hướng người dùng về trang login với thông báo logout thành công
+    return "redirect:/login?logout";
+}}

@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -177,5 +179,139 @@ public class FilmService {
         // Convert query to lowercase for case-insensitive search
         String searchQuery = "%" + query.toLowerCase() + "%";
         return filmRepository.findBySearchTerm(searchQuery, pageable);
+    }
+
+    public Page<FilmDTO> getFilmsWithShowtimesByDate(LocalDate selectedDate, Pageable pageable) {
+        // Find all films that have showtimes on the selected date
+        Date date = java.sql.Date.valueOf(selectedDate);
+
+        // Get films from repository with showtimes matching the date
+        Page<Film> films = filmRepository.findFilmsWithShowtimesByDate(date, pageable);
+
+        // Convert to DTOs with showtime information
+        return films.map(film -> {
+            FilmDTO filmDTO = convertToDTO(film);
+
+            // Extract director names
+            if (film.getFilmDirectors() != null) {
+                List<String> directorNames = film.getFilmDirectors().stream()
+                        .map(director -> director.getDirector().getDirectorName())
+                        .collect(java.util.stream.Collectors.toList());
+                filmDTO.setDirectorNames(directorNames);
+            }
+
+            // Extract actor names
+            if (film.getFilmActors() != null) {
+                List<String> actorNames = film.getFilmActors().stream()
+                        .map(actor -> actor.getActor().getActorName())
+                        .collect(java.util.stream.Collectors.toList());
+                filmDTO.setActorNames(actorNames);
+            }
+
+            // Extract category names
+            if (film.getFilmCategories() != null) {
+                List<String> categoryNames = film.getFilmCategories().stream()
+                        .map(category -> category.getCategory().getCategoryName())
+                        .collect(java.util.stream.Collectors.toList());
+                filmDTO.setCategoryNames(categoryNames);
+            }
+
+            return filmDTO;
+        });
+    }
+
+    public Page<FilmDTO> getFilmsByRegionAndDate(Long regionId, LocalDate selectedDate, Pageable pageable) {
+        // Find all films that have showtimes in the specified region on the selected date
+        Date date = java.sql.Date.valueOf(selectedDate);
+
+        // Get films from repository with showtimes matching the region and date
+        Page<Film> films = filmRepository.findFilmsByRegionAndDate(regionId, date, pageable);
+
+        // Convert to DTOs with relevant information
+        return films.map(film -> {
+            FilmDTO filmDTO = convertToDTO(film);
+
+            // Extract director names
+            if (film.getFilmDirectors() != null) {
+                List<String> directorNames = film.getFilmDirectors().stream()
+                        .map(director -> director.getDirector().getDirectorName())
+                        .collect(java.util.stream.Collectors.toList());
+                filmDTO.setDirectorNames(directorNames);
+            }
+
+            // Extract actor names
+            if (film.getFilmActors() != null) {
+                List<String> actorNames = film.getFilmActors().stream()
+                        .map(actor -> actor.getActor().getActorName())
+                        .collect(java.util.stream.Collectors.toList());
+                filmDTO.setActorNames(actorNames);
+            }
+
+            // Extract category names
+            if (film.getFilmCategories() != null) {
+                List<String> categoryNames = film.getFilmCategories().stream()
+                        .map(category -> category.getCategory().getCategoryName())
+                        .collect(java.util.stream.Collectors.toList());
+                filmDTO.setCategoryNames(categoryNames);
+            }
+
+            return filmDTO;
+        });
+    }
+
+    public Page<FilmDTO> getFilmsByCinemaAndDate(Long cinemaId, LocalDate selectedDate, Pageable pageable) {
+        // Find all films that have showtimes in the specified cinema on the selected date
+        Date date = java.sql.Date.valueOf(selectedDate);
+
+        // Get films from repository with showtimes matching the cinema and date
+        Page<Film> films = filmRepository.findFilmsByCinemaAndDate(cinemaId, date, pageable);
+
+        // Convert to DTOs with relevant information
+        return films.map(film -> {
+            FilmDTO filmDTO = convertToDTO(film);
+
+            // Extract director names
+            if (film.getFilmDirectors() != null) {
+                List<String> directorNames = film.getFilmDirectors().stream()
+                        .map(director -> director.getDirector().getDirectorName())
+                        .collect(java.util.stream.Collectors.toList());
+                filmDTO.setDirectorNames(directorNames);
+            }
+
+            // Extract actor names
+            if (film.getFilmActors() != null) {
+                List<String> actorNames = film.getFilmActors().stream()
+                        .map(actor -> actor.getActor().getActorName())
+                        .collect(java.util.stream.Collectors.toList());
+                filmDTO.setActorNames(actorNames);
+            }
+
+            // Extract category names
+            if (film.getFilmCategories() != null) {
+                List<String> categoryNames = film.getFilmCategories().stream()
+                        .map(category -> category.getCategory().getCategoryName())
+                        .collect(java.util.stream.Collectors.toList());
+                filmDTO.setCategoryNames(categoryNames);
+            }
+
+            return filmDTO;
+        });
+    }
+
+    // Helper method to convert Film to FilmDTO
+    private FilmDTO convertToDTO(Film film) {
+        FilmDTO filmDTO = new FilmDTO();
+        filmDTO.setFilmId(film.getFilmId());
+        filmDTO.setFilmName(film.getFilmName());
+        filmDTO.setFilmImg(film.getFilmImg());
+        filmDTO.setFilmTrailer(film.getFilmTrailer());
+        filmDTO.setReleaseDate(film.getReleaseDate());
+        filmDTO.setFilmDescription(film.getFilmDescription());
+        filmDTO.setAgeLimit(film.getAgeLimit());
+        filmDTO.setDuration(film.getDuration());
+        filmDTO.setFilmType(film.getFilmType());
+        filmDTO.setCountry(film.getCountry());
+
+        return filmDTO;
     }
 }

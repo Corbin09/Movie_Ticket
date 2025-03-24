@@ -31,5 +31,6 @@ public interface CinemaRepository extends JpaRepository<Cinema, Long> {
     @Query("SELECT c, s FROM Cinema c JOIN c.showtimes s WHERE s.film.filmId = :filmId AND s.showDate = :showDate")
     List<Object[]> findCinemasWithShowtimesByFilmAndDate(@Param("filmId") Long filmId, @Param("showDate") LocalDate showDate);
 
-
+    @Query("SELECT c FROM Cinema c WHERE c.region.regionId = :regionId")
+    List<Cinema> findByRegionId(@Param("regionId") Long regionId);
 }

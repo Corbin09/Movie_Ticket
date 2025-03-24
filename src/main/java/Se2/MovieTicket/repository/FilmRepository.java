@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface FilmRepository extends JpaRepository<Film, Long> {
@@ -69,5 +68,25 @@ public interface FilmRepository extends JpaRepository<Film, Long> {
             "OR LOWER(c.cinemaName) LIKE CONCAT('%', :searchTerm, '%') " +
             "OR LOWER(cc.clusterName) LIKE CONCAT('%', :searchTerm, '%')")
     Page<Film> findBySearchTerm(@Param("searchTerm") String searchTerm, Pageable pageable);
+    @Query("SELECT DISTINCT f FROM Film f " +
+            "JOIN f.showtimes s " +
+            "JOIN s.room r " +
+            "JOIN r.cinema c " +
+            "WHERE s.showDate = :date")
+    Page<Film> findFilmsWithShowtimesByDate(@Param("date") Date date, Pageable pageable);
 
+    @Query("SELECT DISTINCT f FROM Film f " +
+            "JOIN f.showtimes s " +
+            "JOIN s.room r " +
+            "JOIN r.cinema c " +
+            "WHERE c.region.regionId = :regionId " +
+            "AND s.showDate = :date")
+    Page<Film> findFilmsByRegionAndDate(@Param("regionId") Long regionId, @Param("date") Date date, Pageable pageable);
+
+    @Query("SELECT DISTINCT f FROM Film f " +
+            "JOIN f.showtimes s " +
+            "JOIN s.room r " +
+            "WHERE r.cinema.cinemaId = :cinemaId " +
+            "AND s.showDate = :date")
+    Page<Film> findFilmsByCinemaAndDate(@Param("cinemaId") Long cinemaId, @Param("date") Date date, Pageable pageable);
 }

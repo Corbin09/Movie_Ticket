@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ShowtimeService {
@@ -56,5 +57,38 @@ public class ShowtimeService {
         // cho phim và ngày được chỉ định hay không
         Integer count = showtimeRepository.countByFilmIdAndShowDate(filmId, date);
         return count != null && count > 0;
+    }
+
+    public List<ShowtimeDTO> getShowtimesByFilmAndCinemaAndDate(Long filmId, Long cinemaId, LocalDate selectedDate) {
+        List<Showtime> showtimes = showtimeRepository.findByFilmAndCinemaAndDate(filmId, cinemaId, selectedDate);
+        return showtimes.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<ShowtimeDTO> getShowtimesByFilmAndRegionAndDate(Long filmId, Long regionId, LocalDate selectedDate) {
+        List<Showtime> showtimes = showtimeRepository.findByFilmAndRegionAndDate(filmId, regionId, selectedDate);
+        return showtimes.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<ShowtimeDTO> getShowtimesByFilmAndDate(Long filmId, LocalDate selectedDate) {
+        List<Showtime> showtimes = showtimeRepository.findByFilmAndDate(filmId, selectedDate);
+        return showtimes.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Helper method to convert Showtime to ShowtimeDTO
+    private ShowtimeDTO convertToDTO(Showtime showtime) {
+        ShowtimeDTO dto = new ShowtimeDTO();
+        dto.setShowtimeId(showtime.getShowtimeId());
+        dto.setFilmId(showtime.getFilm().getFilmId());
+        dto.setRoomId(showtime.getRoom().getRoomId());
+        dto.setCinemaId(showtime.getCinema().getCinemaId());
+        dto.setShowDate(showtime.getShowDate());
+        dto.setShowTime(showtime.getShowTime());
+        return dto;
     }
 }

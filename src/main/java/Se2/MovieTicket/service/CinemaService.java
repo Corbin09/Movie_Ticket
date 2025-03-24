@@ -225,4 +225,54 @@ public class CinemaService {
         // Chuyển map thành list và trả về
         return new ArrayList<>(cinemaMap.values());
     }
+
+    public List<CinemaDTO> getCinemasByRegionId(Long regionId) {
+        List<Cinema> cinemas = cinemaRepository.findByRegionId(regionId);
+        return cinemas.stream()
+                .map(this::convertToCinemaDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Helper method to convert Cinema entity to CinemaDTO
+    private CinemaDTO convertToCinemaDTO(Cinema cinema) {
+        CinemaDTO cinemaDTO = new CinemaDTO();
+        cinemaDTO.setCinemaId(cinema.getCinemaId());
+        cinemaDTO.setCinemaName(cinema.getCinemaName());
+        cinemaDTO.setAddress(cinema.getAddress());
+
+        // Set cinema cluster ID if available
+        if (cinema.getCinemaCluster() != null) {
+            cinemaDTO.setClusterId(cinema.getCinemaCluster().getClusterId());
+        }
+
+        // Optionally map showtimes if needed
+        // This depends on whether you want to include showtimes in the response
+        // If you do, you'd need to convert each Showtime to ShowtimeDTO
+        if (cinema.getShowtimes() != null && !cinema.getShowtimes().isEmpty()) {
+            Set<ShowtimeDTO> showtimeDTOs = cinema.getShowtimes().stream()
+                    .map(showtime -> {
+                        ShowtimeDTO dto = new ShowtimeDTO();
+                        dto.setShowtimeId(showtime.getShowtimeId());
+                        dto.setShowDate(showtime.getShowDate());
+                        dto.setShowTime(showtime.getShowTime());
+
+                        if (showtime.getFilm() != null) {
+                            dto.setFilmId(showtime.getFilm().getFilmId());
+                        }
+
+                        if (showtime.getRoom() != null) {
+                            dto.setRoomId(showtime.getRoom().getRoomId());
+                        }
+
+                        dto.setCinemaId(cinema.getCinemaId());
+
+                        return dto;
+                    })
+                    .collect(Collectors.toSet());
+
+            cinemaDTO.setShowtimes(showtimeDTOs);
+        }
+
+        return cinemaDTO;
+    }
 }

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Showtime</title>
+    <link rel="stylesheet" th:href="@{/css/showtime.css}" />
+    <link rel="stylesheet" th:href="@{/css/header_user.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Additional CSS for improved layout */
+        .filter-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-label {
+            font-weight: bold;
+            min-width: 80px;
+        }
+
+        .dropdown-wrapper {
+            position: relative;
+            width: 250px;
+        }
+
+        .dropdown {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+        }
+
+        .dropdown-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .date-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding: 5px 0;
+        }
+
+        .date-button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .date-button.active {
+            background-color: #e50914;
+            color: white;
+            border-color: #e50914;
+        }
+
+        .movie-card {
+            position: relative;
+            display: flex;
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+
+        .poster-container {
+            width: 180px;
+            height: 270px;
+            flex-shrink: 0;
+        }
+
+        .poster-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .movie-details {
+            padding: 15px;
+            flex-grow: 1;
+        }
+
+        .movie-metadata {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .metadata-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .movie-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .movie-origin, .release-date {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #aaa;
+        }
+
+        .age-rating {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .showtime-section {
+            margin-top: 15px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .time-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .time-button {
+            padding: 8px 15px;
+            background-color: #333;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .time-button:hover {
+            background-color: #e50914;
+        }
+
+        .age-restriction-note {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .note-label {
+            font-weight: bold;
+            color: #e50914;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 10px;
+        }
+
+        .page-item {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .page-item.active {
+            background-color: #e50914;
+            color: white;
+            border-color: #e50914;
+        }
+    </style>
+</head>
+
+<body>
+<div class="showtime-container">
+    <div class="showtime-container">
+        <!-- Header -->
+        <header class="site-header" th:replace="fragments/header_user :: header"></header>
+        <div class="adding-margin"></div>
+        <!-- Filter Section -->
+        <div class="filter-container">
+            <!-- Region Filter -->
+            <div class="filter-row">
+                <div class="filter-label">Region:</div>
+                <div class="dropdown-wrapper">
+                    <div id="region-dropdown" class="dropdown">
+                        <div class="dropdown-text" th:text="${selectedRegion != null ? selectedRegion.regionName : 'Select Region'}">Select Region</div>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </div>
+                    <div id="region-dropdown-menu" class="dropdown-menu" style="display: none;">
+                        <div th:each="region : ${regions}" class="dropdown-item" th:data-id="${region.regionId}" th:text="${region.regionName}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cinema Filter (only visible after region is selected) -->
+            <div class="filter-row" id="cinema-filter-row" th:style="${selectedRegion == null ? 'display: none;' : ''}">
+                <div class="filter-label">Cinema:</div>
+                <div class="dropdown-wrapper">
+                    <div id="cinema-dropdown" class="dropdown">
+                        <div class="dropdown-text" th:text="${selectedCinema != null ? selectedCinema.cinemaName : 'Select Cinema'}">Select Cinema</div>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </div>
+                    <div id="cinema-dropdown-menu" class="dropdown-menu" style="display: none;">
+                        <div th:each="cinema : ${cinemas}" class="dropdown-item" th:data-id="${cinema.cinemaId}" th:text="${cinema.cinemaName}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Filter (only visible after cinema is selected) -->
+            <div class="filter-row" id="date-filter-row" th:style="${selectedCinema == null ? 'display: none;' : ''}">
+                <div class="filter-label">Date:</div>
+                <div class="date-selector">
+                    <div class="date-slider">
+                        <div th:each="date : ${availableDates}" class="date-button" th:data-date="${#temporals.format(date, 'yyyy-MM-dd')}">
+                            <div class="date-text" th:text="${#temporals.format(date, 'EEE d/M')}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Age Restriction Note -->
+        <p class="age-restriction-note">
+            <span class="note-label">Note</span>
+            <span class="note-content">: Viewers under 13 years old can only select showtimes that end before 10:00 PM, and viewers under 16 years old can only select showtimes that end before 11:00 PM.</span>
+        </p>
+
+        <!-- Movies Container -->
+        <div class="movies-container">
+            <div class="movies-grid">
+                <div th:each="film : ${films}" class="movie-card">
+                    <div class="poster-container">
+                        <a th:href="@{/view-movie-ticket(filmId=${film.filmId})}">
+                            <img th:src="@{${film.filmImg}}" th:alt="${film.filmName}" class="poster-image">
+                        </a>
+                    </div>
+                    <div class="movie-details">
+                        <div class="movie-metadata">
+                            <div class="metadata-row">
+                                <div class="movie-genre" th:text="${film.filmCategories != null && !film.filmCategories.isEmpty() ? film.filmCategories.iterator().next().category.categoryName : 'N/A'}"></div>
+                                <div class="movie-duration" th:text="${film.duration} + ' minutes'"></div>
+                            </div>
+                            <div class="movie-format">
+                                <div class="format-text" th:text="${film.filmType}"></div>
+                            </div>
+                        </div>
+                        <div class="movie-title" th:text="${film.filmName} + (${film.ageLimit != null && film.ageLimit > 0 ? ' - T' + film.ageLimit : ''})"></div>
+                        <div class="movie-origin" th:text="'Origin: ' + ${film.country}"></div>
+                        <div class="release-date" th:text="'Release date: ' + ${#temporals.format(film.releaseDate, 'dd/MM/yyyy')}"></div>
+                        <div class="age-rating">
+                            <p class="rating-text" th:text="'T' + ${film.ageLimit} + ' - The film is rated for viewers aged ' + ${film.ageLimit} + ' and above (' + ${film.ageLimit} + '+).'"></p>
+                        </div>
+                        <div class="showtime-section">
+                            <div class="section-title">Showtime</div>
+                            <div class="time-buttons">
+                                <ul>
+                                    <li th:each="showtime : ${film.showtimes}">
+                                        <a th:href="@{/book(filmId=${film.filmId}, showtimeId=${showtime.showtimeId}, showDate=${#temporals.format(selectedDate, 'yyyy-MM-dd')}, roomId=${showtime.room.roomId})}" class="time-button">
+                                            <div class="time-text" th:text="${showtime.startTime}"></div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container">
+            <div class="pagination">
+                <div class="page-item prev-page">&lt;</div>
+                <div th:each="page : ${#numbers.range(1, totalPages)}" class="page-item" th:classappend="${page == currentPage} ? 'active' : ''" th:text="${page}"></div>
+                <div class="page-item next-page">&gt;</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer" th:replace="fragments/footer :: footer">
+    </footer>
+</div>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        // Region dropdown functionality
+        const regionDropdown = document.getElementById("region-dropdown");
+        const regionDropdownMenu = document.getElementById("region-dropdown-menu");
+        const cinemaFilterRow = document.getElementById("cinema-filter-row");
+        const cinemaDropdown = document.getElementById("cinema-dropdown");
+        const cinemaDropdownMenu = document.getElementById("cinema-dropdown-menu");
+
+        // Toggle region dropdown
+        regionDropdown.addEventListener("click", function() {
+            regionDropdownMenu.style.display = regionDropdownMenu.style.display === "none" ? "block" : "none";
+        });
+
+        // Handle region selection
+        const regionItems = regionDropdownMenu.querySelectorAll(".dropdown-item");
+        regionItems.forEach(item => {
+            item.addEventListener("click", function() {
+                const regionId = this.getAttribute("data-id");
+                const regionName = this.textContent;
+
+                regionDropdown.querySelector(".dropdown-text").textContent = regionName;
+                regionDropdownMenu.style.display = "none";
+
+                // Show cinema filter row
+                cinemaFilterRow.style.display = "flex";
+
+                // Reset cinema dropdown
+                cinemaDropdown.querySelector(".dropdown-text").textContent = "Select Cinema";
+
+                // Fetch cinemas for selected region
+                fetchCinemasForRegion(regionId);
+            });
+        });
+
+        // Toggle cinema dropdown
+        cinemaDropdown.addEventListener("click", function() {
+            cinemaDropdownMenu.style.display = cinemaDropdownMenu.style.display === "none" ? "block" : "none";
+        });
+
+        // Function to fetch cinemas for a region
+    function fetchCinemasForRegion(regionId) {
+        fetch(`/api/cinemas?regionId=${regionId}`)
+            .then(response => response.json())
+            .then(cinemas => {
+                // Clear existing cinema options
+                cinemaDropdownMenu.innerHTML = "";
+
+                // Add new cinema options
+                cinemas.forEach(cinema => {
+                    const cinemaItem = document.createElement("div");
+                    cinemaItem.classList.add("dropdown-item");
+                    cinemaItem.setAttribute("data-id", cinema.cinemaId);
+                    cinemaItem.textContent = cinema.cinemaName;
+
+                    cinemaItem.addEventListener("click", function() {
+                        const cinemaId = this.getAttribute("data-id");
+                        const cinemaName = this.textContent;
+
+                        cinemaDropdown.querySelector(".dropdown-text").textContent = cinemaName;
+                        cinemaDropdownMenu.style.display = "none";
+
+                        // Reload page with both filters
+                        const selectedDate = document.querySelector(".date-button.active").getAttribute("data-date");
+                        updateFilms(regionId, cinemaId, selectedDate);
+                    });
+
+                    cinemaDropdownMenu.appendChild(cinemaItem);
+                });
+            })
+            .catch(error => console.error("Error fetching cinemas:", error));
+    }
+
+    // Date selector functionality
+    const dateButtons = document.querySelectorAll(".date-button");
+    dateButtons.forEach(button => {
+        button.addEventListener("click", function() {
+            // Remove active class from all date buttons
+            dateButtons.forEach(btn => btn.classList.remove("active"));
+
+            // Add active class to clicked button
+            this.classList.add("active");
+
+            // Get selected filters
+            const regionId = regionDropdown.querySelector(".dropdown-text").textContent !== "Select Region"
+                ? document.querySelector("#region-dropdown-menu .dropdown-item.selected").getAttribute("data-id")
+                : null;
+
+            const cinemaId = cinemaDropdown.querySelector(".dropdown-text").textContent !== "Select Cinema"
+                ? document.querySelector("#cinema-dropdown-menu .dropdown-item.selected").getAttribute("data-id")
+                : null;
+
+            const selectedDate = this.getAttribute("data-date");
+
+            // Update films based on selected filters
+            updateFilms(regionId, cinemaId, selectedDate);
+        });
+    });
+
+    // Function to update films based on filters
+    function updateFilms(regionId, cinemaId, date) {
+        let url = "/showtime?";
+
+        if (regionId) {
+            url += `regionId=${regionId}&`;
+        }
+
+        if (cinemaId) {
+            url += `cinemaId=${cinemaId}&`;
+        }
+
+        if (date) {
+            url += `date=${date}`;
+        }
+
+        window.location.href = url;
+    }
+
+        // Pagination functionality
+        const paginationItems = document.querySelectorAll(".pagination .page-item");
+        paginationItems.forEach(item => {
+            if (!item.classList.contains("prev-page") && !item.classList.contains("next-page")) {
+                item.addEventListener("click", function() {
+                    // Remove active class from all pagination items
+                    paginationItems.forEach(pItem => pItem.classList.remove("active"));
+
+                    // Add active class to clicked item
+                    this.classList.add("active");
+
+                    // Get current URL
+                    let url = new URL(window.location.href);
+
+                    // Update page parameter
+                    url.searchParams.set("page", this.textContent);
+
+                    // Redirect
+                    window.location.href = url.toString();
+                });
+            }
+        });
+
+        // Previous page button
+        const prevPageButton = document.querySelector(".prev-page");
+        prevPageButton.addEventListener("click", function() {
+            const activePage = document.querySelector(".pagination .page-item.active");
+            if (activePage && activePage.previousElementSibling && !activePage.previousElementSibling.classList.contains("prev-page")) {
+                activePage.previousElementSibling.click();
+            }
+        });
+
+        // Next page button
+        const nextPageButton = document.querySelector(".next-page");
+        nextPageButton.addEventListener("click", function() {
+            const activePage = document.querySelector(".pagination .page-item.active");
+            if (activePage && activePage.nextElementSibling && !activePage.nextElementSibling.classList.contains("next-page")) {
+                activePage.nextElementSibling.click();
+            }
+        });
+    });
+</script>
+</body>
+
+</html>
