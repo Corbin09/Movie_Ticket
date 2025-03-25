@@ -349,6 +349,9 @@ public class FilmService {
         Page<Film> films = filmRepository.findFilmsByCinemaId(cinemaId, pageable);
         return films.map(this::convertToDTO);
     }
+    public Page<FilmDTO> getFilmsByShowTime(String showTime, Long cinemaId, Long regionId, Pageable pageable) {
+        return filmRepository.findFilmsByShowTime(showTime, cinemaId, regionId, pageable);
+    }
 
     public List<Showtime> getAllShowtimesByCinemaAndFilm(Long cinemaId, Long filmId) {
         return showtimeRepository.findByCinema_CinemaIdAndFilm_FilmId(cinemaId, filmId);

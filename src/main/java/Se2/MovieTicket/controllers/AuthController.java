@@ -1176,7 +1176,7 @@ public class AuthController {
             @RequestParam(required = false) Long regionId,
             @RequestParam(required = false) Long cinemaId,
             @RequestParam(required = false, defaultValue = "1") int page,
-            @RequestParam(required = false, defaultValue = "10") int size,
+            @RequestParam(required = false, defaultValue = "12") int size,
             @RequestParam(name = "showTime", required = false) String showTime,
             Model model, HttpServletRequest request) {
 
@@ -1253,25 +1253,54 @@ public class AuthController {
         model.addAttribute("films", films);
         model.addAttribute("uniqueShowtimes", uniqueShowtimes); // Add unique showtimes to the model
 // Lọc danh sách showtimes dựa trên các filter được chọn
+
+        System.out.println("showTime value: " + showTime);
+
         if (showTime != null) {
-            logger.info("Filtering by selected showtimeId: {}", showTime);
+            System.out.println("Filtering by selected showtimeId: " + showTime);
 
             // Lọc danh sách phim dựa trên showtimeId đã chọn
-            films = films.stream()
-                    .filter(film -> film.getShowtimes().stream().anyMatch(st -> st.getShowTime().equals(showTime)))
+            List<FilmDTO> filteredFilms = films.stream()
+                    .filter(film -> {
+                        boolean hasShowtime = film.getShowtimes().stream().anyMatch(st -> st.getShowTime().equals(showTime));
+                        System.out.println("Film: " + film.getFilmId() + " | Has Showtime: " + hasShowtime);
+                        return hasShowtime;
+                    })
                     .collect(Collectors.toList());
-            // Add films to model after filtering
-            model.addAttribute("films", films);
+
+            System.out.println("Total filtered films: " + filteredFilms.size());
+
+            // Áp dụng pagination cho danh sách đã lọc
+            int totalItems = filteredFilms.size();
+            int fromIndex = Math.min((page - 1) * size, totalItems);
+            int toIndex = Math.min(fromIndex + size, totalItems);
+            System.out.println("Pagination - fromIndex: " + fromIndex + ", toIndex: " + toIndex);
+
+            List<FilmDTO> paginatedFilms = filteredFilms.subList(fromIndex, toIndex);
+            System.out.println("Paginated films count: " + paginatedFilms.size());
+
+            // Thêm danh sách phim đã phân trang vào model
+            model.addAttribute("films", paginatedFilms);
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", (int) Math.ceil((double) totalItems / size));
+            model.addAttribute("totalItems", totalItems);
         } else {
+            System.out.println("No specific showTime selected, loading all showtimes.");
+
             for (FilmDTO film : films) {
                 List<ShowtimeDTO> allShowtimes = showtimeService.getAllShowtimesByCinemaAndFilm(cinemaId, film.getFilmId());
-                film.setShowtimes(allShowtimes);  // Gán toàn bộ showtimes nếu không có filter cụ thể
+                film.setShowtimes(allShowtimes);
+                System.out.println("Film: " + film.getFilmId() + " | Total Showtimes: " + allShowtimes.size());
             }
+
+            System.out.println("Total films without filter: " + films.size());
+
+            model.addAttribute("films", films);
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", filmsPage.getTotalPages());
+            model.addAttribute("totalItems", filmsPage.getTotalElements());
         }
-        // Add pagination information
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", filmsPage.getTotalPages());
-        model.addAttribute("totalItems", filmsPage.getTotalElements());
+
 
         // Age restriction note
         model.addAttribute("ageRestriction", true);

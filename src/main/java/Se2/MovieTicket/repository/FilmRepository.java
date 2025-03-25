@@ -1,5 +1,6 @@
 package Se2.MovieTicket.repository;
 
+import Se2.MovieTicket.dto.FilmDTO;
 import Se2.MovieTicket.model.Film;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -105,4 +106,14 @@ public interface FilmRepository extends JpaRepository<Film, Long> {
     @Query("SELECT DISTINCT f FROM Film f JOIN f.showtimes s JOIN s.room r WHERE r.cinema.cinemaId = :cinemaId AND DATE(s.showDate) = :date")
     Page<Film> findFilmsByCinemaAndDate(@Param("cinemaId") Long cinemaId, @Param("date") LocalDate date, Pageable pageable);
 
+    @Query("SELECT DISTINCT f FROM Film f " +
+            "JOIN f.showtimes s " +
+            "JOIN s.cinema c " +
+            "WHERE s.showTime = :showTime " +
+            "AND c.cinemaId = :cinemaId " +
+            "AND c.region.regionId = :regionId")
+    Page<FilmDTO> findFilmsByShowTime(@Param("showTime") String showTime,
+                                   @Param("cinemaId") Long cinemaId,
+                                   @Param("regionId") Long regionId,
+                                   Pageable pageable);
 }

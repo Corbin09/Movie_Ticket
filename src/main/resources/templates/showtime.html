@@ -251,6 +251,46 @@
         background-color: #666;
         cursor: not-allowed;
     }
+
+        .showtimes-section {
+    margin-top: 15px;
+}
+
+.showtimes-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.showtimes-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;flex-direction: row;
+}
+
+.showtime-card {
+    background-color: #333;
+    border-radius: 5px;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center; justify-content: center;
+    max-width: 85px; max-height: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.showtime-card:hover {
+    background-color: #e50914;
+}
+
+.showtime-date {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.showtime-time {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
     </style>
 </head>
 
@@ -358,23 +398,34 @@
                         <p class="rating-text" th:text="'T' + ${film.ageLimit} + ' - The film is rated ' + ${film.ageLimit} + '+'"></p>
                     </div>
 
+                    <!-- Show_Date Section -->
+                    <div class="showtimes-section" th:if="${film.showtimes != null and !film.showtimes.isEmpty()}">
+                        <div class="showtimes-title">Available Showtimes:</div>
+                        <div class="showtimes-container">
+                            <div th:each="showtime : ${film.showtimes}" class="showtime-card">
+                                <div class="showtime-date" th:text="${#dates.format(showtime.showDate, 'dd/MM/yyyy')}"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Pagination -->
-    <div class="pagination-container" th:if="${totalPages > 1}">
+    <div class="pagination-container" th:if="${totalPages > 0}">
         <div class="pagination">
-            <div class="page-item prev-page">&lt;</div>
+            <div class="page-item prev-page" th:classappend="${currentPage == 1} ? 'disabled'" th:text="'<'"></div>
             <div th:each="page : ${#numbers.sequence(1, totalPages)}"
                  class="page-item"
                  th:classappend="${page == currentPage} ? 'active' : ''"
-                 th:text="${page}">
+                 th:text="${page}"
+                 th:onclick="'window.location.href = \'' + @{/showtime(page=${page}, regionId=${selectedRegion?.regionId}, cinemaId=${selectedCinema?.cinemaId}, showTime=${param.showTime != null ? param.showTime[0] : null})} + '\''">
             </div>
-            <div class="page-item next-page">&gt;</div>
+            <div class="page-item next-page" th:classappend="${currentPage == totalPages} ? 'disabled'" th:text="'>'"></div>
         </div>
     </div>
+</div>
 
 </div>
     <!-- Footer -->
@@ -479,27 +530,31 @@
         });
     });
 
-    // Previous page button
-    const prevPageButton = document.querySelector(".prev-page");
-    if (prevPageButton) {
-        prevPageButton.addEventListener("click", function() {
-            const activePage = document.querySelector(".pagination .page-item.active");
-            if (activePage && activePage.previousElementSibling && !activePage.previousElementSibling.classList.contains("prev-page")) {
-                activePage.previousElementSibling.click();
-            }
-        });
-    }
+// Previous page button
+const prevPageButton = document.querySelector(".prev-page");
+if (prevPageButton) {
+    prevPageButton.addEventListener("click", function() {
+        const activePage = document.querySelector(".pagination .page-item.active");
+        if (activePage && activePage.previousElementSibling && !activePage.previousElementSibling.classList.contains("prev-page")) {
+            const prevPage = activePage.previousElementSibling;
+            const pageNumber = prevPage.textContent;
+            window.location.href = `/showtime?page=${pageNumber}&regionId=${regionId}&cinemaId=${cinemaId}`;
+        }
+    });
+}
 
-    // Next page button
-    const nextPageButton = document.querySelector(".next-page");
-    if (nextPageButton) {
-        nextPageButton.addEventListener("click", function() {
-            const activePage = document.querySelector(".pagination .page-item.active");
-            if (activePage && activePage.nextElementSibling && !activePage.nextElementSibling.classList.contains("next-page")) {
-                activePage.nextElementSibling.click();
-            }
-        });
-    }
+// Next page button
+const nextPageButton = document.querySelector(".next-page");
+if (nextPageButton) {
+    nextPageButton.addEventListener("click", function() {
+        const activePage = document.querySelector(".pagination .page-item.active");
+        if (activePage && activePage.nextElementSibling && !activePage.nextElementSibling.classList.contains("next-page")) {
+            const nextPage = activePage.nextElementSibling;
+            const pageNumber = nextPage.textContent;
+            window.location.href = `/showtime?page=${pageNumber}&regionId=${regionId}&cinemaId=${cinemaId}`;
+        }
+    });
+}
 
     // Remove duplicate showtimes
     const uniqueTimesSet = new Set();
@@ -551,26 +606,42 @@
 
     // Showtime button click handling
     const showtimeButtons = document.querySelectorAll(".film-showtime .time-button");
-    showtimeButtons.forEach(button => {
-        button.addEventListener("click", function() {
-            const selectedShowtime = this.getAttribute("data-showtime");
-            if (selectedShowtime) {
-                // Get current filters from URL
-                const urlParams = new URLSearchParams(window.location.search);
-                const regionId = urlParams.get("regionId");
-                const cinemaId = urlParams.get("cinemaId");
+        const moviesContainer = document.querySelector(".movies-container");
 
-                // Redirect with showtime
-                window.location.href = `/showtime?regionId=${regionId}&cinemaId=${cinemaId}&showTime=${selectedShowtime}`;
+        showtimeButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                const selectedShowtime = this.getAttribute("data-showtime");
+                if (selectedShowtime) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const regionId = urlParams.get("regionId");
+                    const cinemaId = urlParams.get("cinemaId");
 
-                // Mark selected button
-                showtimeButtons.forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-            } else {
-                console.error("Missing data-showtime attribute!");
-            }
+                    fetch(`/showtime?regionId=${regionId}&cinemaId=${cinemaId}&showTime=${selectedShowtime}`, {
+                        method: "GET",
+                        headers: { "X-Requested-With": "XMLHttpRequest" }
+                    })
+                        .then(response => response.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, "text/html");
+                            const newMoviesContainer = doc.querySelector(".movies-container");
+
+                            if (newMoviesContainer) {
+                                moviesContainer.innerHTML = newMoviesContainer.innerHTML;
+                            }
+                            const newUrl = new URL(window.location);
+                            newUrl.searchParams.set("showTime", selectedShowtime);
+                            window.history.pushState({}, "", newUrl);
+
+                            showtimeButtons.forEach(btn => btn.classList.remove("active"));
+                            this.classList.add("active");
+                        })
+                        .catch(error => console.error("Error fetching showtimes:", error));
+                } else {
+                    console.error("Missing data-showtime attribute!");
+                }
+            });
         });
-    });
 
     // Highlight selected showtime if exists in URL
     const selectedShowtimeParam = new URLSearchParams(window.location.search).get("showTime");
