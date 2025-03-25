@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+/* Base styles */
+body {
+    background-color: #a4a5a7; /* Gray-700 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Responsive container */
+.container {
+    width: 90%;
+    max-width: 500px;
+}
+
+/* Success message box */
+.success-box {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    text-align: center;
+}
+
+/* Icon styling */
+.icon img {
+    border-radius: 30px;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 15px;
+}
+
+/* Heading */
+h2 {
+    color: #16a34a; /* Green-600 */
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Paragraph */
+p {
+    color: #4b5563; /* Gray-600 */
+    margin-bottom: 20px;
+}
+
+/* Buttons */
+.btn {
+    display: block;
+    width: 95%;
+    text-align: center;
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn.success {
+    background-color: #22c55e; /* Green-500 */
+    color: white;
+}
+
+.btn.success:hover {
+    background-color: #16a34a; /* Darker Green */
+}
+
+.btn.back {
+    background-color: #e5e7eb; /* Gray-200 */
+    color: #374151; /* Gray-700 */
+}
+
+.btn.back:hover {
+    background-color: #d1d5db; /* Darker Gray */
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .success-box {
+        padding: 15px;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+
+    .btn {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+}
