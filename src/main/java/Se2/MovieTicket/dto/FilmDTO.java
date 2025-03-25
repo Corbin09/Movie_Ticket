@@ -1,9 +1,12 @@
 package Se2.MovieTicket.dto;
 
+import Se2.MovieTicket.model.News;
+import Se2.MovieTicket.model.UserReview;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class FilmDTO {
@@ -11,7 +14,7 @@ public class FilmDTO {
     private String filmName;
     private String filmImg;
     private String filmTrailer;
-    private Date releaseDate;
+    private LocalDate releaseDate;
     private String filmDescription;
     private Integer ageLimit;
     private Integer duration;
@@ -21,6 +24,9 @@ public class FilmDTO {
     private List<String> actorNames;
     private List<String> categoryNames;
     private Double averageRating;
+    private List<ShowtimeDTO> showtimes;
+    private Set<News> news;
+    private Set<UserReview> userReviews;
 
     public Long getFilmId() {
         return filmId;
@@ -54,11 +60,11 @@ public class FilmDTO {
         this.filmTrailer = filmTrailer;
     }
 
-    public Date getReleaseDate() {
+    public LocalDate getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(Date releaseDate) {
+    public void setReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
     }
 
@@ -132,5 +138,29 @@ public class FilmDTO {
 
     public void setAverageRating(Double averageRating) {
         this.averageRating = averageRating;
+    }
+
+    public List<ShowtimeDTO> getShowtimes() {
+        return showtimes;
+    }
+
+    public void setShowtimes(List<ShowtimeDTO> showtimes) {
+        this.showtimes = showtimes;
+    }
+
+    public Set<News> getNews() {
+        return news;
+    }
+
+    public void setNews(Set<News> news) {
+        this.news = news;
+    }
+
+    public Set<UserReview> getUserReviews() {
+        return userReviews;
+    }
+
+    public void setUserReviews(Set<UserReview> userReviews) {
+        this.userReviews = userReviews;
     }
 }

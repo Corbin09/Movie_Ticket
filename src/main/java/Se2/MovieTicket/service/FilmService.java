@@ -1,7 +1,13 @@
+
 package Se2.MovieTicket.service;
+import Se2.MovieTicket.dto.ShowtimeDTO;
+import Se2.MovieTicket.model.FilmActor;
+import Se2.MovieTicket.model.FilmDirector;
+import Se2.MovieTicket.repository.ShowtimeRepository;
 import org.springframework.data.domain.PageImpl;
 import Se2.MovieTicket.dto.FilmDTO;
 import Se2.MovieTicket.model.Film;
+import Se2.MovieTicket.model.Showtime;
 import Se2.MovieTicket.repository.FilmRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -21,11 +27,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
     @Autowired
     private FilmRepository filmRepository;
+    @Autowired
+    private ShowtimeRepository showtimeRepository;
 
     @Autowired
     private EntityManager em;
@@ -259,46 +268,7 @@ public class FilmService {
         });
     }
 
-    public Page<FilmDTO> getFilmsByCinemaAndDate(Long cinemaId, LocalDate selectedDate, Pageable pageable) {
-        // Find all films that have showtimes in the specified cinema on the selected date
-        Date date = java.sql.Date.valueOf(selectedDate);
 
-        // Get films from repository with showtimes matching the cinema and date
-        Page<Film> films = filmRepository.findFilmsByCinemaAndDate(cinemaId, date, pageable);
-
-        // Convert to DTOs with relevant information
-        return films.map(film -> {
-            FilmDTO filmDTO = convertToDTO(film);
-
-            // Extract director names
-            if (film.getFilmDirectors() != null) {
-                List<String> directorNames = film.getFilmDirectors().stream()
-                        .map(director -> director.getDirector().getDirectorName())
-                        .collect(java.util.stream.Collectors.toList());
-                filmDTO.setDirectorNames(directorNames);
-            }
-
-            // Extract actor names
-            if (film.getFilmActors() != null) {
-                List<String> actorNames = film.getFilmActors().stream()
-                        .map(actor -> actor.getActor().getActorName())
-                        .collect(java.util.stream.Collectors.toList());
-                filmDTO.setActorNames(actorNames);
-            }
-
-            // Extract category names
-            if (film.getFilmCategories() != null) {
-                List<String> categoryNames = film.getFilmCategories().stream()
-                        .map(category -> category.getCategory().getCategoryName())
-                        .collect(java.util.stream.Collectors.toList());
-                filmDTO.setCategoryNames(categoryNames);
-            }
-
-            return filmDTO;
-        });
-    }
-
-    // Helper method to convert Film to FilmDTO
     private FilmDTO convertToDTO(Film film) {
         FilmDTO filmDTO = new FilmDTO();
         filmDTO.setFilmId(film.getFilmId());
@@ -311,7 +281,77 @@ public class FilmService {
         filmDTO.setDuration(film.getDuration());
         filmDTO.setFilmType(film.getFilmType());
         filmDTO.setCountry(film.getCountry());
+        filmDTO.setDirectorNames(film.getFilmDirectors().stream()
+                .map(filmDirector -> filmDirector.getDirector().getDirectorName())
+                .collect(Collectors.toList()));
+        filmDTO.setActorNames(film.getFilmActors().stream()
+                .map(filmActor -> filmActor.getActor().getActorName())
+                .collect(Collectors.toList()));
+
+        // Lấy danh sách thể loại phim
+        filmDTO.setCategoryNames(film.getFilmCategories().stream()
+                .map(filmCategory -> filmCategory.getCategory().getCategoryName())
+                .collect(Collectors.toList()));
+
+
+        filmDTO.setAverageRating(film.getFilmRating() != null ? film.getFilmRating().getFilmRate() : null);
+
+        filmDTO.setShowtimes(film.getShowtimes().stream()
+                .map(showtime -> new ShowtimeDTO(showtime.getShowtimeId(), showtime.getShowDate(), showtime.getShowTime(),
+                        showtime.getFilm().getFilmId(), showtime.getFilm().getFilmName(),
+                        showtime.getRoom().getRoomId(), showtime.getRoom().getRoomName(),
+                        showtime.getCinema().getCinemaId(), showtime.getCinema().getCinemaName(),
+                        null)) // Null cho giá trị price nếu chưa có
+                .collect(Collectors.toList()));
+
+        filmDTO.setNews(film.getNews());
+        filmDTO.setUserReviews(film.getUserReviews());
 
         return filmDTO;
     }
+    public Page<FilmDTO> getAllFilms(Pageable pageable) {
+        Page<Film> films = filmRepository.findAll(pageable);
+        return films.map(this::convertToDTO);
+    }
+
+    /**
+     * Get films available in a specific region
+     */
+    public Page<FilmDTO> getFilmsByRegion(Long regionId, Pageable pageable) {
+        Page<Film> films = filmRepository.findFilmsByRegionId(regionId, pageable);
+        return films.map(this::convertToDTO);
+    }
+
+    /**
+     * Get films available in a specific cinema
+     */
+    public Page<FilmDTO> getFilmsByCinema(Long cinemaId, Pageable pageable) {
+        Page<Film> films = filmRepository.findFilmsByCinemaId(cinemaId, pageable);
+        return films.map(this::convertToDTO);
+    }
+
+    /**
+     * Get films with showtimes on a specific date in a specific cinema
+     */
+    public Page<FilmDTO> getFilmsByCinemaAndDate(Long cinemaId, LocalDate date, Pageable pageable) {
+        Page<Film> films = filmRepository.findFilmsByCinemaAndDate(cinemaId, date, pageable);
+        return films.map(this::convertToDTO);
+    }
+
+    public Page<FilmDTO> getFilmsByRegionThroughShowtimes(Long regionId, Pageable pageable) {
+        // Get all films that have showtimes in any cinema within the given region
+        Page<Film> films = filmRepository.findFilmsByRegionId(regionId, pageable);
+        return films.map(this::convertToDTO);
+    }
+
+    public Page<FilmDTO> getFilmsByCinemaThroughShowtimes(Long cinemaId, Pageable pageable) {
+        // Get all films that have showtimes in the given cinema
+        Page<Film> films = filmRepository.findFilmsByCinemaId(cinemaId, pageable);
+        return films.map(this::convertToDTO);
+    }
+
+    public List<Showtime> getAllShowtimesByCinemaAndFilm(Long cinemaId, Long filmId) {
+        return showtimeRepository.findByCinema_CinemaIdAndFilm_FilmId(cinemaId, filmId);
+    }
 }
+

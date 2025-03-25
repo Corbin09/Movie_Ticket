@@ -526,9 +526,7 @@
 package Se2.MovieTicket.controllers;
 
 import Se2.MovieTicket.dto.*;
-import Se2.MovieTicket.model.Cinema;
-import Se2.MovieTicket.model.Film;
-import Se2.MovieTicket.model.Region;
+import Se2.MovieTicket.model.*;
 import Se2.MovieTicket.repository.UserRepository;
 import Se2.MovieTicket.service.*;
 import jakarta.servlet.http.Cookie;
@@ -539,7 +537,6 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import Se2.MovieTicket.impl.UserDetailsImpl;
-import Se2.MovieTicket.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -1178,13 +1175,13 @@ public class AuthController {
     public String getShowtimes(
             @RequestParam(required = false) Long regionId,
             @RequestParam(required = false) Long cinemaId,
-            @RequestParam(required = false) String date,
             @RequestParam(required = false, defaultValue = "1") int page,
             @RequestParam(required = false, defaultValue = "10") int size,
+            @RequestParam(name = "showTime", required = false) String showTime,
             Model model, HttpServletRequest request) {
 
-        logger.info("Accessing showtimes page with filters - regionId: {}, cinemaId: {}, date: {}, page: {}, size: {}",
-                regionId, cinemaId, date, page, size);
+        logger.info("Accessing showtimes page with filters - regionId: {}, cinemaId: {}, page: {}, size: {}",
+                regionId, cinemaId, page, size);
 
         // Handle user session and security
         handleUserSession(model, request);
@@ -1193,131 +1190,93 @@ public class AuthController {
         List<Region> regions = regionService.getAllRegions();
         model.addAttribute("regions", regions);
 
-        // Handle region selection
+        // Create pageable for pagination
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        // Initialize variables
         Region selectedRegion = null;
+        Cinema selectedCinema = null;
+        List<CinemaDTO> cinemas = new ArrayList<>();
+        Page<FilmDTO> filmsPage;
+
+        // Handle region selection
         if (regionId != null) {
             selectedRegion = regionService.getRegionById(regionId).orElse(null);
             model.addAttribute("selectedRegion", selectedRegion);
-        }
 
-        // If region is selected, get cinemas for that region
-        List<CinemaDTO> cinemas = new ArrayList<>();
-        if (selectedRegion != null) {
-            cinemas = cinemaService.getCinemasByRegionId(regionId);
-            model.addAttribute("cinemas", cinemas);
+            // Get cinemas for selected region
+            if (selectedRegion != null) {
+                cinemas = cinemaService.getCinemasByRegionId(regionId);
+                model.addAttribute("cinemas", cinemas);
+            }
         }
 
         // Handle cinema selection
-        Cinema selectedCinema = null;
-        if (cinemaId != null) {
+        if (cinemaId != null && selectedRegion != null) {
             selectedCinema = cinemaService.getCinemaById(cinemaId).orElse(null);
             model.addAttribute("selectedCinema", selectedCinema);
         }
 
-        // Get available dates for selected cinema
-        List<LocalDate> availableDates = new ArrayList<>();
-        if (selectedCinema != null) {
-            availableDates = showtimeService.getAvailableDatesForCinema(cinemaId);
-        }
-        model.addAttribute("availableDates", availableDates);
-
-        // Process date parameter
-        LocalDate selectedDate = processDateParameter(date);
-        model.addAttribute("selectedDate", selectedDate);
-
-        // Create pageable for pagination
-        Pageable pageable = PageRequest.of(page - 1, size);
-
-        // Get films based on filters
-        Page<FilmDTO> filmsPage = Page.empty(); // Initialize empty page
-        if (selectedRegion != null && selectedCinema != null && selectedDate != null) {
-            filmsPage = filmService.getFilmsByCinemaAndDate(cinemaId, selectedDate, pageable);
+        // Apply filters progressively and get the appropriate films
+        if (regionId == null) {
+            // No filters - show all films with pagination
+            filmsPage = filmService.getAllFilms(pageable);
+        } else if (cinemaId == null) {
+            // Only region filter - show films available in that region based on showtimes
+            filmsPage = filmService.getFilmsByRegionThroughShowtimes(regionId, pageable);
+        } else {
+            // Region and cinema filters - show all films for the cinema based on showtimes
+            filmsPage = filmService.getFilmsByCinemaThroughShowtimes(cinemaId, pageable);
         }
 
-        model.addAttribute("films", filmsPage.getContent());
+        // Add films to model
+        List<FilmDTO> films = filmsPage.getContent();
 
+        // If cinema is selected, load all showtimes for each film
+        List<ShowtimeDTO> uniqueShowtimes = new ArrayList<>();
+        if (cinemaId != null) {
+            for (FilmDTO film : films) {
+                // Get all showtimes for this film in this cinema (without date filter)
+                List<ShowtimeDTO> showtimes = showtimeService.getAllShowtimesByCinemaAndFilm(
+                        cinemaId, film.getFilmId());
+                film.setShowtimes(showtimes);
+
+                // Add unique showtimes to the list
+                for (ShowtimeDTO showtime : showtimes) {
+                    if (!uniqueShowtimes.contains(showtime)) {
+                        uniqueShowtimes.add(showtime);
+                    }
+                }
+            }
+        }
+
+        model.addAttribute("films", films);
+        model.addAttribute("uniqueShowtimes", uniqueShowtimes); // Add unique showtimes to the model
+// Lọc danh sách showtimes dựa trên các filter được chọn
+        if (showTime != null) {
+            logger.info("Filtering by selected showtimeId: {}", showTime);
+
+            // Lọc danh sách phim dựa trên showtimeId đã chọn
+            films = films.stream()
+                    .filter(film -> film.getShowtimes().stream().anyMatch(st -> st.getShowTime().equals(showTime)))
+                    .collect(Collectors.toList());
+            // Add films to model after filtering
+            model.addAttribute("films", films);
+        } else {
+            for (FilmDTO film : films) {
+                List<ShowtimeDTO> allShowtimes = showtimeService.getAllShowtimesByCinemaAndFilm(cinemaId, film.getFilmId());
+                film.setShowtimes(allShowtimes);  // Gán toàn bộ showtimes nếu không có filter cụ thể
+            }
+        }
         // Add pagination information
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", filmsPage.getTotalPages());
         model.addAttribute("totalItems", filmsPage.getTotalElements());
 
-        // Get showtimes for each film
-        Map<Long, List<ShowtimeDTO>> filmShowtimes = new HashMap<>();
-        for (FilmDTO film : filmsPage.getContent()) {
-            List<ShowtimeDTO> showtimes = showtimeService.getShowtimesByFilmAndCinemaAndDate(film.getFilmId(), cinemaId, selectedDate);
-            filmShowtimes.put(film.getFilmId(), showtimes);
-        }
-        model.addAttribute("filmShowtimes", filmShowtimes);
-
         // Age restriction note
         model.addAttribute("ageRestriction", true);
 
         return "showtime";
-    }
-
-    // New method to get available dates for a specific cinema
-    @GetMapping("/api/available-dates")
-    @ResponseBody
-    public List<LocalDate> getAvailableDates(@RequestParam Long cinemaId) {
-        logger.info("API request for available dates in cinema: {}", cinemaId);
-        return showtimeService.getAvailableDatesForCinema(cinemaId);
-    }
-
-
-
-    /**
-     * API endpoint to get cinemas for a specific region
-     */
-    @GetMapping("/api/cinemas")
-    @ResponseBody
-    public List<CinemaDTO> getCinemasByRegion(@RequestParam Long regionId) {
-        logger.info("API request for cinemas in region: {}", regionId);
-        return cinemaService.getCinemasByRegionId(regionId);
-    }
-
-    /**
-     * Process and validate date parameter
-     */
-    private LocalDate processDateParameter(String dateStr) {
-        LocalDate selectedDate;
-        LocalDate today = LocalDate.now();
-
-        if (dateStr != null && !dateStr.isEmpty()) {
-            try {
-                // Try to parse the provided date
-                selectedDate = LocalDate.parse(dateStr);
-
-                // Ensure the date is not in the past
-                if (selectedDate.isBefore(today)) {
-                    logger.warn("Selected date is in the past: {}. Using today's date instead.", dateStr);
-                    selectedDate = today;
-                }
-            } catch (DateTimeParseException e) {
-                logger.warn("Invalid date format: {}. Using today's date instead.", dateStr);
-                selectedDate = today;
-            }
-        } else {
-            // Default to today if no date provided
-            selectedDate = today;
-            logger.info("No date provided, using today's date: {}", selectedDate);
-        }
-
-        return selectedDate;
-    }
-
-    /**
-     * Generate a list of available dates for selection (next 7 days including today)
-     */
-    private List<LocalDate> getAvailableDates(LocalDate selectedDate) {
-        LocalDate today = LocalDate.now();
-        List<LocalDate> dates = new ArrayList<>();
-
-        // Add today and next 6 days
-        for (int i = 0; i < 7; i++) {
-            dates.add(today.plusDays(i));
-        }
-
-        return dates;
     }
 
     /**
@@ -1346,7 +1305,6 @@ public class AuthController {
             model.addAttribute("user", sessionUser);
         }
     }
-
 
 
 

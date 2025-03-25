@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Date;
-import java.util.Objects;
+import java.time.LocalDate;
 import java.util.Set;
 
 @Entity
@@ -34,7 +33,7 @@ public class Film {
 
     @Column(name = "release_date")
     @Temporal(TemporalType.DATE)
-    private Date releaseDate;
+    private LocalDate releaseDate;
 
     @Column(name = "film_describe")
     private String filmDescription;
@@ -111,11 +110,11 @@ public class Film {
         this.filmTrailer = filmTrailer;
     }
 
-    public Date getReleaseDate() {
+    public LocalDate getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(Date releaseDate) {
+    public void setReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
     }
 

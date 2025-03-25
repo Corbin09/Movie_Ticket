@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -89,4 +90,19 @@ public interface FilmRepository extends JpaRepository<Film, Long> {
             "WHERE r.cinema.cinemaId = :cinemaId " +
             "AND s.showDate = :date")
     Page<Film> findFilmsByCinemaAndDate(@Param("cinemaId") Long cinemaId, @Param("date") Date date, Pageable pageable);
+
+    // Repository methods needed
+// These should be implemented in FilmRepository interface
+
+    @Query("SELECT DISTINCT f FROM Film f JOIN f.showtimes s JOIN s.cinema c WHERE c.region.regionId = :regionId")
+    Page<Film> findFilmsByRegionId(@Param("regionId") Long regionId, Pageable pageable);
+
+
+    @Query("SELECT DISTINCT f FROM Film f JOIN f.showtimes s JOIN s.cinema c WHERE c.cinemaId = :cinemaId")
+    Page findFilmsByCinemaId(@Param("cinemaId") Long cinemaId, Pageable pageable);
+
+
+    @Query("SELECT DISTINCT f FROM Film f JOIN f.showtimes s JOIN s.room r WHERE r.cinema.cinemaId = :cinemaId AND DATE(s.showDate) = :date")
+    Page<Film> findFilmsByCinemaAndDate(@Param("cinemaId") Long cinemaId, @Param("date") LocalDate date, Pageable pageable);
+
 }

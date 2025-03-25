@@ -65,4 +65,34 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
     List<Showtime> findByFilmAndRegionAndDate(
             @Param("filmId") Long filmId,
             @Param("regionId") Long regionId,
-            @Param("date") LocalDate date);}
+            @Param("date") LocalDate date);
+
+    @Query("SELECT DISTINCT CAST(s.showDate AS LocalDate) FROM Showtime s WHERE s.cinema.cinemaId = :cinemaId ORDER BY s.showDate")
+    List<LocalDate> findDistinctShowDatesByCinemaId(@Param("cinemaId") Long cinemaId);
+
+    @Query("SELECT s FROM Showtime s " +
+            "JOIN s.film f " +
+            "JOIN s.room r " +
+            "WHERE f.filmId = :filmId " +
+            "AND r.cinema.cinemaId = :cinemaId " +
+            "AND s.showDate = :selectedDate " +
+            "ORDER BY s.showTime")
+    List<Showtime> findByCinemaAndFilmAndDate(@Param("cinemaId") Long cinemaId,
+                                              @Param("filmId") Long filmId,
+                                              @Param("selectedDate") LocalDate selectedDate);
+
+    @Query("SELECT s FROM Showtime s WHERE s.cinema.cinemaId = :cinemaId AND s.film.filmId = :filmId")
+    List<Showtime> findByCinema_CinemaIdAndFilm_FilmId(@Param("cinemaId") Long cinemaId, @Param("filmId") Long filmId);
+    @Query("SELECT s FROM Showtime s WHERE s.cinema.cinemaId = :cinemaId AND s.film.filmId = :filmId")
+    List<Showtime> findByCinemaIdAndFilmId(@Param("cinemaId") Long cinemaId, @Param("filmId") Long filmId);
+    // Truy vấn JPQL để lọc showtimes dựa trên regionId, cinemaId, và showtimeId
+    @Query("SELECT s FROM Showtime s " +
+            "JOIN s.cinema c " +
+            "JOIN c.region r " +
+            "WHERE (:regionId IS NULL OR r.regionId = :regionId) " +
+            "AND (:cinemaId IS NULL OR c.cinemaId = :cinemaId) " +
+            "AND (:showtimeId IS NULL OR s.showtimeId = :showtimeId)")
+    List<Showtime> findShowtimes(@Param("regionId") Long regionId,
+                                 @Param("cinemaId") Long cinemaId,
+                                 @Param("showtimeId") Long showtimeId);
+}

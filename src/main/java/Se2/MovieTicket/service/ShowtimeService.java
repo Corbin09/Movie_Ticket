@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -79,7 +80,10 @@ public class ShowtimeService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
-
+    public List<Showtime> getFilteredShowtimes(Long regionId, Long cinemaId, Long showtimeId) {
+        // Trả về danh sách các showtimes đã lọc thông qua repository
+        return showtimeRepository.findShowtimes(regionId, cinemaId, showtimeId);
+    }
     // Helper method to convert Showtime to ShowtimeDTO
     private ShowtimeDTO convertToDTO(Showtime showtime) {
         ShowtimeDTO dto = new ShowtimeDTO();
@@ -90,5 +94,32 @@ public class ShowtimeService {
         dto.setShowDate(showtime.getShowDate());
         dto.setShowTime(showtime.getShowTime());
         return dto;
+    }
+
+    public List<LocalDate> getAvailableDatesForCinema(Long cinemaId) {
+        // Lấy danh sách các ngày có suất chiếu cho rạp phim đã chọn
+        List<LocalDate> availableDates = showtimeRepository.findDistinctShowDatesByCinemaId(cinemaId);
+
+        // Sắp xếp danh sách ngày theo thứ tự tăng dần
+        availableDates.sort(Comparator.naturalOrder());
+
+        return availableDates;
+    }
+
+    public List<ShowtimeDTO> getShowtimesByCinemaFilmAndDate(Long cinemaId, Long filmId, LocalDate selectedDate) {
+        List<Showtime> showtimes = showtimeRepository.findByCinemaAndFilmAndDate(cinemaId, filmId, selectedDate);
+        return showtimes.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<ShowtimeDTO> getAllShowtimesByCinemaAndFilm(Long cinemaId, Long filmId) {
+        // Gọi repository để lấy danh sách showtime theo cinema và film
+        List<Showtime> showtimes = showtimeRepository.findByCinemaIdAndFilmId(cinemaId, filmId);
+
+        // Chuyển đổi danh sách showtime sang danh sách ShowtimeDTO
+        return showtimes.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 }
