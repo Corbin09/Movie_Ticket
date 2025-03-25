@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Room Management</title>
+  <style>
+    :root {
+        --green-900: #14532d;
+        --green-700: #15803d;
+        --green-600: #16a34a;
+        --red-500: #ef4444;
+        --white: #ffffff;
+        --text-gray: #e5e7eb;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(to bottom, var(--green-900), var(--green-700));
+        color: var(--white);
+        min-height: 100vh;
+        line-height: 1.6;
+    }
+
+    .container {
+        display: flex;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+        background: linear-gradient(to bottom, var(--green-900), var(--green-700));
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .header-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .header-logo img {
+        height: 2rem;
+        width: 2rem;
+    }
+
+    .header-logo-text {
+        color: var(--white);
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+
+    .header-user {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .header-user img {
+        height: 2.5rem;
+        width: 2.5rem;
+        border-radius: 50%;
+    }
+
+    .logout-btn {
+        background-color: var(--red-500);
+        color: var(--white);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        background-color: var(--green-900);
+        width: 250px;
+        padding: 1rem;
+        height: calc(100vh - 4rem);
+        position: fixed;
+        top: 4rem;
+        left: 0;
+    }
+
+    .sidebar-menu {
+        list-style: none;
+    }
+
+    .sidebar-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        color: var(--text-gray);
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .sidebar-item:hover {
+        background-color: var(--green-600);
+    }
+
+    .sidebar-item.active {
+        background-color: var(--white);
+        color: var(--green-900);
+        border-radius: 0.5rem;
+    }
+
+    /* Main Content */
+    .main-content {
+        margin-left: 250px;
+        padding: 2rem;
+        width: calc(100% - 250px);
+    }
+
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .add-room-btn {
+        background-color: var(--white);
+        color: var(--green-900);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        border-radius: 20px;
+    }
+
+    .filter-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-section input,
+    .filter-section select {
+        background-color: var(--white);
+        color: var(--green-900);
+        border: 1px solid var(--green-600);
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+    }
+
+    /* Table */
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: var(--white);
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .table thead {
+        background-color: var(--white);
+        color: #454444;
+    }
+
+    .table th,
+    .table td {
+        color: #454444;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--green-600);
+    }
+
+    .badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+    }
+
+    .badge-red { background-color: #fee2e2; color: #7f1d1d; }
+    .badge-blue { background-color: #dbeafe; color: #1e3a8a; }
+    .badge-green { background-color: #dcfce7; color: #14532d; }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+    }
+
+    .pagination-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pagination-controls button {
+        background-color:#ef4444;
+        color: var(--white);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .container {
+            flex-direction: column;
+        }
+
+        .sidebar {
+            width: 100%;
+            height: auto;
+            position: static;
+        }
+
+        .main-content {
+            width: 100%;
+            margin-left: 0;
+        }
+
+        .filter-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .content-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1rem;
+        }
+
+        .table {
+            font-size: 0.9rem;
+        }
+
+        .pagination {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1rem;
+        }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+<header class="header">
+  <div class="header-logo">
+    <img src="https://storage.googleapis.com/a1aa/image/D7mJqMZzGflsKTTLJE8INfgTOpkDHXcc_aeuHX02wtU.jpg" alt="Cinema logo">
+    <span class="header-logo-text">Cinemas</span>
+  </div>
+  <div class="header-user">
+    <img th:src="${userAvatar}" alt="User avatar">
+    <span th:text="${userName}">Phan Thuy Ngan</span>
+    <button class="logout-btn">Log out</button>
+  </div>
+</header>
+
+<div class="container">
+  <aside class="sidebar">
+    <ul class="sidebar-menu">
+      <li class="sidebar-item">
+        <i class="fas fa-th-large"></i>
+        <span>Dashboard</span>
+      </li>
+      <li class="sidebar-item">
+        <i class="fas fa-film"></i>
+        <span>Movies</span>
+      </li>
+      <li class="sidebar-item">
+        <i class="fas fa-video"></i>
+        <span>Cinemas</span>
+      </li>
+      <li class="sidebar-item">
+        <i class="fas fa-calendar-alt"></i>
+        <span>Showtimes</span>
+      </li>
+      <li class="sidebar-item active">
+        <i class="fas fa-door-open"></i>
+        <span>Rooms</span>
+      </li>
+      <li class="sidebar-item">
+        <i class="fas fa-receipt"></i>
+        <span>Orders</span>
+      </li>
+      <li class="sidebar-item">
+        <i class="fas fa-users"></i>
+        <span>Users</span>
+      </li>
+      <li class="sidebar-item">
+        <i class="fas fa-home"></i>
+        <span>Homepage</span>
+      </li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+    <div class="content-header">
+      <h1 class="text-2xl font-bold">Room Management</h1>
+      <button class="add-room-btn">
+        <i class="fas fa-plus"></i>
+        <span>Add room</span>
+      </button>
+    </div>
+
+    <div class="filter-section">
+      <select th:field="${cinemaFilter}">
+        <option th:each="cinema : ${cinemas}"
+                th:value="${cinema.cinemaId}"
+                th:text="${cinema.cinemaName}">Cinema</option>
+      </select>
+      <div class="relative">
+        <input type="text" placeholder="Search..." th:field="${searchTerm}">
+      </div>
+    </div>
+
+    <table class="table">
+      <thead>
+      <tr>
+        <th><input type="checkbox"></th>
+        <th>Room name</th>
+        <th>Cinema</th>
+        <th>Seats</th>
+        <th>Cinema complex</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="room : ${rooms}">
+        <td><input type="checkbox"></td>
+        <td th:text="${room.roomName}">Room Name</td>
+        <td th:text="${room.cinema.cinemaName}">Cinema Name</td>
+        <td th:text="${room.seats != null ? room.seats.size() : 0}">Total Seats</td>
+        <td>
+                                <span th:text="${room.cinema.cinemaCluster.clusterName}"
+                                      th:class="${room.cinema.cinemaCluster.clusterName == 'Beta Thanh Xuan' ? 'badge badge-red' :
+                                                 room.cinema.cinemaCluster.clusterName == 'Vincom complex' ? 'badge badge-blue' :
+                                                 'badge badge-green'}">
+                                    Cinema Complex
+                                </span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination">
+      <span th:text="${'Showing ' + startIndex + '-' + endIndex + ' of ' + totalRooms}">Showing 1-03 of 15</span>
+      <div class="pagination-controls">
+        <button>Delete</button>
+        <select th:field="${pageSize}">
+          <option>Lines of each page</option>
+          <option value="3">3</option>
+          <option value="5">5</option>
+          <option value="10">10</option>
+        </select>
+        <button th:disabled="${currentPage == 1}"><i class="fas fa-chevron-left"></i></button>
+        <button th:disabled="${currentPage == totalPages}"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

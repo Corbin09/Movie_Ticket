@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie News - One Piece Review</title>
+  <style>
+    /* Global Styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        background-color: #111;
+        color: #fff;
+        line-height: 1.6;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Movie News Header */
+    .movie-news-header {
+        text-align: center;
+        padding: 40px 0;
+        background: linear-gradient(to right, #003300, #006600);
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    .movie-news-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('/images/movie-posters-bg.jpg');
+        background-size: cover;
+        opacity: 0.15;
+        z-index: 1;
+    }
+
+    .movie-news-header h1 {
+        font-size: 36px;
+        font-weight: bold;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Review Content */
+    .review-title {
+        font-size: 28px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #0a8e0a;
+        padding-bottom: 10px;
+    }
+
+    .review-intro {
+        margin-bottom: 30px;
+        font-size: 16px;
+        line-height: 1.7;
+    }
+
+    .review-section {
+        text-align: justify;
+        margin-bottom: 40px;
+    }
+
+    .review-section h3 {
+        text-align: justify;
+        font-size: 22px;
+        margin-bottom: 15px;
+        color: #ffffff;
+        background: linear-gradient(to right, #005000, transparent);
+        padding: 8px 15px;
+        border-radius: 4px;
+    }
+
+    .review-section p {
+        text-align: justify;
+        margin-bottom: 15px;
+        font-size: 16px;
+    }
+
+    .character-list {
+        text-align: justify;
+        margin-left: 20px;
+        margin-bottom: 15px;
+    }
+
+    .character-list li {
+        text-align: justify;
+        margin-bottom: 10px;
+    }
+
+    /* Images */
+    .review-image {
+        text-align: center;
+        width: 692px;
+        height: 286px;
+        border-radius: 8px;
+        margin: 20px 0;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Author Info */
+    .review-author {
+        text-align: right;
+        margin-top: 40px;
+        font-style: italic;
+        color: #cccccc;
+    }
+
+    .review-date {
+        text-align: right;
+        color: #aaaaaa;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    /* Updated Pagination */
+.pagination {
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 10px;
+margin-top: 40px;
+margin-bottom: 30px;
+}
+
+.pagination button {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+border: none;
+cursor: pointer;
+font-size: 16px;
+font-weight: bold;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: background-color 0.3s ease;
+}
+
+.pagination button.active {
+background-color: #ff0000;
+color: #fff;
+}
+
+.pagination button:not(.active) {
+background-color: #fff;
+color: #000;
+}
+
+.pagination button:hover {
+background-color: #ddd;
+}
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .movie-news-header h1 {
+            font-size: 28px;
+        }
+
+        .review-title {
+            font-size: 24px;
+        }
+
+        .review-section h3 {
+            font-size: 20px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .movie-news-header {
+            padding: 25px 0;
+        }
+
+        .movie-news-header h1 {
+            font-size: 24px;
+        }
+
+        .review-title {
+            font-size: 20px;
+        }
+
+        .review-section h3 {
+            font-size: 18px;
+        }
+
+        .review-intro, .review-section p {
+            font-size: 15px;
+        }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- Movie News Header -->
+  <div class="movie-news-header">
+    <h1>MOVIE NEWS</h1>
+  </div>
+
+  <!-- Review Content -->
+  <div class="review-content">
+    <h2 class="review-title" th:text="${review != null ? review.title : 'Review: ONE PIECE'}">Review: ONE PIECE</h2>
+
+    <div class="review-intro" th:text="${review != null ? review.intro : 'One Piece - An Emotional Journey Full of Adventure. One Piece is one of the greatest anime/manga works of all time. A journey that not only takes viewers through an exciting world filled with hidden treasures and dangers, but also throws meaningful life lessons. It&#39;s not merely a story about pirates – it&#39;s a tale about dreams, friendship, resilience, and the desire to push beyond all limits.'}">
+      One Piece - An Emotional Journey Full of Adventure
+      One Piece is one of the greatest anime/manga works of all time. A journey that not only takes viewers through an exciting world filled with hidden treasures and dangers, but also throws meaningful life lessons. It's not merely a story about pirates – it's a tale about dreams, friendship, resilience, and the desire to push beyond all limits.
+    </div>
+
+    <div class="review-section">
+      <h3>Part - A Decades-Long Journey</h3>
+      <img th:src="${review != null && review.images != null && review.images[0] != null ? review.images[0] : '/images/one-piece-crew.jpg'}" src="/images/op1.png" alt="One Piece Crew" class="review-image">
+
+      <p th:text="${review != null && review.sections != null && review.sections[0] != null ? review.sections[0].content : 'One Piece has captivated millions of fans worldwide with the story of Luffy and the Straw Hat Pirates. Luffy, a boy with the dream of becoming the Pirate King, embarks on a quest to find the legendary treasure One Piece in the world's most dangerous sea, the Grand Line. The series follows Luffy as he gathers a crew of loyal and talented friends who each add to the Straw Hat Pirates' unique collective strengths while dealing with deep conspiracies and merciless foes.'}">
+        One Piece has captivated millions of fans worldwide with the story of Luffy and the Straw Hat Pirates. Luffy, a boy with the dream of becoming the Pirate King, embarks on a quest to find the legendary treasure One Piece in the world's most dangerous sea, the Grand Line. The series follows Luffy as he gathers a crew of loyal and talented friends who each add to the Straw Hat Pirates' unique collective strengths while dealing with deep conspiracies and merciless foes.
+      </p>
+    </div>
+
+    <div class="review-section">
+      <img th:src="${review != null && review.images != null && review.images[1] != null ? review.images[1] : '/images/one-piece-sunny.jpg'}" src="/images/op2.png" alt="One Piece Sunny Ship" class="review-image">
+
+      <h3>Character System - From Lonely Souls to Family</h3>
+      <p th:text="${review != null && review.sections != null && review.sections[1] != null ? review.sections[1].content : 'One Piece stands out thanks to its incredibly detailed and vivid character development. Luffy, from a carefree boy dreaming of becoming the Pirate King has become a symbol of an unyielding will. However, it's not just Luffy who makes this tale captivating – the entire crew brings unique perspectives:'}">
+        One Piece stands out thanks to its incredibly detailed and vivid character development. Luffy, from a carefree boy dreaming of becoming the Pirate King has become a symbol of an unyielding will. However, it's not just Luffy who makes this tale captivating – the entire crew brings unique perspectives:
+      </p>
+
+      <ul class="character-list">
+        <li th:each="character : ${review != null && review.characters != null ? review.characters : null}">
+          <span th:text="${character != null ? character.name + ': ' + character.description : ''}"></span>
+        </li>
+        <li th:if="${review == null || review.characters == null || review.characters.isEmpty()}">Zoro, the charismatic swordsman, lives with the dream of becoming the world's strongest swordsman.</li>
+        <li th:if="${review == null || review.characters == null || review.characters.isEmpty()}">Sanji, the chivalrous chef with a painful past, constantly struggles between loyalty and family troubles.</li>
+        <li th:if="${review == null || review.characters == null || review.characters.isEmpty()}">Nami, Robin, Usopp, Chopper, Franky, Brook, and Jinbe – each with their unique dreams and traumas.</li>
+      </ul>
+
+      <p th:text="${review != null && review.sections != null && review.sections[2] != null ? review.sections[2].content : 'What\'s special is that although they come from vastly different backgrounds, their shared adventures have made them a family. They stand by each other not only because of a common goal but because of the love and respect they have developed for one another.'}">
+        What's special is that although they come from vastly different backgrounds, their shared adventures have made them a family. They stand by each other not only because of a common goal but because of the love and respect they have developed for one another.
+      </p>
+    </div>
+
+    <div class="review-section">
+      <img th:src="${review != null && review.images != null && review.images[2] != null ? review.images[2] : '/images/one-piece-battle.jpg'}" src="/images/op3.png" alt="One Piece Battle" class="review-image">
+
+      <h3>Action and Devil Fruits - Magic and Supreme Power</h3>
+      <p th:text="${review != null && review.sections != null && review.sections[3] != null ? review.sections[3].content : 'The battle system in One Piece revolves around Devil Fruits and Haki — two key elements that make the fights engaging. Devil Fruits, mystical fruits that grant supernatural powers to those who eat them, come in various creative forms. Luffy\'s Gomu Gomu no Mi (rubber powers) may seem simple, but it\'s filled with strategic depth. Haki, on the other hand, is a manifestation of willpower that allows characters to overcome certain Devil Fruit limitations. The fights in One Piece are more than just physical clashes; they carry emotional weight, philosophies, and unyielding resolve. Battles against Crocodile, Doflamingo, and Kaido are iconic moments, not only testing strength but also reflecting the heart and indomitable spirit of each character.'}">
+        The battle system in One Piece revolves around Devil Fruits and Haki — two key elements that make the fights engaging. Devil Fruits, mystical fruits that grant supernatural powers to those who eat them, come in various creative forms. Luffy's Gomu Gomu no Mi (rubber powers) may seem simple, but it's filled with strategic depth. Haki, on the other hand, is a manifestation of willpower that allows characters to overcome certain Devil Fruit limitations. The fights in One Piece are more than just physical clashes; they carry emotional weight, philosophies, and unyielding resolve. Battles against Crocodile, Doflamingo, and Kaido are iconic moments, not only testing strength but also reflecting the heart and indomitable spirit of each character.
+      </p>
+    </div>
+
+    <div class="review-section">
+      <img th:src="${review != null && review.images != null && review.images[3] != null ? review.images[3] : '/images/one-piece-nami.jpg'}" src="/images/op4.png" alt="One Piece Nami" class="review-image">
+
+      <h3>Animation and Music - Grand and Emotional</h3>
+      <p th:text="${review != null && review.sections != null && review.sections[4] != null ? review.sections[4].content : 'Initially, One Piece\'s animation style may have appealed to everyone due to its unique, joyful art style. However, over time, the animation has evolved, especially in recent arcs like Wano, with sharp visuals, vibrant colors, and spectacular battle sequences. The soundtrack has become equally memorable, with iconic soundtracks to iconic opening themes like \'We Are\' and \'Hope.\' The music adds to the emotional depth of the story, enhancing every moment.'}">
+        Initially, One Piece's animation style may have appealed to everyone due to its unique, joyful art style. However, over time, the animation has evolved, especially in recent arcs like Wano, with sharp visuals, vibrant colors, and spectacular battle sequences. The soundtrack has become equally memorable, with iconic soundtracks to iconic opening themes like 'We Are' and 'Hope.' The music adds to the emotional depth of the story, enhancing every moment.
+      </p>
+    </div>
+
+    <div class="review-section">
+      <img th:src="${review != null && review.images != null && review.images[4] != null ? review.images[4] : '/images/one-piece-characters.jpg'}" src="/images/op5.png" alt="One Piece Robin and Nico" class="review-image">
+
+      <h3>Emotions and Deep Messages</h3>
+      <p th:text="${review != null && review.sections != null && review.sections[5] != null ? review.sections[5].content : 'One Piece is not just about action and adventure – it\'s an emotional journey about sacrifice, teamwork, and perseverance. Every character has their own dreams and ideals, and they are willing to risk everything to protect them. The story of the Straw Hat Pirates is the story of those forgotten by society – those yearning for freedom and adventure. Moments like Nami asking for help, Chopper\'s acceptance into the crew, or Robin\'s \'I want to live!\' and the farewell to Going Merry have brought many viewers to tears. These moments remind us that not everything in this long journey is bright and beautiful, but it\'s these losses that make the victories even more meaningful.'}">
+        One Piece is not just about action and adventure – it's an emotional journey about sacrifice, teamwork, and perseverance. Every character has their own dreams and ideals, and they are willing to risk everything to protect them. The story of the Straw Hat Pirates is the story of those forgotten by society – those yearning for freedom and adventure. Moments like Nami asking for help, Chopper's acceptance into the crew, or Robin's 'I want to live!' and the farewell to Going Merry have brought many viewers to tears. These moments remind us that not everything in this long journey is bright and beautiful, but it's these losses that make the victories even more meaningful.
+      </p>
+    </div>
+
+    <div class="review-section">
+      <img th:src="${review != null && review.images != null && review.images[5] != null ? review.images[5] : '/images/one-piece-crew-full.jpg'}" src="/images/op6.png" alt="One Piece Full Crew" class="review-image">
+
+      <p th:text="${review != null && review.sections != null && review.sections[6] != null ? review.sections[6].content : 'While the movie does a fantastic job of capturing the essence of One Piece, there are a few drawbacks. The pacing sometimes is a little uneven, with certain scenes feeling rushed – especially for those unfamiliar with the source material. Additionally, while the film attempts to cram in as many iconic moments as possible from the series, the use of CGI, though ambitious, occasionally clashes with the hand-drawn animation, pulling viewers out of the immersive experience. Lastly, some plot points are not thoroughly explained, leaving newcomers potentially confused. Despite these minor issues, they don\'t significantly detract from the overall visual spectacle, emotional impact and charm of the movie.'}">
+        While the movie does a fantastic job of capturing the essence of One Piece, there are a few drawbacks. The pacing sometimes is a little uneven, with certain scenes feeling rushed – especially for those unfamiliar with the source material. Additionally, while the film attempts to cram in as many iconic moments as possible from the series, the use of CGI, though ambitious, occasionally clashes with the hand-drawn animation, pulling viewers out of the immersive experience. Lastly, some plot points are not thoroughly explained, leaving newcomers potentially confused. Despite these minor issues, they don't significantly detract from the overall visual spectacle, emotional impact and charm of the movie.
+      </p>
+
+      <p th:text="${review != null && review.sections != null && review.sections[7] != null ? review.sections[7].content : 'For me, the One Piece movie is a must-watch. It\'s more than just an animated film – it\'s a powerful story about dreams, friendship, and freedom. Whether you\'ve been a fan of the series for years or are watching for the first time, this movie will leave a profound emotional impact. From the emotional depth and visual splendor to the truly unforgettable characters, it\'s an adventure well worth taking.'}">
+        For me, the One Piece movie is a must-watch. It's more than just an animated film – it's a powerful story about dreams, friendship, and freedom. Whether you've been a fan of the series for years or are watching for the first time, this movie will leave a profound emotional impact. From the emotional depth and visual splendor to the truly unforgettable characters, it's an adventure well worth taking.
+      </p>
+    </div>
+
+    <div class="review-author" th:text="${review != null && review.author != null ? 'Write by: ' + review.author : 'Write by: pirate888'}">
+      Write by: pirate888
+    </div>
+
+    <div class="review-date" th:text="${review != null && review.date != null ? 'Date: ' + #dates.format(review.date, 'MM/dd/yyyy') : 'Date: 11/20/23'}">
+      Date: 11/20/23
+    </div>
+  </div>
+
+  <!-- Pagination Dots -->
+  <div class="pagination">
+    <button class="prev"><i class="fas fa-chevron-left"></i></button>
+    <button class="active">1</button>
+    <button>2</button>
+    <button>3</button>
+    <button class="next"><i class="fas fa-chevron-right"></i></button>
+  </div>
+</div>
+</body>
+</html>
