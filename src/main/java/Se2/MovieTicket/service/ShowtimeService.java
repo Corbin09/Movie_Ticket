@@ -122,4 +122,19 @@ public class ShowtimeService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
+    public List<ShowtimeDTO> getAllShowtimesByFilm(Long filmId) {
+        List<Showtime> showtimes = showtimeRepository.findByFilmId(filmId);
+        return showtimes.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<ShowtimeDTO> getAllShowtimesByRegionAndFilm(Long regionId, Long filmId) {
+        List<Showtime> showtimes = showtimeRepository.findByRegionIdAndFilmId(regionId, filmId);
+        return showtimes.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 }

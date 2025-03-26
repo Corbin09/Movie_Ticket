@@ -95,4 +95,9 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
     List<Showtime> findShowtimes(@Param("regionId") Long regionId,
                                  @Param("cinemaId") Long cinemaId,
                                  @Param("showtimeId") Long showtimeId);
+    @Query("SELECT s FROM Showtime s WHERE s.cinema.region.regionId = :regionId AND s.film.filmId = :filmId")
+    List<Showtime> findByRegionIdAndFilmId(@Param("regionId") Long regionId, @Param("filmId") Long filmId);
+
+    @Query("SELECT s FROM Showtime s WHERE s.film.filmId = :filmId")
+    List<Showtime> findByFilmId(@Param("filmId") Long filmId);
 }

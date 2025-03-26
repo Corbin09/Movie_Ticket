@@ -12,15 +12,15 @@
         /* Additional CSS for improved layout */
         .filter-container {
             display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
+            flex-direction: row;
+            gap: 8px;
+            margin: 20px 0;
         }
 
         .filter-row {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 5px;
         }
 
         .filter-label {
@@ -295,10 +295,11 @@
 </head>
 
 <body>
+
+<div class="showtime-container">
     <!-- Header -->
     <header class="site-header" th:replace="fragments/header_user :: header"></header>
-    <div class="adding-margin"></div>
-<div class="showtime-container">
+    <div style="height: 132px;" class="adding-margin"></div>
 
     <!-- Filter Section -->
     <div class="filter-container">
@@ -338,13 +339,13 @@
             </div>
         </div>
 
-        <!-- Update the showtime filter section in the HTML -->
+        <!-- Showtime Filter -->
         <div class="filter-row" id="showtime-filter-row" th:style="${selectedCinema == null ? 'display: none;' : ''}">
             <div class="showtime-scroll-container">
                 <button class="showtime-scroll-btn prev-showtime-btn" style="display: none;">&lt;</button>
                 <div class="showtime-selector-wrapper">
                     <div class="showtime-selector">
-                        <div th:each="film : ${films}" class="film-showtime">
+                        <div th:each="film : ${allFilms}" class="film-showtime">
                             <div class="time-buttons">
                                 <div th:each="showtime : ${film.showtimes}" class="time-button"
                                      th:data-showtime="${showtime.showTime}"
@@ -375,39 +376,29 @@
 
         <!-- Films List -->
         <div class="movies-grid" th:if="${not #lists.isEmpty(films)}">
-            <div th:each="film : ${films}" class="movie-card">
-                <div class="poster-container">
-                    <a th:href="@{/view-movie-ticket(filmId=${film.filmId})}">
+            <div th:each="film : ${films}">
+                <a class="movie-card" th:href="@{'/View-movie-ticket?id=' + ${film.filmId}}">
+                    <div class="poster-container">
                         <img th:src="@{${film.filmImg}}" th:alt="${film.filmName}" class="poster-image">
-                    </a>
-                </div>
-                <div class="movie-details">
-                    <div class="movie-metadata">
-                        <div class="metadata-row">
-                            <div class="movie-genre" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? film.categoryNames.get(0) : 'N/A'}"></div>
-                            <div class="movie-duration" th:text="${film.duration} + ' mins'"></div>
-                        </div>
-                        <div class="movie-format">
-                            <div class="format-text" th:text="${film.filmType}"></div>
-                        </div>
                     </div>
-                    <div class="movie-title" th:text="${film.filmName} + (${film.ageLimit != null && film.ageLimit > 0 ? ' - T' + film.ageLimit : ''})"></div>
-                    <div class="movie-origin" th:text="'Origin: ' + ${film.country}"></div>
-                    <div class="release-date" th:text="'Release date: ' + ${#temporals.format(film.releaseDate, 'dd/MM/yyyy')}"></div>
-                    <div class="age-rating">
-                        <p class="rating-text" th:text="'T' + ${film.ageLimit} + ' - The film is rated ' + ${film.ageLimit} + '+'"></p>
-                    </div>
-
-                    <!-- Show_Date Section -->
-                    <div class="showtimes-section" th:if="${film.showtimes != null and !film.showtimes.isEmpty()}">
-                        <div class="showtimes-title">Available Showtimes:</div>
-                        <div class="showtimes-container">
-                            <div th:each="showtime : ${film.showtimes}" class="showtime-card">
-                                <div class="showtime-date" th:text="${#dates.format(showtime.showDate, 'dd/MM/yyyy')}"></div>
+                    <div class="movie-details">
+                        <div class="movie-metadata">
+                            <div class="metadata-row">
+                                <div class="movie-genre" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? film.categoryNames.get(0) : 'N/A'}"></div>
+                                <div class="movie-duration" th:text="${film.duration} + ' mins'"></div>
+                            </div>
+                            <div class="movie-format">
+                                <div class="format-text" th:text="${film.filmType}"></div>
                             </div>
                         </div>
+                        <div class="movie-title" th:text="${film.filmName} + (${film.ageLimit != null && film.ageLimit > 0 ? ' - T' + film.ageLimit : ''})"></div>
+                        <div class="movie-origin" th:text="'Origin: ' + ${film.country}"></div>
+                        <div class="release-date" th:text="'Release date: ' + ${#temporals.format(film.releaseDate, 'dd/MM/yyyy')}"></div>
+                        <div class="age-rating">
+                            <p class="rating-text" th:text="'T' + ${film.ageLimit} + ' - The film is rated ' + ${film.ageLimit} + '+'"></p>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
     </div>
@@ -425,11 +416,10 @@
             <div class="page-item next-page" th:classappend="${currentPage == totalPages} ? 'disabled'" th:text="'>'"></div>
         </div>
     </div>
+    <!-- Footer -->
+    <div th:replace="fragments/footer :: footer"></div>
 </div>
 
-</div>
-    <!-- Footer -->
-    <footer class="site-footer" th:replace="fragments/footer :: footer"></footer>
 
 
 <script>document.addEventListener("DOMContentLoaded", function() {
@@ -631,10 +621,10 @@ if (nextPageButton) {
                             }
                             const newUrl = new URL(window.location);
                             newUrl.searchParams.set("showTime", selectedShowtime);
-                            window.history.pushState({}, "", newUrl);
 
                             showtimeButtons.forEach(btn => btn.classList.remove("active"));
                             this.classList.add("active");
+                            location.href= newUrl;
                         })
                         .catch(error => console.error("Error fetching showtimes:", error));
                 } else {

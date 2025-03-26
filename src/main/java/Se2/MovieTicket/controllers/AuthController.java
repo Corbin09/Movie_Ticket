@@ -659,10 +659,10 @@ public class AuthController {
 
             if ("ROLE_ADMIN".equals(role)) {
                 logger.info("Redirecting Admin to /pay-ticket");
-                return "redirect:/showtime";
+                return "redirect:/home";
             } else if ("ROLE_USER".equals(role)) {
                 logger.info("Redirecting User to /home");
-                return "redirect:/index";
+                return "redirect:/showtime";
             } else {
                 logger.info("Redirecting to default index page");
                 return "redirect:/home";
@@ -1170,7 +1170,6 @@ public class AuthController {
         return "news";
     }
 
-
     @GetMapping("/showtime")
     public String getShowtimes(
             @RequestParam(required = false) Long regionId,
@@ -1231,31 +1230,32 @@ public class AuthController {
 
         // Add films to model
         List<FilmDTO> films = filmsPage.getContent();
-
-        // If cinema is selected, load all showtimes for each film
         List<ShowtimeDTO> uniqueShowtimes = new ArrayList<>();
+
+        // Populate uniqueShowtimes based on different contexts
         if (cinemaId != null) {
+            // If cinema is selected, collect unique showtimes for that cinema
             for (FilmDTO film : films) {
-                // Get all showtimes for this film in this cinema (without date filter)
                 List<ShowtimeDTO> showtimes = showtimeService.getAllShowtimesByCinemaAndFilm(
                         cinemaId, film.getFilmId());
-                film.setShowtimes(showtimes);
 
-                // Add unique showtimes to the list
                 for (ShowtimeDTO showtime : showtimes) {
                     if (!uniqueShowtimes.contains(showtime)) {
                         uniqueShowtimes.add(showtime);
                     }
                 }
             }
+
+            // Sort uniqueShowtimes by showtime (ascending order)
+            uniqueShowtimes.sort(Comparator.comparing(ShowtimeDTO::getShowTime));
+
+            model.addAttribute("uniqueShowtimes", uniqueShowtimes);
         }
 
         model.addAttribute("films", films);
-        model.addAttribute("uniqueShowtimes", uniqueShowtimes); // Add unique showtimes to the model
-// Lọc danh sách showtimes dựa trên các filter được chọn
+        model.addAttribute("allFilms", films);
 
-        System.out.println("showTime value: " + showTime);
-
+        // Lọc danh sách showtimes dựa trên các filter được chọn
         if (showTime != null) {
             System.out.println("Filtering by selected showtimeId: " + showTime);
 
@@ -1263,6 +1263,7 @@ public class AuthController {
             List<FilmDTO> filteredFilms = films.stream()
                     .filter(film -> {
                         boolean hasShowtime = film.getShowtimes().stream().anyMatch(st -> st.getShowTime().equals(showTime));
+                        System.out.println("Filtering by selected showtimeId: " + showTime);
                         System.out.println("Film: " + film.getFilmId() + " | Has Showtime: " + hasShowtime);
                         return hasShowtime;
                     })
@@ -1275,7 +1276,7 @@ public class AuthController {
             int fromIndex = Math.min((page - 1) * size, totalItems);
             int toIndex = Math.min(fromIndex + size, totalItems);
             System.out.println("Pagination - fromIndex: " + fromIndex + ", toIndex: " + toIndex);
-
+            System.out.println("Total item with showtime filter: " + totalItems);
             List<FilmDTO> paginatedFilms = filteredFilms.subList(fromIndex, toIndex);
             System.out.println("Paginated films count: " + paginatedFilms.size());
 
@@ -1283,6 +1284,7 @@ public class AuthController {
             model.addAttribute("films", paginatedFilms);
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", (int) Math.ceil((double) totalItems / size));
+            System.out.println("TtotalPages: " + (int) Math.ceil((double) totalItems / size));
             model.addAttribute("totalItems", totalItems);
         } else {
             System.out.println("No specific showTime selected, loading all showtimes.");
@@ -1301,10 +1303,8 @@ public class AuthController {
             model.addAttribute("totalItems", filmsPage.getTotalElements());
         }
 
-
         // Age restriction note
         model.addAttribute("ageRestriction", true);
-
         return "showtime";
     }
 
