@@ -116,4 +116,9 @@ public interface FilmRepository extends JpaRepository<Film, Long> {
                                    @Param("cinemaId") Long cinemaId,
                                    @Param("regionId") Long regionId,
                                    Pageable pageable);
+
+    @Query("SELECT f FROM Film f WHERE f.country = :vietnamese")
+    Page<Film> findByFilmOrigin(@Param("vietnamese") String vietnamese, Pageable pageable);
+    @Query("SELECT f FROM Film f WHERE f.country <> :vietnamese")
+    Page<Film> findByFilmOriginNot(@Param("vietnamese") String vietnamese, Pageable pageable);
 }

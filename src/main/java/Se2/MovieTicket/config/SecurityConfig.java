@@ -82,7 +82,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         // Các trang công khai
-                        .requestMatchers("/", "/home", "/login", "/View-movie-ticket/**", "/showtime", "/register", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/", "/home", "/login", "/news/**", "/View-movie-ticket/**", "/showtime**", "/register", "/css/**", "/js/**").permitAll()
 
                         // Các trang dành cho USER
                         .requestMatchers("/index", "/user-dashboard", "/profile", "/user-tickets/**").hasRole("USER")
@@ -122,7 +122,7 @@ public class SecurityConfig {
             // Điều hướng dựa trên vai trò
             if (authentication.getAuthorities().stream()
                     .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
-                response.sendRedirect("/home"); // Trang khởi đầu cho ADMIN
+                response.sendRedirect("/news"); // Trang khởi đầu cho ADMIN
             } else if (authentication.getAuthorities().stream()
                     .anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"))) {
                 response.sendRedirect("/showtime"); // Trang khởi đầu cho USER

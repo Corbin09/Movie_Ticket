@@ -17,9 +17,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
+
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/films")
@@ -78,10 +81,48 @@ public class FilmController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Film>> searchFilms(@RequestParam(required = false) String name)  {
+    public ResponseEntity<List<FilmDTO>> searchFilms(@RequestParam(required = false) String name) {
         List<Film> films = filmService.searchFilms(name);
-        return films.isEmpty() ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(films, HttpStatus.OK);
+
+        // Format ngày tháng theo "dd/MM/yyyy"
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        // Convert danh sách Film sang FilmDTO và format ngày tháng
+        List<FilmDTO> filmDTOs = films.stream().map(film -> {
+            FilmDTO filmDTO = new FilmDTO();
+            filmDTO.setFilmId(film.getFilmId());
+            filmDTO.setFilmName(film.getFilmName());
+            filmDTO.setFilmImg(film.getFilmImg());
+            filmDTO.setFilmTrailer(film.getFilmTrailer());
+            filmDTO.setFilmDescription(film.getFilmDescription());
+            filmDTO.setReleaseDate(film.getReleaseDate());
+            filmDTO.setFormattedReleaseDate(film.getReleaseDate().format(formatter));  // Format ngày tháng
+
+            filmDTO.setDuration(film.getDuration());
+            filmDTO.setFilmType(film.getFilmType());
+            filmDTO.setCountry(film.getCountry());
+            filmDTO.setAgeLimit(film.getAgeLimit());
+
+            // Set các danh sách liên quan
+            filmDTO.setDirectorNames(film.getFilmDirectors().stream()
+                    .map(fd -> fd.getDirector().getDirectorName())
+                    .collect(Collectors.toList()));
+
+            filmDTO.setActorNames(film.getFilmActors().stream()
+                    .map(fa -> fa.getActor().getActorName())
+                    .collect(Collectors.toList()));
+
+            filmDTO.setCategoryNames(film.getFilmCategories().stream()
+                    .map(fc -> fc.getCategory().getCategoryName())
+                    .collect(Collectors.toList()));
+
+            return filmDTO;  // Trả về DTO đã convert
+        }).collect(Collectors.toList());
+
+        return filmDTOs.isEmpty() ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
+                : new ResponseEntity<>(filmDTOs, HttpStatus.OK);
     }
+
 
     @GetMapping("/filter")
     public ResponseEntity<List<Film>> filterFilms(@RequestParam(required = false) String name,
@@ -93,67 +134,67 @@ public class FilmController {
         return new ResponseEntity<>(films, HttpStatus.OK);
     }
 
-    @GetMapping("/home")
-    public String home(
-            @RequestParam(defaultValue = "1") int currentPageNowShowing,
-            @RequestParam(defaultValue = "1") int currentPageComingSoon,
-            Model model, HttpServletRequest request) {
-
-        logger.info("Accessing home page");
-
-        // Lấy user từ session nếu có
-        HttpSession session = request.getSession(false);
-        User sessionUser = null;
-        if (session != null) {
-            sessionUser = (User) session.getAttribute("user");
-            if (sessionUser != null) {
-                logger.info("User found in session: {}", sessionUser.getUsername());
-                model.addAttribute("user", sessionUser);
-            }
-        }
-
-        // Nếu không có user trong session, lấy từ SecurityContext
-        if (sessionUser == null) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
-                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-                Optional<User> userOptional = userService.getUserById(userDetails.getId());
-
-                if (userOptional.isPresent()) {
-                    User user = userOptional.get();
-                    model.addAttribute("user", user);
-
-                    // Lưu vào session để sử dụng cho các request sau
-                    if (session != null) {
-                        session.setAttribute("user", user);
-                        logger.info("User saved to session from SecurityContext");
-                    }
-                }
-            }
-        }
-
-        // Số lượng phim hiển thị trên mỗi trang
-        int pageSize = 4;
-
-        // Phân trang cho Now Showing
-        Page<Film> nowShowingPage = filmService.getNowShowingFilms(currentPageNowShowing, pageSize);
-        model.addAttribute("nowShowingMovies", nowShowingPage.getContent());
-        model.addAttribute("currentPageNowShowing", currentPageNowShowing);
-        model.addAttribute("totalPagesNowShowing", nowShowingPage.getTotalPages());
-
-        // Phân trang cho Coming Soon
-        Page<Film> comingSoonPage = filmService.getComingSoonFilms(currentPageComingSoon, pageSize);
-        model.addAttribute("comingSoonMovies", comingSoonPage.getContent());
-        model.addAttribute("currentPageComingSoon", currentPageComingSoon);
-        model.addAttribute("totalPagesComingSoon", comingSoonPage.getTotalPages());
-
-        // Lấy toàn bộ danh sách phim để hiển thị nếu cần
-        List<Film> films = filmService.getAllFilms();
-        logger.info("Number of films retrieved: {}", films.size());
-        model.addAttribute("films", films);
-
-        return "home";
-    }
+//    @GetMapping("/home")
+//    public String home(
+//            @RequestParam(defaultValue = "1") int currentPageNowShowing,
+//            @RequestParam(defaultValue = "1") int currentPageComingSoon,
+//            Model model, HttpServletRequest request) {
+//
+//        logger.info("Accessing home page");
+//
+//        // Lấy user từ session nếu có
+//        HttpSession session = request.getSession(false);
+//        User sessionUser = null;
+//        if (session != null) {
+//            sessionUser = (User) session.getAttribute("user");
+//            if (sessionUser != null) {
+//                logger.info("User found in session: {}", sessionUser.getUsername());
+//                model.addAttribute("user", sessionUser);
+//            }
+//        }
+//
+//        // Nếu không có user trong session, lấy từ SecurityContext
+//        if (sessionUser == null) {
+//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+//                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+//                Optional<User> userOptional = userService.getUserById(userDetails.getId());
+//
+//                if (userOptional.isPresent()) {
+//                    User user = userOptional.get();
+//                    model.addAttribute("user", user);
+//
+//                    // Lưu vào session để sử dụng cho các request sau
+//                    if (session != null) {
+//                        session.setAttribute("user", user);
+//                        logger.info("User saved to session from SecurityContext");
+//                    }
+//                }
+//            }
+//        }
+//
+//        // Số lượng phim hiển thị trên mỗi trang
+//        int pageSize = 4;
+//
+//        // Phân trang cho Now Showing
+//        Page<Film> nowShowingPage = filmService.getNowShowingFilms(currentPageNowShowing, pageSize);
+//        model.addAttribute("nowShowingMovies", nowShowingPage.getContent());
+//        model.addAttribute("currentPageNowShowing", currentPageNowShowing);
+//        model.addAttribute("totalPagesNowShowing", nowShowingPage.getTotalPages());
+//
+//        // Phân trang cho Coming Soon
+//        Page<Film> comingSoonPage = filmService.getComingSoonFilms(currentPageComingSoon, pageSize);
+//        model.addAttribute("comingSoonMovies", comingSoonPage.getContent());
+//        model.addAttribute("currentPageComingSoon", currentPageComingSoon);
+//        model.addAttribute("totalPagesComingSoon", comingSoonPage.getTotalPages());
+//
+//        // Lấy toàn bộ danh sách phim để hiển thị nếu cần
+//        List<Film> films = filmService.getAllFilms();
+//        logger.info("Number of films retrieved: {}", films.size());
+//        model.addAttribute("films", films);
+//
+//        return "home";
+//    }
 
 
 }

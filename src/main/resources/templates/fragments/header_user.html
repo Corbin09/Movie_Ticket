@@ -20,9 +20,11 @@
 
         <div class="header-bottom">
             <ul class="nav-menu">
-                <li><a th:href="@{/home}" th:classappend="${currentPage == 'home' ? 'active' : ''}">Home</a></li>
-                <li><a th:href="@{/showtime}" th:classappend="${currentPage == 'showtime' ? 'active' : ''}">Showtime</a></li>
-                <li><a th:href="@{/news}" th:classappend="${currentPage == 'news' ? 'active' : ''}">News</a></li>
+                <li><a th:href="@{/home}" th:classappend="${currPage == 'home' ? 'active' : ''}">Home</a></li>
+                <li><a th:href="@{/showtime}" th:classappend="${currPage == 'showtime' ? 'active' : ''}">Showtime</a></li>
+                <li><a th:href="@{/news}" th:classappend="${currPage == 'news' ? 'active' : ''}">News</a></li>
+                <p th:text="${currentPage}"></p>  <!-- In ra giá trị để kiểm tra -->
+
             </ul>
 
             <form th:action="@{/user-search}" method="GET" class="search-form">

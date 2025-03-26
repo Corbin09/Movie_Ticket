@@ -28,7 +28,7 @@
                 <p><span>Director:</span> <span th:text="${#strings.listJoin(film.directorNames, ', ')}">Trần Thị Giang</span></p>
                 <p><span>Cast:</span> <span th:text="${#strings.listJoin(film.actorNames, ', ')}">Phan Giang, Lê Minh Hằng</span></p>
                 <p><span>Genre:</span> <span th:text="${#strings.listJoin(film.categoryNames, ', ')}">Family</span></p>
-                <p><span>Release Date:</span> <span th:text="${film.releaseDate}">07/03/2025</span></p>
+                <p><span>Release Date:</span> <span th:text="${film.formattedReleaseDate}">07/03/2025</span></p>
                 <p><span>Duration:</span> <span th:text="${film.duration} + ' minutes'">84 minutes</span></p>
             </div>
             <a th:href="@{/home}" class="btn btn-outline">

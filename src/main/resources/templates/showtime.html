@@ -12,11 +12,12 @@
         /* Additional CSS for improved layout */
         .filter-container {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             gap: 8px;
             margin: 20px 0;
         }
-
+.region-cinema-filter {
+display: flex; flex-direction: row;}
         .filter-row {
             display: flex;
             align-items: center;
@@ -291,6 +292,16 @@
     font-weight: bold;
     margin-bottom: 5px;
 }
+        /* Gạch dưới hiển thị cho mục active */
+.nav-menu a.active::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: white;
+}
     </style>
 </head>
 
@@ -298,11 +309,12 @@
 
 <div class="showtime-container">
     <!-- Header -->
-    <header class="site-header" th:replace="fragments/header_user :: header"></header>
+    <header th:replace="fragments/header_user :: header"></header>
     <div style="height: 132px;" class="adding-margin"></div>
 
     <!-- Filter Section -->
     <div class="filter-container">
+        <div class="region-cinema-filter">
         <!-- Region Filter -->
         <div class="filter-row">
             <div class="filter-label">Region:</div>
@@ -338,7 +350,7 @@
                 </div>
             </div>
         </div>
-
+        </div>
         <!-- Showtime Filter -->
         <div class="filter-row" id="showtime-filter-row" th:style="${selectedCinema == null ? 'display: none;' : ''}">
             <div class="showtime-scroll-container">

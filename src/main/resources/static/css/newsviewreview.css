@@ -1,0 +1,151 @@
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #111;
+    color: #fff;
+    line-height: 1.6;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Movie News Header */
+.movie-news-header {
+    text-align: center;
+    padding: 40px 0;
+    background: linear-gradient(to right, #003300, #006600);
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.movie-news-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/images/movie-posters-bg.jpg');
+    background-size: cover;
+    opacity: 0.15;
+    z-index: 1;
+}
+
+.movie-news-header h1 {
+    font-size: 36px;
+    font-weight: bold;
+    position: relative;
+    z-index: 2;
+}
+
+/* Review Content */
+.review-title {
+    font-size: 28px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #0a8e0a;
+    padding-bottom: 10px;
+}
+
+.review-intro {
+    margin-bottom: 30px;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.review-section {
+    margin-bottom: 40px;
+}
+
+.review-section h3 {
+    font-size: 22px;
+    margin-bottom: 15px;
+    color: #ffffff;
+    background: linear-gradient(to right, #005000, transparent);
+    padding: 8px 15px;
+    border-radius: 4px;
+}
+
+.review-image {
+    width: 100%;
+    border-radius: 8px;
+    margin: 20px 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.review-author {
+    text-align: right;
+    margin-top: 40px;
+    font-style: italic;
+    color: #cccccc;
+}
+
+.review-date {
+    text-align: right;
+    color: #aaaaaa;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.pagination-dots {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    margin-bottom: 30px;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.dot.active {
+    background-color: #ffffff;
+}
+
+.dot:not(.active) {
+    background-color: #555555;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .movie-news-header h1 {
+        font-size: 28px;
+    }
+    .review-title {
+        font-size: 24px;
+    }
+    .review-section h3 {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .movie-news-header {
+        padding: 25px 0;
+    }
+    .movie-news-header h1 {
+        font-size: 24px;
+    }
+    .review-title {
+        font-size: 20px;
+    }
+    .review-section h3 {
+        font-size: 18px;
+    }
+    .review-intro, .review-section p {
+        font-size: 15px;
+    }
+}

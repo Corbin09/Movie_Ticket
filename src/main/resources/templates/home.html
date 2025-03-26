@@ -114,7 +114,7 @@
                     <div class="movie-meta">
                         <span class="movie-category" th:text="${film.filmType}">Category</span>
                         <span class="movie-release-date"
-                              th:text="${#dates.format(film.releaseDate, 'dd/MM/yyyy')}">Release Date</span>
+                              th:text="${film.formattedReleaseDate}">Release Date</span>
                         <span class="movie-duration" th:text="${film.duration + ' min'}">Duration</span>
                     </div>
                     <div class="movie-title" th:text="${film.filmName}">Film Name</div>
@@ -172,7 +172,7 @@
                     <div class="movie-meta">
                         <span class="movie-category" th:text="${film.filmType}">Horror</span>
                         <span class="movie-release-date"
-                              th:text="${#dates.format(film.releaseDate, 'dd/MM/yyyy')}">28/02/2025</span>
+                              th:text="${film.formattedReleaseDate}">Release Date</span>
                         <span class="movie-duration" th:text="${film.duration + ' min'}">114 min</span>
                     </div>
                     <div class="movie-title" th:text="${film.filmName}">DARK NUNS - T13 - 2D</div>
@@ -207,7 +207,7 @@
                 <div class="movie-meta">
                     <span class="movie-category" th:text="${film.filmType}">Adventure</span>
                     <span class="movie-release-date"
-                          th:text="${#dates.format(film.releaseDate, 'dd/MM/yyyy')}">14/02/2025</span>
+                          th:text="${film.formattedReleaseDate}">Release Date</span>
                     <span class="movie-duration" th:text="${film.duration + ' min'}">114 min</span>
                 </div>
                 <div class="movie-title" th:text="${film.filmName}">CAPTAIN AMERICA - T13 - 2D</div>

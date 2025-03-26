@@ -5,6 +5,7 @@ import Se2.MovieTicket.model.UserReview;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ public class FilmDTO {
     private List<ShowtimeDTO> showtimes;
     private Set<News> news;
     private Set<UserReview> userReviews;
+    private String formattedReleaseDate;
 
     public Long getFilmId() {
         return filmId;
@@ -163,4 +165,29 @@ public class FilmDTO {
     public void setUserReviews(Set<UserReview> userReviews) {
         this.userReviews = userReviews;
     }
+
+
+    // Getter tùy chỉnh để format LocalDate sang dạng dd/MM/yyyy
+    public String getFormattedReleaseDate() {
+        if (releaseDate != null) {
+            return releaseDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        }
+        return null;  // Nếu releaseDate null thì trả về null
+    }
+
+    public void setFormattedReleaseDate(String formattedReleaseDate) {
+        if (formattedReleaseDate != null && !formattedReleaseDate.isEmpty()) {
+            // Convert String date to LocalDate using the expected format
+            this.releaseDate = LocalDate.parse(formattedReleaseDate, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        }
+        this.formattedReleaseDate = formattedReleaseDate; // Gán giá trị chuỗi cho property nếu cần hiển thị lại
+    }
+
+    public void setReleaseDateFormatted(String format) {
+        if (releaseDate != null) {
+            // Gán giá trị ngày được format theo định dạng tùy chỉnh
+            this.formattedReleaseDate = releaseDate.format(DateTimeFormatter.ofPattern(format));
+        }
+    }
+
 }
