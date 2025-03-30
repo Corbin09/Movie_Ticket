@@ -63,6 +63,10 @@ public class AuthController {
     @Autowired
     private SecurityContextRepository securityContextRepository;
 
+    @Autowired
+    private OrderService orderService;
+
+
     @GetMapping("/login")
     public String loginPage(@RequestParam(value = "error", required = false) String error,
                             @RequestParam(value = "logout", required = false) String logout,
@@ -135,7 +139,7 @@ public class AuthController {
 
             if ("ROLE_ADMIN".equals(role)) {
                 logger.info("Redirecting Admin to /pay-ticket");
-                return "redirect:/news";
+                return "redirect:/manage-orders";
             } else if ("ROLE_USER".equals(role)) {
                 logger.info("Redirecting User to /home");
                 return "redirect:/showtime";
@@ -847,11 +851,70 @@ public class AuthController {
 
 
 
+    @GetMapping("/manage-orders")
+    public String manageOrders(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String filterBy,
+            Model model,
+            HttpServletRequest request) {
 
+        // Get user from session or SecurityContext
+        HttpSession session = request.getSession(false);
+        User sessionUser = (session != null) ? (User) session.getAttribute("user") : null;
 
+        if (sessionUser == null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                sessionUser = userService.getUserById(userDetails.getId()).orElse(null);
 
+                if (sessionUser != null && session != null) {
+                    session.setAttribute("user", sessionUser);
+                }
+            }
+        }
 
+        if (sessionUser != null) {
+            model.addAttribute("user", sessionUser);
+        }
 
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
+
+        // Get orders based on search/filter parameters
+        List<Order> orders;
+
+        try {
+            if (search != null && !search.isEmpty()) {
+                // Search across all fields, applying any active filter
+                orders = orderService.searchOrders(search, filterBy);
+            } else if (filterBy != null && !filterBy.isEmpty()) {
+                // Filter only
+                orders = orderService.filterOrders(filterBy);
+            } else {
+                // Get all orders
+                orders = orderService.getAllOrders();
+            }
+
+        } catch (Exception e) {
+            orders = new ArrayList<>();
+            model.addAttribute("errorMessage", "Error fetching orders: " + e.getMessage());
+        }
+
+        // Add orders to model
+        model.addAttribute("orders", orders);
+
+        // Pass the selected filter/search options to the view
+        model.addAttribute("currentFilterBy", filterBy);
+        model.addAttribute("currentSearch", search);
+
+        // Thêm thuộc tính currPage để menu hiển thị đúng mục active
+        model.addAttribute("currPage", "manage-orders");
+
+        return "manage-orders";
+    }
 
 
 

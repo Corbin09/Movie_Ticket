@@ -18,6 +18,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT o FROM Order o WHERE o.showtime = :showtime")
     List<Order> findByShowtime(@Param("showtime") Showtime showtime);
+    @Query("SELECT o FROM Order o " +
+            "JOIN FETCH o.showtime s " +
+            "JOIN FETCH s.film f " +
+            "JOIN FETCH s.cinema c " +
+            "JOIN FETCH s.room r " +
+            "JOIN FETCH o.user u")
+    List<Order> findAllWithDetails();
 
     @Query("SELECT o FROM Order o WHERE o.orderDate BETWEEN :start AND :end")
     List<Order> findByOrderDateBetween(@Param("start") Date start, @Param("end") Date end);

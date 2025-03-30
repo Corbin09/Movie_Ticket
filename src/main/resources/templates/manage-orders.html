@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinemas Management System</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/ordersmanagement.css}">
+  <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
+  <style>
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+      border-radius: 4px;
+    }
+
+    .dropdown-menu.show {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 10px 16px;
+      text-decoration: none;
+      display: block;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .dropdown-item:hover {
+      background-color: #f1f1f1;
+    }
+
+    .filter-dropdown {
+      position: relative;
+      display: inline-block;
+      margin-right: 15px;
+    }
+
+    .dropdown-toggle {
+      background-color: #f5f5f5;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-width: 150px;
+    }
+
+    .dropdown-toggle i {
+      margin-left: 8px;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      padding: 5px 10px;
+      position: relative;
+    }
+
+    .search-input {
+      border: none;
+      background: transparent;
+      padding: 5px;
+      width: 200px;
+      outline: none;
+    }
+
+    .search-icon {
+      color: #666;
+      cursor: pointer;
+      padding: 5px;
+      transition: color 0.3s;
+    }
+
+    .search-icon:hover {
+      color: #333;
+    }
+
+    .filter-area {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .filter-label {
+      margin-right: 10px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
+<div class="container-orders-management">
+  <div class="main-content">
+    <h1 class="page-title">Orders Management</h1>
+
+    <!-- Filter and search -->
+    <div class="filter-area">
+      <span class="filter-label">Filter by:</span>
+      <div class="filter-dropdown">
+        <div class="dropdown-toggle" id="filterByToggle">
+          <span id="selectedFilterOption" th:text="${currentFilterBy != null ? currentFilterBy : 'All'}">All</span>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="dropdown-menu" id="filterByMenu">
+          <a class="dropdown-item" data-value="all">All</a>
+          <a class="dropdown-item" data-value="today">Today</a>
+          <a class="dropdown-item" data-value="yesterday">Yesterday</a>
+          <a class="dropdown-item" data-value="this_week">This Week</a>
+          <a class="dropdown-item" data-value="this_month">This Month</a>
+          <a class="dropdown-item" data-value="this_year">This Year</a>
+          <a class="dropdown-item" data-value="price_asc">Price (Low to High)</a>
+          <a class="dropdown-item" data-value="price_desc">Price (High to Low)</a>
+          <a class="dropdown-item" data-value="date_asc">Order Date (Oldest First)</a>
+          <a class="dropdown-item" data-value="date_desc">Order Date (Newest First)</a>
+        </div>
+      </div>
+
+      <div class="search-bar">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search across all fields..." th:value="${currentSearch}"/>
+        <div class="search-icon" id="searchIcon">
+          <i class="fas fa-search"></i>
+        </div>
+      </div>
+
+      <button id="clearButton" class="btn-secondary" style="margin-left: 15px;">Clear</button>
+    </div>
+
+    <!-- Orders table -->
+    <table class="data-table">
+      <thead>
+      <tr>
+
+        <th>Order ID</th>
+        <th>User</th>
+        <th>Film</th>
+        <th>Cinema</th>
+        <th>Room</th>
+        <th>Show Time</th>
+        <th>Order Value</th>
+        <th>Order Date</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="order : ${orders}">
+
+        <td th:text="${order.orderId}"></td>
+        <td th:text="${order.user != null ? order.user.username : 'N/A'}"></td>
+        <td th:text="${order.showtime != null && order.showtime.film != null ? order.showtime.film.filmName : 'N/A'}"></td>
+        <td th:text="${order.showtime != null && order.showtime.cinema != null ? order.showtime.cinema.cinemaName : 'N/A'}"></td>
+        <td th:text="${order.showtime != null && order.showtime.room != null ? order.showtime.room.roomName : 'N/A'}"></td>
+        <td th:text="${order.showtime != null && order.showtime.showTime != null ? order.showtime.showTime.toString() : 'N/A'}"></td>
+        <td th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT') + ' VND'}"></td>
+        <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy')}"></td>
+      </tr>
+
+      <!-- No results message -->
+      <tr th:if="${#lists.isEmpty(orders)}">
+        <td colspan="9" style="text-align: center; padding: 20px;">No orders found</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script th:inline="javascript">
+  // Toggle sidebar on mobile
+  document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+      document.getElementById('sidebar').classList.toggle('active');
+  });
+
+  // Handle responsive behavior
+  window.addEventListener('resize', function() {
+      if (window.innerWidth > 992) {
+          document.getElementById('sidebar')?.classList.remove('active');
+      }
+  });
+
+  // Function to convert filter values to display text
+  function getDisplayTextForValue(value) {
+      const mapping = {
+          'all': 'All',
+          'today': 'Today',
+          'yesterday': 'Yesterday',
+          'this_week': 'This Week',
+          'this_month': 'This Month',
+          'this_year': 'This Year',
+          'price_asc': 'Price (Low to High)',
+          'price_desc': 'Price (High to Low)',
+          'date_asc': 'Order Date (Oldest First)',
+          'date_desc': 'Order Date (Newest First)'
+      };
+      return mapping[value] || value;
+  }
+
+  // Track current parameters
+  let currentFilterBy = [[${currentFilterBy}]] || 'all';
+  let currentSearch = [[${currentSearch}]] || '';
+
+  // Set initial display text based on the current filter value
+  document.getElementById('selectedFilterOption').textContent = getDisplayTextForValue(currentFilterBy);
+
+  // Filter dropdown functionality
+  const filterByToggle = document.getElementById('filterByToggle');
+  const filterByMenu = document.getElementById('filterByMenu');
+
+  if (filterByToggle) {
+      filterByToggle.addEventListener('click', function(event) {
+          event.stopPropagation();
+          filterByMenu.classList.toggle('show');
+      });
+  }
+
+  // Handle filter dropdown item selection
+  const filterItems = document.querySelectorAll('#filterByMenu .dropdown-item');
+  filterItems.forEach(function(item) {
+      item.addEventListener('click', function(event) {
+          event.stopPropagation();
+          const value = this.getAttribute('data-value');
+          const text = this.textContent.trim(); // Get the display text
+          document.getElementById('selectedFilterOption').textContent = text;
+          filterByMenu.classList.remove('show');
+
+          // Store the value and apply filter
+          currentFilterBy = value;
+          applyFilters();
+      });
+  });
+
+  // Handle search input when Enter key is pressed
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+      searchInput.addEventListener('keyup', function(event) {
+          if (event.key === 'Enter') {
+              currentSearch = this.value;
+              applyFilters();
+          }
+      });
+  }
+
+  // Handle search icon click - replace the search button functionality
+  const searchIcon = document.getElementById('searchIcon');
+  if (searchIcon) {
+      searchIcon.addEventListener('click', function() {
+          currentSearch = searchInput.value;
+          applyFilters();
+      });
+  }
+
+  // Handle clear button click
+  const clearButton = document.getElementById('clearButton');
+  if (clearButton) {
+      clearButton.addEventListener('click', function() {
+          currentSearch = '';
+          currentFilterBy = 'all';
+          window.location.href = window.location.pathname;
+      });
+  }
+
+  // Function to apply filters and redirect with proper UTF-8 encoding
+  function applyFilters() {
+      let url = window.location.pathname + '?';
+      const searchParams = new URLSearchParams();
+
+      // Add filter parameter if it's not 'all'
+      if (currentFilterBy && currentFilterBy !== 'all') {
+          searchParams.append('filterBy', currentFilterBy);
+      }
+
+      // Add search parameter if exists
+      if (currentSearch) {
+          searchParams.append('search', currentSearch);
+      }
+
+      // Append the search parameters to the URL
+      const paramString = searchParams.toString();
+      if (paramString) {
+          url += paramString;
+      }
+
+      // Redirect
+      console.log('Navigating to: ' + url);
+      window.location.href = url;
+  }
+
+  // Close dropdown menus when clicking outside
+  document.addEventListener('click', function(event) {
+      const dropdowns = document.getElementsByClassName('dropdown-menu');
+      for (let i = 0; i < dropdowns.length; i++) {
+          if (dropdowns[i].classList.contains('show') &&
+              !event.target.closest('.filter-dropdown')) {
+              dropdowns[i].classList.remove('show');
+          }
+      }
+  });
+
+  // Debug info
+  console.log('Current filter by:', currentFilterBy);
+  console.log('Current search:', currentSearch);
+</script>
+</body>
+</html>

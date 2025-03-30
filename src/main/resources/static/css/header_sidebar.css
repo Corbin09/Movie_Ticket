@@ -15,9 +15,9 @@
 }
 
 .container {
-    width: 90%;
-    max-width: 1400px;
-    margin: 0 auto;
+    width: calc(100% - 160px); /* Giữ 20px lề mỗi bên */
+    margin-left: 80px;
+    margin-right: 80px;
 }
 
 .header-top {
