@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" th:href="@{/css/newsviewreview.css}" />
+  <link rel="stylesheet" th:href="@{/css/header_user.css}" />
+  <link rel="stylesheet" th:href="@{/css/footer.css}" />
+  <title>Movie News - One Piece Review</title>
+  <style>
+    /* Global Styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        background-color: #111;
+        color: #fff;
+        line-height: 1.6;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Movie News Header */
+    .movie-news-header {
+        text-align: center;
+        padding: 40px 0;
+        background: linear-gradient(to right, #003300, #006600);
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    .movie-news-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('/images/movie-posters-bg.jpg');
+        background-size: cover;
+        opacity: 0.15;
+        z-index: 1;
+    }
+
+    .movie-news-header h1 {
+        font-size: 36px;
+        font-weight: bold;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Review Content */
+    .review-title {
+        font-size: 28px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #0a8e0a;
+        padding-bottom: 10px;
+    }
+
+    .review-intro {
+        margin-bottom: 30px;
+        font-size: 16px;
+        line-height: 1.7;
+    }
+
+    .review-section {
+        text-align: justify;
+        margin-bottom: 40px;
+    }
+
+    .review-section h3 {
+        text-align: justify;
+        font-size: 22px;
+        margin-bottom: 15px;
+        color: #ffffff;
+        background: linear-gradient(to right, #005000, transparent);
+        padding: 8px 15px;
+        border-radius: 4px;
+    }
+
+    .review-section p {
+        text-align: justify;
+        margin-bottom: 15px;
+        font-size: 16px;
+    }
+
+    .character-list {
+        text-align: justify;
+        margin-left: 20px;
+        margin-bottom: 15px;
+    }
+
+    .character-list li {
+        text-align: justify;
+        margin-bottom: 10px;
+    }
+
+    /* Images */
+    .review-image {
+        text-align: center;
+        width: 692px;
+        height: 286px;
+        border-radius: 8px;
+        margin: 20px 0;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Author Info */
+    .review-author {
+        text-align: right;
+        margin-top: 40px;
+        font-style: italic;
+        color: #cccccc;
+    }
+
+    .review-date {
+        text-align: right;
+        color: #aaaaaa;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    /* Updated Pagination */
+.pagination {
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 10px;
+margin-top: 40px;
+margin-bottom: 30px;
+}
+
+.pagination button {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+border: none;
+cursor: pointer;
+font-size: 16px;
+font-weight: bold;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: background-color 0.3s ease;
+}
+
+.pagination button.active {
+background-color: #ff0000;
+color: #fff;
+}
+
+.pagination button:not(.active) {
+background-color: #fff;
+color: #000;
+}
+
+.pagination button:hover {
+background-color: #ddd;
+}
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .movie-news-header h1 {
+            font-size: 28px;
+        }
+
+        .review-title {
+            font-size: 24px;
+        }
+
+        .review-section h3 {
+            font-size: 20px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .movie-news-header {
+            padding: 25px 0;
+        }
+
+        .movie-news-header h1 {
+            font-size: 24px;
+        }
+
+        .review-title {
+            font-size: 20px;
+        }
+
+        .review-section h3 {
+            font-size: 18px;
+        }
+
+        .review-intro, .review-section p {
+            font-size: 15px;
+        }
+    }
+  </style>
+</head>
+<body>
+<!-- Header -->
+<div th:replace="fragments/header_user :: header"></div>
+<div style="height: 132px;" class="adding-margin"></div>
+<div class="container">
+  <!-- Movie News Header -->
+  <div class="movie-news-header">
+    <h1>MOVIE NEWS</h1>
+  </div>
+
+  <div class="news-details">
+    <img th:src="@{${currentNews.newsImg}}" alt="News Image" class="news-img">
+    <div th:utext="${currentNews.newsContent}"></div>
+    <footer th:text="${currentNews.newsFooter}"></footer>
+    <!-- Manual date formatting -->
+    <div class="news-ps">
+      <span th:text="'Date: ' + ${#dates.format(currentNews.newsTime, 'dd/MM/yyyy')}"></span>
+      <span th:text="'Write by: ' + ${currentNews.user.username}"></span>
+    </div>
+  </div>
+
+  <!-- Pagination Dots -->
+  <div class="pagination">
+    <a th:href="@{/news/{id}(id=${prevNews.newsId})}" class="prev">&laquo; Previous</a>
+    <span th:text="${currentNews.newsId} + ' / ' + ${totalNews}"></span>
+    <a th:href="@{/news/{id}(id=${nextNews.newsId})}" class="next">Next &raquo;</a>
+  </div>
+
+  <!-- Footer -->
+  <div th:replace="fragments/footer :: footer"></div>
+</div>
+</body>
+</html>

@@ -1,13 +1,9 @@
 package Se2.MovieTicket.controllers;
 
-import Se2.MovieTicket.dto.FilmDTO;  // Import DTO
-import Se2.MovieTicket.dto.NewsDTO;
-import Se2.MovieTicket.model.Film;
-import Se2.MovieTicket.model.News;
-import Se2.MovieTicket.model.User;
-import Se2.MovieTicket.impl.UserDetailsImpl;
-import Se2.MovieTicket.service.NewsService;
-import Se2.MovieTicket.service.UserService;
+import Se2.MovieTicket.dto.*;
+import Se2.MovieTicket.model.*;
+import Se2.MovieTicket.service.*;
+import Se2.MovieTicket.impl.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.format.DateTimeFormatter;
@@ -137,4 +134,53 @@ public class NewsController {
 
         return "news";  // Trả về view template "news"
     }
-}
+
+
+
+    @GetMapping("/news/{id}")
+    public String getNewsDetails(@PathVariable Long id, Model model, HttpServletRequest request) {
+        model.addAttribute("currPage", "news");
+        // Lấy user từ session hoặc SecurityContext
+        HttpSession session = request.getSession(false);
+        User sessionUser = (session != null) ? (User) session.getAttribute("user") : null;
+
+        if (sessionUser == null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                sessionUser = userService.getUserById(userDetails.getId()).orElse(null);
+
+                if (sessionUser != null && session != null) {
+                    session.setAttribute("user", sessionUser);
+                }
+            }
+        }
+
+        if (sessionUser != null) {
+            model.addAttribute("user", sessionUser);  // Thêm user vào model để view sử dụng
+        }
+
+        List<News> allNews = newsService.getAllNews();
+        int totalNews = allNews.size();
+
+        // Tìm vị trí của tin tức có id trong danh sách
+        int currentIndex = -1;
+        for (int i = 0; i < totalNews; i++) {
+            if (allNews.get(i).getNewsId().equals(id)) {
+                currentIndex = i;
+                break;
+            }
+        }
+
+        // Xác định các tin tức tiếp theo dựa trên vị trí
+        News currentNews = allNews.get(currentIndex);
+        News nextNews = allNews.get((currentIndex + 1) % totalNews);
+        News prevNews = allNews.get((currentIndex - 1 + totalNews) % totalNews);
+
+        model.addAttribute("currentNews", currentNews);
+        model.addAttribute("nextNews", nextNews);
+        model.addAttribute("prevNews", prevNews);
+        model.addAttribute("totalNews", totalNews);
+
+        return "news-details";
+}}

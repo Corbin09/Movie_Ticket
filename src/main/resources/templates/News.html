@@ -29,13 +29,15 @@
       </div>
     </div>
     <div class="news-list">
-      <div class="news-item" th:each="review : ${newsReviews}">
-        <img th:src="${review.newsImg}" alt="Review Image">
-        <div class="review-metadata">
-        <p th:text="'Review: ' + ${review.newsHeader}"></p>
-        <span th:text="'Date: ' + ${#dates.format(review.newsTime, 'dd/MM/yyyy')}"></span>
-        <span th:text="'Write by: ' + ${review.user.username}"></span>
-        </div>
+      <div th:each="review : ${newsReviews}">
+        <a class="news-item" th:href="@{/news/{id}(id=${review.newsId})}">
+          <img th:src="${review.newsImg}" alt="Review Image">
+          <div class="review-metadata">
+            <p th:text="'Review: ' + ${review.newsHeader}"></p>
+            <span th:text="'Date: ' + ${#dates.format(review.newsTime, 'dd/MM/yyyy')}"></span>
+            <span th:text="'Written by: ' + ${review.user.username}"></span>
+          </div>
+        </a>
       </div>
     </div>
   </div>
