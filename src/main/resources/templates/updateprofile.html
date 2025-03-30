@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background-color: #eef2f3;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .profile-container {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      padding: 20px;
+    }
+    .profile-header {
+      background-color: #0f4d2e;
+      height: 75px;
+      position: relative;
+      border-radius: 12px 12px 0 0;
+    }
+    .profile-avatar {
+      width: 70px;
+      height: 70px;
+      background-color: #e9f3d9;
+      border-radius: 50%;
+      position: absolute;
+      top: 70px;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 4px solid white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    .avatar-edit-icon {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border-radius: 50%;
+      padding: 5px;
+      cursor: pointer;
+      font-size: 10px;
+    }
+    .profile-content {
+      padding: 70px 20px 20px;
+    }
+    .profile-field {
+      margin-bottom: 15px;
+    }
+    .profile-field label {
+      display: block;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #555;
+    }
+    .profile-field-container {
+      position: relative;
+      width: 100%;
+    }
+    .profile-field input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      color: #333;
+      transition: 0.3s ease;
+    }
+    .profile-field input:focus {
+      border-color: #0f4d2e;
+      outline: none;
+    }
+    .edit-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #777;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .update-btn {
+      background-color: #0f4d2e;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: 0.3s;
+    }
+    .update-btn:hover {
+      background-color: #0a3b23;
+    }
+    @media (max-width: 480px) {
+      .profile-container {
+        max-width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="profile-container">
+  <div class="profile-header">
+    <div class="profile-avatar" id="avatar">
+      <img src="default-avatar.png" id="avatar-img" alt="Avatar">
+      <span class="avatar-edit-icon" onclick="document.getElementById('avatar-input').click()"><i class="fas fa-pencil-alt"></i></span>
+      <input type="file" id="avatar-input" style="display: none;" accept="image/*" onchange="previewAvatar(event)">
+    </div>
+  </div>
+  <div class="profile-content">
+    <div class="profile-field">
+      <label for="username">Username</label>
+      <div class="profile-field-container">
+        <input type="text" id="username" value="JohnDoe" readonly>
+        <span class="edit-icon" onclick="enableEdit('username')"><i class="fas fa-pencil-alt"></i></span>
+      </div>
+    </div>
+    <div class="profile-field">
+      <label for="email">Email</label>
+      <div class="profile-field-container">
+        <input type="email" id="email" value="john@example.com" readonly>
+        <span class="edit-icon" onclick="enableEdit('email')"><i class="fas fa-pencil-alt"></i></span>
+      </div>
+    </div>
+    <div class="profile-field">
+      <label for="phone">Phone Number</label>
+      <div class="profile-field-container">
+        <input type="tel" id="phone" value="1234567890" readonly>
+        <span class="edit-icon" onclick="enableEdit('phone')"><i class="fas fa-pencil-alt"></i></span>
+      </div>
+    </div>
+    <button class="update-btn" onclick="window.location.href='editprofile.html'">Update Profile</button>
+  </div>
+</div>
+
+<script>
+  function enableEdit(fieldId) {
+    document.getElementById(fieldId).removeAttribute('readonly');
+    document.getElementById(fieldId).focus();
+  }
+  function previewAvatar(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('avatar-img').src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+</script>
+</body>
+</html>
