@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Room</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+/* Base styles */
+
+/* Responsive container */
+.overlay-container {
+    width: 90%;
+    max-width: 500px; background-color: #a4a5a7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Success message box */
+.overlay-box {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    text-align: center;
+}
+
+/* Icon styling */
+.overlay-icon img {
+    border-radius: 30px;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 15px;
+}
+
+/* Heading */
+.overlay-title {
+    color: #16a34a;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Paragraph */
+.overlay-text {
+    color: #4b5563;
+    margin-bottom: 20px;
+}
+
+/* Buttons */
+.overlay-btn {
+    display: block;
+    width: 95%;
+    text-align: center;
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 25px;
+    text-decoration: none;
+    margin-bottom: 10px;
+    transition: all 0.3s ease-in-out;
+}
+
+.overlay-btn-success {
+    background-color: #22c55e;
+    color: white;
+}
+
+.overlay-btn-success:hover {
+    background-color: #16a34a;
+}
+
+.overlay-btn-back {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+
+.overlay-btn-back:hover {
+    background-color: #d1d5db;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .overlay-box {
+        padding: 15px;
+    }
+
+    .overlay-title {
+        font-size: 1.3rem;
+    }
+
+    .overlay-btn {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+}
+
+    body {
+        background-color: #1E5631;
+        min-height: 100vh;
+    }
+
+
+    .main-content {
+        flex: 1;
+        padding: 0 20px;
+    }
+
+    .card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 30px;
+        max-width: 800px;
+        margin: 0 auto;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: none;
+        background-color: #e8f5e9;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    select.form-control {
+        appearance: none;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+    }
+
+    .error-message {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+
+    .button-group {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: background-color 0.3s;
+    }
+
+    .btn-cancel {
+        background-color: #b26836;
+        color: white;
+    }
+
+    .btn-cancel:hover {
+        background-color: #a05a2c;
+    }
+
+    .btn-add {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .btn-add:hover {
+        background-color: #3d8b40;
+    }
+
+    .alert {
+        padding: 12px 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    /* Icons for sidebar */
+    .icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+        fill: currentColor;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .content-container {
+            flex-direction: column;
+        }
+
+        .sidebar {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding-bottom: 0;
+        }
+
+        .nav-item {
+            width: auto;
+            margin-right: 5px;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+        }
+
+        .nav-item i, .icon {
+            margin-right: 5px;
+        }
+
+        .main-content {
+            padding: 10px;
+        }
+
+        .card {
+            padding: 20px;
+        }
+
+        .header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .user-info {
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .nav-item {
+            padding: 8px;
+            font-size: 0.8rem;
+        }
+
+        .button-group {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+  </style>
+</head>
+<body>
+
+<div class="main-content">
+  <div class="card">
+    <!-- Display success message if available -->
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <!-- Display error message if available -->
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <form th:action="@{/rooms/save}" th:object="${room}" method="post" id="addRoomForm">
+      <div class="form-group">
+        <label for="roomName">Room name</label>
+        <input type="text" class="form-control" id="roomName" th:field="*{roomName}" />
+        <div class="error-message" id="roomNameError" th:if="${#fields.hasErrors('roomName')}" th:errors="*{roomName}">This field cannot be empty.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="cinemaId">Cinema name</label>
+        <select class="form-control" id="cinemaId" th:field="*{cinema.cinemaId}">
+          <option th:each="cinema : ${cinemas}" th:value="${cinema.cinemaId}" th:text="${cinema.cinemaName}">Beta Thanh Xuan</option>
+        </select>
+      </div>
+
+      <div class="button-group">
+        <a th:href="@{/rooms}" class="btn btn-cancel" id="cancelBtn">Cancel</a>
+        <button type="submit" class="btn btn-add" id="addBtn">Add</button>
+      </div>
+    </form>
+  </div>
+
+
+
+  <!-- Success Overlay -->
+  <div th:if="${successMessage}" class="overlay-container" id="successOverlay">
+    <div class="overlay-box">
+      <div class="overlay-icon">
+        <img src="https://storage.googleapis.com/a1aa/image/c8vfCnEspzOX5ov3dX65vYIGGEdnELte-7GoPt4L-YI.jpg" alt="Success">
+      </div>
+      <h2 class="overlay-title">Add Success!</h2>
+      <p class="overlay-text" th:text="${successMessage}">Room has been added successfully.</p>
+      <a th:href="@{/manage-rooms}" class="overlay-btn overlay-btn-success">Go to Room List</a>
+      <a th:href="@{/admin-dashboard}" class="overlay-btn overlay-btn-back">Back to Dashboard</a>
+    </div>
+  </div>
+
+
+
+</div>
+
+<script th:inline="javascript">
+  // Check if the success message exists on page load
+  document.addEventListener('DOMContentLoaded', function() {
+      const overlay = document.getElementById('successOverlay');
+      if (overlay) {
+          overlay.style.display = 'block';
+      }
+  });
+</script>
+
+<script th:inline="javascript">
+  document.addEventListener('DOMContentLoaded', function() {
+      const roomNameInput = document.getElementById('roomName');
+      const roomNameError = document.getElementById('roomNameError');
+      const addRoomForm = document.getElementById('addRoomForm');
+
+      // Validate room name
+      roomNameInput.addEventListener('input', function() {
+          if (!this.value.trim()) {
+              roomNameError.textContent = 'This field cannot be empty.';
+              roomNameError.style.display = 'block';
+          } else {
+              roomNameError.style.display = 'none';
+          }
+      });
+
+      // Form submission validation
+      addRoomForm.addEventListener('submit', function(e) {
+          let isValid = true;
+
+          // Validate room name
+          if (!roomNameInput.value.trim()) {
+              roomNameError.textContent = 'This field cannot be empty.';
+              roomNameError.style.display = 'block';
+              isValid = false;
+          }
+
+          if (!isValid) {
+              e.preventDefault();
+          } else {
+              // You could add additional code here for showing a loading state or other feedback
+              // For example:
+              document.getElementById('addBtn').disabled = true;
+              document.getElementById('addBtn').textContent = 'Adding...';
+          }
+      });
+  });
+</script>
+</body>
+</html>

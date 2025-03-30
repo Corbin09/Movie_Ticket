@@ -8,6 +8,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -59,6 +61,9 @@ public class AuthController {
     private RegionService regionService;
     @Autowired
     private FilmService filmService;
+
+    @Autowired
+    private RoomService roomService;
 
     @Autowired
     private SecurityContextRepository securityContextRepository;
@@ -139,7 +144,7 @@ public class AuthController {
 
             if ("ROLE_ADMIN".equals(role)) {
                 logger.info("Redirecting Admin to /pay-ticket");
-                return "redirect:/manage-orders";
+                return "redirect:/manage-rooms";
             } else if ("ROLE_USER".equals(role)) {
                 logger.info("Redirecting User to /home");
                 return "redirect:/showtime";
@@ -915,6 +920,189 @@ public class AuthController {
 
         return "manage-orders";
     }
+
+
+
+
+    @GetMapping("/manage-rooms")
+    public String manageRooms(
+            @RequestParam(required = false) String searchText,
+            @RequestParam(required = false) String searchField,
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "10") int pageSize,
+            Model model,
+            HttpServletRequest request) {
+
+        // Get user from session or SecurityContext
+        HttpSession session = request.getSession(false);
+        User sessionUser = (session != null) ? (User) session.getAttribute("user") : null;
+
+        if (sessionUser == null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                sessionUser = userService.getUserById(userDetails.getId()).orElse(null);
+
+                if (sessionUser != null && session != null) {
+                    session.setAttribute("user", sessionUser);
+                }
+            }
+        }
+
+        if (sessionUser != null) {
+            model.addAttribute("user", sessionUser);
+        }
+
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
+
+        // Get all cinemas for the dropdown filter
+        List<Cinema> cinemas = cinemaService.getAllCinemas();
+        model.addAttribute("cinemas", cinemas);
+
+        // Get rooms based on search parameters
+        List<Room> rooms;
+
+        try {
+            if (searchText != null && !searchText.isEmpty() && searchField != null && !searchField.isEmpty()) {
+                // Search rooms by the specified field and search text
+                rooms = roomService.searchRoomsByField(searchField, searchText);
+            } else {
+                // Get all rooms if no search criteria
+                rooms = roomService.getAllRooms();
+            }
+
+            // Create a map to store seat counts for each room
+            Map<Long, Long> seatCounts = new HashMap<>();
+            for (Room room : rooms) {
+                // Count seats for each room
+                Long seatCount = roomService.countSeatsByRoomId(room.getRoomId());
+                seatCounts.put(room.getRoomId(), seatCount);
+            }
+
+            // Add seat counts map to the model
+            model.addAttribute("seatCounts", seatCounts);
+
+        } catch (Exception e) {
+            rooms = new ArrayList<>();
+            model.addAttribute("errorMessage", "Error fetching rooms: " + e.getMessage());
+        }
+
+        // Add pagination parameters
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("totalItems", rooms.size());
+        model.addAttribute("totalPages", (int) Math.ceil((double) rooms.size() / pageSize));
+
+        // Add rooms to model
+        model.addAttribute("rooms", rooms);
+
+        // Pass the selected search options to the view
+        model.addAttribute("currentSearchField", searchField);
+        model.addAttribute("currentSearchText", searchText);
+
+        // Add currPage attribute for sidebar active menu
+        model.addAttribute("currPage", "manage-rooms");
+
+        return "manage-rooms";
+    }
+
+    @PostMapping("/delete-rooms")
+    @Transactional
+    public String deleteRooms(@RequestParam("roomIds") List<Long> roomIds,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            int deletedCount = roomService.deleteRoomsByIds(roomIds);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    deletedCount + " room(s) successfully deleted.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error deleting rooms: " + e.getMessage());
+        }
+
+        return "redirect:/manage-rooms";
+    }
+
+    @GetMapping("/add-room")
+    public String addRoomForm(Model model) {
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
+
+        // Add necessary attributes for the form
+        model.addAttribute("room", new Room());
+        model.addAttribute("cinemas", cinemaService.getAllCinemas());
+        model.addAttribute("currPage", "manage-rooms");
+
+        return "addroom";
+    }
+
+    @PostMapping("/rooms/save")
+    public String saveRoom(@Valid @ModelAttribute("room") Room room,
+                           BindingResult bindingResult,
+                           RedirectAttributes redirectAttributes,
+                           Model model) {
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
+
+        // Validate the input
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("cinemas", cinemaService.getAllCinemas());
+            model.addAttribute("currPage", "manage-rooms");
+            return "addroom";
+        }
+
+        try {
+            // Save the room
+            roomService.saveRoom(room);
+            model.addAttribute("successMessage", "Success! Room has been added successfully.");
+            model.addAttribute("cinemas", cinemaService.getAllCinemas());
+            model.addAttribute("currPage", "manage-rooms");
+            return "addroom";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Failed to add room: " + e.getMessage());
+            model.addAttribute("cinemas", cinemaService.getAllCinemas());
+            model.addAttribute("currPage", "manage-rooms");
+            return "addroom";
+        }
+
+    }
+
+    @GetMapping("/edit-room")
+    public String editRoomForm(@RequestParam Long id, Model model) {
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
+
+        // Get room by ID
+        Optional<Room> roomOpt = roomService.getRoomById(id);
+        if (!roomOpt.isPresent()) {
+            return "redirect:/manage-rooms";
+        }
+
+        // Add necessary attributes for the form
+        model.addAttribute("room", roomOpt.get());
+        model.addAttribute("cinemas", cinemaService.getAllCinemas());
+        model.addAttribute("currPage", "manage-rooms");
+
+        return "edit-room";
+    }
+
+
+
+
+
+
+
+
+
+
 
 
 

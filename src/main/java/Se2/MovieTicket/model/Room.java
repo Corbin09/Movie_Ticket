@@ -29,7 +29,6 @@ public class Room {
     @ManyToOne
     @JoinColumn(name = "cinema_id", nullable = false)
     @JsonBackReference
-
     private Cinema cinema;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

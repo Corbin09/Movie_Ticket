@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
+  <title>Room Management</title>
+  <style>
+    :root {
+        --green-900: #14532d;
+        --green-700: #15803d;
+        --green-600: #16a34a;
+        --red-500: #ef4444;
+        --white: #ffffff;
+        --text-gray: #e5e7eb;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(to bottom, var(--green-900), var(--green-700));
+        color: var(--white);
+        min-height: 100vh;
+        line-height: 1.6;
+    }
+
+    .container-room-management {
+        display: flex;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Main Content */
+    .main-content {
+        margin-left: 250px;
+        padding: 2rem;
+        width: calc(100% - 250px);
+    }
+
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .add-room-btn {
+        background-color: var(--white);
+        color: var(--green-900);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        border-radius: 20px;
+    }
+
+    /* Filter section styles */
+    .filter-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 1rem;
+        border-radius: 0.5rem;
+    }
+
+    .filter-label {
+        margin-right: 0.5rem;
+        font-weight: 500;
+    }
+
+    .filter-dropdown {
+        position: relative;
+        margin-right: 15px;
+        min-width: 150px;
+    }
+
+    .dropdown-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 1rem;
+        background-color: var(--white);
+        color: var(--green-900);
+        border: 1px solid var(--green-600);
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+
+    .dropdown-toggle i {
+        margin-left: 10px;
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+        display: none;
+        width: 100%;
+        padding: 0.25rem 0;
+        margin-top: 0.25rem;
+        background-color: var(--white);
+        border: 1px solid var(--green-600);
+        border-radius: 0.25rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    }
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    .dropdown-item {
+        display: block;
+        padding: 0.5rem 1rem;
+        color: var(--green-900);
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .dropdown-item:hover {
+        background-color: rgba(22, 163, 74, 0.1);
+    }
+
+    /* Search bar styles */
+    .search-bar {
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+        max-width: 400px;
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.5rem 1rem;
+        padding-right: 40px;
+        border: 1px solid var(--green-600);
+        border-radius: 0.25rem;
+        background-color: var(--white);
+        color: var(--green-900);
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 10px;
+        color: var(--green-900);
+        cursor: pointer;
+    }
+
+    /* Button styles */
+    .btn-secondary {
+        padding: 0.5rem 1rem;
+        background-color: var(--white);
+        color: var(--green-900);
+        border: 1px solid var(--green-600);
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+        background-color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Table */
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: var(--white);
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .table thead {
+        background-color: var(--white);
+        color: #454444;
+    }
+
+    .table th,
+    .table td {
+        color: #454444;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--green-600);
+    }
+
+    .badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+    }
+
+    .badge-red { background-color: #fee2e2; color: #7f1d1d; }
+    .badge-blue { background-color: #dbeafe; color: #1e3a8a; }
+    .badge-green { background-color: #dcfce7; color: #14532d; }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        color: var(--white);
+        padding: 1rem;
+    }
+
+    .pagination-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pagination-controls button {
+        background-color: var(--red-500);
+        color: var(--white);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+
+    .pagination-controls select {
+        background-color: var(--white);
+        color: var(--green-900);
+        border: 1px solid var(--green-600);
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .container-room-management {
+            flex-direction: column;
+        }
+
+        .main-content {
+            width: 100%;
+            margin-left: 0;
+        }
+
+        .filter-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .content-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1rem;
+        }
+
+        .table {
+            font-size: 0.9rem;
+        }
+
+        .pagination {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1rem;
+        }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+<div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
+<div class="container-room-management">
+  <main class="main-content">
+    <div class="content-header">
+      <h1 class="text-2xl font-bold">Room Management</h1>
+      <button class="add-room-btn">
+        <i class="fas fa-plus"></i>
+        <span>Add room</span>
+      </button>
+    </div>
+
+    <!-- Filter and search section -->
+    <div class="filter-section">
+      <span class="filter-label">Search by:</span>
+      <div class="filter-dropdown">
+        <div class="dropdown-toggle" id="searchFieldToggle">
+          <span id="selectedSearchField" th:text="${currentSearchField != null ? (currentSearchField == 'roomName' ? 'Room Name' : (currentSearchField == 'cinema' ? 'Cinema' : (currentSearchField == 'seats' ? 'Seats' : (currentSearchField == 'cinemaComplex' ? 'Cinema Complex' : 'Room Name')))) : 'Room Name'}">Room Name</span>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="dropdown-menu" id="searchFieldMenu">
+          <a class="dropdown-item" data-value="roomName">Room Name</a>
+          <a class="dropdown-item" data-value="cinema">Cinema</a>
+          <a class="dropdown-item" data-value="seats">Seats</a>
+          <a class="dropdown-item" data-value="cinemaComplex">Cinema Complex</a>
+        </div>
+      </div>
+
+      <div class="search-bar">
+        <input type="text" class="search-input" id="searchInput" placeholder="Enter search text..." th:value="${currentSearchText}"/>
+        <div class="search-icon" id="searchIcon">
+          <i class="fas fa-search"></i>
+        </div>
+      </div>
+
+      <button id="clearButton" class="btn-secondary">Clear</button>
+    </div>
+
+    <!-- Update to the table section in your HTML -->
+    <table class="table">
+      <thead>
+      <tr>
+        <th><input type="checkbox" id="selectAllCheckbox"></th>
+        <th>Room name</th>
+        <th>Cinema</th>
+        <th>Seats</th>
+        <th>Cinema complex</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="room : ${rooms}" th:data-room-id="${room.roomId}">
+        <td><input type="checkbox" class="room-checkbox"></td>
+        <td th:text="${room.roomName}">Room Name</td>
+        <td th:text="${room.cinema.cinemaName}">Cinema Name</td>
+        <td th:text="${seatCounts != null && seatCounts.containsKey(room.roomId) ? seatCounts.get(room.roomId) : 0}">Total Seats</td>
+        <td>
+        <span th:text="${room.cinema.cinemaCluster.clusterName}"
+              th:class="${room.cinema.cinemaCluster.clusterName == 'Beta Thanh Xuan' ? 'badge badge-red' :
+                         room.cinema.cinemaCluster.clusterName == 'Vincom complex' ? 'badge badge-blue' :
+                         'badge badge-green'}">
+          Cinema Complex
+        </span>
+        </td>
+      </tr>
+      <!-- No results message -->
+      <tr th:if="${#lists.isEmpty(rooms)}">
+        <td colspan="5" style="text-align: center; padding: 20px;">No rooms found</td>
+      </tr>
+      </tbody>
+    </table>
+
+    <!-- Updated pagination section -->
+    <div class="pagination">
+  <span th:text="${'Showing ' + (totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0) + '-' + (currentPage * pageSize < totalItems ? currentPage * pageSize : totalItems) + ' of ' + totalItems}">
+    Showing 1-5 of 15
+  </span>
+      <div class="pagination-controls">
+        <button id="deleteButton" disabled>Delete</button>
+        <select id="pageSizeSelect">
+          <option>Lines per page</option>
+          <option value="10" th:selected="${pageSize == 10}">10</option>
+          <option value="20" th:selected="${pageSize == 20}">20</option>
+          <option value="30" th:selected="${pageSize == 30}">30</option>
+        </select>
+        <button id="prevPage" th:disabled="${currentPage <= 1}"><i class="fas fa-chevron-left"></i></button>
+        <button id="nextPage" th:disabled="${currentPage >= totalPages}"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Add CSRF token meta tags for Spring Security -->
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
+
+  </main>
+</div>
+
+<!-- JavaScript for filtering and interaction -->
+<script th:inline="javascript">
+  // Toggle sidebar on mobile
+  document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+    document.getElementById('sidebar').classList.toggle('active');
+  });
+
+  // Handle responsive behavior
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 992) {
+      document.getElementById('sidebar')?.classList.remove('active');
+    }
+  });
+
+  // Track current parameters
+  let currentSearchField = [[${currentSearchField}]] || 'roomName';
+  let currentSearchText = [[${currentSearchText}]] || '';
+
+  // Set initial display text based on the current search field value
+  const selectedSearchField = document.getElementById('selectedSearchField');
+  if (selectedSearchField && currentSearchField) {
+    const fieldItems = document.querySelectorAll('#searchFieldMenu .dropdown-item');
+    for (let item of fieldItems) {
+      if (item.getAttribute('data-value') === currentSearchField) {
+        selectedSearchField.textContent = item.textContent.trim();
+        break;
+      }
+    }
+  }
+
+  // Search field dropdown functionality
+  const searchFieldToggle = document.getElementById('searchFieldToggle');
+  const searchFieldMenu = document.getElementById('searchFieldMenu');
+
+  if (searchFieldToggle) {
+    searchFieldToggle.addEventListener('click', function(event) {
+      event.stopPropagation();
+      searchFieldMenu.classList.toggle('show');
+    });
+  }
+
+  // Handle search field dropdown item selection
+  const fieldItems = document.querySelectorAll('#searchFieldMenu .dropdown-item');
+  fieldItems.forEach(function(item) {
+    item.addEventListener('click', function(event) {
+      event.stopPropagation();
+      const value = this.getAttribute('data-value');
+      const text = this.textContent.trim();
+      document.getElementById('selectedSearchField').textContent = text;
+      searchFieldMenu.classList.remove('show');
+
+      // Store the search field value
+      currentSearchField = value;
+
+      // Update search placeholder based on selected field
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        if (value === 'seats') {
+          searchInput.placeholder = "Enter number of seats...";
+        } else if (value === 'cinema') {
+          searchInput.placeholder = "Enter cinema name...";
+        } else if (value === 'cinemaComplex') {
+          searchInput.placeholder = "Enter cinema complex name...";
+        } else {
+          searchInput.placeholder = "Enter room name...";
+        }
+      }
+    });
+  });
+
+  // Handle search input when Enter key is pressed
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('keyup', function(event) {
+      if (event.key === 'Enter') {
+        currentSearchText = this.value;
+        applySearch();
+      }
+    });
+  }
+
+  // Handle search icon click
+  const searchIcon = document.getElementById('searchIcon');
+  if (searchIcon) {
+    searchIcon.addEventListener('click', function() {
+      currentSearchText = searchInput.value;
+      applySearch();
+    });
+  }
+
+  // Handle clear button click
+  const clearButton = document.getElementById('clearButton');
+  if (clearButton) {
+    clearButton.addEventListener('click', function() {
+      currentSearchText = '';
+      currentSearchField = 'roomName';
+      window.location.href = window.location.pathname;
+    });
+  }
+
+  // Function to apply search and redirect
+  function applySearch() {
+    let url = window.location.pathname + '?';
+    const searchParams = new URLSearchParams();
+
+    // Add search field parameter
+    searchParams.append('searchField', currentSearchField);
+
+    // Add search text parameter if exists
+    if (currentSearchText) {
+      searchParams.append('searchText', currentSearchText);
+    }
+
+    // Append the search parameters to the URL
+    const paramString = searchParams.toString();
+    if (paramString) {
+      url += paramString;
+    }
+
+    // Redirect
+    console.log('Navigating to: ' + url);
+    window.location.href = url;
+  }
+
+  // Close dropdown menus when clicking outside
+  document.addEventListener('click', function(event) {
+    const dropdowns = document.getElementsByClassName('dropdown-menu');
+    for (let i = 0; i < dropdowns.length; i++) {
+      if (dropdowns[i].classList.contains('show') &&
+          !event.target.closest('.filter-dropdown')) {
+        dropdowns[i].classList.remove('show');
+      }
+    }
+  });
+
+  // Debug info
+  console.log('Current search field:', currentSearchField);
+  console.log('Current search text:', currentSearchText);
+</script>
+
+
+<script>
+  // Room Management JavaScript
+
+// Initialize the pagination variables
+let currentPage = 1;
+let pageSize = 10; // Default page size
+let totalItems = 0;
+let totalPages = 0;
+let selectedRooms = [];
+
+// DOM Elements
+const mainCheckbox = document.querySelector('thead input[type="checkbox"]');
+const rowCheckboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+const deleteButton = document.querySelector('.pagination-controls button:first-child');
+const pageSizeSelect = document.getElementById('pageSizeSelect');
+const prevPageButton = document.getElementById('prevPage');
+const nextPageButton = document.getElementById('nextPage');
+const roomRows = document.querySelectorAll('tbody tr');
+const addRoomButton = document.querySelector('.add-room-btn');
+const paginationText = document.querySelector('.pagination span');
+
+// Get the total number of items from the DOM
+totalItems = [[${rooms.size()}]];
+
+// Toggle sidebar (already in your code)
+document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+  document.getElementById('sidebar').classList.toggle('active');
+});
+
+// Search field functionality (already in your code)
+// Keeping your existing search functionality...
+
+// Initialize pagination
+function initializePagination() {
+  // Get page size from URL param or use default
+  const urlParams = new URLSearchParams(window.location.search);
+  pageSize = parseInt(urlParams.get('pageSize')) || pageSize;
+  currentPage = parseInt(urlParams.get('page')) || currentPage;
+
+  // Set the page size select value
+  if (pageSizeSelect) {
+    for (let i = 0; i < pageSizeSelect.options.length; i++) {
+      if (pageSizeSelect.options[i].value == pageSize) {
+        pageSizeSelect.selectedIndex = i;
+        break;
+      }
+    }
+  }
+
+  // Calculate total pages
+  totalPages = Math.ceil(totalItems / pageSize);
+
+  // Update pagination display
+  updatePaginationDisplay();
+
+  // Show only the current page of items
+  showCurrentPageItems();
+
+  // Disable/enable pagination buttons
+  updatePaginationButtons();
+}
+
+// Function to update the pagination info text
+function updatePaginationDisplay() {
+  if (paginationText) {
+    const start = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    const end = Math.min(currentPage * pageSize, totalItems);
+    paginationText.textContent = `Showing ${start}-${end} of ${totalItems}`;
+  }
+}
+
+// Function to show only the current page items
+function showCurrentPageItems() {
+  // If there are no rooms or only the "No rooms found" message
+  if (roomRows.length === 0 || (roomRows.length === 1 && roomRows[0].querySelector('td[colspan="5"]'))) {
+    // Make sure the "No rooms found" row is visible
+    if (roomRows.length === 1) {
+      roomRows[0].style.display = '';
+    }
+    return;
+  }
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalItems);
+
+  roomRows.forEach((row, index) => {
+    // Skip the "No rooms found" row if it exists
+    if (row.querySelector('td[colspan="5"]')) {
+      row.style.display = totalItems === 0 ? '' : 'none';
+      return;
+    }
+
+    if (index >= startIndex && index < endIndex) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+}
+
+// Function to update pagination buttons state
+function updatePaginationButtons() {
+  if (prevPageButton) {
+    prevPageButton.disabled = currentPage <= 1;
+    prevPageButton.style.opacity = currentPage <= 1 ? '0.5' : '1';
+  }
+
+  if (nextPageButton) {
+    nextPageButton.disabled = currentPage >= totalPages;
+    nextPageButton.style.opacity = currentPage >= totalPages ? '0.5' : '1';
+  }
+}
+
+// Function to apply pagination and redirect
+function applyPagination(newPage, newPageSize) {
+  const url = new URL(window.location.href);
+  const params = new URLSearchParams(url.search);
+
+  // Update pagination parameters
+  params.set('page', newPage);
+  params.set('pageSize', newPageSize || pageSize);
+
+  // Keep existing search parameters
+  if (currentSearchField) {
+    params.set('searchField', currentSearchField);
+  }
+
+  if (currentSearchText) {
+    params.set('searchText', currentSearchText);
+  }
+
+  // Redirect
+  url.search = params.toString();
+  window.location.href = url.toString();
+}
+
+// Handle page size change
+if (pageSizeSelect) {
+  pageSizeSelect.addEventListener('change', function() {
+    if (this.value && this.value !== 'Lines per page') {
+      const newPageSize = parseInt(this.value);
+      applyPagination(1, newPageSize); // Reset to page 1 when changing page size
+    }
+  });
+}
+
+// Handle previous page button
+if (prevPageButton) {
+  prevPageButton.addEventListener('click', function() {
+    if (currentPage > 1) {
+      applyPagination(currentPage - 1);
+    }
+  });
+}
+
+// Handle next page button
+if (nextPageButton) {
+  nextPageButton.addEventListener('click', function() {
+    if (currentPage < totalPages) {
+      applyPagination(currentPage + 1);
+    }
+  });
+}
+
+// Checkbox selection functionality
+// Main checkbox to select/deselect all
+if (mainCheckbox) {
+  mainCheckbox.addEventListener('change', function() {
+    const isChecked = this.checked;
+
+    // Update all row checkboxes
+    rowCheckboxes.forEach(checkbox => {
+      checkbox.checked = isChecked;
+
+      // Get the row associated with this checkbox
+      const row = checkbox.closest('tr');
+      if (row) {
+        // Find the room ID from a data attribute we'll add
+        const roomId = row.getAttribute('data-room-id');
+
+        if (isChecked && roomId) {
+          // Add to selected rooms if not already there
+          if (!selectedRooms.includes(roomId)) {
+            selectedRooms.push(roomId);
+          }
+        } else if (roomId) {
+          // Remove from selected rooms
+          selectedRooms = selectedRooms.filter(id => id !== roomId);
+        }
+      }
+    });
+
+    // Update delete button state
+    updateDeleteButtonState();
+  });
+}
+
+// Individual checkbox selection
+rowCheckboxes.forEach(checkbox => {
+  checkbox.addEventListener('change', function() {
+    const row = this.closest('tr');
+    if (row) {
+      const roomId = row.getAttribute('data-room-id');
+
+      if (this.checked && roomId) {
+        // Add to selected rooms
+        if (!selectedRooms.includes(roomId)) {
+          selectedRooms.push(roomId);
+        }
+      } else if (roomId) {
+        // Remove from selected rooms
+        selectedRooms = selectedRooms.filter(id => id !== roomId);
+      }
+
+      // Check if all visible checkboxes are checked
+      const visibleRows = Array.from(roomRows).filter(r => r.style.display !== 'none');
+      const visibleCheckboxes = visibleRows.map(r => r.querySelector('input[type="checkbox"]'));
+      const allChecked = visibleCheckboxes.every(cb => cb.checked);
+
+      // Update main checkbox
+      if (mainCheckbox) {
+        mainCheckbox.checked = allChecked;
+      }
+    }
+
+    // Update delete button state
+    updateDeleteButtonState();
+  });
+});
+
+// Function to update delete button state
+function updateDeleteButtonState() {
+  if (deleteButton) {
+    if (selectedRooms.length > 0) {
+      deleteButton.disabled = false;
+      deleteButton.style.opacity = '1';
+      deleteButton.style.cursor = 'pointer';
+    } else {
+      deleteButton.disabled = true;
+      deleteButton.style.opacity = '0.5';
+      deleteButton.style.cursor = 'not-allowed';
+    }
+  }
+}
+
+// Handle delete button click
+if (deleteButton) {
+  // Initially disable delete button
+  deleteButton.disabled = true;
+  deleteButton.style.opacity = '0.5';
+  deleteButton.style.cursor = 'not-allowed';
+
+  deleteButton.addEventListener('click', function() {
+    if (selectedRooms.length > 0) {
+      // Show confirmation dialog
+      if (confirm(`Are you sure you want to delete ${selectedRooms.length} selected room(s)?`)) {
+        // Create a form to submit the delete request
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/delete-rooms';
+
+
+        // Add CSRF token if using Spring Security
+const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+
+if (csrfToken) {
+  const csrfInput = document.createElement('input');
+  csrfInput.type = 'hidden';
+  csrfInput.name = '_csrf';  // ✅ Đúng! Tên input phải là '_csrf'
+  csrfInput.value = csrfToken;
+  form.appendChild(csrfInput);
+}
+
+        // Add selected room IDs
+        selectedRooms.forEach(roomId => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'roomIds';
+          input.value = roomId;
+          form.appendChild(input);
+        });
+
+        // Submit the form
+        document.body.appendChild(form);
+        form.submit();
+      }
+    }
+  });
+}
+
+// Add room button click handler
+if (addRoomButton) {
+  addRoomButton.addEventListener('click', function() {
+    window.location.href = '/add-room';
+  });
+}
+
+// Make table rows clickable to edit
+roomRows.forEach(row => {
+  // Skip the empty result row if present
+  if (!row.querySelector('td[colspan]')) {
+    row.style.cursor = 'pointer';
+
+    // Add click event to the row (excluding the checkbox cell)
+    row.querySelectorAll('td:not(:first-child)').forEach(cell => {
+      cell.addEventListener('click', function() {
+        const roomId = row.getAttribute('data-room-id');
+        if (roomId) {
+          window.location.href = `/edit-room?id=${roomId}`;
+        }
+      });
+    });
+  }
+});
+
+// Initialize pagination on page load
+document.addEventListener('DOMContentLoaded', function() {
+  initializePagination();
+  updateDeleteButtonState();
+});
+</script>
+</body>
+</html>
