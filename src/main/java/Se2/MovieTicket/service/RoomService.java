@@ -1,6 +1,7 @@
 package Se2.MovieTicket.service;
 
 import Se2.MovieTicket.dto.RoomDTO;
+import Se2.MovieTicket.model.Cinema;
 import Se2.MovieTicket.model.Room;
 import Se2.MovieTicket.repository.RoomRepository;
 import Se2.MovieTicket.repository.SeatRepository;
@@ -8,6 +9,8 @@ import Se2.MovieTicket.repository.SeatStatusRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -15,10 +18,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -247,5 +247,114 @@ public class RoomService {
             // Re-throw the exception to be handled by the controller
             throw new Exception("Failed to save room: " + e.getMessage(), e);
         }
+    }
+
+    public Room saveRoomWhenEdit(Room room) throws Exception {
+        try {
+            // Validation can be added here if needed
+            if (room.getRoomName() == null || room.getRoomName().trim().isEmpty()) {
+                throw new Exception("Room name cannot be empty");
+            }
+
+            if (room.getCinema() == null || room.getCinema().getCinemaId() == null) {
+                throw new Exception("Cinema must be selected");
+            }
+
+            // Save the room to the database
+            return roomRepository.save(room);
+        } catch (Exception e) {
+            // You can log the exception here if needed
+            // logger.error("Error saving room: " + e.getMessage(), e);
+
+            // Re-throw the exception to be handled by the controller
+            throw new Exception("Failed to save room: " + e.getMessage(), e);
+        }
+    }
+
+    // Get all rooms with pagination directly from database
+    public Page<Room> getAllRoomsPaginated(Pageable pageable) {
+        return roomRepository.findAll(pageable);
+    }
+
+    // Search rooms by field with pagination
+    public Page<Room> searchRoomsByFieldPaginated(String searchField, String searchText, Pageable pageable) {
+        switch (searchField) {
+            case "roomName":
+                return roomRepository.findByRoomNameContainingPaginated(searchText, pageable);
+            case "cinema":
+                return roomRepository.findByCinemaNameContainingPaginated(searchText, pageable);
+            case "cinemaComplex":
+                return roomRepository.findByClusterNameContainingPaginated(searchText, pageable);
+            case "seats":
+                try {
+                    Long seatCount = Long.parseLong(searchText);
+                    return roomRepository.findBySeatCountPaginated(seatCount, pageable);
+                } catch (NumberFormatException ignored) {
+                    return roomRepository.findBySeatRowPaginated(searchText, pageable);
+                }
+            default:
+                return roomRepository.searchAllFieldsPaginated(searchText, pageable);
+        }
+    }
+
+    // Get seat counts for multiple rooms in a single query
+    public Map<Long, Long> getSeatCountsForRooms(List<Long> roomIds) {
+        if (roomIds.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        List<Object[]> results = roomRepository.countSeatsByRoomIds(roomIds);
+        Map<Long, Long> seatCounts = new HashMap<>();
+
+        for (Object[] result : results) {
+            Long roomId = (Long) result[0];
+            Long seatCount = (Long) result[1];
+            seatCounts.put(roomId, seatCount);
+        }
+
+        return seatCounts;
+    }
+
+    /**
+     * Get a room by ID with eager loading of necessary relations
+     * This optimizes the edit form by loading all required data in a single query
+     */
+    public Optional<Room> getRoomByIdWithDetails(Long id) {
+        return roomRepository.findByIdWithDetails(id);
+    }
+
+    /**
+     * Direct update method for room that focuses only on updatable fields
+     * to avoid unnecessary database operations
+     */
+    @Transactional
+    public Room updateRoomDirect(Room room) throws Exception {
+        if (room.getRoomName() == null || room.getRoomName().trim().isEmpty()) {
+            throw new Exception("Room name cannot be empty");
+        }
+
+        if (room.getCinema() == null || room.getCinema().getCinemaId() == null) {
+            throw new Exception("Cinema must be selected");
+        }
+
+        // Get the existing room to avoid loading all relationships
+        Optional<Room> existingRoomOpt = roomRepository.findById(room.getRoomId());
+        if (existingRoomOpt.isEmpty()) {
+            throw new Exception("Room not found");
+        }
+
+        Room existingRoom = existingRoomOpt.get();
+
+        // Only update the fields that can change to avoid unnecessary updates
+        existingRoom.setRoomName(room.getRoomName());
+
+        // Only update cinema if it actually changed
+        if (!existingRoom.getCinema().getCinemaId().equals(room.getCinema().getCinemaId())) {
+            // Get cinema reference without loading all of its data
+            Cinema cinema = em.getReference(Cinema.class, room.getCinema().getCinemaId());
+            existingRoom.setCinema(cinema);
+        }
+
+        return roomRepository.save(existingRoom);
     }
 }

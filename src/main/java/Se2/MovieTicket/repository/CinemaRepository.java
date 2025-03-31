@@ -33,4 +33,10 @@ public interface CinemaRepository extends JpaRepository<Cinema, Long> {
 
     @Query("SELECT c FROM Cinema c WHERE c.region.regionId = :regionId")
     List<Cinema> findByRegionId(@Param("regionId") Long regionId);
+
+    /**
+     * Get only necessary cinema fields for dropdowns
+     */
+    @Query("SELECT new Cinema(c.cinemaId, c.cinemaName) FROM Cinema c ORDER BY c.cinemaName")
+    List<Cinema> findAllBasicInfo();
 }

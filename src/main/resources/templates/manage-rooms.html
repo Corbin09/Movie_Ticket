@@ -236,7 +236,83 @@
         padding: 0.5rem;
         border-radius: 0.25rem;
     }
+/* Delete Modal Styles */
+  .delete-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
 
+  .delete-modal-content {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    max-width: 450px;
+    width: 100%;
+    text-align: center;
+    margin: auto;
+  }
+
+  .delete-modal-icon {
+    font-size: 60px;
+    color: #DC2626;
+    margin-bottom: 10px;
+  }
+
+  .delete-modal-title {
+    color: #DC2626;
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  .delete-modal-message {
+    color: #DC2626;
+    margin-bottom: 15px;
+  }
+
+  .delete-modal-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+  }
+
+  .delete-modal-btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    text-align: center;
+    display: inline-block;
+    width: 120px;
+    cursor: pointer;
+    border: none;
+  }
+
+  .delete-modal-cancel {
+    background-color: #DC2626;
+    color: white;
+  }
+
+  .delete-modal-cancel:hover {
+    background-color: #B91C1C;
+  }
+
+  .delete-modal-proceed {
+    background-color: #10B981;
+    color: white;
+  }
+
+  .delete-modal-proceed:hover {
+    background-color: #059669;
+  }
     /* Responsive Design */
     @media (max-width: 1024px) {
         .container-room-management {
@@ -271,6 +347,103 @@
             gap: 1rem;
         }
     }
+    .success-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+.success-modal-content {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  margin: auto;
+}
+
+.success-modal-icon img {
+  border-radius: 30px;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 15px;
+}
+
+.success-modal-title {
+  color: #16a34a; /* Green-600 */
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.success-modal-message {
+  color: #4b5563; /* Gray-600 */
+  margin-bottom: 20px;
+}
+
+.success-modal-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.success-modal-btn {
+  display: block;
+  width: 95%;
+  text-align: center;
+  padding: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 10px; text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.success-modal-list {
+  background-color: #22c55e; /* Green-500 */
+  color: white;
+}
+
+.success-modal-list:hover {
+  background-color: #16a34a; /* Darker Green */
+}
+
+.success-modal-dashboard {
+  background-color: #e5e7eb; /* Gray-200 */
+  color: #374151; /* Gray-700 */
+}
+
+.success-modal-dashboard:hover {
+  background-color: #d1d5db; /* Darker Gray */
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .success-modal-content {
+    padding: 15px;
+  }
+
+  .success-modal-title {
+    font-size: 1.3rem;
+  }
+
+  .success-modal-btn {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+}
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
@@ -756,6 +929,96 @@ function updateDeleteButtonState() {
   }
 }
 
+// Function to show the delete modal
+function showDeleteModal() {
+  const modal = document.getElementById('deleteModal');
+  modal.style.display = 'flex';
+
+  // Update the message with the number of selected rooms
+  const messageElement = document.querySelector('.delete-modal-message');
+  messageElement.textContent = `Are you sure you want to delete ${selectedRooms.length} selected room(s)? This action cannot be undone.`;
+}
+
+// Function to hide the delete modal
+function hideDeleteModal() {
+  const modal = document.getElementById('deleteModal');
+  modal.style.display = 'none';
+}
+
+// Function to handle the delete action
+// Function to show the success modal
+function showSuccessModal() {
+  const modal = document.getElementById('successModal');
+  modal.style.display = 'flex';
+}
+
+// Function to handle the delete action
+function performDelete() {
+  if (selectedRooms.length > 0) {
+    // Create a form to submit the delete request
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/delete-rooms';
+
+    // Add CSRF token if using Spring Security
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+
+    if (csrfToken) {
+      const csrfInput = document.createElement('input');
+      csrfInput.type = 'hidden';
+      csrfInput.name = '_csrf';
+      csrfInput.value = csrfToken;
+      form.appendChild(csrfInput);
+    }
+
+    // Add selected room IDs
+    selectedRooms.forEach(roomId => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'roomIds';
+      input.value = roomId;
+      form.appendChild(input);
+    });
+
+    // Instead of submitting the form directly, use fetch to handle the response
+    const formData = new FormData(form);
+
+    fetch('/delete-rooms', {
+      method: 'POST',
+      body: formData,
+      headers: csrfToken ? {
+        [document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content')]: csrfToken
+      } : {}
+    })
+    .then(response => {
+      if (response.ok) {
+        // Hide delete modal
+        hideDeleteModal();
+
+        // Show success modal
+        showSuccessModal();
+
+        // Update the success message to reflect the number of rooms deleted
+        const messageElement = document.querySelector('.success-modal-message');
+        messageElement.textContent = `Success! ${selectedRooms.length} room(s) has been deleted successfully.`;
+
+        // Clear the selected rooms array
+        selectedRooms = [];
+
+        // Update delete button state
+        updateDeleteButtonState();
+      } else {
+        // Handle error (optional)
+        alert('Error deleting rooms. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while deleting rooms.');
+    });
+  }
+}
+
 // Handle delete button click
 if (deleteButton) {
   // Initially disable delete button
@@ -765,38 +1028,8 @@ if (deleteButton) {
 
   deleteButton.addEventListener('click', function() {
     if (selectedRooms.length > 0) {
-      // Show confirmation dialog
-      if (confirm(`Are you sure you want to delete ${selectedRooms.length} selected room(s)?`)) {
-        // Create a form to submit the delete request
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/delete-rooms';
-
-
-        // Add CSRF token if using Spring Security
-const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
-
-if (csrfToken) {
-  const csrfInput = document.createElement('input');
-  csrfInput.type = 'hidden';
-  csrfInput.name = '_csrf';  // ✅ Đúng! Tên input phải là '_csrf'
-  csrfInput.value = csrfToken;
-  form.appendChild(csrfInput);
-}
-
-        // Add selected room IDs
-        selectedRooms.forEach(roomId => {
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = 'roomIds';
-          input.value = roomId;
-          form.appendChild(input);
-        });
-
-        // Submit the form
-        document.body.appendChild(form);
-        form.submit();
-      }
+      // Show custom delete modal instead of confirm dialog
+      showDeleteModal();
     }
   });
 }
@@ -830,7 +1063,52 @@ roomRows.forEach(row => {
 document.addEventListener('DOMContentLoaded', function() {
   initializePagination();
   updateDeleteButtonState();
+
+  // Add event listeners for modal buttons
+  const cancelButton = document.querySelector('.delete-modal-cancel');
+  if (cancelButton) {
+    cancelButton.addEventListener('click', hideDeleteModal);
+  }
+
+  const proceedButton = document.querySelector('.delete-modal-proceed');
+  if (proceedButton) {
+    proceedButton.addEventListener('click', function() {
+      performDelete();
+      // Don't hide delete modal here as we'll do that after successful deletion
+    });
+  }
 });
 </script>
 </body>
+
+
+<!-- Add this modal HTML right before the closing </body> tag -->
+<div id="deleteModal" class="delete-modal">
+  <div class="delete-modal-content">
+    <div class="delete-modal-icon">
+      <i class="fas fa-exclamation-circle"></i>
+    </div>
+    <h2 class="delete-modal-title">Warning</h2>
+    <p class="delete-modal-message">This action cannot be undone. Do you really want to proceed?</p>
+    <div class="delete-modal-buttons">
+      <button class="delete-modal-btn delete-modal-cancel">Cancel</button>
+      <button class="delete-modal-btn delete-modal-proceed">Proceed</button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="success-modal">
+  <div class="success-modal-content">
+    <div class="success-modal-icon">
+      <img src="https://storage.googleapis.com/a1aa/image/c8vfCnEspzOX5ov3dX65vYIGGEdnELte-7GoPt4L-YI.jpg" alt="Success" />
+    </div>
+    <h2 class="success-modal-title">Delete Success!</h2>
+    <p class="success-modal-message">Success! Room has been deleted successfully.</p>
+    <div class="success-modal-buttons">
+      <a th:href="@{/manage-rooms}" class="success-modal-btn success-modal-list">Go to Room List</a>
+      <a th:href="@{/admin-dashboard}" class="success-modal-btn success-modal-dashboard">Back to Dashboard</a>
+    </div>
+  </div>
+</div>
 </html>

@@ -275,4 +275,12 @@ public class CinemaService {
 
         return cinemaDTO;
     }
+
+    /**
+     * Get only basic cinema information for dropdowns
+     * This avoids loading unnecessary data
+     */
+    public List<Cinema> getCinemasBasicInfo() {
+        return cinemaRepository.findAllBasicInfo();
+    }
 }

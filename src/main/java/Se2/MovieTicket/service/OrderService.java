@@ -50,224 +50,163 @@ public class OrderService {
         orderRepository.deleteById(id);
     }
 
-    /**
-     * Universal search method that searches across all relevant fields without requiring a specific searchBy parameter
-     * @param search The search term
-     * @param filterBy Optional filter that will be applied along with the search
-     * @return List of Orders matching the search criteria
-     */
-    public List<Order> searchOrders(String search, String filterBy) {
-        if (search == null || search.trim().isEmpty()) {
-            return filterBy != null && !filterBy.trim().isEmpty()
-                    ? filterOrders(filterBy)
-                    : orderRepository.findAllWithDetails();
+
+    public List<Order> searchOrdersByCriteria(String criteria, String query) {
+        List<Order> allOrders = orderRepository.findAllWithDetails();
+
+        // If query is empty, return all orders when a criteria is selected
+        if (query == null || query.isEmpty()) {
+            return allOrders;
         }
 
-        // Get base list of orders (either all or filtered)
-        List<Order> baseOrders = filterBy != null && !filterBy.trim().isEmpty()
-                ? filterOrders(filterBy)
-                : orderRepository.findAllWithDetails();
+        List<Order> filteredOrders = new ArrayList<>();
 
-        // Try to search by orderId if search is a number
-        try {
-            Long orderId = Long.parseLong(search);
-            Optional<Order> orderOpt = orderRepository.findById(orderId);
-            if (orderOpt.isPresent() && baseOrders.contains(orderOpt.get())) {
-                return List.of(orderOpt.get());
-            }
-        } catch (NumberFormatException e) {
-            // Not a number, continue with other search methods
-        }
-
-        // Try to parse search as date
-        Date searchDate = null;
-        try {
-            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-            searchDate = formatter.parse(search);
-        } catch (ParseException e) {
-            // Not a valid date format, continue with other search methods
-        }
-
-        final Date finalSearchDate = searchDate;
-        String searchLower = search.toLowerCase();
-
-        // Search across all relevant fields
-        return baseOrders.stream()
-                .filter(order -> {
-                    // Check order ID as string
-                    if (order.getOrderId() != null && order.getOrderId().toString().contains(search)) {
-                        return true;
+        switch (criteria.toLowerCase()) {
+            case "user":
+                // Filter by username
+                for (Order order : allOrders) {
+                    if (order.getUser() != null &&
+                            order.getUser().getUsername() != null &&
+                            order.getUser().getUsername().toLowerCase().contains(query.toLowerCase())) {
+                        filteredOrders.add(order);
                     }
+                }
+                break;
 
-                    // Check username
-                    if (order.getUser() != null && order.getUser().getUsername() != null
-                            && order.getUser().getUsername().toLowerCase().contains(searchLower)) {
-                        return true;
+            case "movie":
+                // Filter by movie name
+                for (Order order : allOrders) {
+                    if (order.getShowtime() != null &&
+                            order.getShowtime().getFilm() != null &&
+                            order.getShowtime().getFilm().getFilmName() != null &&
+                            order.getShowtime().getFilm().getFilmName().toLowerCase().contains(query.toLowerCase())) {
+                        filteredOrders.add(order);
                     }
+                }
+                break;
 
-                    // Check film name
-                    if (order.getShowtime() != null && order.getShowtime().getFilm() != null
-                            && order.getShowtime().getFilm().getFilmName() != null
-                            && order.getShowtime().getFilm().getFilmName().toLowerCase().contains(searchLower)) {
-                        return true;
+            case "theater":
+                // Filter by theater name
+                for (Order order : allOrders) {
+                    if (order.getShowtime() != null &&
+                            order.getShowtime().getCinema() != null &&
+                            order.getShowtime().getCinema().getCinemaName() != null &&
+                            order.getShowtime().getCinema().getCinemaName().toLowerCase().contains(query.toLowerCase())) {
+                        filteredOrders.add(order);
                     }
+                }
+                break;
 
-                    // Check cinema name
-                    if (order.getShowtime() != null && order.getShowtime().getCinema() != null
-                            && order.getShowtime().getCinema().getCinemaName() != null
-                            && order.getShowtime().getCinema().getCinemaName().toLowerCase().contains(searchLower)) {
-                        return true;
+            case "room":
+                // Filter by room number
+                for (Order order : allOrders) {
+                    if (order.getShowtime() != null &&
+                            order.getShowtime().getRoom() != null &&
+                            order.getShowtime().getRoom().getRoomName() != null &&
+                            order.getShowtime().getRoom().getRoomName().toLowerCase().contains(query.toLowerCase())) {
+                        filteredOrders.add(order);
                     }
+                }
+                break;
 
-                    // Check room name
-                    if (order.getShowtime() != null && order.getShowtime().getRoom() != null
-                            && order.getShowtime().getRoom().getRoomName() != null
-                            && order.getShowtime().getRoom().getRoomName().toLowerCase().contains(searchLower)) {
-                        return true;
+            case "showdate":
+                // Filter by show date (needs date validation)
+                try {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                    Date searchDate = dateFormat.parse(query);
+
+                    for (Order order : allOrders) {
+                        if (order.getShowtime() != null &&
+                                order.getShowtime().getShowDate() != null) {
+
+                            Date showDate = order.getShowtime().getShowDate();
+                            Calendar cal1 = Calendar.getInstance();
+                            Calendar cal2 = Calendar.getInstance();
+                            cal1.setTime(searchDate);
+                            cal2.setTime(showDate);
+
+                            if (cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) &&
+                                    cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)) {
+                                filteredOrders.add(order);
+                            }
+                        }
                     }
+                } catch (ParseException e) {
+                    // If date parsing fails, return an empty list
+                    return new ArrayList<>();
+                }
+                break;
 
-                    // Check showtime
-                    if (order.getShowtime() != null && order.getShowtime().getShowTime() != null
-                            && order.getShowtime().getShowTime().toString().toLowerCase().contains(searchLower)) {
-                        return true;
+            case "ordervalue":
+                // Filter by order value (needs numeric validation)
+                try {
+                    Double searchValue = Double.parseDouble(query);
+
+                    for (Order order : allOrders) {
+                        if (order.getTotalPrice() != null &&
+                                Math.abs(order.getTotalPrice() - searchValue) < 0.01) {
+                            filteredOrders.add(order);
+                        }
                     }
+                } catch (NumberFormatException e) {
+                    // If number parsing fails, return an empty list
+                    return new ArrayList<>();
+                }
+                break;
 
-                    // Check order date
-                    if (finalSearchDate != null && order.getOrderDate() != null) {
-                        Calendar cal1 = Calendar.getInstance();
-                        Calendar cal2 = Calendar.getInstance();
-                        cal1.setTime(finalSearchDate);
-                        cal2.setTime(order.getOrderDate());
+            case "orderdate":
+                // Filter by order date (needs date validation)
+                try {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                    Date searchDate = dateFormat.parse(query);
 
-                        return cal1.get(Calendar.DAY_OF_MONTH) == cal2.get(Calendar.DAY_OF_MONTH)
-                                && cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH)
-                                && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR);
+                    for (Order order : allOrders) {
+                        if (order.getOrderDate() != null) {
+                            Date orderDate = order.getOrderDate();
+                            Calendar cal1 = Calendar.getInstance();
+                            Calendar cal2 = Calendar.getInstance();
+                            cal1.setTime(searchDate);
+                            cal2.setTime(orderDate);
+
+                            if (cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) &&
+                                    cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)) {
+                                filteredOrders.add(order);
+                            }
+                        }
                     }
+                } catch (ParseException e) {
+                    // If date parsing fails, return an empty list
+                    return new ArrayList<>();
+                }
+                break;
 
-                    return false;
-                })
-                .collect(Collectors.toList());
-    }
+            case "ordercode":
+                // Filter by order ID
+                try {
+                    Long searchId = Long.parseLong(query);
 
-    public List<Order> filterOrders(String filterBy) {
-        if (filterBy == null || filterBy.trim().isEmpty() || filterBy.equalsIgnoreCase("all")) {
-            return orderRepository.findAllWithDetails();
-        }
-
-        switch (filterBy.toLowerCase()) {
-            case "today":
-                // Filter orders for today
-                Date today = new Date();
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(today);
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                Date startOfDay = cal.getTime();
-
-                cal.set(Calendar.HOUR_OF_DAY, 23);
-                cal.set(Calendar.MINUTE, 59);
-                cal.set(Calendar.SECOND, 59);
-                Date endOfDay = cal.getTime();
-
-                return orderRepository.findByOrderDateBetween(startOfDay, endOfDay);
-
-            case "yesterday":
-                // Filter orders from yesterday
-                Calendar calYest = Calendar.getInstance();
-                calYest.add(Calendar.DATE, -1);
-                calYest.set(Calendar.HOUR_OF_DAY, 0);
-                calYest.set(Calendar.MINUTE, 0);
-                calYest.set(Calendar.SECOND, 0);
-                Date startOfYesterday = calYest.getTime();
-
-                calYest.set(Calendar.HOUR_OF_DAY, 23);
-                calYest.set(Calendar.MINUTE, 59);
-                calYest.set(Calendar.SECOND, 59);
-                Date endOfYesterday = calYest.getTime();
-
-                return orderRepository.findByOrderDateBetween(startOfYesterday, endOfYesterday);
-
-            case "this_week":
-                // Filter orders for this week
-                Calendar calWeek = Calendar.getInstance();
-                calWeek.setFirstDayOfWeek(Calendar.MONDAY);
-                calWeek.set(Calendar.DAY_OF_WEEK, calWeek.getFirstDayOfWeek());
-                calWeek.set(Calendar.HOUR_OF_DAY, 0);
-                calWeek.set(Calendar.MINUTE, 0);
-                calWeek.set(Calendar.SECOND, 0);
-                Date startOfWeek = calWeek.getTime();
-
-                calWeek.add(Calendar.DAY_OF_WEEK, 6);
-                calWeek.set(Calendar.HOUR_OF_DAY, 23);
-                calWeek.set(Calendar.MINUTE, 59);
-                calWeek.set(Calendar.SECOND, 59);
-                Date endOfWeek = calWeek.getTime();
-
-                return orderRepository.findByOrderDateBetween(startOfWeek, endOfWeek);
-
-            case "this_month":
-                // Filter orders for this month
-                Calendar calMonth = Calendar.getInstance();
-                calMonth.set(Calendar.DAY_OF_MONTH, 1);
-                calMonth.set(Calendar.HOUR_OF_DAY, 0);
-                calMonth.set(Calendar.MINUTE, 0);
-                calMonth.set(Calendar.SECOND, 0);
-                Date startOfMonth = calMonth.getTime();
-
-                calMonth.add(Calendar.MONTH, 1);
-                calMonth.add(Calendar.DAY_OF_MONTH, -1);
-                calMonth.set(Calendar.HOUR_OF_DAY, 23);
-                calMonth.set(Calendar.MINUTE, 59);
-                calMonth.set(Calendar.SECOND, 59);
-                Date endOfMonth = calMonth.getTime();
-
-                return orderRepository.findByOrderDateBetween(startOfMonth, endOfMonth);
-
-            case "this_year":
-                // Filter orders for this year
-                Calendar calYear = Calendar.getInstance();
-                calYear.set(Calendar.DAY_OF_YEAR, 1);
-                calYear.set(Calendar.HOUR_OF_DAY, 0);
-                calYear.set(Calendar.MINUTE, 0);
-                calYear.set(Calendar.SECOND, 0);
-                Date startOfYear = calYear.getTime();
-
-                calYear.add(Calendar.YEAR, 1);
-                calYear.add(Calendar.DAY_OF_YEAR, -1);
-                calYear.set(Calendar.HOUR_OF_DAY, 23);
-                calYear.set(Calendar.MINUTE, 59);
-                calYear.set(Calendar.SECOND, 59);
-                Date endOfYear = calYear.getTime();
-
-                return orderRepository.findByOrderDateBetween(startOfYear, endOfYear);
-
-            case "price_asc":
-                // Sort orders by price ascending
-                return orderRepository.findAllWithDetails().stream()
-                        .sorted(Comparator.comparing(Order::getTotalPrice))
-                        .collect(Collectors.toList());
-
-            case "price_desc":
-                // Sort orders by price descending
-                return orderRepository.findAllWithDetails().stream()
-                        .sorted(Comparator.comparing(Order::getTotalPrice).reversed())
-                        .collect(Collectors.toList());
-
-            case "date_asc":
-                // Sort orders by date ascending
-                return orderRepository.findAllWithDetails().stream()
-                        .sorted(Comparator.comparing(Order::getOrderDate))
-                        .collect(Collectors.toList());
-
-            case "date_desc":
-                // Sort orders by date descending
-                return orderRepository.findAllWithDetails().stream()
-                        .sorted(Comparator.comparing(Order::getOrderDate).reversed())
-                        .collect(Collectors.toList());
+                    for (Order order : allOrders) {
+                        if (order.getOrderId() != null &&
+                                order.getOrderId().equals(searchId)) {
+                            filteredOrders.add(order);
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    // If we can't parse as a number, try searching order ID as a string
+                    for (Order order : allOrders) {
+                        if (order.getOrderId() != null &&
+                                order.getOrderId().toString().contains(query)) {
+                            filteredOrders.add(order);
+                        }
+                    }
+                }
+                break;
 
             default:
-                return orderRepository.findAllWithDetails();
+                // If no valid criteria is provided, return all orders
+                return allOrders;
         }
+
+        return filteredOrders;
     }
 }

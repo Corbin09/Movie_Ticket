@@ -46,7 +46,11 @@ public class Cinema {
     @JoinColumn(name = "region_id") // Thêm ánh xạ đến Region
     @JsonBackReference
     private Region region;
-
+    // Add to Cinema class if not already present
+    public Cinema(Long cinemaId, String cinemaName) {
+        this.cinemaId = cinemaId;
+        this.cinemaName = cinemaName;
+    }
     public Long getCinemaId() {
         return cinemaId;
     }
