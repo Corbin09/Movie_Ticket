@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cinema Profile</title>
+    <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: 'Roboto', sans-serif;
+        }
+        body {
+          background-color: #0f1c12;
+          color: white;
+        }
+        .profile-container {
+          max-width: 900px;
+          margin: 0 auto;
+        }
+        .profile-banner {
+          position: relative;
+          width: 100%;
+          height: 240px;
+          background-image: url('/images/moviebanner.jpeg');
+          background-size: cover;
+          background-position: center;
+          display: flex;
+          align-items: flex-end;
+          padding: 20px;
+        }
+        .profile-banner::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+          background: linear-gradient(to bottom, rgba(15, 28, 18, 0.2), rgba(15, 28, 18, 0.8));
+        }
+        .profile-info {
+          position: relative;
+          z-index: 2;
+          display: flex;
+          align-items: center;
+          gap: 20px;
+        }
+        .profile-avatar {
+          width: 120px;
+          height: 120px;
+          border-radius: 50%;
+          overflow: hidden;
+          border: 4px solid #fff;
+        }
+        .profile-avatar img {
+          width: 100%; height: 100%;
+          object-fit: cover;
+        }
+        .profile-name {
+          font-size: 32px;
+          font-weight: 500;
+          color: #fff;
+        }
+        .profile-tabs {
+          display: flex;
+          background-color: #fff;
+          border-bottom: 1px solid #eaeaea;
+        }
+        .tab-button {
+          padding: 16px 20px;
+          background: none;
+          border: none;
+          font-size: 16px;
+          font-weight: 500;
+          color: #333;
+          cursor: pointer;
+          transition: color 0.2s;
+        }
+        .tab-button:hover {
+          color: #23ad4c;
+        }
+        .tab-button.active {
+          color: #23ad4c;
+          border-bottom: 2px solid #23ad4c;
+        }
+        .profile-content {
+          min-height: 400px;
+          padding: 30px;
+          background-color: #fff;
+          color: #333;
+        }
+
+        /* Create Post Form Styles */
+        .create-post-form {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .form-group label {
+          font-weight: 500;
+          color: #333;
+        }
+        .form-group input[type="text"],
+        .form-group textarea {
+          padding: 12px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-size: 16px;
+        }
+        .form-group textarea {
+          min-height: 150px;
+          resize: vertical;
+        }
+        .file-upload {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .file-preview {
+          width: 100%;
+          max-height: 200px;
+          border: 1px dashed #ccc;
+          border-radius: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+        }
+        .file-preview img {
+          max-width: 100%;
+          max-height: 100%;
+          object-fit: contain;
+        }
+        .post-button {
+          background-color: #23ad4c;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          padding: 12px 24px;
+          font-size: 16px;
+          font-weight: 500;
+          cursor: pointer;
+          align-self: flex-start;
+          transition: background-color 0.2s;
+        }
+        .post-button:hover {
+          background-color: #1c8c3d;
+        }
+
+        /* Table Styles for Lists */
+        .data-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 20px;
+        }
+        .data-table th,
+        .data-table td {
+          padding: 12px 16px;
+          text-align: left;
+          border-bottom: 1px solid #eee;
+        }
+        .data-table th {
+          background-color: #f8f8f8;
+          font-weight: 500;
+        }
+        .data-table tr:hover {
+          background-color: #f5f5f5;
+        }
+        .checkbox-cell {
+          width: 40px;
+          text-align: center;
+        }
+        .action-cell {
+          width: 100px;
+          text-align: right;
+        }
+
+        /* Tab Content Display */
+        .tab-content {
+          display: none;
+        }
+        .tab-content.active {
+          display: block;
+        }
+
+        /* Section Header */
+        .section-header {
+          font-size: 32px;
+          margin-bottom: 15px;
+          font-weight: normal;
+        }
+
+        /* Tickets Booked Styles */
+        #tickets-booked .data-table {
+          width: 100%;
+        }
+
+        /* Action Cell Button Styles */
+        .action-cell button {
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 5px;
+          color: #333;
+          border-radius: 4px;
+          transition: background-color 0.2s;
+        }
+
+        .action-cell button:hover {
+          background-color: #f0f0f0;
+          color: #ee6b6e;
+        }
+
+        .checkbox-cell input[type="checkbox"] {
+          width: 18px;
+          height: 18px;
+          cursor: pointer;
+        }
+
+        /* Delete icon styling */
+        .delete-icon {
+          cursor: pointer;
+          color: #666;
+          transition: color 0.2s;
+        }
+
+        .delete-icon:hover {
+          color: #ee6b6e;
+        }
+
+        /* Additional styles to match the image */
+        .table-container {
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .data-table tr:last-child td {
+          border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+<div class="profile-container">
+    <div class="profile-banner">
+        <div class="profile-info">
+            <div class="profile-avatar">
+                <img th:src="@{/images/avt.png}" alt="Profile Avatar">
+            </div>
+            <h1 class="profile-name" th:text="${user.username}">Phan Thuy Ngan</h1>
+        </div>
+    </div>
+    <div class="profile-tabs">
+        <button class="tab-button active" data-tab="create-post">Create Post</button>
+        <button class="tab-button" data-tab="posts-written">Post Written</button>
+        <button class="tab-button" data-tab="tickets-booked">Tickets Booked</button>
+        <button class="tab-button" data-tab="liked-movies">Liked Movies</button>
+    </div>
+    <div class="profile-content">
+        <!-- Create Post Tab Content -->
+        <div id="create-post" class="tab-content active">
+            <form class="create-post-form" th:action="@{/api/news}" method="post" th:object="${news}" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="postTitle">Post Title</label>
+                    <input type="text" id="postTitle" th:field="*{newsHeader}" placeholder="Enter a title for your post" required>
+                </div>
+                <div class="form-group">
+                    <label for="postContent">Content</label>
+                    <textarea id="postContent" th:field="*{newsContent}" placeholder="Write your post content here..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="postFooter">Footer</label>
+                    <input type="text" id="postFooter" th:field="*{newsFooter}" placeholder="Add a footer (optional)">
+                </div>
+                <div class="form-group">
+                    <label>Upload Image</label>
+                    <div class="file-upload">
+                        <input type="file" id="postImage" name="newsImgFile" accept="image/*">
+                        <div class="file-preview" id="imagePreview"></div>
+                    </div>
+                </div>
+                <input type="hidden" th:field="*{newsTime}" th:value="${#dates.createNow()}" />
+                <button type="submit" class="post-button">Post</button>
+            </form>
+        </div>
+
+        <!-- Posts Written Tab Content -->
+        <div id="posts-written" class="tab-content">
+            <h2 class="section-header">Your Posts</h2>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th class="checkbox-cell"><input type="checkbox" id="selectAllPosts"></th>
+                        <th>Film Title</th>
+                        <th>Post Date</th>
+                        <th class="action-cell">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="post : ${userPosts}">
+                        <td class="checkbox-cell"><input type="checkbox" class="post-checkbox" th:value="${post.newsId}"></td>
+                        <td th:text="${post.newsHeader}">Film Title</td>
+                        <td th:text="${#dates.format(post.newsTime, 'dd-MM-yyyy')}">Post Date</td>
+                        <td class="action-cell">
+                            <form th:action="@{/api/news/{id}(id=${post.newsId})}" method="post" th:method="delete">
+                                <button type="submit" aria-label="Delete post" class="delete-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tickets Booked Tab Content -->
+        <div id="tickets-booked" class="tab-content">
+            <h2 class="section-header">Your Booked Tickets</h2>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Film</th>
+                        <th>Order Date</th>
+                        <th>Seat</th>
+                        <th>Price</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="ticket : ${userTickets}">
+                        <td th:text="${ticket.ticketId}">Ticket ID</td>
+                        <td th:text="${ticket.order.showtime.film.filmName}">Film Title</td>
+                        <td th:text="${#dates.format(ticket.order.orderDate, 'dd-MM-yyyy')}">Order Date</td>
+                        <td th:text="${ticket.seat.seatName}">Seat</td>
+                        <td th:text="'$' + ${#numbers.formatDecimal(ticket.ticketPrice, 1, 2)}">Price</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Liked Movies Tab Content -->
+        <div id="liked-movies" class="tab-content">
+            <h2 class="section-header">Your Liked Movies</h2>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th class="checkbox-cell"><input type="checkbox" id="selectAllLikes"></th>
+                        <th>Film Title</th>
+                        <th class="action-cell">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="film : ${likedFilms}">
+                        <td class="checkbox-cell"><input type="checkbox" class="like-checkbox" th:value="${film.filmId}"></td>
+                        <td th:text="${film.filmName}">Film Title</td>
+                        <td class="action-cell">
+                            <form th:action="@{/api/user/unlike-film/{id}(id=${film.filmId})}" method="post" th:method="delete">
+                                <button type="submit" aria-label="Unlike movie" class="delete-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // Tab switching functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const tabButtons = document.querySelectorAll('.tab-button');
+      const tabContents = document.querySelectorAll('.tab-content');
+
+      tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // Remove active class from all buttons and contents
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          tabContents.forEach(content => content.classList.remove('active'));
+
+          // Add active class to clicked button
+          this.classList.add('active');
+
+          // Show the corresponding content
+          const tabId = this.getAttribute('data-tab');
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
+
+      // Image preview functionality
+      const postImageInput = document.getElementById('postImage');
+      const imagePreview = document.getElementById('imagePreview');
+
+      postImageInput.addEventListener('change', function(event) {
+        if (event.target.files.length > 0) {
+          const file = event.target.files[0];
+          const imageUrl = URL.createObjectURL(file);
+
+          const img = document.createElement('img');
+          img.src = imageUrl;
+
+          imagePreview.innerHTML = '';
+          imagePreview.appendChild(img);
+        }
+      });
+
+      // Handle "Select All" checkboxes
+      document.getElementById('selectAllPosts').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.post-checkbox');
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = this.checked;
+        });
+      });
+
+      document.getElementById('selectAllLikes').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.like-checkbox');
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = this.checked;
+        });
+      });
+    });
+</script>
+</body>
+</html>
