@@ -84,7 +84,7 @@
             </div>
 
             <div class="showtime-slots">
-                <form th:each="showtime : ${cinema.showtimes}" th:action="@{/booking}" method="GET" class="time-slot-form">
+                <form th:each="showtime : ${cinema.showtimes}" th:action="@{/pick-seat}" method="GET" class="time-slot-form">
                     <input type="hidden" name="filmId" th:value="${film.filmId}">
                     <input type="hidden" name="cinemaId" th:value="${cinema.cinemaId}">
                     <input type="hidden" name="showtimeId" th:value="${showtime.showtimeId}">
@@ -258,7 +258,7 @@
 
                 cinema.showtimes.forEach(showtime => {
                     html += `
-                    <form action="/booking" method="GET" class="time-slot-form">
+                    <form action="/pick-seat" method="GET" class="time-slot-form">
                         <input type="hidden" name="filmId" value="${filmId}">
                         <input type="hidden" name="cinemaId" value="${cinema.cinemaId}">
                         <input type="hidden" name="showtimeId" value="${showtime.showtimeId}">
@@ -374,6 +374,37 @@ function selectDate(dayElement) {
         console.log("Showtime ID:", form.querySelector('input[name="showtimeId"]').value);
         console.log("Selected Date:", form.querySelector('input[name="selectedDate"]').value);
     });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    // Lấy tham số date từ URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedDate = urlParams.get('date');
+
+    // Nếu có tham số date trong URL
+    if (selectedDate) {
+        // Format lại date để so sánh (nếu cần)
+        // Ví dụ: từ 2025-06-25 thành 25/06/2025 nếu format hiển thị khác với format URL
+
+        // Tìm tất cả các phần tử ngày (giả sử class là 'date-option')
+        const dateElements = document.querySelectorAll('.day');
+
+        dateElements.forEach(dateElement => {
+            // Lấy giá trị date từ thuộc tính data-date
+            const dateValue = dateElement.getAttribute('data-date');
+
+            // Nếu date này trùng với selectedDate từ URL
+            if (dateValue === selectedDate) {
+                // Thêm class selected hoặc active
+                dateElement.classList.add('selected');
+                // Hoặc set style trực tiếp nếu cần
+                dateElement.style.backgroundColor = '#00a755';
+                dateElement.style.color = 'white';
+            }
+        });
+    }
+});
 </script>
 </body>
 </html>

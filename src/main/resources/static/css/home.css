@@ -179,7 +179,7 @@ html {
             display: flex;
             justify-content: space-between;
             font-size: 14px;
-            color: #8f9c98;
+            color: #8f9c98; flex-direction: column;
         }
 
         .movie-title {

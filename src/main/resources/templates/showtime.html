@@ -396,7 +396,8 @@ display: flex; flex-direction: row;}
                     <div class="movie-details">
                         <div class="movie-metadata">
                             <div class="metadata-row">
-                                <div class="movie-genre" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? film.categoryNames.get(0) : 'N/A'}"></div>
+                                <div class="movie-genre" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}"
+                                ></div>
                                 <div class="movie-duration" th:text="${film.duration} + ' mins'"></div>
                             </div>
                             <div class="movie-format">

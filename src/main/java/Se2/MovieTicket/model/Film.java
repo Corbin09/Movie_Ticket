@@ -1,11 +1,16 @@
 package Se2.MovieTicket.model;
 
+import Se2.MovieTicket.repository.CategoryRepository;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "films")
@@ -77,6 +82,7 @@ public class Film {
     @OneToMany(mappedBy = "film", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private Set<News> news;
+
 
     public Long getFilmId() {
         return filmId;
@@ -215,4 +221,13 @@ public class Film {
     }
 
 
+    public Optional<Object> getCategories() {
+        if (this.filmCategories != null && !this.filmCategories.isEmpty()) {
+            List<Category> categories = this.filmCategories.stream()
+                    .map(FilmCategory::getCategory)  // This should return a Category object
+                    .collect(Collectors.toList());
+            return Optional.of(categories);
+        }
+        return Optional.empty();
+    }
 }

@@ -1,13 +1,10 @@
 
 package Se2.MovieTicket.service;
 import Se2.MovieTicket.dto.ShowtimeDTO;
-import Se2.MovieTicket.model.FilmActor;
-import Se2.MovieTicket.model.FilmDirector;
+import Se2.MovieTicket.model.*;
 import Se2.MovieTicket.repository.ShowtimeRepository;
 import org.springframework.data.domain.PageImpl;
 import Se2.MovieTicket.dto.FilmDTO;
-import Se2.MovieTicket.model.Film;
-import Se2.MovieTicket.model.Showtime;
 import Se2.MovieTicket.repository.FilmRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -103,13 +100,6 @@ public class FilmService {
         Pageable pageable = PageRequest.of(page, size);
         return filmRepository.findAll(pageable).getContent();
     }
-//    public Page<Film> searchFilms(String name, Pageable pageable) {
-//        if (name != null && !name.isEmpty()) {
-//            return filmRepository.findByFilmNameContainingIgnoreCase(name, pageable);  // Paginated query
-//        } else {
-//            return filmRepository.findAll(pageable);  // Return all films paginated if no query
-//        }
-//    }
 
     public Optional<Film> getFilmById(Long id) {
         return filmRepository.findById(id);
@@ -338,6 +328,40 @@ public class FilmService {
         return films.map(this::convertToDTO);
     }
 
+
+    public Page<FilmDTO> getFilmsByRegionThroughShowtimes(Long regionId, Pageable pageable) {
+        // Get all films that have showtimes in any cinema within the given region
+        Page<Film> films = filmRepository.findFilmsByRegionId(regionId, pageable);
+        return films.map(this::convertToDTO);
+    }
+
+    public Page<FilmDTO> getFilmsByCinemaThroughShowtimes(Long cinemaId, Pageable pageable) {
+        // Get all films that have showtimes in the given cinema
+        Page<Film> films = filmRepository.findFilmsByCinemaId(cinemaId, pageable);
+        return films.map(this::convertToDTO);
+    }
+
+
+    public List<Film> getLikedFilmsByUserId(Long userId) {
+        return filmRepository.findLikedFilmsByUserId(userId);
+    }
+
+    public List<String> getCategoryNamesByFilmId(Long filmId) {
+        Film film = filmRepository.findById(filmId).orElse(null);
+        if (film != null) {
+            Optional<Object> categoriesOpt = film.getCategories();
+            if (categoriesOpt.isPresent() && categoriesOpt.get() instanceof List<?>) {
+                List<?> categories = (List<?>) categoriesOpt.get();
+                return categories.stream()
+                        .filter(obj -> obj instanceof Category)
+                        .map(obj -> ((Category) obj).getCategoryName())
+                        .collect(Collectors.toList());
+            }
+        }
+        return new ArrayList<>();
+    }
+
+
     /**
      * Get films available in a specific region
      */
@@ -353,7 +377,13 @@ public class FilmService {
         Page<Film> films = filmRepository.findFilmsByCinemaId(cinemaId, pageable);
         return films.map(this::convertToDTO);
     }
+    public Page<FilmDTO> getFilmsByShowTime(String showTime, Long cinemaId, Long regionId, Pageable pageable) {
+        return filmRepository.findFilmsByShowTime(showTime, cinemaId, regionId, pageable);
+    }
 
+    public List<Showtime> getAllShowtimesByCinemaAndFilm(Long cinemaId, Long filmId) {
+        return showtimeRepository.findByCinema_CinemaIdAndFilm_FilmId(cinemaId, filmId);
+    }
     /**
      * Get films with showtimes on a specific date in a specific cinema
      */
@@ -362,27 +392,5 @@ public class FilmService {
         return films.map(this::convertToDTO);
     }
 
-    public Page<FilmDTO> getFilmsByRegionThroughShowtimes(Long regionId, Pageable pageable) {
-        // Get all films that have showtimes in any cinema within the given region
-        Page<Film> films = filmRepository.findFilmsByRegionId(regionId, pageable);
-        return films.map(this::convertToDTO);
-    }
-
-    public Page<FilmDTO> getFilmsByCinemaThroughShowtimes(Long cinemaId, Pageable pageable) {
-        // Get all films that have showtimes in the given cinema
-        Page<Film> films = filmRepository.findFilmsByCinemaId(cinemaId, pageable);
-        return films.map(this::convertToDTO);
-    }
-    public Page<FilmDTO> getFilmsByShowTime(String showTime, Long cinemaId, Long regionId, Pageable pageable) {
-        return filmRepository.findFilmsByShowTime(showTime, cinemaId, regionId, pageable);
-    }
-
-    public List<Showtime> getAllShowtimesByCinemaAndFilm(Long cinemaId, Long filmId) {
-        return showtimeRepository.findByCinema_CinemaIdAndFilm_FilmId(cinemaId, filmId);
-    }
-
-    public List<Film> getLikedFilmsByUserId(Long userId) {
-        return filmRepository.findLikedFilmsByUserId(userId);
-    }
 }
 

@@ -162,6 +162,7 @@
     </div>
 
     <!-- For Now Showing section -->
+    <h2 class="section-title">Now Showing</h2>
     <div class="movie-grid">
         <div th:each="film : ${nowShowingMovies}" class="movie-card">
             <a th:href="@{'/View-movie-ticket?id=' + ${film.filmId}}">
@@ -170,7 +171,7 @@
                 </div>
                 <div class="movie-info">
                     <div class="movie-meta">
-                        <span class="movie-category" th:text="${film.filmType}">Horror</span>
+                        <span class="movie-category" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Horror</span>
                         <span class="movie-release-date"
                               th:text="${film.formattedReleaseDate}">Release Date</span>
                         <span class="movie-duration" th:text="${film.duration + ' min'}">114 min</span>
@@ -197,6 +198,7 @@
 
 
 <!-- For Coming Soon section -->
+    <h2 class="section-title">Coming Soon</h2>
 <div class="movie-grid">
     <div th:each="film : ${comingSoonMovies}" class="movie-card">
         <a th:href="@{'/View-movie-ticket?id=' + ${film.filmId}}">
@@ -205,7 +207,7 @@
             </div>
             <div class="movie-info">
                 <div class="movie-meta">
-                    <span class="movie-category" th:text="${film.filmType}">Adventure</span>
+                    <span class="movie-category" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Adventure</span>
                     <span class="movie-release-date"
                           th:text="${film.formattedReleaseDate}">Release Date</span>
                     <span class="movie-duration" th:text="${film.duration + ' min'}">114 min</span>

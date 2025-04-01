@@ -45,9 +45,6 @@ public class Showtime {
     @Column(name = "show_time")
     private String showTime;
 
-//    @OneToMany(mappedBy = "showtime", cascade = CascadeType.ALL)
-//
-//    private Set<Ticket> tickets;
 
     @OneToMany(mappedBy = "showtime", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<SeatStatus> seatStatuses;
@@ -103,14 +100,6 @@ public class Showtime {
         this.showTime = showTime;
     }
 
-//    public Set<Ticket> getTickets() {
-//        return tickets;
-//    }
-//
-//    public void setTickets(Set<Ticket> tickets) {
-//        this.tickets = tickets;
-//    }
-
     public Set<SeatStatus> getSeatStatuses() {
         return seatStatuses;
     }
@@ -142,9 +131,9 @@ public class Showtime {
     }
 
     public void setCinemaId(Long cinemaId) {
-        if (this.cinema == null) {
-            this.cinema = new Cinema();
-        }
+//        if (this.cinema == null) {
+//            this.cinema = new Cinema();
+//        }
         this.cinema.setCinemaId(cinemaId);
     }
 }

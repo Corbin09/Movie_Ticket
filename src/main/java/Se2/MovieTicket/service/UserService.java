@@ -7,6 +7,7 @@ import Se2.MovieTicket.model.User;
 import Se2.MovieTicket.model.UserLikeFilm;
 import Se2.MovieTicket.repository.UserLikeFilmRepository;
 import Se2.MovieTicket.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -86,30 +87,6 @@ private UserLikeFilmRepository userLikeFilmRepository;
     }
 
 
-
-
-    public User updateUser (Long id, UserDTO userDTO) {
-        Optional<User> userData = userRepository.findById(id);
-        if (userData.isPresent()) {
-            User user = userData.get();
-            user.setUsername(userDTO.getUsername());
-            if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
-                user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-            }
-            user.setUserImg(userDTO.getUserImg());
-            user.setEmail(userDTO.getEmail());
-            user.setPhoneNumber(userDTO.getPhoneNumber());
-            user.setSex(userDTO.getSex());
-            user.setDateOfBirth(userDTO.getDateOfBirth());
-            user.setRole(userDTO.getRole());
-            user.setResetToken(userDTO.getResetToken());
-            user.setResetTokenExpire(userDTO.getResetTokenExpire());
-            user.setStatus(userDTO.getStatus());
-            return userRepository.save(user);
-        }
-        return null;
-    }
-
     public void deleteUser (Long id) {
         userRepository.deleteById(id);
     }
@@ -127,27 +104,27 @@ private UserLikeFilmRepository userLikeFilmRepository;
 
 
 
-    public User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() == null) {
-            return null;
-        }
-
-        Object principal = authentication.getPrincipal();
-
-        if (principal instanceof UserDetailsImpl) {
-            Long userId = ((UserDetailsImpl) principal).getId();
-            return userRepository.findById(userId).orElse(null);
-        } else if (principal instanceof org.springframework.security.core.userdetails.User) {
-            String username = ((org.springframework.security.core.userdetails.User) principal).getUsername();
-            return userRepository.findByUsername(username).orElse(null);
-        } else if (principal instanceof String) {
-            return userRepository.findByUsername((String) principal).orElse(null);
-        }
-
-        return null;
-    }
+//    public User getCurrentUser() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() == null) {
+//            return null;
+//        }
+//
+//        Object principal = authentication.getPrincipal();
+//
+//        if (principal instanceof UserDetailsImpl) {
+//            Long userId = ((UserDetailsImpl) principal).getId();
+//            return userRepository.findById(userId).orElse(null);
+//        } else if (principal instanceof org.springframework.security.core.userdetails.User) {
+//            String username = ((org.springframework.security.core.userdetails.User) principal).getUsername();
+//            return userRepository.findByUsername(username).orElse(null);
+//        } else if (principal instanceof String) {
+//            return userRepository.findByUsername((String) principal).orElse(null);
+//        }
+//
+//        return null;
+//    }
 
 
 
@@ -159,18 +136,104 @@ private UserLikeFilmRepository userLikeFilmRepository;
             return Collections.emptyList(); // Or handle the case when the user is not found
         }
     }
+//
+//    public Optional<User> getUserByUsername(String username) {
+//        // Assuming you have a userRepository field in your UserService class
+//        return userRepository.findByUsername(username);
+//    }
+
+//    public void unlikeFilm(User user, Film film) {
+//        // Find the UserLikeFilm entry
+//        Optional<UserLikeFilm> userLikeFilmOptional = userLikeFilmRepository.findByUserAndFilm(user, film);
+//        userLikeFilmOptional.ifPresent(userLikeFilm -> {
+//            // Remove the like
+//            userLikeFilmRepository.delete(userLikeFilm);
+//        });
+//    }
+
+
+
+    // Phương thức truy vấn hiệu quả cho việc lấy thông tin người dùng hiện tại
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() == null) {
+            return null;
+        }
+
+        Object principal = authentication.getPrincipal();
+        String username = null;
+
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+            username = ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername();
+        } else if (principal instanceof String) {
+            username = (String) principal;
+        }
+
+        if (username != null) {
+            // Tối ưu truy vấn bằng cách chỉ lấy thông tin cần thiết
+            return userRepository.findByUsername(username).orElse(null);
+        }
+
+        return null;
+    }
 
     public Optional<User> getUserByUsername(String username) {
-        // Assuming you have a userRepository field in your UserService class
         return userRepository.findByUsername(username);
     }
 
-    public void unlikeFilm(User user, Film film) {
-        // Find the UserLikeFilm entry
-        Optional<UserLikeFilm> userLikeFilmOptional = userLikeFilmRepository.findByUserAndFilm(user, film);
-        userLikeFilmOptional.ifPresent(userLikeFilm -> {
-            // Remove the like
-            userLikeFilmRepository.delete(userLikeFilm);
+    // Cập nhật thông tin người dùng với hiệu suất tối ưu
+    @Transactional
+    public User updateUser(Long id, UserDTO userDTO) {
+        return userRepository.findById(id)
+                .map(user -> {
+                    // Chỉ cập nhật các trường được cung cấp
+                    if (userDTO.getUsername() != null) {
+                        user.setUsername(userDTO.getUsername());
+                    }
+
+                    if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+                        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+                    }
+
+                    if (userDTO.getUserImg() != null) {
+                        user.setUserImg(userDTO.getUserImg());
+                    }
+
+                    if (userDTO.getEmail() != null) {
+                        user.setEmail(userDTO.getEmail());
+                    }
+
+                    // Các trường có thể null
+                    user.setPhoneNumber(userDTO.getPhoneNumber());
+                    user.setSex(userDTO.getSex());
+                    user.setDateOfBirth(userDTO.getDateOfBirth());
+
+                    if (userDTO.getRole() != null) {
+                        user.setRole(userDTO.getRole());
+                    }
+
+                    if (userDTO.getStatus() != null) {
+                        user.setStatus(userDTO.getStatus());
+                    }
+
+                    return userRepository.save(user);
+                })
+                .orElse(null);
+    }
+
+    // Phương thức mới - chỉ cập nhật hình ảnh
+    @Transactional
+    public void updateUserImage(Long userId, String imageUrl) {
+        userRepository.findById(userId).ifPresent(user -> {
+            user.setUserImg(imageUrl);
+            userRepository.save(user);
         });
+    }
+
+    public void unlikeFilm(User user, Film film) {
+        userLikeFilmRepository.findByUserAndFilm(user, film)
+                .ifPresent(userLikeFilmRepository::delete);
     }
 }

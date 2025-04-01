@@ -23,4 +23,6 @@ public interface SeatStatusRepository extends JpaRepository<SeatStatus, Long> {
 
     @Query("SELECT ss FROM SeatStatus ss WHERE ss.seat = :seat AND ss.showtime = :showtime")
     Optional<SeatStatus> findBySeatAndShowtime(@Param("seat") Seat seat, @Param("showtime") Showtime showtime);
+
+    List<SeatStatus> findByShowtimeShowtimeId(Long showtimeId);
 }

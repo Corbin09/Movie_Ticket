@@ -80,9 +80,9 @@ public class Room {
     }
 
     public void setCinemaId(Long cinemaId) {
-        if (this.cinema == null) {
-            this.cinema = new Cinema();
-        }
+//        if (this.cinema == null) {
+//            this.cinema = new Cinema();
+//        }
         this.cinema.setCinemaId(cinemaId);
     }
 }

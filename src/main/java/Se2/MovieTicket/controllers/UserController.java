@@ -211,7 +211,18 @@ private UserRepository userRepository;
             if (updatedUser != null) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", true);
-                response.put("user", updatedUser);
+
+                // Chỉ trả về thông tin cần thiết của user
+                Map<String, Object> userResponse = new HashMap<>();
+                userResponse.put("userId", updatedUser.getUserId());
+                userResponse.put("username", updatedUser.getUsername());
+                userResponse.put("email", updatedUser.getEmail());
+                userResponse.put("userImg", updatedUser.getUserImg());
+                userResponse.put("phoneNumber", updatedUser.getPhoneNumber());
+                userResponse.put("sex", updatedUser.getSex());
+                userResponse.put("dateOfBirth", updatedUser.getDateOfBirth());
+
+                response.put("user", userResponse);
                 return ResponseEntity.ok(response);
             } else {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Failed to update profile"));

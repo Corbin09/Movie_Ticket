@@ -14,27 +14,20 @@
     <div class="container">
       <div class="header-top">
         <div class="to-menu">
-        <img th:src="@{/images/cinema_logo.png}" alt="Cinema Logo" class="logo">
-        <!-- Sidebar Toggle Button for Mobile -->
+          <img th:src="@{/images/cinema_logo.png}" alt="Cinema Logo" class="logo">
           <div class="sidebar-toggle" id="sidebar-toggle">
             <i class="fas fa-bars"></i>
           </div>
-
         </div>
-
-        <!-- User Section: Hiển thị Avatar và Username -->
         <div class="user-section">
           <img th:src="${user.userImg}" alt="User  Avatar" class="user-avatar" onerror="this.src='/static/images/anonymous.png';">
           <span class="username" th:text="${user.username}">User  Name</span>
           <a th:href="@{/logout}" class="logout-btn">Log out</a>
         </div>
-
-
       </div>
     </div>
   </div>
 
-  <!-- Sidebar Fragment -->
   <div class="sidebar" id="sidebar">
     <nav class="sidebar-nav">
       <ul>
@@ -50,30 +43,491 @@
     </nav>
   </div>
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="profile-overlay" id="profileOverlay">
+    <div class="profile-container" id="viewProfileContainer">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <img th:src="${user.userImg}" alt="User  Avatar" id="viewProfileAvatar" onerror="this.src='/static/images/anonymous.png';">
+        </div>
+      </div>
+      <div class="profile-content">
+        <div class="profile-field">
+          <label for="viewUsername">Username</label>
+          <input type="text" id="viewUsername" name="username" th:value="${user.username}" readonly>
+        </div>
+        <div class="profile-field">
+          <label for="viewEmail">Email</label>
+          <input type="email" id="viewEmail" name="email" th:value="${user.email}" readonly>
+        </div>
+        <div class="profile-field">
+          <label for="viewPhone">Phone Number</label>
+          <input type="tel" id="viewPhone" name="phone" th:value="${user.phoneNumber}" readonly>
+        </div>
+        <div class="profile-field">
+          <label for="viewSex">Sex</label>
+          <input type="text" id="viewSex" name="sex" th:value="${user.sex}" readonly>
+        </div>
+        <div class="profile-field">
+          <label for="viewDateOfBirth">Date of Birth</label>
+          <input type="text" id="viewDateOfBirth" name="dateOfBirth" th:value="${#dates.format(user.dateOfBirth, 'dd/MM/yyyy')}" readonly>
+        </div>
+        <div class="profile-actions">
+          <button class="edit-btn" id="showEditProfile">Edit Profile</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="edit-profile-container" id="editProfileContainer" style="display: none;">
+      <div class="profile-header">
+        <div class="profile-avatar" id="avatar">
+          <img th:src="${user.userImg}" id="avatar-img" alt="Avatar" onerror="this.src='/static/images/anonymous.png';">
+          <span class="avatar-edit-icon" onclick="document.getElementById('avatar-input').click()">
+                        <i class="fas fa-pencil-alt"></i>
+                    </span>
+          <input type="file" id="avatar-input" style="display: none;" accept="image/*" onchange="previewAvatar(event)">
+        </div>
+      </div>
+
+      <div class="profile-content">
+        <form id="profileForm">
+          <input type="hidden" name="_csrf" th:value="${_csrf?.token}">
+          <div id="updateNotification" class="notification" style="display: none;"></div>
+          <div class="profile-field">
+            <label for="editUsername">Username</label>
+            <div class="profile-field-container">
+              <input type="text" id="editUsername" name="username" th:value="${user.username}">
+              <div class="error-message" id="usernameError"></div>
+            </div>
+          </div>
+          <div class="profile-field">
+            <label for="editEmail">Email</label>
+            <div class="profile-field-container">
+              <input type="email" id="editEmail" name="email" th:value="${user.email}">
+              <div class="error-message" id="emailError"></div>
+            </div>
+          </div>
+          <div class="profile-field">
+            <label for="editPhone">Phone Number</label>
+            <div class="profile-field-container">
+              <input type="tel" id="editPhone" name="phoneNumber" th:value="${user.phoneNumber}">
+              <div class="error-message" id="phoneError"></div>
+            </div>
+          </div>
+          <div class="profile-field">
+            <label for="editSex">Sex</label>
+            <div class="profile-field-container">
+              <select id="editSex" name="sex">
+                <option value="Male" th:selected="${user.sex == 'Male'}">Male</option>
+                <option value="Female" th:selected="${user.sex == 'Female'}">Female</option>
+                <option value="Other" th:selected="${user.sex == 'Other'}">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="profile-field">
+            <label for="editDateOfBirth">Date of Birth</label>
+            <div class="profile-field-container">
+              <input type="date" id="editDateOfBirth" name="dateOfBirth" th:value="${#dates.format(user.dateOfBirth, 'yyyy-MM-dd')}">
+            </div>
+          </div>
+          <div class="profile-actions">
+            <button type="button" class="cancel-btn" id="cancelEdit">Cancel</button>
+            <button type="button" class="update-btn" id="updateProfile">Update Profile</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
     // JavaScript: Sidebar toggle
     document.addEventListener('DOMContentLoaded', function() {
-      const sidebar = document.getElementById('sidebar');
-      const sidebarToggle = document.getElementById('sidebar-toggle');
-      const overlay = document.getElementById('sidebar-overlay');
-      const body = document.body;
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('sidebar-overlay');
+        const body = document.body;
 
-      // Toggle sidebar on button click
-      sidebarToggle.addEventListener('click', function() {
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-        body.classList.toggle('sidebar-open');
-      });
+        // Toggle sidebar on button click
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            body.classList.toggle('sidebar-open');
+        });
 
-      // Close sidebar when clicking overlay
-      overlay.addEventListener('click', function() {
-        sidebar.classList.remove('active');
-        overlay.classList.remove('active');
-        body.classList.remove('sidebar-open');
-      });
+        // Close sidebar when clicking overlay
+        overlay.addEventListener('click', function() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            body.classList.remove('sidebar-open');
+        });
     });
+
+     // Function to preview avatar before upload
+       function previewAvatar(event) {
+           const file = event.target.files[0];
+           if (file) {
+               // Check file size before preview (max 5MB)
+               if (file.size > 5 * 1024 * 1024) {
+                   showNotification('Image file size should not exceed 5MB', false);
+                   // Reset the file input
+                   event.target.value = '';
+                   return;
+               }
+
+               const reader = new FileReader();
+               reader.onload = function(e) {
+                   document.getElementById('avatar-img').src = e.target.result;
+               };
+               reader.readAsDataURL(file);
+           }
+       }
+
+       // Function to show error message
+       function showError(elementId, message) {
+           const errorElement = document.getElementById(elementId);
+           if (errorElement) {
+               errorElement.textContent = message;
+               errorElement.style.display = 'block';
+           }
+       }
+
+       // Function to clear all errors
+       function clearAllErrors() {
+           const errorElements = document.querySelectorAll('.error-message');
+           errorElements.forEach(element => {
+               element.textContent = '';
+               element.style.display = 'none';
+           });
+       }
+
+       // Function to show notification
+       function showNotification(message, isSuccess) {
+           const notification = document.getElementById('updateNotification');
+           notification.textContent = message;
+           notification.className = 'notification ' + (isSuccess ? 'success' : 'error');
+           notification.style.display = 'block';
+
+           // Auto-hide success notifications after 3 seconds
+           if (isSuccess) {
+               setTimeout(() => {
+                   notification.style.display = 'none';
+               }, 3000);
+           }
+       }
+
+       // Function to reset update button state
+       function resetUpdateButton() {
+           const updateProfile = document.getElementById('updateProfile');
+           updateProfile.innerHTML = 'Update Profile';
+           updateProfile.disabled = false;
+       }
+
+       // Function to validate the form
+       function validateProfileForm() {
+           let isValid = true;
+           clearAllErrors();
+
+           // Validate username
+           const username = document.getElementById('editUsername').value.trim();
+           if (!username) {
+               showError('usernameError', 'Username is required');
+               isValid = false;
+           } else if (username.length < 3) {
+               showError('usernameError', 'Username must be at least 3 characters');
+               isValid = false;
+           }
+
+           // Validate email
+           const email = document.getElementById('editEmail').value.trim();
+           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+           if (!email) {
+               showError('emailError', 'Email is required');
+               isValid = false;
+           } else if (!emailRegex.test(email)) {
+               showError('emailError', 'Please enter a valid email address');
+               isValid = false;
+           }
+
+           // Validate phone number
+           const phone = document.getElementById('editPhone').value.trim();
+           const phoneRegex = /^\d{10,}$/;
+           if (phone && !phoneRegex.test(phone)) {
+               showError('phoneError', 'Please enter a valid phone number (at least 10 digits)');
+               isValid = false;
+           }
+
+           // Validate file size if uploading
+           const avatarInput = document.getElementById('avatar-input');
+           if (avatarInput.files.length > 0) {
+               const file = avatarInput.files[0];
+               // Check file size (max 5MB)
+               if (file.size > 5 * 1024 * 1024) {
+                   showError('avatarError', 'Image file size should not exceed 5MB');
+                   isValid = false;
+               }
+           }
+
+           return isValid;
+       }
+
+       // Function to update profile
+       function updateUserProfile() {
+           // Clear previous notifications
+           document.getElementById('updateNotification').style.display = 'none';
+
+           if (validateProfileForm()) {
+               // Show loading state
+               const updateProfile = document.getElementById('updateProfile');
+               updateProfile.innerHTML = '<span class="loading-spinner"></span> Updating...';
+               updateProfile.disabled = true;
+
+               // Prepare data to send to server
+               const formData = new FormData();
+
+               // Add form data fields
+               formData.append('username', document.getElementById('editUsername').value.trim());
+               formData.append('email', document.getElementById('editEmail').value.trim());
+
+               // Only add phone if it has a value
+               const phone = document.getElementById('editPhone').value.trim();
+               if (phone) {
+                   formData.append('phoneNumber', phone);
+               }
+
+               formData.append('sex', document.getElementById('editSex').value);
+
+               // Only add date if it has a value
+               const dob = document.getElementById('editDateOfBirth').value;
+               if (dob) {
+                   formData.append('dateOfBirth', dob);
+               }
+
+               // Handle image file - only append if a file was selected
+               const avatarInput = document.getElementById('avatar-input');
+               if (avatarInput.files.length > 0) {
+                   formData.append('userImg', avatarInput.files[0]);
+               }
+
+               // Get CSRF token if available
+               const csrfToken = document.querySelector('input[name="_csrf"]');
+               if (csrfToken) {
+                   formData.append('_csrf', csrfToken.value);
+               }
+
+               // Set a longer timeout for image uploads (20 seconds)
+               const timeoutId = setTimeout(() => {
+                   resetUpdateButton();
+                   showNotification('Request timed out. The server might be processing your image or unavailable.', false);
+               }, 20000);
+
+               // Send AJAX request to update profile
+               fetch('/user/update-profile', {
+                   method: 'POST',
+                   body: formData,
+                   credentials: 'same-origin' // Include cookies in the request
+               })
+               .then(response => {
+                   clearTimeout(timeoutId);
+
+                   if (!response.ok) {
+                       return response.text().then(text => {
+                           try {
+                               return JSON.parse(text);
+                           } catch (e) {
+                               if (response.status === 403) {
+                                   throw new Error('Access denied. You may need to log in again.');
+                               } else {
+                                   throw new Error('Server returned an error: ' + response.status);
+                               }
+                           }
+                       });
+                   }
+                   return response.json();
+               })
+               .then(data => {
+                   // Handle server response
+                   if (data.success === false) {
+                       // Server returned success:false with possible error messages
+                       if (data.errors) {
+                           // Handle specific field errors
+                           Object.keys(data.errors).forEach(field => {
+                               const errorField = field + 'Error';
+                               showError(errorField, data.errors[field]);
+                           });
+                           throw new Error('Please fix the errors above');
+                       } else {
+                           throw new Error(data.message || 'Update failed');
+                       }
+                   }
+
+                   // Success! Reset button and show notification
+                   resetUpdateButton();
+                   showNotification('Profile updated successfully!', true);
+
+                   // Update view profile with new data
+                   document.getElementById('viewUsername').value = document.getElementById('editUsername').value;
+                   document.getElementById('viewEmail').value = document.getElementById('editEmail').value;
+                   document.getElementById('viewPhone').value = document.getElementById('editPhone').value;
+                   document.getElementById('viewSex').value = document.getElementById('editSex').value;
+
+                   // Format date for display
+                   const editDate = document.getElementById('editDateOfBirth').value;
+                   if (editDate) {
+                       const parts = editDate.split('-');
+                       if (parts.length === 3) {
+                           const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                           document.getElementById('viewDateOfBirth').value = formattedDate;
+                       }
+                   }
+
+                   // Update avatars if returned by server
+                   if (data.user && data.user.userImg) {
+                       const avatarUrl = data.user.userImg;
+                       document.getElementById('viewProfileAvatar').src = avatarUrl;
+                       document.querySelector('.user-avatar').src = avatarUrl;
+                   }
+
+                   // Update username in header
+                   document.querySelector('.username').textContent = document.getElementById('editUsername').value;
+
+                   // Switch back to view profile after delay
+                   setTimeout(() => {
+                       document.getElementById('editProfileContainer').style.display = 'none';
+                       document.getElementById('viewProfileContainer').style.display = 'block';
+                   }, 2000);
+               })
+               .catch(error => {
+                   clearTimeout(timeoutId);
+                   resetUpdateButton();
+                   showNotification(error.message || 'Failed to update profile. Please try again.', false);
+               });
+           }
+       }
+
+       // Main document ready function
+       document.addEventListener('DOMContentLoaded', function() {
+           // Reset update button state
+           resetUpdateButton();
+
+           // Event listeners for search functionality
+           document.querySelector('.search-form').addEventListener('submit', function(event) {
+               const query = document.querySelector('.search-input').value.trim();
+               if (!query) {
+                   event.preventDefault();
+               }
+           });
+
+           document.querySelector('.search-icon').addEventListener('click', function() {
+               document.querySelector('.search-form').submit();
+           });
+
+           // Profile functionality
+           const userSection = document.getElementById('userSection');
+           const profileOverlay = document.getElementById('profileOverlay');
+           const viewProfileContainer = document.getElementById('viewProfileContainer');
+           const editProfileContainer = document.getElementById('editProfileContainer');
+           const showEditProfile = document.getElementById('showEditProfile');
+           const cancelEdit = document.getElementById('cancelEdit');
+           const updateProfile = document.getElementById('updateProfile');
+           const profileForm = document.getElementById('profileForm');
+
+           // Toggle profile overlay when clicking on user avatar or username
+           userSection.addEventListener('click', function(e) {
+               if (e.target.classList.contains('logout-btn')) {
+                   return; // Don't open profile when clicking logout
+               }
+
+               profileOverlay.style.display = 'flex';
+               viewProfileContainer.style.display = 'block';
+               editProfileContainer.style.display = 'none';
+
+               // Reset button and clear notifications when opening profile
+               resetUpdateButton();
+               document.getElementById('updateNotification').style.display = 'none';
+
+               // Stop event propagation
+               e.stopPropagation();
+           });
+
+           // Close profile when clicking outside
+           profileOverlay.addEventListener('click', function(e) {
+               if (e.target === profileOverlay) {
+                   profileOverlay.style.display = 'none';
+                   resetUpdateButton();
+               }
+           });
+
+           // Show edit profile
+           showEditProfile.addEventListener('click', function() {
+               viewProfileContainer.style.display = 'none';
+               editProfileContainer.style.display = 'block';
+               document.getElementById('updateNotification').style.display = 'none';
+               resetUpdateButton();
+               clearAllErrors();
+           });
+
+           // Cancel edit and go back to view profile
+           cancelEdit.addEventListener('click', function() {
+               editProfileContainer.style.display = 'none';
+               viewProfileContainer.style.display = 'block';
+
+               // Reset form to original values
+               document.getElementById('editUsername').value = document.getElementById('viewUsername').value;
+               document.getElementById('editEmail').value = document.getElementById('viewEmail').value;
+               document.getElementById('editPhone').value = document.getElementById('viewPhone').value;
+               document.getElementById('editSex').value = document.getElementById('viewSex').value;
+
+               // Reset date of birth format for the edit form
+               const dob = document.getElementById('viewDateOfBirth').value;
+               if (dob) {
+                   // Convert dd/MM/yyyy to yyyy-MM-dd for the date input
+                   const parts = dob.split('/');
+                   if (parts.length === 3) {
+                       const formattedDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                       document.getElementById('editDateOfBirth').value = formattedDate;
+                   }
+               }
+
+               // Clear all error messages and notifications
+               clearAllErrors();
+               document.getElementById('updateNotification').style.display = 'none';
+               resetUpdateButton();
+
+               // Reset file input
+               document.getElementById('avatar-input').value = '';
+           });
+
+           // Update profile
+           updateProfile.addEventListener('click', function(e) {
+               e.preventDefault();
+               updateUserProfile();
+           });
+
+           // Handle pressing Enter key in form fields
+           profileForm.addEventListener('keypress', function(e) {
+               if (e.key === 'Enter') {
+                   e.preventDefault();
+                   updateProfile.click();
+               }
+           });
+
+           // Initialize view profile data on load
+           // Set the Sex and Date of Birth values from edit form to view form
+           const sex = document.getElementById('editSex').value;
+           if (sex) {
+               document.getElementById('viewSex').value = sex;
+           }
+
+           const dob = document.getElementById('editDateOfBirth').value;
+           if (dob) {
+               const parts = dob.split('-');
+               if (parts.length === 3) {
+                   const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                   document.getElementById('viewDateOfBirth').value = formattedDate;
+               }
+           }
+       });
   </script>
 </header>
-
 </body>
 </html>

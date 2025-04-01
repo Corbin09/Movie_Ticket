@@ -48,7 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/home", "/login", "/news/**", "/View-movie-ticket/**", "/showtime**", "/register", "/css/**", "/js/**").permitAll()
 
                         // Các trang dành cho USER
-                        .requestMatchers("/index", "/user-dashboard", "/profile", "/user-tickets/**").hasRole("USER")
+                        .requestMatchers("/index", "/user-dashboard", "/profile", "/pick-seat", "/user-tickets/**").hasRole("USER")
 
                         // Các trang dành cho ADMIN
                         .requestMatchers("/pay-ticket", "/welcome-admin", "/admin-dashboard", "/reports/**", "/manage-users", "/manage-orders/**", "/manage-rooms/**", "/delete-rooms").hasRole("ADMIN")
@@ -92,7 +92,7 @@ public class SecurityConfig {
                 response.sendRedirect("/welcome-admin"); // Trang khởi đầu cho ADMIN
             } else if (authentication.getAuthorities().stream()
                     .anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"))) {
-                response.sendRedirect("/showtime"); // Trang khởi đầu cho USER
+                response.sendRedirect("/home"); // Trang khởi đầu cho USER
             } else {
                 response.sendRedirect("/index");
             }

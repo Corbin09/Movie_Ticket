@@ -71,6 +71,10 @@ public class AuthController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private SeatService seatService;
+
+
 
     @GetMapping("/login")
     public String loginPage(@RequestParam(value = "error", required = false) String error,
@@ -147,10 +151,10 @@ public class AuthController {
                 return "redirect:/welcome-admin";
             } else if ("ROLE_USER".equals(role)) {
                 logger.info("Redirecting User to /home");
-                return "redirect:/showtime";
+                return "redirect:/home";
             } else {
                 logger.info("Redirecting to default index page");
-                return "redirect:/home";
+                return "redirect:/pick-seat";
             }
         } catch (Exception e) {
             logger.error("Login failed: {}", e.getMessage());
@@ -634,7 +638,12 @@ public class AuthController {
             filmDTO.setFilmDescription(film.getFilmDescription());
 
             // Format releaseDate
-            filmDTO.setReleaseDateFormatted(film.getReleaseDate().format(formatter));
+            filmDTO.setReleaseDate(film.getReleaseDate());
+            filmDTO.setFormattedReleaseDate(film.getReleaseDate().format(formatter));
+
+            // Get category names for the film
+            List<String> categoryNames = filmService.getCategoryNamesByFilmId(film.getFilmId());
+            filmDTO.setCategoryNames(categoryNames);
 
             filmDTO.setDuration(film.getDuration());
             filmDTO.setFilmType(film.getFilmType());
@@ -654,6 +663,10 @@ public class AuthController {
 
             // Format releaseDate
             filmDTO.setReleaseDateFormatted(film.getReleaseDate().format(formatter));
+
+            // Get category names for the film
+            List<String> categoryNames = filmService.getCategoryNamesByFilmId(film.getFilmId());
+            filmDTO.setCategoryNames(categoryNames);
 
             filmDTO.setDuration(film.getDuration());
             filmDTO.setFilmType(film.getFilmType());
@@ -847,6 +860,157 @@ public class AuthController {
             model.addAttribute("user", sessionUser);
         }
     }
+
+
+    @GetMapping("/pick-seat")
+    public String pickSeat(
+            @RequestParam("filmId") Long filmId,
+            @RequestParam("cinemaId") Long cinemaId,
+            @RequestParam("showtimeId") Long showtimeId,
+            @RequestParam("selectedDate") String selectedDate,
+            Model model, HttpServletRequest request) {
+
+        logger.info("Accessing pick-seat page with params: filmId={}, cinemaId={}, showtimeId={}, selectedDate={}",
+                filmId, cinemaId, showtimeId, selectedDate);
+
+        // Get user from session or SecurityContext
+        HttpSession session = request.getSession(false);
+        User sessionUser = (session != null) ? (User) session.getAttribute("user") : null;
+
+        if (sessionUser == null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                sessionUser = userService.getUserById(userDetails.getId()).orElse(null);
+
+                if (sessionUser != null && session != null) {
+                    session.setAttribute("user", sessionUser);
+                    logger.info("User saved to session from SecurityContext");
+                }
+            }
+        }
+
+        if (sessionUser != null) {
+            logger.info("User found: {}", sessionUser.getUsername());
+            model.addAttribute("user", sessionUser);
+        }
+
+        // Get film details
+        Optional<Film> filmOptional = filmService.getFilmById(filmId);
+        if (!filmOptional.isPresent()) {
+            logger.warn("Film not found with ID: {}", filmId);
+            return "redirect:/films";
+        }
+        model.addAttribute("film", convertToFilmDTO(filmOptional.get()));
+
+        // Get cinema details
+        Optional<Cinema> cinemaOptional = cinemaService.getCinemaById(cinemaId);
+        if (!cinemaOptional.isPresent()) {
+            logger.warn("Cinema not found with ID: {}", cinemaId);
+            return "redirect:/films";
+        }
+        model.addAttribute("cinema", cinemaOptional.get());
+
+        // Get showtime details
+        Optional<Showtime> showtimeOptional = showtimeService.getShowtimeById(showtimeId);
+        if (!showtimeOptional.isPresent()) {
+            logger.warn("Showtime not found with ID: {}", showtimeId);
+            return "redirect:/films";
+        }
+        Showtime showtime = showtimeOptional.get();
+        model.addAttribute("showtime", showtime);
+
+        // Get room details from showtime
+        Room room = showtime.getRoom();
+        model.addAttribute("room", room);
+
+        // Get all seats in the room
+        List<SeatDTO> seats = seatService.getSeatsByRoomId(room.getRoomId());
+        model.addAttribute("seats", seats);
+
+        // Nhóm ghế theo hàng và sắp xếp số ghế trong mỗi hàng
+        Map<String, List<SeatDTO>> seatsByRow = seats.stream()
+                .collect(Collectors.groupingBy(
+                        SeatDTO::getSeatRow,
+                        TreeMap::new,  // Dùng TreeMap để đảm bảo thứ tự hàng A-Z
+                        Collectors.collectingAndThen(Collectors.toList(), list -> {
+                            list.sort(Comparator.comparing(SeatDTO::getSeatNumber)); // Sắp xếp theo số ghế
+                            return list;
+                        })
+                ));
+
+        model.addAttribute("seatsByRow", seatsByRow);
+
+        // Get seat status for this showtime
+        Map<String, String> seatStatusMap = seatService.getSeatStatusMap(showtimeId);
+        model.addAttribute("seatStatusMap", seatStatusMap);
+
+        // Parse selected date
+        LocalDate parsedDate = LocalDate.parse(selectedDate);
+        model.addAttribute("selectedDate", parsedDate);
+        model.addAttribute("formattedDate", parsedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+
+        return "pick-seat";
+    }
+
+
+    /**
+     * Trích xuất danh sách các hàng ghế duy nhất từ danh sách ghế
+     */
+    private List<String> distinctSeatRows(List<SeatDTO> seats) {
+        return seats.stream()
+                .map(SeatDTO::getSeatRow)  // Lấy danh sách hàng ghế
+                .distinct()                // Loại bỏ trùng lặp
+                .sorted()                  // Sắp xếp theo thứ tự A-Z
+                .collect(Collectors.toList());
+    }
+
+
+    // Helper method to convert Film to FilmDTO
+    private FilmDTO convertToFilmDTO(Film film) {
+        FilmDTO filmDTO = new FilmDTO();
+        filmDTO.setFilmId(film.getFilmId());
+        filmDTO.setFilmName(film.getFilmName());
+        filmDTO.setFilmImg(film.getFilmImg());
+        filmDTO.setFilmTrailer(film.getFilmTrailer());
+        filmDTO.setFilmDescription(film.getFilmDescription());
+        filmDTO.setReleaseDate(film.getReleaseDate());
+        filmDTO.setDuration(film.getDuration());
+        filmDTO.setFilmType(film.getFilmType());
+        filmDTO.setCountry(film.getCountry());
+        filmDTO.setAgeLimit(film.getAgeLimit());
+
+        // Extract related data
+        filmDTO.setDirectorNames(film.getFilmDirectors().stream()
+                .map(fd -> fd.getDirector().getDirectorName())
+                .collect(Collectors.toList()));
+
+        filmDTO.setActorNames(film.getFilmActors().stream()
+                .map(fa -> fa.getActor().getActorName())
+                .collect(Collectors.toList()));
+
+        filmDTO.setCategoryNames(film.getFilmCategories().stream()
+                .map(fc -> fc.getCategory().getCategoryName())
+                .collect(Collectors.toList()));
+
+        return filmDTO;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

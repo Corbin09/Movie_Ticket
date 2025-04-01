@@ -208,13 +208,13 @@
         }
 
         .notification.success {
-            background-color: #4CAF50;
-            color: white;
+<!--            background-color: #4CAF50;-->
+            color: green;
         }
 
         .notification.error {
-            background-color: #f44336;
-            color: white;
+<!--            background-color: #f44336;-->
+            color: green;
         }
 
         .field-hint {
@@ -341,13 +341,13 @@
                 </div>
             </div>
 
-            <!-- Notification area -->
-            <div id="updateNotification" class="notification" style="display: none;"></div>
+
 
             <div class="profile-content">
                 <form id="profileForm">
                     <input type="hidden" name="_csrf" th:value="${_csrf?.token}">
-
+                    <!-- Notification area -->
+                    <div id="updateNotification" class="notification" style="display: none;"></div>
                     <div class="profile-field">
                         <label for="editUsername">Username</label>
                         <div class="profile-field-container">
@@ -401,333 +401,370 @@
 
     <script>
         // Function to preview avatar before upload
-        function previewAvatar(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('avatar-img').src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
+       function previewAvatar(event) {
+           const file = event.target.files[0];
+           if (file) {
+               // Check file size before preview (max 5MB)
+               if (file.size > 5 * 1024 * 1024) {
+                   showNotification('Image file size should not exceed 5MB', false);
+                   // Reset the file input
+                   event.target.value = '';
+                   return;
+               }
 
-        // Function to show error message
-        function showError(elementId, message) {
-            const errorElement = document.getElementById(elementId);
-            if (errorElement) {
-                errorElement.textContent = message;
-                errorElement.style.display = 'block';
-            }
-        }
+               const reader = new FileReader();
+               reader.onload = function(e) {
+                   document.getElementById('avatar-img').src = e.target.result;
+               };
+               reader.readAsDataURL(file);
+           }
+       }
 
-        // Function to clear all errors
-        function clearAllErrors() {
-            const errorElements = document.querySelectorAll('.error-message');
-            errorElements.forEach(element => {
-                element.textContent = '';
-                element.style.display = 'none';
-            });
-        }
+       // Function to show error message
+       function showError(elementId, message) {
+           const errorElement = document.getElementById(elementId);
+           if (errorElement) {
+               errorElement.textContent = message;
+               errorElement.style.display = 'block';
+           }
+       }
 
-        // Function to show notification
-        function showNotification(message, isSuccess) {
-            const notification = document.getElementById('updateNotification');
-            notification.textContent = message;
-            notification.className = 'notification ' + (isSuccess ? 'success' : 'error');
-            notification.style.display = 'block';
+       // Function to clear all errors
+       function clearAllErrors() {
+           const errorElements = document.querySelectorAll('.error-message');
+           errorElements.forEach(element => {
+               element.textContent = '';
+               element.style.display = 'none';
+           });
+       }
 
-            if (isSuccess) {
-                // Auto hide after success
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                }, 3000);
-            }
-        }
+       // Function to show notification
+       function showNotification(message, isSuccess) {
+           const notification = document.getElementById('updateNotification');
+           notification.textContent = message;
+           notification.className = 'notification ' + (isSuccess ? 'success' : 'error');
+           notification.style.display = 'block';
 
-        // Function to validate the form
-        function validateProfileForm() {
-            let isValid = true;
-            clearAllErrors();
+           // Auto-hide success notifications after 3 seconds
+           if (isSuccess) {
+               setTimeout(() => {
+                   notification.style.display = 'none';
+               }, 3000);
+           }
+       }
 
-            // Validate username
-            const username = document.getElementById('editUsername').value.trim();
-            if (!username) {
-                showError('usernameError', 'Username is required');
-                isValid = false;
-            } else if (username.length < 3) {
-                showError('usernameError', 'Username must be at least 3 characters');
-                isValid = false;
-            }
+       // Function to reset update button state
+       function resetUpdateButton() {
+           const updateProfile = document.getElementById('updateProfile');
+           updateProfile.innerHTML = 'Update Profile';
+           updateProfile.disabled = false;
+       }
 
-            // Validate email
-            const email = document.getElementById('editEmail').value.trim();
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!email) {
-                showError('emailError', 'Email is required');
-                isValid = false;
-            } else if (!emailRegex.test(email)) {
-                showError('emailError', 'Please enter a valid email address');
-                isValid = false;
-            }
+       // Function to validate the form
+       function validateProfileForm() {
+           let isValid = true;
+           clearAllErrors();
 
-            // Validate phone number
-            const phone = document.getElementById('editPhone').value.trim();
-            const phoneRegex = /^\d{10,}$/;
-            if (phone && !phoneRegex.test(phone)) {
-                showError('phoneError', 'Please enter a valid phone number (at least 10 digits)');
-                isValid = false;
-            }
+           // Validate username
+           const username = document.getElementById('editUsername').value.trim();
+           if (!username) {
+               showError('usernameError', 'Username is required');
+               isValid = false;
+           } else if (username.length < 3) {
+               showError('usernameError', 'Username must be at least 3 characters');
+               isValid = false;
+           }
 
-            // Validate file size if uploading
-            const avatarInput = document.getElementById('avatar-input');
-            if (avatarInput.files.length > 0) {
-                const file = avatarInput.files[0];
-                // Check file size (max 5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    showError('avatarError', 'Image file size should not exceed 5MB');
-                    isValid = false;
-                }
-            }
+           // Validate email
+           const email = document.getElementById('editEmail').value.trim();
+           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+           if (!email) {
+               showError('emailError', 'Email is required');
+               isValid = false;
+           } else if (!emailRegex.test(email)) {
+               showError('emailError', 'Please enter a valid email address');
+               isValid = false;
+           }
 
-            console.log('Form validation result:', isValid ? 'Valid' : 'Invalid');
-            return isValid;
-        }
+           // Validate phone number
+           const phone = document.getElementById('editPhone').value.trim();
+           const phoneRegex = /^\d{10,}$/;
+           if (phone && !phoneRegex.test(phone)) {
+               showError('phoneError', 'Please enter a valid phone number (at least 10 digits)');
+               isValid = false;
+           }
 
-        // Main document ready function
-        document.addEventListener('DOMContentLoaded', function() {
-            // Event listeners for search functionality
-            document.querySelector('.search-form').addEventListener('submit', function(event) {
-                const query = document.querySelector('.search-input').value.trim();
-                if (!query) {
-                    event.preventDefault();
-                }
-            });
+           // Validate file size if uploading
+           const avatarInput = document.getElementById('avatar-input');
+           if (avatarInput.files.length > 0) {
+               const file = avatarInput.files[0];
+               // Check file size (max 5MB)
+               if (file.size > 5 * 1024 * 1024) {
+                   showError('avatarError', 'Image file size should not exceed 5MB');
+                   isValid = false;
+               }
+           }
 
-            document.querySelector('.search-icon').addEventListener('click', function() {
-                document.querySelector('.search-form').submit();
-            });
+           return isValid;
+       }
 
-            // Profile functionality
-            const userSection = document.getElementById('userSection');
-            const profileOverlay = document.getElementById('profileOverlay');
-            const viewProfileContainer = document.getElementById('viewProfileContainer');
-            const editProfileContainer = document.getElementById('editProfileContainer');
-            const showEditProfile = document.getElementById('showEditProfile');
-            const cancelEdit = document.getElementById('cancelEdit');
-            const updateProfile = document.getElementById('updateProfile');
-            const profileForm = document.getElementById('profileForm');
+       // Function to update profile
+       function updateUserProfile() {
+           // Clear previous notifications
+           document.getElementById('updateNotification').style.display = 'none';
 
-            // Toggle profile overlay when clicking on user avatar or username
-            userSection.addEventListener('click', function(e) {
-                if (e.target.classList.contains('logout-btn')) {
-                    return; // Don't open profile when clicking logout
-                }
+           if (validateProfileForm()) {
+               // Show loading state
+               const updateProfile = document.getElementById('updateProfile');
+               updateProfile.innerHTML = '<span class="loading-spinner"></span> Updating...';
+               updateProfile.disabled = true;
 
-                profileOverlay.style.display = 'flex';
-                viewProfileContainer.style.display = 'block';
-                editProfileContainer.style.display = 'none';
+               // Prepare data to send to server
+               const formData = new FormData();
 
-                // Stop event propagation
-                e.stopPropagation();
-            });
+               // Add form data fields
+               formData.append('username', document.getElementById('editUsername').value.trim());
+               formData.append('email', document.getElementById('editEmail').value.trim());
 
-            // Close profile when clicking outside
-            profileOverlay.addEventListener('click', function(e) {
-                if (e.target === profileOverlay) {
-                    profileOverlay.style.display = 'none';
-                }
-            });
+               // Only add phone if it has a value
+               const phone = document.getElementById('editPhone').value.trim();
+               if (phone) {
+                   formData.append('phoneNumber', phone);
+               }
 
-            // Show edit profile
-            showEditProfile.addEventListener('click', function() {
-                viewProfileContainer.style.display = 'none';
-                editProfileContainer.style.display = 'block';
-                document.getElementById('updateNotification').style.display = 'none';
-            });
+               formData.append('sex', document.getElementById('editSex').value);
 
-            // Cancel edit and go back to view profile
-            cancelEdit.addEventListener('click', function() {
-                editProfileContainer.style.display = 'none';
-                viewProfileContainer.style.display = 'block';
+               // Only add date if it has a value
+               const dob = document.getElementById('editDateOfBirth').value;
+               if (dob) {
+                   formData.append('dateOfBirth', dob);
+               }
 
-                // Reset form to original values
-                document.getElementById('editUsername').value = document.getElementById('viewUsername').value;
-                document.getElementById('editEmail').value = document.getElementById('viewEmail').value;
-                document.getElementById('editPhone').value = document.getElementById('viewPhone').value;
-                document.getElementById('editSex').value = document.getElementById('viewSex').value;
+               // Handle image file - only append if a file was selected
+               const avatarInput = document.getElementById('avatar-input');
+               if (avatarInput.files.length > 0) {
+                   formData.append('userImg', avatarInput.files[0]);
+               }
 
-                // Reset date of birth format for the edit form
-                const dob = document.getElementById('viewDateOfBirth').value;
-                if (dob) {
-                    // Convert dd/MM/yyyy to yyyy-MM-dd for the date input
-                    const parts = dob.split('/');
-                    if (parts.length === 3) {
-                        const formattedDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-                        document.getElementById('editDateOfBirth').value = formattedDate;
-                    }
-                }
+               // Get CSRF token if available
+               const csrfToken = document.querySelector('input[name="_csrf"]');
+               if (csrfToken) {
+                   formData.append('_csrf', csrfToken.value);
+               }
 
-                // Clear all error messages
-                clearAllErrors();
-                document.getElementById('updateNotification').style.display = 'none';
-            });
+               // Set a longer timeout for image uploads (20 seconds)
+               const timeoutId = setTimeout(() => {
+                   resetUpdateButton();
+                   showNotification('Request timed out. The server might be processing your image or unavailable.', false);
+               }, 20000);
 
-            // Update profile
-            updateProfile.addEventListener('click', function(e) {
-                e.preventDefault(); // Prevent any default behavior
+               // Send AJAX request to update profile
+               fetch('/user/update-profile', {
+                   method: 'POST',
+                   body: formData,
+                   credentials: 'same-origin' // Include cookies in the request
+               })
+               .then(response => {
+                   clearTimeout(timeoutId);
 
-                if (validateProfileForm()) {
-                    // Show loading state
-                    updateProfile.innerHTML = '<span class="loading-spinner"></span> Updating...';
-                    updateProfile.disabled = true;
+                   if (!response.ok) {
+                       return response.text().then(text => {
+                           try {
+                               return JSON.parse(text);
+                           } catch (e) {
+                               if (response.status === 403) {
+                                   throw new Error('Access denied. You may need to log in again.');
+                               } else {
+                                   throw new Error('Server returned an error: ' + response.status);
+                               }
+                           }
+                       });
+                   }
+                   return response.json();
+               })
+               .then(data => {
+                   // Handle server response
+                   if (data.success === false) {
+                       // Server returned success:false with possible error messages
+                       if (data.errors) {
+                           // Handle specific field errors
+                           Object.keys(data.errors).forEach(field => {
+                               const errorField = field + 'Error';
+                               showError(errorField, data.errors[field]);
+                           });
+                           throw new Error('Please fix the errors above');
+                       } else {
+                           throw new Error(data.message || 'Update failed');
+                       }
+                   }
 
-                    // Prepare data to send to server
-                    const formData = new FormData();
+                   // Success! Reset button and show notification
+                   resetUpdateButton();
+                   showNotification('Profile updated successfully!', true);
 
-                    // Add all form fields manually to ensure they're included
-                    formData.append('username', document.getElementById('editUsername').value);
-                    formData.append('email', document.getElementById('editEmail').value);
-                    formData.append('phoneNumber', document.getElementById('editPhone').value);
-                    formData.append('sex', document.getElementById('editSex').value);
-                    formData.append('dateOfBirth', document.getElementById('editDateOfBirth').value);
+                   // Update view profile with new data
+                   document.getElementById('viewUsername').value = document.getElementById('editUsername').value;
+                   document.getElementById('viewEmail').value = document.getElementById('editEmail').value;
+                   document.getElementById('viewPhone').value = document.getElementById('editPhone').value;
+                   document.getElementById('viewSex').value = document.getElementById('editSex').value;
 
-                    // Handle image file
-                    const avatarInput = document.getElementById('avatar-input');
-                    if (avatarInput.files.length > 0) {
-                        console.log('Uploading file:', avatarInput.files[0].name);
-                        formData.append('userImg', avatarInput.files[0]);
-                    }
+                   // Format date for display
+                   const editDate = document.getElementById('editDateOfBirth').value;
+                   if (editDate) {
+                       const parts = editDate.split('-');
+                       if (parts.length === 3) {
+                           const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                           document.getElementById('viewDateOfBirth').value = formattedDate;
+                       }
+                   }
 
-                    // Get CSRF token if available
-                    const csrfToken = document.querySelector('input[name="_csrf"]');
-                    if (csrfToken) {
-                        formData.append('_csrf', csrfToken.value);
-                    }
+                   // Update avatars if returned by server
+                   if (data.user && data.user.userImg) {
+                       const avatarUrl = data.user.userImg;
+                       document.getElementById('viewProfileAvatar').src = avatarUrl;
+                       document.querySelector('.user-avatar').src = avatarUrl;
+                   }
 
-                    // Log form data for debugging
-                    for (let pair of formData.entries()) {
-                        console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[1]));
-                    }
+                   // Update username in header
+                   document.querySelector('.username').textContent = document.getElementById('editUsername').value;
 
-                    // Send AJAX request to update profile with proper headers
-                    fetch('/user/update-profile', {
-                        method: 'POST',
-                        body: formData,
-                        credentials: 'same-origin' // Include cookies in the request
-                    })
-                    .then(response => {
-                        console.log('Response status:', response.status);
-                        if (!response.ok) {
-                            return response.text().then(text => {
-                                console.log('Raw response:', text);
-                                try {
-                                    return JSON.parse(text);
-                                } catch (e) {
-                                    console.error('Failed to parse response as JSON', e);
-                                    if (response.status === 403) {
-                                        throw new Error('Access denied. You may need to log in again or don\'t have permission.');
-                                    } else {
-                                        throw new Error('Server returned an invalid response');
-                                    }
-                                }
-                            }).then(data => {
-                                console.error('Error data:', data);
-                                if (data.errors) {
-                                    // Handle specific field errors
-                                    Object.keys(data.errors).forEach(field => {
-                                        // Map server field names to client IDs
-                                        let errorField = field + 'Error';
-                                        if (field === 'phone') errorField = 'phoneError';
+                   // Switch back to view profile after delay
+                   setTimeout(() => {
+                       document.getElementById('editProfileContainer').style.display = 'none';
+                       document.getElementById('viewProfileContainer').style.display = 'block';
+                   }, 2000);
+               })
+               .catch(error => {
+                   clearTimeout(timeoutId);
+                   resetUpdateButton();
+                   showNotification(error.message || 'Failed to update profile. Please try again.', false);
+               });
+           }
+       }
 
-                                        showError(errorField, data.errors[field]);
-                                    });
-                                    throw new Error('Please fix the errors above');
-                                } else {
-                                    throw new Error(data.message || 'Update failed');
-                                }
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('Success response:', data);
-                        // Reset buttons
-                        updateProfile.innerHTML = 'Update Profile';
-                        updateProfile.disabled = false;
+       // Main document ready function
+       document.addEventListener('DOMContentLoaded', function() {
+           // Reset update button state
+           resetUpdateButton();
 
-                        // Show success notification
-                        showNotification('Profile updated successfully!', true);
+           // Event listeners for search functionality
+           document.querySelector('.search-form').addEventListener('submit', function(event) {
+               const query = document.querySelector('.search-input').value.trim();
+               if (!query) {
+                   event.preventDefault();
+               }
+           });
 
-                        // Update view profile with new data
-                        document.getElementById('viewUsername').value = document.getElementById('editUsername').value;
-                        document.getElementById('viewEmail').value = document.getElementById('editEmail').value;
-                        document.getElementById('viewPhone').value = document.getElementById('editPhone').value;
-                        document.getElementById('viewSex').value = document.getElementById('editSex').value;
+           document.querySelector('.search-icon').addEventListener('click', function() {
+               document.querySelector('.search-form').submit();
+           });
 
-                        // Format the date for display
-                        const editDate = document.getElementById('editDateOfBirth').value;
-                        if (editDate) {
-                            const parts = editDate.split('-');
-                            if (parts.length === 3) {
-                                const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                                document.getElementById('viewDateOfBirth').value = formattedDate;
-                            }
-                        }
+           // Profile functionality
+           const userSection = document.getElementById('userSection');
+           const profileOverlay = document.getElementById('profileOverlay');
+           const viewProfileContainer = document.getElementById('viewProfileContainer');
+           const editProfileContainer = document.getElementById('editProfileContainer');
+           const showEditProfile = document.getElementById('showEditProfile');
+           const cancelEdit = document.getElementById('cancelEdit');
+           const updateProfile = document.getElementById('updateProfile');
+           const profileForm = document.getElementById('profileForm');
 
-                        // Update the profile avatar if it was changed
-                        const user = data.user;
-                        if (user && user.userImg) {
-                            document.getElementById('viewProfileAvatar').src = user.userImg;
-                            document.querySelector('.user-avatar').src = user.userImg;
-                        }
+           // Toggle profile overlay when clicking on user avatar or username
+           userSection.addEventListener('click', function(e) {
+               if (e.target.classList.contains('logout-btn')) {
+                   return; // Don't open profile when clicking logout
+               }
 
-                        // Update header username
-                        document.querySelector('.username').textContent = document.getElementById('editUsername').value;
+               profileOverlay.style.display = 'flex';
+               viewProfileContainer.style.display = 'block';
+               editProfileContainer.style.display = 'none';
 
-                        // Switch back to view profile after a short delay
-                        setTimeout(() => {
-                            editProfileContainer.style.display = 'none';
-                            viewProfileContainer.style.display = 'block';
-                        }, 2000);
-                    })
-                    .catch(error => {
-                        console.error('Update profile error:', error);
+               // Reset button and clear notifications when opening profile
+               resetUpdateButton();
+               document.getElementById('updateNotification').style.display = 'none';
 
-                        // Reset button
-                        updateProfile.innerHTML = 'Update Profile';
-                        updateProfile.disabled = false;
+               // Stop event propagation
+               e.stopPropagation();
+           });
 
-                        // Show error notification
-                        showNotification(error.message || 'Failed to update profile. Please try again.', false);
-                    });
-                }
-            });
+           // Close profile when clicking outside
+           profileOverlay.addEventListener('click', function(e) {
+               if (e.target === profileOverlay) {
+                   profileOverlay.style.display = 'none';
+                   resetUpdateButton();
+               }
+           });
 
-            // Handle pressing Enter key in form fields
-            profileForm.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    updateProfile.click();
-                }
-            });
+           // Show edit profile
+           showEditProfile.addEventListener('click', function() {
+               viewProfileContainer.style.display = 'none';
+               editProfileContainer.style.display = 'block';
+               document.getElementById('updateNotification').style.display = 'none';
+               resetUpdateButton();
+               clearAllErrors();
+           });
 
-            // Initialize view profile data on load
-            // Set the Sex and Date of Birth values from edit form to view form
-            const sex = document.getElementById('editSex').value;
-            if (sex) {
-                document.getElementById('viewSex').value = sex;
-            }
+           // Cancel edit and go back to view profile
+           cancelEdit.addEventListener('click', function() {
+               editProfileContainer.style.display = 'none';
+               viewProfileContainer.style.display = 'block';
 
-            const dob = document.getElementById('editDateOfBirth').value;
-            if (dob) {
-                const parts = dob.split('-');
-                if (parts.length === 3) {
-                    const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                    document.getElementById('viewDateOfBirth').value = formattedDate;
-                }
-            }
-        });
+               // Reset form to original values
+               document.getElementById('editUsername').value = document.getElementById('viewUsername').value;
+               document.getElementById('editEmail').value = document.getElementById('viewEmail').value;
+               document.getElementById('editPhone').value = document.getElementById('viewPhone').value;
+               document.getElementById('editSex').value = document.getElementById('viewSex').value;
+
+               // Reset date of birth format for the edit form
+               const dob = document.getElementById('viewDateOfBirth').value;
+               if (dob) {
+                   // Convert dd/MM/yyyy to yyyy-MM-dd for the date input
+                   const parts = dob.split('/');
+                   if (parts.length === 3) {
+                       const formattedDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                       document.getElementById('editDateOfBirth').value = formattedDate;
+                   }
+               }
+
+               // Clear all error messages and notifications
+               clearAllErrors();
+               document.getElementById('updateNotification').style.display = 'none';
+               resetUpdateButton();
+
+               // Reset file input
+               document.getElementById('avatar-input').value = '';
+           });
+
+           // Update profile
+           updateProfile.addEventListener('click', function(e) {
+               e.preventDefault();
+               updateUserProfile();
+           });
+
+           // Handle pressing Enter key in form fields
+           profileForm.addEventListener('keypress', function(e) {
+               if (e.key === 'Enter') {
+                   e.preventDefault();
+                   updateProfile.click();
+               }
+           });
+
+           // Initialize view profile data on load
+           // Set the Sex and Date of Birth values from edit form to view form
+           const sex = document.getElementById('editSex').value;
+           if (sex) {
+               document.getElementById('viewSex').value = sex;
+           }
+
+           const dob = document.getElementById('editDateOfBirth').value;
+           if (dob) {
+               const parts = dob.split('-');
+               if (parts.length === 3) {
+                   const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                   document.getElementById('viewDateOfBirth').value = formattedDate;
+               }
+           }
+       });
     </script>
 </header>
 </body>

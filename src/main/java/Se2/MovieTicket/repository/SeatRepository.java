@@ -25,4 +25,5 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
     Optional<Seat> findByRoomAndSeatRowAndSeatNumber(@Param("room") Room room, @Param("row") String row, @Param("number") Integer number);
 
 
+    List<Seat> findByRoomRoomId(Long roomId);
 }
