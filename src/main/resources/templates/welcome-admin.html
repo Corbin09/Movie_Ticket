@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
+    <style>
+        @import url("https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css");
+
+        * {
+            -webkit-font-smoothing: antialiased;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            height: 100%;
+        }
+
+        button:focus-visible {
+            outline: 2px solid #4a90e2 !important;
+            outline: -webkit-focus-ring-color auto 5px !important;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        :root {
+            --back: rgba(2, 7, 0, 1);
+        }
+
+        .video-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-background video {
+            width: auto;
+            min-width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1;
+        }
+
+        .welcome-container {
+            position: relative;
+            height: 100%;
+            display: flex;
+            padding-left: 77px;
+            flex-direction: column;
+            justify-content: center;
+            z-index: 2;
+            color: white;
+        }
+
+        .welcome-container h1 {
+            width: 673px;
+            height: 201px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.44) 100%);
+            -webkit-background-clip: text !important;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: "Poppins-BoldItalic", Helvetica;
+            font-weight: 700;
+            font-style: italic;
+            font-size: 56px;
+            letter-spacing: 2.8px;
+            line-height: 67.2px;
+        }
+
+        .welcome-container button {
+            font-weight: 700;
+            font-style: italic;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 18px;
+            padding: 15px 30px;
+            font-size: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 14px;
+            width: 255px;
+        }
+
+        .welcome-container button:hover {
+            background-color: #218838;
+        }
+
+        .header {
+            background-color: transparent;
+        }
+
+        .logo {
+            height: 90px;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .username {
+            color: white;
+            font-weight: 500;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .logout-btn {
+            background: linear-gradient(to right, #ff3333, #ff0066);
+            color: white;
+            border-radius: 12px;
+            padding: 6px 15px;
+            text-decoration: none;
+            font-size: 24px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/header_admin :: header_admin}"></div>
+<div class="video-background">
+    <video autoplay loop>
+        <source th:src="@{/videos/Welcome-Admin-Theme.mp4}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</div>
+<div class="video-overlay"></div>
+<div class="welcome-container">
+    <h1>Lights, camera, action! Ready to run the show, boss?</h1>
+    <button th:onclick="'window.location.href=\'/admin-dashboard\''">Explore now</button>
+</div>
+</body>
+</html>

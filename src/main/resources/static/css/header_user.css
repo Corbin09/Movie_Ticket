@@ -129,4 +129,190 @@
 }
 .adding-margin {
 height: 117px;
-}
+}/* Original header styles (add your existing styles here) */
+         /* Profile Overlay Styles */
+         /* Change profile overlay positioning */
+         .profile-overlay {
+             display: none;
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 100%;
+             height: 100%;
+             background-color: rgba(0, 0, 0, 0.5);
+             z-index: 1000;
+             align-items: flex-start; /* Align at the top instead of center */
+         }
+
+         /* Position the profile containers */
+         .profile-container, .edit-profile-container {
+             position: absolute;
+             top: 70px; /* Adjust based on your header height */
+             right: 20px; /* Position from the right side */
+             margin-top: 10px;
+         }
+
+         /* Change cursor for user section */
+         .user-section {
+             cursor: pointer;
+         }
+
+         /* Close Button */
+         .close-profile {
+             position: absolute;
+             top: 10px;
+             right: 10px;
+             font-size: 20px;
+             color: white;
+             cursor: pointer;
+             z-index: 1010;
+         }
+
+         /* Profile Header */
+         .profile-header {
+             background-color: #0f4d2e;
+             height: 100px;
+             position: relative;
+         }
+
+         .profile-avatar {
+             width: 80px;
+             height: 80px;
+             background-color: #e9f3d9;
+             border-radius: 50%;
+             position: absolute;
+             top: 60px;
+             left: 50%;
+             transform: translateX(-50%);
+             border: 3px solid white;
+             overflow: hidden;
+             display: flex;
+             justify-content: center;
+             align-items: center;
+         }
+
+         .profile-avatar img {
+             width: 100%;
+             height: 100%;
+             object-fit: cover;
+         }
+
+         /* Profile Content */
+         .profile-content {
+             padding: 50px 20px 20px;
+         }
+
+         .profile-field {
+             margin-bottom: 15px;
+         }
+
+         .profile-field label {
+             display: block;
+             font-size: 14px;
+             font-weight: bold;
+             margin-bottom: 5px;
+             color: #333;
+         }
+
+         .profile-field input {
+             width: 100%;
+             padding: 10px 15px;
+             border: 1px solid #ddd;
+             border-radius: 4px;
+             font-size: 16px;
+             color: #333;
+             outline: none;
+         }
+
+         /* Profile Actions */
+         .profile-actions {
+             display: flex;
+             gap: 10px;
+             margin-top: 25px;
+             justify-content: center;
+         }
+
+         .profile-actions button {
+             padding: 12px 15px;
+             border: none;
+             border-radius: 4px;
+             cursor: pointer;
+             font-weight: bold;
+             transition: background-color 0.3s;
+             font-size: 14px;
+         }
+
+         .edit-btn, .update-btn {
+             background-color: #0f4d2e;
+             color: white;
+             flex: 1;
+             max-width: 135px;
+         }
+
+         .edit-btn:hover, .update-btn:hover {
+             background-color: #0a3b23;
+         }
+
+         .view-btn, .cancel-btn {
+             background-color: #777;
+             color: white;
+             flex: 1;
+             max-width: 135px;
+         }
+
+         .view-btn:hover, .cancel-btn:hover {
+             background-color: #555;
+         }
+
+         /* Edit Profile Container */
+         .edit-profile-container {
+             width: 100%;
+             max-width: 420px;
+             background: #fff;
+             border-radius: 12px;
+             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+             overflow: hidden;
+         }
+
+         .avatar-edit-icon {
+             position: absolute;
+             bottom: 5px;
+             right: 5px;
+             background: rgba(0, 0, 0, 0.6);
+             color: white;
+             border-radius: 50%;
+             padding: 5px;
+             cursor: pointer;
+             font-size: 10px;
+         }
+
+         .profile-field-container {
+             position: relative;
+             width: 100%;
+         }
+
+         .error-message {
+             color: #d9534f;
+             font-size: 12px;
+             margin-top: 5px;
+             display: none;
+         }
+
+         /* Date picker and select styles */
+         .profile-field select, .profile-field input[type="date"] {
+             width: 100%;
+             padding: 10px 15px;
+             border: 1px solid #ddd;
+             border-radius: 4px;
+             font-size: 16px;
+             color: #333;
+             outline: none;
+             background-color: white;
+         }
+
+         /* Responsive Design */
+         @media (max-width: 480px) {
+             .profile-container, .edit-profile-container {
+                 max-width: 90%;
+             }
+         }

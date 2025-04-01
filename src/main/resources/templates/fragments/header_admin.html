@@ -1,19 +1,39 @@
-<!--<!DOCTYPE html>-->
-<!--<html xmlns:th="http://www.thymeleaf.org">-->
-<!--<head>-->
-<!--  <meta charset="UTF-8">-->
-<!--  <title>Header Fragment</title>-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema Header and Sidebar</title>
+    <link rel="stylesheet" href="/static/css/header_sidebar.css"> <!-- Link tới file CSS -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<!-- Header và Sidebar Fragment -->
+<header th:fragment="header_admin">
+    <div class="header">
+        <div class="container">
+            <div class="header-top">
+                <div class="to-menu">
+                    <img th:src="@{/images/cinema_logo.png}" alt="Cinema Logo" class="logo">
+                    <!-- Sidebar Toggle Button for Mobile -->
+                    <div class="sidebar-toggle" id="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </div>
 
-<!--</head>-->
-<!--<body>-->
-<!--<header class="header" th:fragment="header_admin">-->
-<!--  <div class="container">-->
-<!--    <div class="header-top">-->
-<!--      <img th:src="@{/images/cinema_logo.png}" alt="Cinema Logo" class="logo">-->
-<!--      <div class="user-section">-->
-<!--        <img th:src="${user.userImg}" alt="User Avatar" class="user-avatar"-->
-<!--             onerror="this.src='/static/images/anonymous.png';">-->
-<!--        <span class="username" th:text="${user.username}">User Name</span>-->
-<!--        <a th:href="@{/logout}" class="logout-btn">Log out</a>-->
-<!--      </div>-->
-<!--    </div> </div></header>-->
+                </div>
+
+                <!-- User Section: Hiển thị Avatar và Username -->
+                <div class="user-section">
+                    <img th:src="${user.userImg}" alt="User  Avatar" class="user-avatar" onerror="this.src='/static/images/anonymous.png';">
+                    <span class="username" th:text="${user.username}">User  Name</span>
+                    <a th:href="@{/logout}" class="logout-btn">Log out</a>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</header>
+
+</body>
+</html>

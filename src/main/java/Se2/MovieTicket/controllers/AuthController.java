@@ -144,7 +144,7 @@ public class AuthController {
 
             if ("ROLE_ADMIN".equals(role)) {
                 logger.info("Redirecting Admin to /pay-ticket");
-                return "redirect:/manage-rooms";
+                return "redirect:/welcome-admin";
             } else if ("ROLE_USER".equals(role)) {
                 logger.info("Redirecting User to /home");
                 return "redirect:/showtime";
@@ -854,7 +854,19 @@ public class AuthController {
 
 
 
+//----------------------------ADMIN PERMISSION------------------------------------------------------------------------------------------------
+    @GetMapping("/welcome-admin")
+    public String showWelcomeAdminPage(Model model, HttpServletRequest request) {
+        // Kiểm tra quyền ADMIN
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
 
+        // Thêm user vào model để Thymeleaf hiển thị trong header
+        addUserToModel(model, request);
+
+        return "welcome-admin"; // Trả về file `welcome-admin.html`
+    }
 
     @GetMapping("/manage-orders")
     public String manageOrders(
