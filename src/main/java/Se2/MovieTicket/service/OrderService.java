@@ -2,6 +2,7 @@ package Se2.MovieTicket.service;
 
 import Se2.MovieTicket.dto.OrderDTO;
 import Se2.MovieTicket.model.Order;
+import Se2.MovieTicket.model.User;
 import Se2.MovieTicket.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -209,4 +210,37 @@ public class OrderService {
 
         return filteredOrders;
     }
+
+    /**
+     * Get all orders for a specific user by user ID
+     *
+     * @param userId the ID of the user
+     * @return list of orders associated with the user
+     */
+    public List<Order> getOrdersByUserId(Long userId) {
+        return orderRepository.findByUserUserId(userId);
+    }
+
+    /**
+     * Get all orders for a specific user
+     *
+     * @param user the user entity
+     * @return list of orders associated with the user
+     */
+    public List<Order> getOrdersByUser(User user) {
+        return orderRepository.findByUser(user);
+    }
+
+
+    /**
+     * Save an order to the database
+     *
+     * @param order the order to save
+     * @return the saved order with updated ID
+     */
+    public Order saveOrder(Order order) {
+        return orderRepository.save(order);
+    }
+
+
 }

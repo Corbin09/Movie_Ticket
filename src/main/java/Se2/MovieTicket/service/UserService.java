@@ -2,7 +2,10 @@ package Se2.MovieTicket.service;
 
 import Se2.MovieTicket.dto.UserDTO;
 import Se2.MovieTicket.impl.UserDetailsImpl;
+import Se2.MovieTicket.model.Film;
 import Se2.MovieTicket.model.User;
+import Se2.MovieTicket.model.UserLikeFilm;
+import Se2.MovieTicket.repository.UserLikeFilmRepository;
 import Se2.MovieTicket.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -36,6 +39,8 @@ public class UserService {
 
     @Autowired
     private EntityManager em;
+@Autowired
+private UserLikeFilmRepository userLikeFilmRepository;
 
     public List<User> filterUsers(String username) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -160,5 +165,12 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-
+    public void unlikeFilm(User user, Film film) {
+        // Find the UserLikeFilm entry
+        Optional<UserLikeFilm> userLikeFilmOptional = userLikeFilmRepository.findByUserAndFilm(user, film);
+        userLikeFilmOptional.ifPresent(userLikeFilm -> {
+            // Remove the like
+            userLikeFilmRepository.delete(userLikeFilm);
+        });
+    }
 }

@@ -218,11 +218,12 @@ background-color: #ddd;
 
   <div class="news-details">
     <img th:src="@{${currentNews.newsImg}}" alt="News Image" class="news-img">
+    <header th:text="${currentNews.newsHeader}"></header>
     <div th:utext="${currentNews.newsContent}"></div>
     <footer th:text="${currentNews.newsFooter}"></footer>
     <!-- Manual date formatting -->
     <div class="news-ps">
-      <span th:text="'Date: ' + ${#dates.format(currentNews.newsTime, 'dd/MM/yyyy')}"></span>
+      <span th:text="'Date: ' + ${#temporals.format(currentNews.newsTime, 'dd/MM/yyyy HH:mm:ss')}"></span>
       <span th:text="'Write by: ' + ${currentNews.user.username}"></span>
     </div>
   </div>
@@ -230,7 +231,7 @@ background-color: #ddd;
   <!-- Pagination Dots -->
   <div class="pagination">
     <a th:href="@{/news/{id}(id=${prevNews.newsId})}" class="prev">&laquo; Previous</a>
-    <span th:text="${currentNews.newsId} + ' / ' + ${totalNews}"></span>
+    <span th:text="'News id: ' + ${currentNews.newsId} + ' / ' + 'Total news: ' + ${totalNews}"></span>
     <a th:href="@{/news/{id}(id=${nextNews.newsId})}" class="next">Next &raquo;</a>
   </div>
 

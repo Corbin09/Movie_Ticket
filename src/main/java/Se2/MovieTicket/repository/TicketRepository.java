@@ -19,6 +19,10 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
 //    @Query("SELECT t FROM Ticket t WHERE t.showtime = :showtime")
 //    List<Ticket> findByShowtime(@Param("showtime") Showtime showtime);
+// Add to TicketRepository
+@Query("SELECT t FROM Ticket t JOIN t.order o WHERE o.user.userId = :userId")
+List<Ticket> findTicketsByUserId(@Param("userId") Long userId);
+
 
     @Query("SELECT t FROM Ticket t WHERE t.seat = :seat")
     List<Ticket> findBySeat(@Param("seat") Seat seat);

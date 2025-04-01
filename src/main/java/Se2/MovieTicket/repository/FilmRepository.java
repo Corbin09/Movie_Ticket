@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FilmRepository extends JpaRepository<Film, Long> {
@@ -121,4 +122,12 @@ public interface FilmRepository extends JpaRepository<Film, Long> {
     Page<Film> findByFilmOrigin(@Param("vietnamese") String vietnamese, Pageable pageable);
     @Query("SELECT f FROM Film f WHERE f.country <> :vietnamese")
     Page<Film> findByFilmOriginNot(@Param("vietnamese") String vietnamese, Pageable pageable);
+
+    // OR use a JPQL query
+    @Query("SELECT f FROM Film f WHERE f.filmId = :id")
+    Optional<Film> findFilmById(@Param("id") Long id);
+
+    // In FilmRepository
+    @Query("SELECT f FROM Film f JOIN UserLikeFilm ulf ON f.id = ulf.film.id WHERE ulf.user.userId = :userId")
+    List<Film> findLikedFilmsByUserId(@Param("userId") Long userId);
 }

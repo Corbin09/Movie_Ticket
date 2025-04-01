@@ -2,6 +2,7 @@ package Se2.MovieTicket.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -11,7 +12,7 @@ public class NewsDTO {
     private Long userId;
     private String newsContent;
     private String newsImg;
-    private Date newsTime;
+    private LocalDateTime newsTime;
     private String newsHeader;
     private String newsFooter;
 
@@ -55,11 +56,11 @@ public class NewsDTO {
         this.newsImg = newsImg;
     }
 
-    public Date getNewsTime() {
+    public LocalDateTime getNewsTime() {
         return newsTime;
     }
 
-    public void setNewsTime(Date newsTime) {
+    public void setNewsTime(LocalDateTime newsTime) {
         this.newsTime = newsTime;
     }
 

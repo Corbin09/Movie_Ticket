@@ -27,6 +27,13 @@ public interface NewsRepository extends JpaRepository<News, Long> {
     // Find the latest news (most recent newsTime)
     @Query(value = "SELECT * FROM news ORDER BY new_time DESC LIMIT 1", nativeQuery = true)
     News findLatestNews();
+    /**
+     * Find all news by a specific user ID
+     *
+     * @param userId the ID of the user
+     * @return list of news created by the specified user
+     */
+    List<News> findByUserUserId(Long userId);
 
 
     // Find news related to a specific film
@@ -35,4 +42,7 @@ public interface NewsRepository extends JpaRepository<News, Long> {
 
     @Query("SELECT n FROM News n ORDER BY n.newsTime DESC")
     List<News> findAllByOrderByNewsTimeDesc();
+
+    @Query("SELECT n FROM News n WHERE n.id = :id")
+    News findNewsById(@Param("id") Long id);
 }

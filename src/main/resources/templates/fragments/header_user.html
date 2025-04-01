@@ -76,6 +76,7 @@
         /* Profile Content */
         .profile-content {
             padding: 50px 20px 20px;
+            background-color: white;
         }
 
         .profile-field {
@@ -90,7 +91,7 @@
             color: #333;
         }
 
-        .profile-field input {
+        .profile-field input, .profile-field select {
             width: 100%;
             padding: 10px 15px;
             border: 1px solid #ddd;
@@ -98,6 +99,12 @@
             font-size: 16px;
             color: #333;
             outline: none;
+            background-color: #f9f9f9;
+        }
+
+        .profile-field input:read-only {
+            background-color: #f5f5f5;
+            cursor: default;
         }
 
         /* Profile Actions */
@@ -107,7 +114,11 @@
             margin-top: 25px;
             justify-content: center;
         }
-.profile-actions a {text-decoration: none;}
+
+        .profile-actions a {
+            text-decoration: none;
+        }
+
         .profile-actions button {
             padding: 12px 15px;
             border: none;
@@ -118,7 +129,7 @@
             font-size: 14px;
         }
 
-        .edit-btn, .update-btn, .view-btn,{
+        .edit-btn, .update-btn, .view-btn {
             background-color: #0f4d2e;
             color: white;
             flex: 1;
@@ -183,7 +194,7 @@
             font-size: 16px;
             color: #333;
             outline: none;
-            background-color: white;
+            background-color: #f9f9f9;
         }
 
         /* Notification styling */
@@ -277,7 +288,6 @@
     <!-- Profile Overlay -->
     <div class="profile-overlay" id="profileOverlay">
         <div class="profile-container" id="viewProfileContainer">
-<!--            <span class="close-profile" id="closeProfile"><i class="fas fa-times"></i></span>-->
             <div class="profile-header">
                 <div class="profile-avatar">
                     <img th:src="${user.userImg}" alt="User Avatar" id="viewProfileAvatar"
@@ -301,16 +311,25 @@
                     <input type="tel" id="viewPhone" name="phone" th:value="${user.phoneNumber}" readonly>
                 </div>
 
+                <div class="profile-field">
+                    <label for="viewSex">Sex</label>
+                    <input type="text" id="viewSex" name="sex" th:value="${user.sex}" readonly>
+                </div>
+
+                <div class="profile-field">
+                    <label for="viewDateOfBirth">Date of Birth</label>
+                    <input type="text" id="viewDateOfBirth" name="dateOfBirth" th:value="${#dates.format(user.dateOfBirth, 'dd/MM/yyyy')}" readonly>
+                </div>
+
                 <div class="profile-actions">
                     <button class="edit-btn" id="showEditProfile">Edit Profile</button>
-                    <a th:href="@{/user/profile}" class="view-btn" id="ViewProfile">View Profile</a>
+                    <a th:href="@{/user/detail-profile}" class="view-btn" id="ViewProfile">View Profile</a>
                 </div>
             </div>
         </div>
 
         <!-- Edit Profile Container -->
         <div class="edit-profile-container" id="editProfileContainer" style="display: none;">
-<!--            <span class="close-profile" id="closeEditProfile"><i class="fas fa-times"></i></span>-->
             <div class="profile-header">
                 <div class="profile-avatar" id="avatar">
                     <img th:src="${user.userImg}" id="avatar-img" alt="Avatar"
@@ -326,7 +345,6 @@
             <div id="updateNotification" class="notification" style="display: none;"></div>
 
             <div class="profile-content">
-
                 <form id="profileForm">
                     <input type="hidden" name="_csrf" th:value="${_csrf?.token}">
 
@@ -495,9 +513,6 @@
             const profileOverlay = document.getElementById('profileOverlay');
             const viewProfileContainer = document.getElementById('viewProfileContainer');
             const editProfileContainer = document.getElementById('editProfileContainer');
-<!--            const closeProfile = document.getElementById('closeProfile');-->
-<!--            const closeEditProfile = document.getElementById('closeEditProfile');-->
-<!--            const closeViewProfile = document.getElementById('closeViewProfile');-->
             const showEditProfile = document.getElementById('showEditProfile');
             const cancelEdit = document.getElementById('cancelEdit');
             const updateProfile = document.getElementById('updateProfile');
@@ -524,19 +539,6 @@
                 }
             });
 
-<!--            // Close buttons-->
-<!--            closeProfile.addEventListener('click', function() {-->
-<!--                profileOverlay.style.display = 'none';-->
-<!--            });-->
-
-<!--            closeEditProfile.addEventListener('click', function() {-->
-<!--                profileOverlay.style.display = 'none';-->
-<!--            });-->
-
-<!--            closeViewProfile.addEventListener('click', function() {-->
-<!--                profileOverlay.style.display = 'none';-->
-<!--            });-->
-
             // Show edit profile
             showEditProfile.addEventListener('click', function() {
                 viewProfileContainer.style.display = 'none';
@@ -553,6 +555,18 @@
                 document.getElementById('editUsername').value = document.getElementById('viewUsername').value;
                 document.getElementById('editEmail').value = document.getElementById('viewEmail').value;
                 document.getElementById('editPhone').value = document.getElementById('viewPhone').value;
+                document.getElementById('editSex').value = document.getElementById('viewSex').value;
+
+                // Reset date of birth format for the edit form
+                const dob = document.getElementById('viewDateOfBirth').value;
+                if (dob) {
+                    // Convert dd/MM/yyyy to yyyy-MM-dd for the date input
+                    const parts = dob.split('/');
+                    if (parts.length === 3) {
+                        const formattedDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                        document.getElementById('editDateOfBirth').value = formattedDate;
+                    }
+                }
 
                 // Clear all error messages
                 clearAllErrors();
@@ -593,12 +607,9 @@
 
                     // Log form data for debugging
                     for (let pair of formData.entries()) {
-                        console.log(pair[0] + ': ' + pair[1]);
+                        console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[1]));
                     }
-console.log('Form data contents:');
-for (let pair of formData.entries()) {
-    console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[1]));
-}
+
                     // Send AJAX request to update profile with proper headers
                     fetch('/user/update-profile', {
                         method: 'POST',
@@ -652,6 +663,17 @@ for (let pair of formData.entries()) {
                         document.getElementById('viewUsername').value = document.getElementById('editUsername').value;
                         document.getElementById('viewEmail').value = document.getElementById('editEmail').value;
                         document.getElementById('viewPhone').value = document.getElementById('editPhone').value;
+                        document.getElementById('viewSex').value = document.getElementById('editSex').value;
+
+                        // Format the date for display
+                        const editDate = document.getElementById('editDateOfBirth').value;
+                        if (editDate) {
+                            const parts = editDate.split('-');
+                            if (parts.length === 3) {
+                                const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                                document.getElementById('viewDateOfBirth').value = formattedDate;
+                            }
+                        }
 
                         // Update the profile avatar if it was changed
                         const user = data.user;
@@ -689,6 +711,22 @@ for (let pair of formData.entries()) {
                     updateProfile.click();
                 }
             });
+
+            // Initialize view profile data on load
+            // Set the Sex and Date of Birth values from edit form to view form
+            const sex = document.getElementById('editSex').value;
+            if (sex) {
+                document.getElementById('viewSex').value = sex;
+            }
+
+            const dob = document.getElementById('editDateOfBirth').value;
+            if (dob) {
+                const parts = dob.split('-');
+                if (parts.length === 3) {
+                    const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                    document.getElementById('viewDateOfBirth').value = formattedDate;
+                }
+            }
         });
     </script>
 </header>

@@ -4,13 +4,20 @@ import Se2.MovieTicket.dto.FilmDTO;
 import Se2.MovieTicket.dto.NewsDTO;
 import Se2.MovieTicket.model.Film;
 import Se2.MovieTicket.model.News;
+import Se2.MovieTicket.model.User;
 import Se2.MovieTicket.repository.FilmRepository;
 import Se2.MovieTicket.repository.NewsRepository;
+import Se2.MovieTicket.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
+
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,41 +27,20 @@ public class NewsService {
     private NewsRepository newsRepository;
 @Autowired
 private FilmRepository filmRepository;
+
+@Autowired
+private UserRepository userRepository;
+
     public List<News> getAllNews() {
         return newsRepository.findAll();
     }
 
-    public Optional<News> getNewsById(Long id) {
-        return newsRepository.findById(id);
+    public News getNewsById(Long id) {
+        return newsRepository.findNewsById(id);
     }
 
-    public News createNews(NewsDTO newsDTO) {
-        News news = new News();
-        news.setFilmId(newsDTO.getFilmId());
-        news.setUserId(newsDTO.getUserId());
-        news.setNewsContent(newsDTO.getNewsContent());
-        news.setNewsImg(newsDTO.getNewsImg());
-        news.setNewsTime(newsDTO.getNewsTime());
-        news.setNewsHeader(newsDTO.getNewsHeader());
-        news.setNewsFooter(newsDTO.getNewsFooter());
-        return newsRepository.save(news);
-    }
 
-    public News updateNews(Long id, NewsDTO newsDTO) {
-        Optional<News> newsData = newsRepository.findById(id);
-        if (newsData.isPresent()) {
-            News news = newsData.get();
-            news.setFilmId(newsDTO.getFilmId());
-            news.setUserId(newsDTO.getUserId());
-            news.setNewsContent(newsDTO.getNewsContent());
-            news.setNewsImg(newsDTO.getNewsImg());
-            news.setNewsTime(newsDTO.getNewsTime());
-            news.setNewsHeader(newsDTO.getNewsHeader());
-            news.setNewsFooter(newsDTO.getNewsFooter());
-            return newsRepository.save(news);
-        }
-        return null;
-    }
+
 
     // Get latest news
     public News getLatestNews() {
@@ -109,5 +95,48 @@ private FilmRepository filmRepository;
         return filmRepository.findByFilmOriginNot("Vietnamese", pageable);
     }
 
+    /**
+     * Find all news articles created by a specific user
+     *
+     * @param userId the ID of the user
+     * @return list of news articles associated with the user
+     */
+    public List<News> findNewsByUser(Long userId) {
+        return newsRepository.findByUserUserId(userId);
+    }
 
+    /**
+     * Find all news articles created by a specific user
+     *
+     * @param user the user entity
+     * @return list of news articles associated with the user
+     */
+    public List<News> findNewsByUser(User user) {
+        return newsRepository.findByUser(user);
+    }
+
+    @Transactional
+    public News saveNews(News news) {
+        // Make sure the time is set
+        if (news.getNewsTime() == null) {
+            news.setNewsTime(LocalDateTime.now()); // Set to current time using LocalDateTime
+        }
+
+        // Load the full Film entity
+        if (news.getFilm() != null && news.getFilm().getFilmId() != null) {
+            Film film = filmRepository.findById(news.getFilm().getFilmId())
+                    .orElseThrow(() -> new EntityNotFoundException("Film not found with ID: " + news.getFilm().getFilmId()));
+            news.setFilm(film);
+        }
+
+        // Load the full User entity
+        if (news.getUser() != null && news.getUser().getUserId() != null) {
+            User user = userRepository.findById(news.getUser().getUserId())
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + news.getUser().getUserId()));
+            news.setUser(user);
+        }
+
+        // Save to database
+        return newsRepository.save(news);
+    }
 }

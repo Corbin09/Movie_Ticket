@@ -21,7 +21,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import java.time.Duration;
+import java.time.Instant;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
@@ -79,7 +81,28 @@ public class FilmService {
     }
 
 
+    // In FilmService
+    private List<Film> cachedFilms;
+    private Instant cacheTimestamp;
+    private static final long CACHE_DURATION_MINUTES = 30;
 
+    public List<Film> getCachedFilms() {
+        // Cache films for 30 minutes to avoid repeated database queries
+        if (cachedFilms == null ||
+                cacheTimestamp == null ||
+                Duration.between(cacheTimestamp, Instant.now()).toMinutes() > CACHE_DURATION_MINUTES) {
+
+            cachedFilms = filmRepository.findAll();
+            cacheTimestamp = Instant.now();
+        }
+        return cachedFilms;
+    }
+
+    // Optional: Add pagination for films if the list is large
+    public List<Film> getPaginatedFilms(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return filmRepository.findAll(pageable).getContent();
+    }
 //    public Page<Film> searchFilms(String name, Pageable pageable) {
 //        if (name != null && !name.isEmpty()) {
 //            return filmRepository.findByFilmNameContainingIgnoreCase(name, pageable);  // Paginated query
@@ -90,6 +113,7 @@ public class FilmService {
 
     public Optional<Film> getFilmById(Long id) {
         return filmRepository.findById(id);
+
     }
 
     public Film createFilm(FilmDTO filmDTO) {
@@ -355,6 +379,10 @@ public class FilmService {
 
     public List<Showtime> getAllShowtimesByCinemaAndFilm(Long cinemaId, Long filmId) {
         return showtimeRepository.findByCinema_CinemaIdAndFilm_FilmId(cinemaId, filmId);
+    }
+
+    public List<Film> getLikedFilmsByUserId(Long userId) {
+        return filmRepository.findLikedFilmsByUserId(userId);
     }
 }
 

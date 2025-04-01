@@ -19,12 +19,12 @@
   <div class="news-container">
     <div class="main-news" th:each="news : ${latestNews}">
       <img th:src="${news.newsImg}" alt="News Image">
-<!--      <h3 th:text="${news.newsHeader}"></h3>-->
+      <h3 th:text="${news.newsHeader}"></h3>
       <div th:utext="${news.newsContent}"></div>
       <h3 th:text="${news.newsFooter}"></h3>-->
       <!-- Manual date formatting -->
       <div class="news-ps">
-      <span th:text="'Date: ' + ${#dates.format(news.newsTime, 'dd/MM/yyyy')}"></span>
+      <span th:text="'Date: ' + ${#temporals.format(news.newsTime, 'dd/MM/yyyy HH:mm:ss')}"></span>
       <span th:text="'Write by: ' + ${news.user.username}"></span>
       </div>
     </div>
@@ -33,8 +33,8 @@
         <a class="news-item" th:href="@{/news/{id}(id=${review.newsId})}">
           <img th:src="${review.newsImg}" alt="Review Image">
           <div class="review-metadata">
-            <p th:text="'Review: ' + ${review.newsHeader}"></p>
-            <span th:text="'Date: ' + ${#dates.format(review.newsTime, 'dd/MM/yyyy')}"></span>
+            <p th:text="${review.newsHeader}"></p>
+            <span th:text="'Date: ' + ${#temporals.format(review.newsTime, 'dd/MM/yyyy HH:mm:ss')}"></span>
             <span th:text="'Written by: ' + ${review.user.username}"></span>
           </div>
         </a>

@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -38,7 +39,7 @@ public class News {
 
     @Column(name = "new_time")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date newsTime;
+    private LocalDateTime newsTime;
 
     @Column(name = "new_header")
     private String newsHeader;
@@ -86,11 +87,11 @@ public class News {
         this.newsImg = newsImg;
     }
 
-    public Date getNewsTime() {
+    public LocalDateTime getNewsTime() {
         return newsTime;
     }
 
-    public void setNewsTime(Date newsTime) {
+    public void setNewsTime(LocalDateTime newsTime) {
         this.newsTime = newsTime;
     }
 
@@ -110,17 +111,5 @@ public class News {
         this.newsFooter = newsFooter;
     }
 
-    public void setFilmId(Long filmId) {
-        if (this.film == null) {
-            this.film = new Film();
-        }
-        this.film.setFilmId(filmId);
-    }
 
-    public void setUserId(Long userId) {
-        if (this.user == null) {
-            this.user = new User();
-        }
-        this.user.setUserId(userId);
-    }
 }
