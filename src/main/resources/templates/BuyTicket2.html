@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title>Popcorn Selection</title>
+    <style>
+        @import url("https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css");
+
+        * {
+          -webkit-font-smoothing: antialiased;
+          box-sizing: border-box;
+        }
+
+        html, body {
+          margin: 0px;
+          height: 100%;
+        }
+
+        button:focus-visible {
+          outline: 2px solid #4a90e2 !important;
+          outline: -webkit-focus-ring-color auto 5px !important;
+        }
+
+        a {
+          text-decoration: none;
+        }
+
+        :root {
+          --back: rgba(2, 7, 0, 1);
+        }
+
+        .buy-ticket {
+          width: 100%;
+          max-width: 1280px;
+          height: 1376px;
+          background-color: #ffffff;
+          margin: 0 auto;
+        }
+
+        .buy-ticket .frame {
+          position: relative;
+          height: 1375px;
+          top: 1px;
+          background-color: var(--back);
+          overflow: hidden;
+        }
+
+        .buy-ticket .overlap {
+          position: absolute;
+          width: 100%;
+          height: 898px;
+          top: -47px;
+          left: 0;
+        }
+
+        .buy-ticket .overlap-group {
+          position: absolute;
+          width: 100%;
+          height: 811px;
+          top: 0;
+          left: 0;
+        }
+
+        .buy-ticket .div {
+          position: absolute;
+          width: 100%;
+          height: 754px;
+          top: 0;
+          left: 0;
+        }
+
+        .buy-ticket .ellipse {
+          right: 0;
+          position: absolute;
+          width: 448px;
+          height: 448px;
+          top: 0;
+          background-color: #1de782;
+          border-radius: 224px;
+          filter: blur(275px);
+        }
+
+        .buy-ticket .image {
+          width: 100%;
+          height: 258px;
+          top: 204px;
+          left: 0;
+          position: absolute;
+          object-fit: cover;
+        }
+
+        .buy-ticket .rectangle {
+          width: 100%;
+          height: 258px;
+          top: 204px;
+          background-color: #353f3980;
+          position: absolute;
+          left: 0;
+        }
+
+        .buy-ticket .img {
+          position: absolute;
+      width: 354px;
+      height: 487px;
+      top: 63px;
+      left: 30px;
+      object-fit: cover;
+      box-shadow: 0 0 15px 5px rgba(236, 232, 91, 0.8);
+        }
+
+        .buy-ticket .text-wrapper {
+          position: absolute;
+          height: 66px;
+          top: 381px;
+          left: 387px;
+          font-family: "Poppins-Bold", Helvetica;
+          font-weight: 700;
+          color: #ffffff;
+          font-size: 55px;
+          letter-spacing: 0;
+          line-height: 66px;
+          white-space: nowrap;
+        }
+
+        .buy-ticket .line-wrapper {
+          position: absolute;
+          width: 833px;
+          height: 2px;
+          top: 564px;
+          left: 391px;
+          background-color: #444;
+        }
+
+        .buy-ticket .line {
+          position: absolute;
+          width: 215px;
+          height: 2px;
+          top: 0;
+          left: 239px;
+          background-color: #cd1818;
+        }
+
+        .buy-ticket .frame-2 {
+          display: inline-flex;
+          align-items: center;
+          gap: 95px;
+          position: absolute;
+          top: 515px;
+          left: 426px;
+        }
+
+        .buy-ticket .group {
+          position: relative;
+          width: 142px;
+          height: 33px;
+        }
+
+        .buy-ticket .div-wrapper {
+          position: absolute;
+          width: 34px;
+          height: 33px;
+          top: 0;
+          left: 0;
+          background-color: #7a7474;
+          border-radius: 5px;
+        }
+
+        .buy-ticket .text-wrapper-2 {
+          position: absolute;
+          height: 17px;
+          top: 8px;
+          left: 7px;
+          font-family: "Inter-SemiBold", Helvetica;
+          font-weight: 600;
+          color: #ffffff;
+          font-size: 17px;
+          letter-spacing: 0;
+          line-height: 17px;
+          white-space: nowrap;
+        }
+
+        .buy-ticket .text-wrapper-3 {
+          position: absolute;
+          height: 17px;
+          top: 8px;
+          left: 50px;
+          font-family: "Inter-SemiBold", Helvetica;
+          font-weight: 600;
+          color: #ffffff;
+          font-size: 17px;
+          letter-spacing: 0;
+          line-height: 17px;
+          white-space: nowrap;
+        }
+
+        .buy-ticket .group-2 {
+          position: relative;
+          width: 150px;
+          height: 33px;
+        }
+
+        .buy-ticket .overlap-2 {
+          position: absolute;
+          width: 34px;
+          height: 33px;
+          top: 0;
+          left: 0;
+          background-color: #ee1616;
+          border-radius: 5px;
+        }
+
+        .buy-ticket .group-3 {
+          position: relative;
+          width: 87px;
+          height: 33px;
+        }
+
+        .buy-ticket .group-4 {
+          position: relative;
+          width: 116px;
+          height: 33px;
+          margin-right: -4px;
+        }
+
+        /* Combo container styles */
+        .combo-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 20px;
+          justify-content: center;
+          position: absolute;
+          top: 610px;
+          width: calc(100% - 60px);
+          left: 30px;
+        }
+
+        .combo-row {
+          display: flex;
+          justify-content: flex-start;
+          gap: 20px;
+          width: 100%;
+        }
+
+        .combo-box {
+          width: 201px;
+          height: 197px;
+          background-color: #ffffff;
+          border-radius: 10px;
+          overflow: hidden;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          margin-bottom: 15px;
+        }
+
+        .combo-box.selected {
+          box-shadow: 0 0 15px 5px rgba(236, 232, 91, 0.8);
+          border: 2px solid #f12222;
+        }
+
+        .combo-content {
+          position: relative;
+          width: 160px;
+          height: 160px;
+          margin: 19px auto;
+        }
+
+        .combo-image {
+          width: 160px;
+          height: 110px;
+          object-fit: cover;
+        }
+
+        .combo-name {
+          position: absolute;
+          width: 116px;
+          height: 31px;
+          top: 109px;
+          left: 0;
+          font-family: "Poppins-Bold", Helvetica;
+          font-weight: 700;
+          color: #f12222;
+          font-size: 13px;
+          letter-spacing: 0;
+          line-height: 15.6px;
+        }
+
+        .combo-price {
+          position: absolute;
+          width: 50px;
+          height: 31px;
+          top: 129px;
+          left: 0;
+          font-family: "Poppins-Regular", Helvetica;
+          font-weight: 400;
+          color: #8e1818;
+          font-size: 13px;
+          letter-spacing: 0;
+          line-height: 15.6px;
+        }
+
+        .buy-ticket .combo {
+          position: absolute;
+          width: 300px;
+          height: 117px;
+          top: 781px;
+          left: 56px;
+        }
+
+        .buy-ticket .overlap-5 {
+          position: relative;
+          width: 296px;
+          height: 117px;
+        }
+
+        .buy-ticket .text-wrapper-8 {
+          position: absolute;
+          width: 296px;
+          height: 54px;
+          top: 63px;
+          left: 0;
+          font-family: "Poppins-Bold", Helvetica;
+          font-weight: 700;
+          color: #ffffff;
+          font-size: 18px;
+          letter-spacing: 4.5px;
+          line-height: 36px;
+        }
+
+        .buy-ticket .text-wrapper-9 {
+          position: absolute;
+          width: 296px;
+          height: 80px;
+          top: 0;
+          left: 0;
+          font-family: "Poppins-Regular", Helvetica;
+          font-weight: 400;
+          color: #a49d9d;
+          font-size: 16px;
+          letter-spacing: 3px;
+          line-height: 24px;
+        }
+
+        .buy-ticket .overlap-6 {
+          position: absolute;
+          width: 528px;
+          height: 448px;
+          top: 935px;
+          left: 0;
+        }
+
+        .buy-ticket .ellipse-2 {
+          left: 0;
+          position: absolute;
+          width: 448px;
+          height: 448px;
+          top: 0;
+          background-color: #1de782;
+          border-radius: 224px;
+          filter: blur(275px);
+        }
+
+        .buy-ticket .price {
+          position: absolute;
+          width: 150px;
+          height: 98px;
+          top: 0;
+          left: 224px;
+        }
+
+        .buy-ticket .overlap-7 {
+          position: relative;
+          width: 100%;
+          height: 98px;
+        }
+
+        .buy-ticket .text-wrapper-10 {
+          position: absolute;
+          width: 100%;
+          height: 54px;
+          top: 44px;
+          left: 0;
+          font-family: "Poppins-Bold", Helvetica;
+          font-weight: 700;
+          color: #ffffff;
+          font-size: 18px;
+          letter-spacing: 4.5px;
+          line-height: 36px;
+        }
+
+        .buy-ticket .text-wrapper-11 {
+          position: absolute;
+          width: 90px;
+          height: 47px;
+          top: 0;
+          left: 0;
+          font-family: "Poppins-Regular", Helvetica;
+          font-weight: 400;
+          color: #a49d9d;
+          font-size: 16px;
+          letter-spacing: 3px;
+          line-height: 24px;
+        }
+
+        .buy-ticket .group-5 {
+          position: absolute;
+          width: 307px;
+          height: 47px;
+          top: 133px;
+          left: 221px;
+        }
+
+        .buy-ticket .overlap-8 {
+          position: absolute;
+          width: 136px;
+          height: 47px;
+          top: 0;
+          left: 0;
+          border-radius: 5px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .buy-ticket .rectangle-2 {
+          width: 136px;
+          height: 47px;
+          top: 0;
+          background-color: #000000;
+          border-radius: 5px;
+          border: 0.6px solid;
+          border-color: #f02222;
+          position: absolute;
+          left: 0;
+        }
+
+        .buy-ticket .CANCEL {
+          font-family: "Poppins-Bold", Helvetica;
+          font-weight: 700;
+          color: #f12222;
+          font-size: 14px;
+          text-align: center;
+          letter-spacing: 0.29px;
+          line-height: 16.8px;
+          position: relative;
+          z-index: 1;
+        }
+
+        .buy-ticket .span {
+          letter-spacing: 0.29px;
+        }
+
+        .buy-ticket .text-wrapper-12 {
+          letter-spacing: 0;
+        }
+
+        .buy-ticket .group-wrapper {
+          position: absolute;
+          width: 136px;
+          height: 47px;
+          top: 0;
+          left: 169px;
+        }
+
+        .buy-ticket .group-6 {
+          width: 138px;
+          height: 47px;
+        }
+
+        .buy-ticket .overlap-group-2 {
+          width: 136px;
+          height: 47px;
+          background-color: #f12222;
+          border-radius: 5px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .buy-ticket .text-wrapper-13 {
+          -webkit-text-stroke: 0.25px #ffffff;
+          font-family: "Poppins-Bold", Helvetica;
+          font-weight: 700;
+          color: #ffffff;
+          font-size: 14px;
+          text-align: center;
+          letter-spacing: 2.1px;
+          line-height: 16.8px;
+        }
+
+        .buy-ticket .pagination {
+          display: inline-flex;
+          align-items: flex-start;
+          gap: 5px;
+          position: absolute;
+          top: 1036px;
+          left: 720px;
+        }
+
+        .buy-ticket .div-2 {
+          display: flex;
+          flex-direction: column;
+          width: 32px;
+          height: 32px;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 10px;
+          position: relative;
+          background-color: #ffffff;
+          border-radius: 32px;
+          border: 0.5px solid;
+          border-color: #505357;
+          cursor: pointer;
+        }
+
+        .buy-ticket .img-2 {
+          position: relative;
+          width: 16px;
+          height: 16px;
+          margin-top: -2px;
+          margin-bottom: -2px;
+          margin-left: -2px;
+          margin-right: -2px;
+        }
+
+        .buy-ticket .page {
+          display: flex;
+          flex-direction: column;
+          width: 32px;
+          height: 32px;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 10px;
+          position: relative;
+          background-color: #e30713;
+          border-radius: 32px;
+          border: 0.5px solid;
+          border-color: #515357;
+          cursor: pointer;
+        }
+
+        .buy-ticket .date {
+          position: relative;
+          width: fit-content;
+          margin-top: -3.5px;
+          margin-bottom: -2.5px;
+          font-family: "Open Sans-SemiBold", Helvetica;
+          font-weight: 600;
+          color: #ffffff;
+          font-size: 13px;
+          letter-spacing: 0;
+          line-height: normal;
+        }
+
+        .buy-ticket .date-2 {
+          position: relative;
+          width: fit-content;
+          margin-top: -3.5px;
+          margin-bottom: -2.5px;
+          font-family: "Open Sans-SemiBold", Helvetica;
+          font-weight: 600;
+          color: #333333;
+          font-size: 13px;
+          letter-spacing: 0;
+          line-height: normal;
+        }
+
+        .hidden {
+          display: none !important;
+        }
+    </style>
+</head>
+<body>
+<div class="buy-ticket">
+    <div class="frame">
+        <div class="overlap">
+            <div class="overlap-group">
+                <div class="div">
+                    <div class="ellipse"></div>
+                    <img class="image" th:src="@{/api/placeholder/1280/258}" alt="Movie background" />
+                    <div class="rectangle"></div>
+                    <img class="img" th:src="@{/api/placeholder/354/487}" alt="Movie poster" />
+                    <div class="text-wrapper" th:text="${movie != null ? film.filmName : 'INUYASHA'}">INUYASHA</div>
+                </div>
+                <div class="line-wrapper"><div class="line"></div></div>
+                <div class="frame-2">
+                    <div class="group">
+                        <div class="div-wrapper">
+                            <div class="text-wrapper-2">01</div>
+                        </div>
+                        <div class="text-wrapper-3">PICK SEAT</div>
+                    </div>
+                    <div class="group-2">
+                        <div class="overlap-2">
+                            <div class="text-wrapper-2">02</div>
+                        </div>
+                        <div class="text-wrapper-3">POPCORNS</div>
+                    </div>
+                    <div class="group-3">
+                        <div class="div-wrapper">
+                            <div class="text-wrapper-2">03</div>
+                        </div>
+                        <div class="text-wrapper-3">PAY</div>
+                    </div>
+                    <div class="group-4">
+                        <div class="div-wrapper">
+                            <div class="text-wrapper-2">04</div>
+                        </div>
+                        <div class="text-wrapper-3">TICKET</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Combo Container -->
+            <div class="combo-container" id="comboContainer">
+                <!-- Combos will be dynamically added here by Thymeleaf -->
+                <div th:each="page, pageStat : ${#numbers.sequence(1, (combos.size() + 5) / 6)}"
+                     th:id="'page-' + ${pageStat.count}"
+                     th:class="${pageStat.count == 1 ? '' : 'hidden'}">
+
+                    <div class="combo-row">
+                        <div th:each="combo, comboStat : ${combos}"
+                             th:if="${comboStat.index >= (pageStat.count-1)*6 && comboStat.index < (pageStat.count-1)*6 + 3 && comboStat.index < combos.size()}"
+                             class="combo-box"
+                             th:data-name="${combo.comboName}"
+                             th:data-price="${combo.comboPrice}"
+                             th:data-id="${combo.comboId}">
+                            <div class="combo-content">
+                                <img class="combo-image" th:src="@{/api/placeholder/160/110}" th:alt="${combo.comboName}" />
+                                <div class="combo-name" th:text="${combo.comboName}">COMBO NAME</div>
+                                <div class="combo-price" th:text="'$' + ${combo.comboPrice}">$15</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="combo-row">
+                        <div th:each="combo, comboStat : ${combos}"
+                             th:if="${comboStat.index >= (pageStat.count-1)*6 + 3 && comboStat.index < (pageStat.count-1)*6 + 6 && comboStat.index < combos.size()}"
+                             class="combo-box"
+                             th:data-name="${combo.comboName}"
+                             th:data-price="${combo.comboPrice}"
+                             th:data-id="${combo.comboId}">
+                            <div class="combo-content">
+                                <img class="combo-image" th:src="@{/api/placeholder/160/110}" th:alt="${combo.comboName}" />
+                                <div class="combo-name" th:text="${combo.comboName}">COMBO NAME</div>
+                                <div class="combo-price" th:text="'$' + ${combo.comboPrice}">$15</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="combo">
+                <div class="overlap-5">
+                    <div class="text-wrapper-8" id="chosenComboText">None</div>
+                    <div class="text-wrapper-9">Chosen Combos:</div>
+                </div>
+            </div>
+        </div>
+        <div class="overlap-6">
+            <div class="ellipse-2"></div>
+            <div class="price">
+                <div class="overlap-7">
+                    <div class="text-wrapper-10" id="totalPrice">$0</div>
+                    <div class="text-wrapper-11">Total:</div>
+                </div>
+            </div>
+            <div class="group-5">
+                <div class="overlap-8">
+                    <div class="rectangle-2"></div>
+                    <a th:href="@{/cancel}" class="CANCEL">
+                        <span class="span">CANCEL</span>
+                    </a>
+                </div>
+                <div class="group-wrapper">
+                    <div class="group-6">
+                        <a th:href="@{/payment}" id="nextButton" class="overlap-group-2">
+                            <div class="text-wrapper-13">NEXT</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="paginationContainer">
+            <div class="div-2" id="prevButton"><div class="img-2">←</div></div>
+
+            <!-- Page numbers will be dynamically generated -->
+            <th:block th:each="page, pageStat : ${#numbers.sequence(1, (combos.size() + 5) / 6)}">
+                <div th:class="${pageStat.count == 1 ? 'page' : 'div-2'}"
+                     th:data-page="${pageStat.count}">
+                    <div th:class="${pageStat.count == 1 ? 'date' : 'date-2'}"
+                         th:text="${pageStat.count}">1</div>
+                </div>
+            </th:block>
+
+            <div class="div-2" id="next"><div class="img-2">→</div></div>
+        </div>
+    </div>
+</div>
+
+<!-- Form to submit selected combo data -->
+<form id="comboForm" th:action="@{/savePopcornOrder}" method="post">
+    <input type="hidden" id="selectedCombosInput" name="selectedCombos" />
+    <!-- Hidden input for order ID if needed -->
+    <input type="hidden" name="orderId" th:value="${orderId}" />
+</form>
+
+<script th:inline="javascript">
+    // Get elements
+    const comboContainer = document.getElementById('comboContainer');
+    const chosenComboText = document.getElementById('chosenComboText');
+    const totalPriceElement = document.getElementById('totalPrice');
+    const nextButton = document.getElementById('nextButton');
+    const comboForm = document.getElementById('comboForm');
+    const selectedCombosInput = document.getElementById('selectedCombosInput');
+    const prevButton = document.getElementById('prevButton');
+    const nextPageButton = document.getElementById('nextButton');
+
+    // Get combos from Thymeleaf model
+    const combos = /*[[${combos}]]*/ [];
+
+    // Current page
+    let currentPage = 1;
+    const totalPages = Math.ceil(combos.length / 6);
+
+    // Selected combos
+    const selectedCombos = [];
+
+    // Initialize combo boxes click events
+    document.querySelectorAll('.combo-box').forEach(comboBox => {
+      comboBox.addEventListener('click', () => {
+        const isSelected = comboBox.classList.toggle('selected');
+        const comboId = comboBox.dataset.id;
+        const comboName = comboBox.dataset.name;
+        const comboPrice = parseFloat(comboBox.dataset.price);
+
+        if (isSelected) {
+          selectedCombos.push({
+            id: comboId,
+            name: comboName,
+            price: comboPrice,
+            quantity: 1
+          });
+        } else {
+          const index = selectedCombos.findIndex(item => item.id === comboId);
+          if (index !== -1) {
+            selectedCombos.splice(index, 1);
+          }
+        }
+
+        updateChosenCombos();
+      });
+    });
+
+    // Update chosen combos display
+    function updateChosenCombos() {
+      if (selectedCombos.length === 0) {
+        chosenComboText.textContent = 'None';
+        totalPriceElement.textContent = '$0';
+      } else {
+        // Update chosen combo text
+        const comboNames = selectedCombos.map(combo => combo.name);
+        chosenComboText.textContent = comboNames.join(', ');
+
+        // Update total price
+        const totalPrice = selectedCombos.reduce((sum, combo) => sum + (combo.price * combo.quantity), 0);
+        totalPriceElement.textContent = '$' + totalPrice.toFixed(2);
+      }
+
+      // Update hidden input with JSON data
+      selectedCombosInput.value = JSON.stringify(selectedCombos);
+    }
+
+    // Handle pagination
+    document.querySelectorAll('.pagination [data-page]').forEach(pageButton => {
+      pageButton.addEventListener('click', () => {
+        const pageNum = parseInt(pageButton.dataset.page);
+        changePage(pageNum);
+      });
+    });
+
+    // Previous page button
+    prevButton.addEventListener('click', () => {
+      if (currentPage > 1) {
+        changePage(currentPage - 1);
+      }
+    });
+
+    // Next page button
+    nextPageButton.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        changePage(currentPage + 1);
+      }
+    });
+
+    // Change page function
+    function changePage(pageNum) {
+      // Hide current page
+      document.getElementById(`page-${currentPage}`).classList.add('hidden');
+
+      // Show selected page
+      document.getElementById(`page-${pageNum}`).classList.remove('hidden');
+
+      // Update pagination UI
+      document.querySelector(`.pagination [data-page="${currentPage}"]`).classList.remove('page');
+      document.querySelector(`.pagination [data-page="${currentPage}"]`).classList.add('div-2');
+      document.querySelector(`.pagination [data-page="${currentPage}"] div`).classList.remove('date');
+      document.querySelector(`.pagination [data-page="${currentPage}"] div`).classList.add('date-2');
+
+      document.querySelector(`.pagination [data-page="${pageNum}"]`).classList.remove('div-2');
+      document.querySelector(`.pagination [data-page="${pageNum}"]`).classList.add('page');
+      document.querySelector(`.pagination [data-page="${pageNum}"] div`).classList.remove('date-2');
+      document.querySelector(`.pagination [data-page="${pageNum}"] div`).classList.add('date');
+
+      // Update current page
+      currentPage = pageNum;
+    }
+
+    // Submit form when next button is clicked
+    nextButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (selectedCombos.length > 0) {
+        comboForm.submit();
+      } else {
+        alert('Please select at least one combo before proceeding.');
+      }
+    });
+</script>
+</body>
+</html>
