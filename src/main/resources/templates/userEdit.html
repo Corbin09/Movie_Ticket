@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User Detail - Cinema Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link th:href="@{/css/styles.css}" rel="stylesheet"> <!-- Assuming you'll move styles to an external CSS file -->
+    <style th:remove="all">
+        /* Styles removed from here - would be moved to external CSS file */
+        /* This style block will be ignored by Thymeleaf but keeps the preview functional */
+    </style>
+</head>
+<body>
+<!-- Notification container -->
+<div id="notification" class="notification" th:text="${notificationMessage}">Cập nhật thông tin người dùng thành công</div>
+
+<div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-film"></i>
+            <span>Cinemas</span>
+        </div>
+        <nav class="nav-menu">
+            <ul>
+                <li class="nav-item" th:classappend="${activeTab == 'dashboard'} ? 'active' : ''">
+                    <a th:href="@{/dashboard}"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
+                </li>
+                <li class="nav-item" th:classappend="${activeTab == 'movies'} ? 'active' : ''">
+                    <a th:href="@{/movies}"><i class="fas fa-film"></i> <span>Movies</span></a>
+                </li>
+                <li class="nav-item" th:classappend="${activeTab == 'cinemas'} ? 'active' : ''">
+                    <a th:href="@{/cinemas}"><i class="fas fa-video"></i> <span>Cinemas</span></a>
+                </li>
+                <li class="nav-item" th:classappend="${activeTab == 'showtimes'} ? 'active' : ''">
+                    <a th:href="@{/showtimes}"><i class="far fa-calendar-alt"></i> <span>Showtimes</span></a>
+                </li>
+                <li class="nav-item" th:classappend="${activeTab == 'rooms'} ? 'active' : ''">
+                    <a th:href="@{/rooms}"><i class="fas fa-door-open"></i> <span>Rooms</span></a>
+                </li>
+                <li class="nav-item" th:classappend="${activeTab == 'orders'} ? 'active' : ''">
+                    <a th:href="@{/orders}"><i class="fas fa-shopping-cart"></i> <span>Orders</span></a>
+                </li>
+                <li class="nav-item" th:classappend="${activeTab == 'users'} ? 'active' : ''">
+                    <a th:href="@{/users}"><i class="fas fa-users"></i> <span>Users</span></a>
+                </li>
+                <li class="nav-item" th:classappend="${activeTab == 'homepage'} ? 'active' : ''">
+                    <a th:href="@{/}"><i class="fas fa-home"></i> <span>Homepage</span></a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="page-title">Cinema Management</h1>
+            <div class="user-actions">
+                <div class="user-info">
+                    <div class="avatar-container" id="headerUserAvatar">
+                        <!-- Thymeleaf will render server-side avatar here if available -->
+                        <th:block th:if="${currentUser != null && currentUser.avatarUrl != null}">
+                            <img th:src="@{${currentUser.avatarUrl}}" alt="User Avatar">
+                        </th:block>
+                    </div>
+                    <span th:text="${currentUser != null ? currentUser.fullName : 'Guest'}">Phan Thuy Ngan</span>
+                </div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="logout-btn">Log out</button>
+                </form>
+            </div>
+        </header>
+
+        <!-- User Info Form -->
+        <div class="content-view">
+            <h2 class="content-title">Thông tin người dùng</h2>
+            <form id="userForm" th:action="@{/users/update}" th:object="${user}" method="post" enctype="multipart/form-data">
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <!-- Avatar Upload -->
+                        <div class="avatar-upload">
+                            <label>Ảnh đại diện</label>
+                            <div class="avatar-container" id="avatarContainer">
+                                <div class="avatar-placeholder" id="avatarPlaceholder" th:style="${user.avatarUrl != null ? 'display: none;' : ''}">
+                                    Chưa có ảnh đại diện
+                                </div>
+                                <img th:if="${user.avatarUrl != null}" th:src="@{${user.avatarUrl}}" alt="User Avatar">
+                            </div>
+                            <input type="file" id="avatarUpload" name="avatarFile" accept="image/*" style="display: none;">
+                            <button type="button" class="upload-btn" id="uploadAvatarBtn">Tải ảnh đại diện</button>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <!-- User Details -->
+                        <div class="form-group">
+                            <label for="username" class="required">Tên người dùng</label>
+                            <input type="text" id="username" th:field="*{username}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="required">Email</label>
+                            <input type="email" id="email" th:field="*{email}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone" class="required">Số điện thoại</label>
+                            <input type="tel" id="phone" th:field="*{phone}" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="role">Vai trò</label>
+                            <select id="role" th:field="*{role}">
+                                <option value="user">Người dùng</option>
+                                <option value="admin">Admin</option>
+                                <option value="manager">Quản lý</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Trạng thái</label>
+                            <div class="status-toggle">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="statusToggle" th:field="*{active}">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label" id="statusLabel" th:text="${user.active ? 'Đang hoạt động' : 'Không hoạt động'}">Đang hoạt động</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="update-btn">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Order History -->
+        <div class="content-view">
+            <h2 class="content-title">Lịch sử đặt vé</h2>
+            <div class="table-container" id="orderHistoryContainer" th:style="${#lists.isEmpty(orderHistory)} ? 'display: none;' : ''">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tên phim</th>
+                        <th>Rạp chiếu</th>
+                        <th>Giờ chiếu</th>
+                        <th>Số ghế</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                    </thead>
+                    <tbody id="orderHistoryBody">
+                    <tr th:each="order : ${orderHistory}">
+                        <td th:text="${order.id}">ORD-2023-001</td>
+                        <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy')}">15/03/2023</td>
+                        <td th:text="${order.movie}">Avengers: Endgame</td>
+                        <td th:text="${order.cinema}">Cinema City Downtown</td>
+                        <td th:text="${order.showtime}">19:30</td>
+                        <td th:text="${order.seats}">A12, A13</td>
+                        <td th:text="${#numbers.formatDecimal(order.total, 0, 'COMMA', 0, 'POINT') + 'đ'}">240.000đ</td>
+                        <td>
+                                    <span th:class="'tag ' + ${order.status.toLowerCase()}"
+                                          th:text="${order.status == 'COMPLETED' ? 'Hoàn thành' :
+                                                   (order.status == 'PENDING' ? 'Đang xử lý' : 'Đã hủy')}">
+                                        Hoàn thành
+                                    </span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="noOrdersMessage" style="text-align: center;" th:style="${not #lists.isEmpty(orderHistory)} ? 'display: none;' : ''">
+                Không có đơn hàng nào đã được đặt.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get data from Thymeleaf
+        const user = /*[[${user}]]*/ {
+            id: 1,
+            username: 'ckhai123',
+            email: 'congkhai123@gmail.com',
+            phone: '0978686268',
+            role: 'user',
+            active: true,
+            avatarUrl: null
+        };
+
+        // Initialize all components
+        initUserAvatar(user);
+        initFileUpload();
+        initStatusToggle();
+        initFormSubmission();
+
+        // No need to load order history as it's handled by Thymeleaf
+    });
+
+    // Khởi tạo avatar người dùng
+    function initUserAvatar(user) {
+        // Nếu không có ảnh đại diện được truyền từ server, thì tạo avatar tự động
+        const currentUserAvatarElement = document.getElementById('headerUserAvatar');
+        if (currentUserAvatarElement && !currentUserAvatarElement.querySelector('img')) {
+            // Tạo avatar cho header - sử dụng dữ liệu từ currentUser
+            const currentUserName = /*[[${currentUser != null ? currentUser.fullName : 'Guest'}]]*/ 'Phan Thuy Ngan';
+            const initials = currentUserName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            createAvatar('headerUserAvatar', initials, '#FF6B6B');
+        }
+
+        // Tương tự cho avatar người dùng đang xem
+        const avatarContainer = document.getElementById('avatarContainer');
+        if (avatarContainer && !avatarContainer.querySelector('img')) {
+            const initials = user.username.substring(0, 2).toUpperCase();
+            createAvatar('avatarContainer', initials, '#4ECDC4', true);
+        }
+    }
+
+    // Tạo avatar dựa trên chữ cái đầu
+    function createAvatar(containerId, initials, backgroundColor, isMain = false) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error(`Container with ID ${containerId} not found`);
+            return;
+        }
+
+        // Kiểm tra nếu đã có ảnh trong container thì không tạo SVG
+        if (container.querySelector('img')) {
+            return;
+        }
+
+        // Tạo SVG element
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('height', '100%');
+        svg.setAttribute('viewBox', '0 0 100 100');
+
+        // Tạo hình tròn background
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', '50');
+        circle.setAttribute('cy', '50');
+        circle.setAttribute('r', '50');
+        circle.setAttribute('fill', backgroundColor);
+
+        // Tạo text
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', '50');
+        text.setAttribute('y', '50');
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        text.setAttribute('fill', 'white');
+        text.setAttribute('font-size', '40');
+        text.textContent = initials;
+
+        // Thêm các element vào SVG
+        svg.appendChild(circle);
+        svg.appendChild(text);
+
+        // Xóa nội dung hiện tại của container (trừ ảnh nếu có)
+        if (!container.querySelector('img')) {
+            container.innerHTML = '';
+            // Thêm SVG vào container
+            container.appendChild(svg);
+        }
+
+        // Nếu là avatar chính (trong form), ẩn avatar placeholder
+        if (isMain) {
+            const placeholder = document.getElementById('avatarPlaceholder');
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+        }
+    }
+
+    // Khởi tạo chức năng upload ảnh
+    function initFileUpload() {
+        const uploadButton = document.getElementById('uploadAvatarBtn');
+        const fileInput = document.getElementById('avatarUpload');
+        const avatarContainer = document.getElementById('avatarContainer');
+        const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+
+        if (!uploadButton || !fileInput || !avatarContainer) {
+            console.error('File upload elements not found');
+            return;
+        }
+
+        uploadButton.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    // Xóa nội dung cũ
+                    avatarContainer.innerHTML = '';
+
+                    // Tạo và thêm hình ảnh mới
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    avatarContainer.appendChild(img);
+
+                    // Ẩn placeholder nếu đang được hiển thị
+                    if (avatarPlaceholder) {
+                        avatarPlaceholder.style.display = 'none';
+                    }
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Khởi tạo toggle trạng thái
+    function initStatusToggle() {
+        const statusToggle = document.getElementById('statusToggle');
+        const statusLabel = document.getElementById('statusLabel');
+
+        if (!statusToggle || !statusLabel) {
+            console.error('Status toggle elements not found');
+            return;
+        }
+
+        statusToggle.addEventListener('change', function() {
+            if (this.checked) {
+                statusLabel.textContent = 'Đang hoạt động';
+            } else {
+                statusLabel.textContent = 'Không hoạt động';
+            }
+        });
+    }
+
+    // Hiển thị thông báo
+    function showNotification(message, duration = 3000) {
+        const notification = document.getElementById('notification');
+        if (!notification) {
+            console.error('Notification element not found');
+            return;
+        }
+
+        notification.textContent = message;
+        notification.classList.add('show');
+
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, duration);
+    }
+
+    // Khởi tạo xử lý submit form
+    function initFormSubmission() {
+        const userForm = document.getElementById('userForm');
+
+        if (!userForm) {
+            console.error('User form not found');
+            return;
+        }
+
+        // Thymeleaf sẽ xử lý submit form nên chỉ cần validate
+        userForm.addEventListener('submit', function(event) {
+            // Validate form
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+
+            if (!username || !email || !phone) {
+                event.preventDefault();
+                showNotification('Vui lòng điền đầy đủ thông tin bắt buộc', 3000);
+                return false;
+            }
+
+            // Form hợp lệ, Thymeleaf sẽ xử lý phần còn lại
+            return true;
+        });
+
+        // Check for existing notification from server
+        const notificationMessage = /*[[${notificationMessage}]]*/ null;
+        if (notificationMessage) {
+            showNotification(notificationMessage, 3000);
+        }
+    }
+</script>
+</body>
+</html>
