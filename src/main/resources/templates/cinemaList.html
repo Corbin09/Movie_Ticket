@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Cinema List View -->
+<div class="content-view" th:fragment="content">
+    <div class="filters">
+        <div class="filter-group">
+            <span>Filter:</span>
+            <div class="dropdown">
+                <button class="dropdown-toggle">
+                    <span th:text="${selectedComplex} ?: 'Complex'">Complex</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="#" th:href="@{/cinemas(complex='')}">All Complexes</a>
+                    <a href="#" th:each="complex : ${complexes}"
+                       th:href="@{/cinemas(complex=${complex.name})}"
+                       th:text="${complex.name}">Beta Complex</a>
+                </div>
+            </div>
+        </div>
+        <div class="search-box">
+            <form th:action="@{/cinemas}" method="get">
+                <input type="text" name="search" th:value="${searchTerm}" placeholder="Search...">
+                <button type="submit" style="background:none;border:none;cursor:pointer;">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        <a th:href="@{/cinemas/add}" class="add-btn" id="addCinemaBtn">
+            <i class="fas fa-plus"></i> Add cinema
+        </a>
+    </div>
+
+    <div class="table-container">
+        <form th:action="@{/cinemas/delete}" method="post" id="deleteForm">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAll"></th>
+                    <th>Cinema name</th>
+                    <th>Address</th>
+                    <th>Cinema complex</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="cinema : ${cinemas}" th:data-id="${cinema.id}">
+                    <td><input type="checkbox" name="selectedIds" th:value="${cinema.id}" class="row-checkbox"></td>
+                    <td th:text="${cinema.name}">Vincom Thanh Xuan</td>
+                    <td th:text="${cinema.address}">okne@gmail.co 2345 Vincom Ba Trieu My Dinh</td>
+                    <td>
+                        <span class="tag" th:classappend="${cinema.complexColor}" th:text="${cinema.complexName}">Beta Thanh Xuan</span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(cinemas)}">
+                    <td colspan="4" class="text-center">No cinemas found</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <span class="pagination-info" th:text="|Showing ${cinemas.size() > 0 ? 1 : 0}-${cinemas.size()} of ${totalCinemas}|">Showing 1-03 of 15</span>
+                <button type="submit" class="delete-btn" id="deleteBtn">Delete</button>
+                <div class="page-controls">
+                    <div class="page-size">
+                        <span>Lines of each page</span>
+                        <div class="dropdown">
+                            <button class="dropdown-toggle">
+                                <span th:text="${pageSize}">3</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a href="#" th:each="size : ${pageSizes}"
+                                   th:href="@{/cinemas(size=${size},page=${currentPage})}"
+                                   th:text="${size}">3</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="page-navigation">
+                        <a th:href="@{/cinemas(page=${currentPage - 1}, size=${pageSize})}"
+                           th:class="${currentPage <= 1 ? 'prev-btn disabled' : 'prev-btn'}"
+                           th:classappend="${currentPage <= 1 ? 'disabled' : ''}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                        <a th:href="@{/cinemas(page=${currentPage + 1}, size=${pageSize})}"
+                           th:class="${currentPage >= totalPages ? 'next-btn disabled' : 'next-btn'}"
+                           th:classappend="${currentPage >= totalPages ? 'disabled' : ''}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        // Row click handler for editing
+        document.querySelectorAll('.data-table tbody tr').forEach(row => {
+            row.addEventListener('click', function(e) {
+                // Don't trigger if clicking on checkbox
+                if(e.target.type !== 'checkbox' && !e.target.closest('input[type="checkbox"]')) {
+                    const cinemaId = this.getAttribute('data-id');
+                    window.location.href = /*[[@{/cinemas/edit/}]]*/ '' + cinemaId;
+                }
+            });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    // Initialize select all checkbox
+    initializeSelectAll();
+
+    // Custom select initialization
+    initializeCustomSelects();
+
+    // Form validation
+    initializeFormValidation();
+
+    // Mobile menu toggle (for responsive design)
+    setupMobileMenu();
+
+    // Handle window resize for responsive adjustments
+    window.addEventListener('resize', function() {
+        setupMobileMenu();
+    });
+});
+
+function initializeSelectAll() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    if (!selectAllCheckbox) return;
+
+    const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+    const deleteBtn = document.querySelector('.delete-btn');
+
+    selectAllCheckbox.addEventListener('change', function() {
+        rowCheckboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+        updateDeleteButton();
+    });
+
+    // Update selectAll checkbox when individual rows change
+    rowCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateSelectAllCheckbox();
+            updateDeleteButton();
+        });
+    });
+
+    function updateSelectAllCheckbox() {
+        const allChecked = Array.from(rowCheckboxes).every(cb => cb.checked);
+        const someChecked = Array.from(rowCheckboxes).some(cb => cb.checked);
+
+        selectAllCheckbox.checked = allChecked;
+        selectAllCheckbox.indeterminate = someChecked && !allChecked;
+    }
+
+    function updateDeleteButton() {
+        if (!deleteBtn) return;
+
+        const someChecked = Array.from(rowCheckboxes).some(cb => cb.checked);
+        deleteBtn.disabled = !someChecked;
+        deleteBtn.style.opacity = someChecked ? '1' : '0.5';
+    }
+
+    // Initially update delete button state
+    updateDeleteButton();
+}
+
+function initializeCustomSelects() {
+    const customSelects = document.querySelectorAll('.custom-select');
+
+    customSelects.forEach(select => {
+        const control = select.querySelector('.select-control');
+        const options = select.querySelectorAll('.select-option');
+        const selectedOption = select.querySelector('.selected-option');
+        const hiddenInput = select.querySelector('input[type="hidden"]');
+
+        if (!control || !options || !selectedOption) return;
+
+        control.addEventListener('click', function(e) {
+            // Close other open dropdowns first
+            customSelects.forEach(otherSelect => {
+                if(otherSelect !== select) {
+                    otherSelect.classList.remove('active');
+                }
+            });
+
+            select.classList.toggle('active');
+            e.stopPropagation();
+        });
+
+        options.forEach(option => {
+            option.addEventListener('click', function(e) {
+                selectedOption.textContent = option.textContent;
+
+                if (hiddenInput) {
+                    hiddenInput.value = option.getAttribute('data-value');
+                }
+
+                select.classList.remove('active');
+                e.stopPropagation();
+            });
+        });
+    });
+
+    // Close all dropdowns when clicking outside
+    document.addEventListener('click', function() {
+        customSelects.forEach(select => {
+            select.classList.remove('active');
+        });
+
+        // Also close regular dropdowns
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            menu.style.display = 'none';
+        });
+    });
+
+    // Regular dropdowns (filter, pagination)
+    document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            const dropdownMenu = this.nextElementSibling;
+
+            // Close other dropdowns first
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if(menu !== dropdownMenu) {
+                    menu.style.display = 'none';
+                }
+            });
+
+            dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+            e.stopPropagation();
+        });
+    });
+}
+
+function initializeFormValidation() {
+    const formInputs = document.querySelectorAll('.form-control');
+
+    formInputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateInput(input);
+        });
+
+        input.addEventListener('input', function() {
+            validateInput(input);
+        });
+    });
+}
+
+function validateInput(input) {
+    const errorId = input.id + 'Error';
+    const errorElement = document.getElementById(errorId);
+
+    if(errorElement) {
+        if(!input.value.trim()) {
+            errorElement.style.display = 'block';
+            return false;
+        } else {
+            errorElement.style.display = 'none';
+            return true;
+        }
+    }
+    return true;
+}
+
+function validateForm(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return true;
+
+    const inputs = form.querySelectorAll('.form-control');
+    let isValid = true;
+
+    inputs.forEach(input => {
+        if(!validateInput(input)) {
+            isValid = false;
+        }
+    });
+
+    return isValid;
+}
+
+function setupMobileMenu() {
+    // Remove existing toggle button if it exists
+    const existingToggle = document.querySelector('.mobile-menu-toggle');
+    if(existingToggle) {
+        existingToggle.remove();
+    }
+
+    if(window.innerWidth <= 576) {
+        const mobileMenuToggle = document.createElement('button');
+        mobileMenuToggle.classList.add('mobile-menu-toggle');
+        mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+
+        const sidebar = document.querySelector('.sidebar');
+        const navMenu = document.querySelector('.nav-menu');
+
+        if (sidebar && navMenu) {
+            sidebar.insertBefore(mobileMenuToggle, navMenu);
+            navMenu.style.display = 'none';
+
+            mobileMenuToggle.addEventListener('click', function(e) {
+                navMenu.style.display = navMenu.style.display === 'block' ? 'none' : 'block';
+                e.stopPropagation();
+            });
+
+            // Hide menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if(!sidebar.contains(e.target) || e.target === sidebar) {
+                    navMenu.style.display = 'none';
+                }
+            });
+        }
+    } else {
+        // Ensure nav menu is visible on larger screens
+        const navMenu = document.querySelector('.nav-menu');
+        if(navMenu) {
+            navMenu.style.display = '';
+        }
+    }
+}
+</script>
+</body>
+</html>

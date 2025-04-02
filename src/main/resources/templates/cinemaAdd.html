@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Add Cinema View -->
+<div class="content-view" th:fragment="content">
+    <h2 class="section-title">Cinema Management\Add Cinema</h2>
+    <div class="form-container">
+        <form th:action="@{/cinemas/save}" th:object="${cinema}" method="post">
+            <div class="form-group">
+                <label for="newCinemaName">Cinema name</label>
+                <input type="text" id="newCinemaName" th:field="*{name}" class="form-control">
+                <span class="error-message" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">This field cannot be empty.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="newCinemaComplex">Cinema complex</label>
+                <div class="custom-select">
+                    <div class="select-control">
+                        <span class="selected-option" th:text="${defaultComplex?.name ?: 'Select Complex'}">Beta Complex</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="select-dropdown">
+                        <div class="select-option" th:each="complex : ${complexes}"
+                             th:text="${complex.name}"
+                             th:data-value="${complex.id}">Beta Complex</div>
+                    </div>
+                    <input type="hidden" name="complexId" th:field="*{complexId}" id="selectedComplex" />
+                </div>
+                <span class="error-message" th:if="${#fields.hasErrors('complexId')}" th:errors="*{complexId}">Please select a complex</span>
+            </div>
+
+            <div class="form-group">
+                <label for="newCinemaAddress">Cinema address</label>
+                <input type="text" id="newCinemaAddress" th:field="*{address}" class="form-control">
+                <span class="error-message" th:if="${#fields.hasErrors('address')}" th:errors="*{address}">This field cannot be empty.</span>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="@{/cinemas}" class="cancel-btn">Cancel</a>
+                <button type="submit" class="add-action-btn">Add</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        // Custom select handling
+        const customSelects = document.querySelectorAll('.custom-select');
+
+        customSelects.forEach(select => {
+            const control = select.querySelector('.select-control');
+            const options = select.querySelectorAll('.select-option');
+            const selectedOption = select.querySelector('.selected-option');
+            const hiddenInput = document.getElementById('selectedComplex');
+
+            control.addEventListener('click', function(e) {
+                select.classList.toggle('active');
+                e.stopPropagation();
+            });
+
+            options.forEach(option => {
+                option.addEventListener('click', function(e) {
+                    selectedOption.textContent = option.textContent;
+                    hiddenInput.value = option.getAttribute('data-value');
+                    select.classList.remove('active');
+                    e.stopPropagation();
+                });
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function() {
+            customSelects.forEach(select => {
+                select.classList.remove('active');
+            });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    // Initialize select all checkbox
+    initializeSelectAll();
+
+    // Custom select initialization
+    initializeCustomSelects();
+
+    // Form validation
+    initializeFormValidation();
+
+    // Mobile menu toggle (for responsive design)
+    setupMobileMenu();
+
+    // Handle window resize for responsive adjustments
+    window.addEventListener('resize', function() {
+        setupMobileMenu();
+    });
+});
+
+function initializeSelectAll() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    if (!selectAllCheckbox) return;
+
+    const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+    const deleteBtn = document.querySelector('.delete-btn');
+
+    selectAllCheckbox.addEventListener('change', function() {
+        rowCheckboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+        updateDeleteButton();
+    });
+
+    // Update selectAll checkbox when individual rows change
+    rowCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateSelectAllCheckbox();
+            updateDeleteButton();
+        });
+    });
+
+    function updateSelectAllCheckbox() {
+        const allChecked = Array.from(rowCheckboxes).every(cb => cb.checked);
+        const someChecked = Array.from(rowCheckboxes).some(cb => cb.checked);
+
+        selectAllCheckbox.checked = allChecked;
+        selectAllCheckbox.indeterminate = someChecked && !allChecked;
+    }
+
+    function updateDeleteButton() {
+        if (!deleteBtn) return;
+
+        const someChecked = Array.from(rowCheckboxes).some(cb => cb.checked);
+        deleteBtn.disabled = !someChecked;
+        deleteBtn.style.opacity = someChecked ? '1' : '0.5';
+    }
+
+    // Initially update delete button state
+    updateDeleteButton();
+}
+
+function initializeCustomSelects() {
+    const customSelects = document.querySelectorAll('.custom-select');
+
+    customSelects.forEach(select => {
+        const control = select.querySelector('.select-control');
+        const options = select.querySelectorAll('.select-option');
+        const selectedOption = select.querySelector('.selected-option');
+        const hiddenInput = select.querySelector('input[type="hidden"]');
+
+        if (!control || !options || !selectedOption) return;
+
+        control.addEventListener('click', function(e) {
+            // Close other open dropdowns first
+            customSelects.forEach(otherSelect => {
+                if(otherSelect !== select) {
+                    otherSelect.classList.remove('active');
+                }
+            });
+
+            select.classList.toggle('active');
+            e.stopPropagation();
+        });
+
+        options.forEach(option => {
+            option.addEventListener('click', function(e) {
+                selectedOption.textContent = option.textContent;
+
+                if (hiddenInput) {
+                    hiddenInput.value = option.getAttribute('data-value');
+                }
+
+                select.classList.remove('active');
+                e.stopPropagation();
+            });
+        });
+    });
+
+    // Close all dropdowns when clicking outside
+    document.addEventListener('click', function() {
+        customSelects.forEach(select => {
+            select.classList.remove('active');
+        });
+
+        // Also close regular dropdowns
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            menu.style.display = 'none';
+        });
+    });
+
+    // Regular dropdowns (filter, pagination)
+    document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            const dropdownMenu = this.nextElementSibling;
+
+            // Close other dropdowns first
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if(menu !== dropdownMenu) {
+                    menu.style.display = 'none';
+                }
+            });
+
+            dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+            e.stopPropagation();
+        });
+    });
+}
+
+function initializeFormValidation() {
+    const formInputs = document.querySelectorAll('.form-control');
+
+    formInputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateInput(input);
+        });
+
+        input.addEventListener('input', function() {
+            validateInput(input);
+        });
+    });
+}
+
+function validateInput(input) {
+    const errorId = input.id + 'Error';
+    const errorElement = document.getElementById(errorId);
+
+    if(errorElement) {
+        if(!input.value.trim()) {
+            errorElement.style.display = 'block';
+            return false;
+        } else {
+            errorElement.style.display = 'none';
+            return true;
+        }
+    }
+    return true;
+}
+
+function validateForm(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return true;
+
+    const inputs = form.querySelectorAll('.form-control');
+    let isValid = true;
+
+    inputs.forEach(input => {
+        if(!validateInput(input)) {
+            isValid = false;
+        }
+    });
+
+    return isValid;
+}
+
+function setupMobileMenu() {
+    // Remove existing toggle button if it exists
+    const existingToggle = document.querySelector('.mobile-menu-toggle');
+    if(existingToggle) {
+        existingToggle.remove();
+    }
+
+    if(window.innerWidth <= 576) {
+        const mobileMenuToggle = document.createElement('button');
+        mobileMenuToggle.classList.add('mobile-menu-toggle');
+        mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+
+        const sidebar = document.querySelector('.sidebar');
+        const navMenu = document.querySelector('.nav-menu');
+
+        if (sidebar && navMenu) {
+            sidebar.insertBefore(mobileMenuToggle, navMenu);
+            navMenu.style.display = 'none';
+
+            mobileMenuToggle.addEventListener('click', function(e) {
+                navMenu.style.display = navMenu.style.display === 'block' ? 'none' : 'block';
+                e.stopPropagation();
+            });
+
+            // Hide menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if(!sidebar.contains(e.target) || e.target === sidebar) {
+                    navMenu.style.display = 'none';
+                }
+            });
+        }
+    } else {
+        // Ensure nav menu is visible on larger screens
+        const navMenu = document.querySelector('.nav-menu');
+        if(navMenu) {
+            navMenu.style.display = '';
+        }
+    }
+}
+</script>
+</body>
+</html>
