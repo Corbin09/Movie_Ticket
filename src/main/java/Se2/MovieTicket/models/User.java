@@ -1,4 +1,4 @@
-package Se2.MovieTicket.models;
+package main.java.Se2.MovieTicket.models;
 
 import jakarta.persistence.*;
 
