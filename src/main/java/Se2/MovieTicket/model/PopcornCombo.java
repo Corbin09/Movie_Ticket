@@ -26,6 +26,9 @@ public class PopcornCombo {
     @Column(name = "combo_price")
     private Double comboPrice;
 
+    @Column(name = "combo_image")
+    private String comboImg; // Thêm trường ảnh
+
     @OneToMany(mappedBy = "popcornCombo", cascade = CascadeType.ALL)
     @JsonManagedReference
     private Set<PopcornOrder> popcornOrders;
@@ -60,5 +63,13 @@ public class PopcornCombo {
 
     public void setPopcornOrders(Set<PopcornOrder> popcornOrders) {
         this.popcornOrders = popcornOrders;
+    }
+
+    public String getComboImg() {
+        return comboImg;
+    }
+
+    public void setComboImg(String comboImg) {
+        this.comboImg = comboImg;
     }
 }

@@ -2,6 +2,9 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/header_user.css}">
     <style>
         :root {
   --back: rgba(2, 7, 0, 1);
@@ -693,6 +696,10 @@ section {
     </style>
 </head>
 <body>
+<!-- Header -->
+<div class="content-container">
+    <div th:replace="~{fragments/header_user :: header_user}"></div>
+    <div class="adding-margin"></div>
 <div class="buy-ticket">
     <!-- Hidden input for showtime ID -->
     <input type="hidden" name="showtimeId" th:value="${showtime.showtimeId}" />
@@ -833,176 +840,213 @@ section {
             </div>
         </div>
     </div>
+    <!-- Footer -->
+    <div th:replace="fragments/footer :: footer"></div>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const allSeats = document.querySelectorAll(".seat");
-            const selectedSeatsElement = document.getElementById("selectedSeats");
-            const totalPriceElement = document.getElementById("totalPrice");
+     // Main elements
+     const allSeats = document.querySelectorAll(".seat");
+     const selectedSeatsElement = document.getElementById("selectedSeats");
+     const totalPriceElement = document.getElementById("totalPrice");
+     const warningPopup = document.getElementById('warning-popup');
+     const nextButton = document.getElementById('nextButton');
+     const cancelButton = document.getElementById('cancelButton');
 
-            let selectedSeats = [];
-            let totalPrice = 0;
+     // Track selected seats and total price
+     let selectedSeats = [];
+     let totalPrice = 0;
 
-            function toggleSeatSelection(seatElement) {
-                const seatId = seatElement.getAttribute("data-seat-id");
-                const seatLabel = seatElement.getAttribute("data-seat-label");
-                const seatType = seatElement.getAttribute("data-seat-type");
-                const seatPrice = parseInt(seatElement.getAttribute("data-seat-price"));
+     // Toggle seat selection function
+     function toggleSeatSelection(seatElement) {
+         // Skip if seat is booked or reserved
+         if (seatElement.classList.contains('booked') || seatElement.classList.contains('reserved')) {
+             return;
+         }
 
-                // Check if the seat is already selected
-                const seatIndex = selectedSeats.findIndex(seat => seat.id === seatId);
+         const seatId = seatElement.getAttribute("data-seat-id");
+         const seatLabel = seatElement.getAttribute("data-seat-label");
+         const seatType = seatElement.getAttribute("data-seat-type");
+         const seatPrice = parseInt(seatElement.getAttribute("data-seat-price"));
 
-                if (seatIndex === -1) {
-                    // Add seat to selection
-                    selectedSeats.push({
-                        id: seatId,
-                        label: seatLabel,
-                        type: seatType,
-                        price: seatPrice
-                    });
-                    seatElement.style.backgroundColor = "#777";
-                    totalPrice += seatPrice;
-                } else {
-                    // Remove seat from selection
-                    selectedSeats.splice(seatIndex, 1);
-                    seatElement.style.backgroundColor = seatType === "VIP" ? "#fba904" : "#ffffff";
-                    totalPrice -= seatPrice;
-                }
+         // Check if seat is already selected
+         const seatIndex = selectedSeats.findIndex(seat => seat.id === seatId);
 
-                updateDisplay();
-            }
+         if (seatIndex === -1) {
+             // Add seat to selection
+             selectedSeats.push({
+                 id: seatId,
+                 label: seatLabel,
+                 type: seatType,
+                 price: seatPrice
+             });
+             seatElement.style.backgroundColor = "#777";
+         } else {
+             // Remove seat from selection
+             selectedSeats.splice(seatIndex, 1);
 
-            function updateDisplay() {
-                // Format selected seats
-                if (selectedSeats.length === 0) {
-                    selectedSeatsElement.innerHTML = "";
-                } else {
-                    // Sort seats by row then number
-                    selectedSeats.sort((a, b) => {
-                        const rowA = a.label.charAt(0);
-                        const rowB = b.label.charAt(0);
+             // Reset background color based on seat type
+             if (seatType.toLowerCase() === "vip") {
+                 seatElement.style.backgroundColor = "#fba904";
+             } else if (seatType.toLowerCase() === "couple") {
+                 seatElement.style.backgroundColor = "#dc2929";
+             } else {
+                 seatElement.style.backgroundColor = "#ffffff";
+             }
+         }
 
-                        if (rowA !== rowB) {
-                            return rowA.localeCompare(rowB);
-                        }
+         updateDisplay();
+     }
 
-                        const numA = parseInt(a.label.substring(1));
-                        const numB = parseInt(b.label.substring(1));
-                        return numA - numB;
-                    });
+     // Update display of selected seats and price
+     function updateDisplay() {
+         // Format selected seats
+         if (selectedSeats.length === 0) {
+             selectedSeatsElement.innerHTML = "";
+             totalPriceElement.textContent = new Intl.NumberFormat('vi-VN', {
+                 style: 'currency',
+                 currency: 'VND'
+             }).format(0);
+             return;
+         }
 
-                    // Create text with proper wrapping
-                    const maxCharsPerLine = 46; // Approximate number of characters that fit
+         // Sort seats by row then number for display
+         selectedSeats.sort((a, b) => {
+             const rowA = a.label.charAt(0);
+             const rowB = b.label.charAt(0);
 
-                    let displayText = "";
-                    let currentLine = "";
+             if (rowA !== rowB) {
+                 return rowA.localeCompare(rowB);
+             }
 
-                    selectedSeats.forEach((seat, index) => {
-                        const seatText = index < selectedSeats.length - 1 ? seat.label + ", " : seat.label;
+             const numA = parseInt(a.label.substring(1));
+             const numB = parseInt(b.label.substring(1));
+             return numA - numB;
+         });
 
-                        if ((currentLine + seatText).length > maxCharsPerLine) {
-                            displayText += currentLine + "\n";
-                            currentLine = seatText;
-                        } else {
-                            currentLine += seatText;
-                        }
-                    });
+         // Create text with proper wrapping
+         const maxCharsPerLine = 46; // Approximate chars per line
+         let displayText = "";
+         let currentLine = "";
 
-                    displayText += currentLine;
+         selectedSeats.forEach((seat, index) => {
+             const seatText = index < selectedSeats.length - 1 ? seat.label + ", " : seat.label;
 
-                    // Set the text with line breaks for HTML
-                    selectedSeatsElement.innerHTML = displayText.replace(/\n/g, "<br>");
-                }
+             if ((currentLine + seatText).length > maxCharsPerLine) {
+                 displayText += currentLine + "\n";
+                 currentLine = seatText;
+             } else {
+                 currentLine += seatText;
+             }
+         });
 
-                // Display formatted total price
-                totalPriceElement.textContent = new Intl.NumberFormat('vi-VN', {
-                    style: 'currency',
-                    currency: 'VND'
-                }).format(totalPrice);
-            }
+         displayText += currentLine;
 
-            // Add click event to seats that aren't booked or reserved
-            allSeats.forEach(seat => {
-                if (!seat.classList.contains('booked') && !seat.classList.contains('reserved')) {
-                    seat.addEventListener('click', function() {
-                        toggleSeatSelection(this);
-                    });
-                }
-            });
+         // Set the text with line breaks for HTML
+         selectedSeatsElement.innerHTML = displayText.replace(/\n/g, "<br>");
 
-           // Modified cancel button event handler
-     // Modified cancel button event handler
-document.getElementById('cancelButton').addEventListener('click', function() {
-    // Get the film ID from the URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const filmId = urlParams.get('filmId');
-    const selectedDate = urlParams.get('selectedDate');
+         // Calculate and display total price
+         totalPrice = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
+         totalPriceElement.textContent = new Intl.NumberFormat('vi-VN', {
+             style: 'currency',
+             currency: 'VND'
+         }).format(totalPrice);
+     }
 
-    // Debug - log values to console
-    console.log("FilmId from URL:", filmId);
-    console.log("SelectedDate from URL:", selectedDate);
+     // Add click event to all available seats
+     allSeats.forEach(seat => {
+         if (!seat.classList.contains('booked') && !seat.classList.contains('reserved')) {
+             seat.addEventListener('click', function() {
+                 toggleSeatSelection(this);
+             });
+         }
+     });
 
-    // Validate film ID is present
-    if (!filmId) {
-        console.error("Film ID is missing in URL!");
-        // Redirect to films page as fallback
-        window.location.href = '/films';
-        return;
-    }
+     // Cancel button handler - return to movie ticket view
+     cancelButton.addEventListener('click', function() {
+         const urlParams = new URLSearchParams(window.location.search);
+         const filmId = urlParams.get('filmId');
+         const selectedDate = urlParams.get('selectedDate');
 
-    // Create the URL to navigate back to the movie ticket view
-    let returnUrl = `/View-movie-ticket?id=${filmId}`;
+         console.log("FilmId from URL:", filmId);
+         console.log("SelectedDate from URL:", selectedDate);
 
-    // Add date parameter if available
-    if (selectedDate) {
-        returnUrl += `&date=${selectedDate}`;
-    }
+         if (!filmId) {
+             console.error("Film ID is missing in URL!");
+             window.location.href = '/films';
+             return;
+         }
 
-    // Navigate back
-    window.location.href = returnUrl;
-});
+         let returnUrl = `/View-movie-ticket?id=${filmId}`;
+         if (selectedDate) {
+             returnUrl += `&date=${selectedDate}`;
+         }
 
-            // Find the existing script and replace only the nextButton event listener
-  document.getElementById('nextButton').addEventListener('click', function() {
-    if (selectedSeats.length > 0) {
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = '/pick-popcorn';
+         window.location.href = returnUrl;
+     });
 
-      // Add selected seats to form
-      const seatsInput = document.createElement('input');
-      seatsInput.type = 'hidden';
-      seatsInput.name = 'selectedSeats';
-      seatsInput.value = JSON.stringify(selectedSeats);
-      form.appendChild(seatsInput);
+     // Next button handler - proceed to popcorn selection
+     nextButton.addEventListener('click', function() {
+         if (selectedSeats.length > 0) {
+             // Get URL parameters
+             const urlParams = new URLSearchParams(window.location.search);
+             const filmId = urlParams.get('filmId');
+             const cinemaId = urlParams.get('cinemaId');
+             const showtimeId = urlParams.get('showtimeId');
+             const selectedDate = urlParams.get('selectedDate');
 
-      // Add showtime ID to form
-      const showtimeInput = document.createElement('input');
-      showtimeInput.type = 'hidden';
-      showtimeInput.name = 'showtimeId';
-      showtimeInput.value = document.querySelector('input[name="showtimeId"]').value;
-      form.appendChild(showtimeInput);
+             // Build next page URL with all parameters
+             let url = `/pick-popcorn?filmId=${filmId}&cinemaId=${cinemaId}` +
+                      `&showtimeId=${showtimeId}&selectedDate=${selectedDate}` +
+                      `&ticketSubtotal=${totalPrice}`;
 
-      document.body.appendChild(form);
-      form.submit();
-    } else {
-      // Show warning popup instead of alert
-      document.getElementById('warning-popup').style.display = 'block';
-    }
-  });
+             // Add selected seats as JSON parameter
+             url += `&selectedSeatsJson=${encodeURIComponent(JSON.stringify(selectedSeats))}`;
 
-  // Add click event to close the popup when clicking outside
-  document.addEventListener('click', function(event) {
-    const popup = document.getElementById('warning-popup');
-    const nextButton = document.getElementById('nextButton');
+             console.log("Navigating to:", url);
+             window.location.href = url;
+         } else {
+             // Show warning if no seats selected
+             warningPopup.style.display = 'block';
+         }
+     });
 
-    // If popup is visible and click is outside the popup and not on the next button
-    if (popup.style.display === 'block' &&
-        !popup.contains(event.target) &&
-        event.target !== nextButton) {
-      popup.style.display = 'none';
-    }
-  });
-        });
+     // Close warning popup when clicking outside
+     document.addEventListener('click', function(event) {
+         if (warningPopup.style.display === 'block' &&
+             !warningPopup.contains(event.target) &&
+             event.target !== nextButton) {
+             warningPopup.style.display = 'none';
+         }
+     });
+
+     // Try to restore previously selected seats (if returning from next page)
+     function tryRestoreSelectedSeats() {
+         try {
+             const urlParams = new URLSearchParams(window.location.search);
+             const selectedSeatsJson = urlParams.get('selectedSeatsJson');
+
+             if (selectedSeatsJson) {
+                 console.log("Found saved seats in URL:", selectedSeatsJson);
+                 const savedSeats = JSON.parse(decodeURIComponent(selectedSeatsJson));
+
+                 if (Array.isArray(savedSeats) && savedSeats.length > 0) {
+                     savedSeats.forEach(savedSeat => {
+                         const seatElement = document.querySelector(`.seat[data-seat-id="${savedSeat.id}"]`);
+                         if (seatElement && !seatElement.classList.contains('booked') &&
+                             !seatElement.classList.contains('reserved')) {
+                             toggleSeatSelection(seatElement);
+                         }
+                     });
+                 }
+             }
+         } catch (error) {
+             console.error("Error restoring saved seats:", error);
+         }
+     }
+
+     // Try to restore seats when page loads
+     tryRestoreSelectedSeats();
+ });
     </script>
 
 </div>

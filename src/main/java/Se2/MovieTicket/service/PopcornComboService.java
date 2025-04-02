@@ -14,13 +14,6 @@ public class PopcornComboService {
     @Autowired
     private PopcornComboRepository popcornComboRepository;
 
-    public List<PopcornCombo> getAllPopcornCombos() {
-        return popcornComboRepository.findAll();
-    }
-
-    public Optional<PopcornCombo> getPopcornComboById(Long id) {
-        return popcornComboRepository.findById(id);
-    }
 
     public PopcornCombo createPopcornCombo(PopcornComboDTO popcornComboDTO) {
         PopcornCombo popcornCombo = new PopcornCombo();
@@ -40,7 +33,25 @@ public class PopcornComboService {
         return null;
     }
 
-    public void deletePopcornCombo(Long id) {
-        popcornComboRepository.deleteById(id);
+    public List<PopcornCombo> getAllPopcornCombos() {
+        return popcornComboRepository.findAll();
     }
+
+
+    public Optional<PopcornCombo> getPopcornComboById(Long comboId) {
+        return popcornComboRepository.findById(comboId);
+    }
+
+
+    public PopcornCombo savePopcornCombo(PopcornCombo popcornCombo) {
+        return popcornComboRepository.save(popcornCombo);
+    }
+
+//
+//    public void deletePopcornCombo(Long comboId) {
+//        popcornComboRepository.deleteById(comboId);
+//    }
+//    public void deletePopcornCombo(Long id) {
+//        popcornComboRepository.deleteById(id);
+//    }
 }

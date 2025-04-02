@@ -57,12 +57,12 @@ public class PopcornComboController {
         return updatedPopcornCombo != null ? new ResponseEntity<>(updatedPopcornCombo, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deletePopcornCombo(@PathVariable("id") Long id) {
-        if (!userService.hasRole("Admin")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-        popcornComboService.deletePopcornCombo(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<HttpStatus> deletePopcornCombo(@PathVariable("id") Long id) {
+//        if (!userService.hasRole("Admin")) {
+//            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+//        }
+//        popcornComboService.deletePopcornCombo(id);
+//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//    }
 }

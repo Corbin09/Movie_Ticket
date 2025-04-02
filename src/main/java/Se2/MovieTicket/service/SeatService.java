@@ -86,4 +86,11 @@ public class SeatService {
         dto.setSeatType(seat.getSeatType());
         return dto;
     }
+
+    public List<SeatDTO> getSeatsByIds(List<Long> selectedSeatIds) {
+        List<Seat> seats = seatRepository.findAllById(selectedSeatIds);
+        return seats.stream()
+                .map(this::convertToSeatDTO)
+                .collect(Collectors.toList());
+    }
 }
