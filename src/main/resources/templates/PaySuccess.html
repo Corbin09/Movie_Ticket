@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <style>
+        @import url("https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css");
+
+        * {
+          -webkit-font-smoothing: antialiased;
+          box-sizing: border-box;
+        }
+
+        html,
+        body {
+          margin: 0px;
+          height: 100%;
+        }
+
+        /* a blue color as a generic focus style */
+        button:focus-visible {
+          outline: 2px solid #4a90e2 !important;
+          outline: -webkit-focus-ring-color auto 5px !important;
+        }
+
+        a {
+          text-decoration: none;
+        }
+
+        .overlay-scan-qr {
+          width: 1280px;
+          height: 1376px;
+          background-color: #625b5bd1;
+        }
+
+        .overlay-scan-qr .frame {
+          position: relative;
+          width: 682px;
+          height: 600px; /* Increased height to accommodate the illustration */
+          top: 417px;
+          left: 299px;
+          background-color: #ffffff;
+          border-radius: 20px;
+          overflow: hidden;
+          border: 1px solid;
+          border-color: #000000;
+        }
+
+        .overlay-scan-qr .success-illustration {
+          position: absolute;
+          width: 120px;
+          height: 120px;
+          top: 80px;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+
+        .overlay-scan-qr .text-wrapper {
+          position: absolute;
+          top: 216px;
+          left: 177px;
+          font-family: "Poppins-SemiBold", Helvetica;
+          font-weight: 600;
+          color: #09b54e;
+          font-size: 36px;
+          letter-spacing: 0;
+          line-height: normal;
+        }
+
+        .overlay-scan-qr .div {
+          position: absolute;
+          width: 689px;
+          top: 270px;
+          left: 0;
+          font-family: "Poppins-Medium", Helvetica;
+          font-weight: 500;
+          color: #0000009e;
+          font-size: 24px;
+          text-align: center;
+          letter-spacing: 0;
+          line-height: normal;
+        }
+
+        .overlay-scan-qr .div-wrapper {
+          position: absolute;
+          width: 528px;
+          height: 68px;
+          top: 333px;
+          left: 77px;
+          background-color: #09b54e;
+          border-radius: 12px;
+          cursor: pointer;
+        }
+
+        .overlay-scan-qr .text-wrapper-2 {
+          position: absolute;
+          width: 369px;
+          top: 15px;
+          left: 79px;
+          font-family: "Poppins-Medium", Helvetica;
+          font-weight: 500;
+          color: #f2e8e8;
+          font-size: 24px;
+          text-align: center;
+          letter-spacing: 0;
+          line-height: normal;
+        }
+
+        .overlay-scan-qr .frame-2 {
+          position: absolute;
+          width: 528px;
+          height: 68px;
+          top: 422px;
+          left: 77px;
+          background-color: #e5e7eb;
+          border-radius: 12px;
+          cursor: pointer;
+        }
+
+        .overlay-scan-qr .text-wrapper-3 {
+          position: absolute;
+          width: 369px;
+          top: 15px;
+          left: 79px;
+          font-family: "Poppins-Medium", Helvetica;
+          font-weight: 500;
+          color: #000000;
+          font-size: 24px;
+          text-align: center;
+          letter-spacing: 0;
+          line-height: normal;
+        }
+
+        .overlay-scan-qr .group {
+          position: absolute;
+          width: 150px;
+          height: 150px;
+          top: 41px;
+          left: 266px;
+        }
+
+        .overlay-scan-qr .success-illustration{
+          position: absolute;
+                width: 62px;
+                height: 61px;
+                top: 36px;
+                left: 348px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="overlay-scan-qr">
+    <div class="frame">
+        <!-- Success illustration above the payment success text -->
+        <img th:src="@{/images/success-check.png}" class="success-illustration" alt="Success icon" />
+
+        <div class="text-wrapper">Payment success!</div>
+        <p class="div">Your transaction has been completed.</p>
+
+        <div class="div-wrapper">
+            <a th:href="@{/tickets}" class="text-wrapper-2">View Ticket</a>
+        </div>
+
+        <div class="frame-2">
+            <a th:href="@{/}" class="text-wrapper-3">Back to Homepage</a>
+        </div>
+
+        <div class="group">
+            <img th:src="@{/images/qr-code.png}" width="150" height="150" alt="QR Code" />
+        </div>
+    </div>
+</div>
+</body>
+</html>
