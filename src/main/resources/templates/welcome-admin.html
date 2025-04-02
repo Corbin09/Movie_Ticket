@@ -143,10 +143,277 @@
             border-radius: 50%;
             object-fit: cover;
         }
+
+         /* Original header styles (add your existing styles here) */
+        /* Profile Overlay Styles */
+        /* Update your profile-overlay CSS */
+.profile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    overflow: auto; /* Add this to allow scrolling if needed */
+}
+
+/* Ensure your profile containers have proper z-index */
+.profile-container, .edit-profile-container {
+    z-index: 1001; /* Higher than the overlay */
+    /* Keep your other styles */
+}
+
+/* Add this to prevent body scroll when overlay is active */
+body.overlay-active {
+    overflow: hidden;
+}
+
+        /* Profile Container Styles */
+        .profile-container {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-bottom: 4px solid #45c486;
+            position: relative;
+        }
+
+        /* Close Button */
+        .close-profile {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            color: white;
+            cursor: pointer;
+            z-index: 1010;
+        }
+
+        /* Profile Header */
+        .profile-header {
+            background-color: #0f4d2e;
+            height: 100px;
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background-color: #e9f3d9;
+            border-radius: 50%;
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 3px solid white;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Profile Content */
+        .profile-content {
+            padding: 50px 20px 20px;
+            background-color: white;
+        }
+
+        .profile-field {
+            margin-bottom: 15px;
+        }
+
+        .profile-field label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .profile-field input, .profile-field select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            color: #333;
+            outline: none;
+            background-color: #f9f9f9;
+        }
+
+        .profile-field input:read-only {
+            background-color: #f5f5f5;
+            cursor: default;
+        }
+
+        /* Profile Actions */
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            justify-content: center;
+        }
+
+        .profile-actions a {
+            text-decoration: none;
+        }
+
+        .profile-actions button {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+
+        .edit-btn, .update-btn, .view-btn {
+            background-color: #0f4d2e;
+            color: white;
+            flex: 1;
+            max-width: 135px;
+        }
+
+        .edit-btn:hover, .update-btn:hover, .view-btn:hover {
+            background-color: #0a3b23;
+        }
+
+        .cancel-btn {
+            background-color: #777;
+            color: white;
+            flex: 1;
+            max-width: 135px;
+        }
+
+        .cancel-btn:hover {
+            background-color: #555;
+        }
+
+        /* Edit Profile Container */
+        .edit-profile-container {
+            width: 100%;
+            max-width: 420px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .avatar-edit-icon {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border-radius: 50%;
+            padding: 5px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        .profile-field-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .error-message {
+            color: #d9534f;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Date picker and select styles */
+        .profile-field select, .profile-field input[type="date"] {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            color: #333;
+            outline: none;
+            background-color: #f9f9f9;
+        }
+
+        /* Notification styling */
+        .notification {
+            padding: 12px;
+            margin: 10px 20px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .notification.success {
+            color: green;
+        }
+
+        .notification.error {
+            color: green;
+        }
+
+        .field-hint {
+            font-size: 12px;
+            color: #666;
+            margin: 3px 0 0;
+        }
+
+        /* Loader for button */
+        @keyframes spinner {
+            to {transform: rotate(360deg);}
+        }
+
+        .loading-spinner::before {
+            content: '';
+            box-sizing: border-box;
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            width: 16px;
+            height: 16px;
+            margin-top: -8px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            border-top-color: #fff;
+            animation: spinner .6s linear infinite;
+        }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .profile-container, .edit-profile-container {
+                max-width: 90%;
+            }
+        }
     </style>
 </head>
 <body>
 <div th:replace="~{fragments/header_admin :: header_admin}"></div>
+
+<div class="welcome-container">
+    <h1>Lights, camera, action! Ready to run the show, boss?</h1>
+    <button th:onclick="'window.location.href=\'/admin-dashboard\''">Explore now</button>
+</div>
+
 <div class="video-background">
     <video autoplay loop>
         <source th:src="@{/videos/Welcome-Admin-Theme.mp4}" type="video/mp4">
@@ -154,9 +421,22 @@
     </video>
 </div>
 <div class="video-overlay"></div>
-<div class="welcome-container">
-    <h1>Lights, camera, action! Ready to run the show, boss?</h1>
-    <button th:onclick="'window.location.href=\'/admin-dashboard\''">Explore now</button>
-</div>
+<!-- Thêm tag script này vào cuối body của welcome-admin.html -->
+<script>
+    // Đảm bảo script chạy sau khi tất cả các element đã được tải
+    window.addEventListener('load', function() {
+        console.log('Window loaded in welcome-admin');
+        // Kiểm tra xem script đã được khởi tạo chưa
+        if (typeof window.initProfileManagement === 'function') {
+            console.log('Initializing profile management from welcome-admin');
+            window.initProfileManagement();
+        } else {
+            console.log('Profile management function not found');
+        }
+    });
+</script>
+
+<!-- Add this to both files -->
+<script th:src="@{/js/profile-admin-welcome.js}"></script>
 </body>
 </html>
