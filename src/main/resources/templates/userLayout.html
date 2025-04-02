@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema Management System</title>
+    <style th:inline="css">
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        :root {
+            --primary-color: #00b074;
+            --primary-dark: #008c5b;
+            --secondary-color: #d45500;
+            --light-color: #f0f8f0;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+            --error-color: #ff0033;
+            --background-dark: #033b1e;
+            --pink-tag: #ffccd5;
+            --blue-tag: #b3e0ff;
+            --green-tag: #c6f6d5;
+        }
+
+        body {
+            background-color: var(--background-dark);
+            color: var(--text-color);
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 200px;
+            background-color: var(--background-dark);
+            color: white;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 20px;
+            gap: 10px;
+            color: var(--primary-color);
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .logo img {
+            width: 34px;
+            height: auto;
+        }
+
+        .nav-menu ul {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            gap: 10px;
+        }
+
+        .nav-item a i {
+            width: 20px;
+        }
+
+        .nav-item:hover a {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item.active a {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            max-width: calc(100% - 200px);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            color: white;
+            font-size: 24px;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .user-info img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .logout-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Content Views */
+        .content-view {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-toggle {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            width: 100%;
+            z-index: 10;
+            display: none;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 8px 15px;
+            text-decoration: none;
+            color: var(--text-color);
+        }
+
+        .dropdown-menu a:hover {
+            background-color: var(--light-color);
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 15px 8px 35px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background-color: #f9f9f9;
+            font-weight: normal;
+        }
+
+        .data-table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        .tag.active {
+            background-color: var(--green-tag);
+            color: #00664d;
+        }
+
+        .tag.inactive {
+            background-color: #f0f0f0;
+            color: #666;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pagination-info {
+            color: #666;
+        }
+
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .page-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-size {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-navigation {
+            display: flex;
+            gap: 5px;
+        }
+
+        .prev-btn, .next-btn {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Icons */
+        .icon {
+            display: inline-flex;
+            width: 20px;
+            height: 20px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Cinema Logo SVG as default */
+        .logo svg {
+            width: 34px;
+            height: 34px;
+        }
+
+        /* User Avatar fallback */
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #f0f0f0;
+        }
+
+        .user-avatar-small {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #f0f0f0;
+        }
+
+        /* Form Checkbox */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .custom-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+
+            .sidebar .logo span {
+                display: none;
+            }
+
+            .nav-item a span {
+                display: none;
+            }
+
+            .main-content {
+                max-width: calc(100% - 70px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .search-box {
+                width: 100%;
+                margin: 10px 0;
+            }
+
+            .pagination {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .page-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 10px 0;
+            }
+
+            .sidebar .logo span {
+                display: block;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .main-content {
+                max-width: 100%;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .user-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+                <polygon points="0,50 40,20 80,50 40,80" fill="#00b074"/>
+                <rect x="60" y="30" width="10" height="40" fill="#00b074" transform="rotate(45 65 50)"/>
+                <rect x="45" y="15" width="10" height="40" fill="#00b074" transform="rotate(45 50 35)"/>
+            </svg>
+            <span th:text="${appName ?: 'Cinemas'}">Cinemas</span>
+        </div>
+        <div class="nav-menu">
+            <ul>
+                <li class="nav-item" th:classappend="${activeMenu == 'dashboard'} ? 'active' : ''">
+                    <a th:href="@{/dashboard}">
+                        <i class="fa fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeMenu == 'movies'} ? 'active' : ''">
+                    <a th:href="@{/movies}">
+                        <i class="fa fa-film"></i>
+                        <span>Movies</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeMenu == 'cinemas'} ? 'active' : ''">
+                    <a th:href="@{/cinemas}">
+                        <i class="fa fa-building"></i>
+                        <span>Cinemas</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeMenu == 'showtimes'} ? 'active' : ''">
+                    <a th:href="@{/showtimes}">
+                        <i class="fa fa-clock"></i>
+                        <span>Showtimes</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeMenu == 'rooms'} ? 'active' : ''">
+                    <a th:href="@{/rooms}">
+                        <i class="fa fa-door-open"></i>
+                        <span>Rooms</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeMenu == 'orders'} ? 'active' : ''">
+                    <a th:href="@{/orders}">
+                        <i class="fa fa-shopping-cart"></i>
+                        <span>Orders</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeMenu == 'users'} ? 'active' : ''">
+                    <a th:href="@{/users}">
+                        <i class="fa fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeMenu == 'homepage'} ? 'active' : ''">
+                    <a th:href="@{/homepage}">
+                        <i class="fa fa-home"></i>
+                        <span>Homepage</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="page-title" th:text="${pageTitle ?: 'User Management'}">User Management</h1>
+            <div class="user-actions">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <!-- User icon dynamically generated in JS or with profile pic URL -->
+                        <img th:if="${currentUser.profileImageUrl}" th:src="${currentUser.profileImageUrl}" alt="User Avatar">
+                    </div>
+                    <span th:text="${currentUser?.fullName ?: 'Phan Thuy Ngan'}">Phan Thuy Ngan</span>
+                </div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="logout-btn">Log out</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content-view">
+            <!-- Filters -->
+            <div class="filters">
+                <div class="filter-group">
+                    <span>Filter:</span>
+                    <div class="dropdown">
+                        <div class="dropdown-toggle">
+                            <span th:text="${filterType ?: 'User Name'}">User Name</span>
+                            <i class="fa fa-chevron-down"></i>
+                        </div>
+                        <div class="dropdown-menu">
+                            <a href="#" th:each="filter : ${availableFilters}" th:text="${filter}">User Name</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="search-box">
+                    <i class="fa fa-search"></i>
+                    <input type="text" placeholder="Search..." th:value="${searchQuery}">
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>
+                            <div class="checkbox-container">
+                                <div class="custom-checkbox" id="selectAll"></div>
+                            </div>
+                        </th>
+                        <th>User Names</th>
+                        <th>Emails</th>
+                        <th>Phone Numbers</th>
+                        <th>Roles</th>
+                        <th>Statuses</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Loop through users with Thymeleaf -->
+                    <tr th:each="user : ${users}">
+                        <td>
+                            <div class="checkbox-container">
+                                <div class="custom-checkbox"></div>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="user-avatar-small">
+                                    <img th:if="${user.profileImageUrl}" th:src="${user.profileImageUrl}" alt="User Avatar">
+                                </div>
+                                <span th:text="${user.fullName}">User Name</span>
+                            </div>
+                        </td>
+                        <td th:text="${user.email}">user@example.com</td>
+                        <td th:text="${user.phoneNumber}">0000000000</td>
+                        <td th:text="${user.role}">Role</td>
+                        <td>
+                            <span th:if="${user.isActive}" class="tag active" th:text="'Active'">Active</span>
+                            <span th:unless="${user.isActive}" class="tag inactive" th:text="${user.lastActiveTime}">2h ago</span>
+                        </td>
+                    </tr>
+
+                    <!-- Fallback data if no users are provided -->
+                    <tr th:if="${#lists.isEmpty(users)}">
+                        <td>
+                            <div class="checkbox-container">
+                                <div class="custom-checkbox"></div>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="user-avatar-small"></div>
+                                <span>Christine Brooks</span>
+                            </div>
+                        </td>
+                        <td>cbrook@gmail.co</td>
+                        <td>0935467283</td>
+                        <td>Admin</td>
+                        <td><span class="tag active">Active</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <div class="pagination-info">
+                    <span th:text="${paginationInfo ?: 'Showing 1-3 of 18'}">Showing 1-3 of 18</span>
+                </div>
+                <form th:action="@{/users/delete}" method="post" id="deleteForm">
+                    <input type="hidden" name="selectedIds" id="selectedUserIds" value="">
+                    <button type="submit" class="delete-btn">Delete</button>
+                </form>
+                <div class="page-controls">
+                    <div class="page-size">
+                        <span>Lines of each page</span>
+                        <div class="dropdown">
+                            <div class="dropdown-toggle">
+                                <span th:text="${pageSize ?: '3'}">3</span>
+                                <i class="fa fa-chevron-down"></i>
+                            </div>
+                            <div class="dropdown-menu">
+                                <a th:each="size : ${pageSizes}" th:text="${size}" th:href="@{${#httpServletRequest.requestURI}(size=${size}, page=${currentPage})}">3</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="page-navigation">
+                        <a th:href="@{${#httpServletRequest.requestURI}(size=${pageSize}, page=${currentPage - 1})}"
+                           th:class="${currentPage <= 1} ? 'prev-btn disabled' : 'prev-btn'">
+                            <i class="fa fa-chevron-left"></i>
+                        </a>
+                        <a th:href="@{${#httpServletRequest.requestURI}(size=${pageSize}, page=${currentPage + 1})}"
+                           th:class="${currentPage >= totalPages} ? 'next-btn disabled' : 'next-btn'">
+                            <i class="fa fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // JavaScript for the Cinema Management System
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize user avatars
+        initUserAvatars();
+
+        // Initialize checkbox functionality
+        initCheckboxes();
+
+        // Initialize dropdown functionality
+        initDropdowns();
+
+        // Initialize search functionality
+        initSearch();
+
+        // Initialize delete functionality
+        initDeleteButton();
+
+        // Initialize pagination functionality
+        initPagination();
+    });
+
+    // Initialize user avatars
+    function initUserAvatars() {
+        // Create SVG avatars for all user-avatar elements without images
+        const avatars = document.querySelectorAll('.user-avatar:not(:has(img)), .user-avatar-small:not(:has(img))');
+
+        avatars.forEach((avatar, index) => {
+            // Create an array of colors for avatars
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA62B', '#A78BFA', '#10B981'];
+            // Create an array of first initials for avatars
+            const initials = ['CB', 'DB', 'GJ', 'PT'];
+
+            // Get user's initials from Thymeleaf if available
+            const userInitials = avatar.getAttribute('data-initials') || initials[index % initials.length];
+
+            // Create SVG element
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '100%');
+            svg.setAttribute('viewBox', '0 0 100 100');
+
+            // Create circle background
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', '50');
+            circle.setAttribute('cy', '50');
+            circle.setAttribute('r', '50');
+            circle.setAttribute('fill', colors[index % colors.length]);
+
+            // Create text
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', '50');
+            text.setAttribute('y', '50');
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('dominant-baseline', 'middle');
+            text.setAttribute('fill', 'white');
+            text.setAttribute('font-size', '40');
+            text.textContent = userInitials;
+
+            // Add elements to SVG
+            svg.appendChild(circle);
+            svg.appendChild(text);
+
+            // Add SVG to avatar container
+            avatar.appendChild(svg);
+        });
+    }
+
+    // Initialize checkbox functionality
+    function initCheckboxes() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.custom-checkbox');
+
+        // Implement select all functionality
+        selectAllCheckbox.addEventListener('click', function() {
+            const isChecked = this.classList.contains('checked');
+
+            if (isChecked) {
+                this.classList.remove('checked');
+                this.style.backgroundColor = '';
+
+                checkboxes.forEach(checkbox => {
+                    if (checkbox !== selectAllCheckbox) {
+                        checkbox.classList.remove('checked');
+                        checkbox.style.backgroundColor = '';
+                    }
+                });
+            } else {
+                this.classList.add('checked');
+                this.style.backgroundColor = '#00b074';
+
+                checkboxes.forEach(checkbox => {
+                    if (checkbox !== selectAllCheckbox) {
+                        checkbox.classList.add('checked');
+                        checkbox.style.backgroundColor = '#00b074';
+                    }
+                });
+            }
+
+            // Update delete button state
+            updateDeleteButtonState();
+        });
+
+        // Individual checkbox functionality
+        checkboxes.forEach(checkbox => {
+            if (checkbox !== selectAllCheckbox) {
+                checkbox.addEventListener('click', function() {
+                    const isChecked = this.classList.contains('checked');
+
+                    if (isChecked) {
+                        this.classList.remove('checked');
+                        this.style.backgroundColor = '';
+                    } else {
+                        this.classList.add('checked');
+                        this.style.backgroundColor = '#00b074';
+                    }
+
+                    // Check if all individual checkboxes are checked
+                    const individualCheckboxes = Array.from(checkboxes).filter(cb => cb !== selectAllCheckbox);
+                    const allIndividualChecked = individualCheckboxes.every(cb => cb.classList.contains('checked'));
+
+                    if (allIndividualChecked) {
+                        selectAllCheckbox.classList.add('checked');
+                        selectAllCheckbox.style.backgroundColor = '#00b074';
+                    } else {
+                        selectAllCheckbox.classList.remove('checked');
+                        selectAllCheckbox.style.backgroundColor = '';
+                    }
+
+                    // Update delete button state
+                    updateDeleteButtonState();
+                });
+            }
+        });
+    }
+
+    // Initialize dropdown functionality
+    function initDropdowns() {
+        const dropdowns = document.querySelectorAll('.dropdown');
+
+        dropdowns.forEach(dropdown => {
+            const toggle = dropdown.querySelector('.dropdown-toggle');
+            const menu = dropdown.querySelector('.dropdown-menu');
+            const toggleSpan = toggle.querySelector('span');
+
+            toggle.addEventListener('click', function(event) {
+                // Close all other dropdowns
+                dropdowns.forEach(d => {
+                    if (d !== dropdown) {
+                        d.querySelector('.dropdown-menu').style.display = 'none';
+                    }
+                });
+
+                // Toggle current dropdown
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+                event.stopPropagation();
+            });
+
+            // Handle menu item selection
+            const menuItems = menu.querySelectorAll('a');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(event) {
+                    toggleSpan.textContent = this.textContent;
+                    menu.style.display = 'none';
+
+                    // For page size dropdown, we use links with proper URLs
+                    // For other dropdowns, prevent default behavior
+                    if (!this.getAttribute('href') || this.getAttribute('href') === '#') {
+                        event.preventDefault();
+                    }
+
+                    event.stopPropagation();
+                });
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function() {
+            dropdowns.forEach(dropdown => {
+                const menu = dropdown.querySelector('.dropdown-menu');
+                menu.style.display = 'none';
+            });
+        });
+    }
+
+    // Initialize search functionality
+    function initSearch() {
+        const searchInput = document.querySelector('.search-box input');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            const tableRows = document.querySelectorAll('.data-table tbody tr');
+
+            tableRows.forEach(row => {
+                const userName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const email = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                const phone = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+                const role = row.querySelector('td:nth-child(5)').textContent.toLowerCase();
+                const status = row.querySelector('td:nth-child(6)').textContent.toLowerCase();
+
+                // Show row if search term is found in any field
+                if (userName.includes(searchTerm) ||
+                    email.includes(searchTerm) ||
+                    phone.includes(searchTerm) ||
+                    role.includes(searchTerm) ||
+                    status.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Update pagination info
+            updatePaginationInfo();
+        });
+    }
+
+    // Initialize delete functionality
+    function initDeleteButton() {
+        const deleteForm = document.getElementById('deleteForm');
+        const deleteButton = document.querySelector('.delete-btn');
+        const selectedUserIdsInput = document.getElementById('selectedUserIds');
+
+        // Default: disable delete button
+        deleteButton.disabled = true;
+        deleteButton.style.opacity = '0.5';
+        deleteButton.style.cursor = 'not-allowed';
+
+        deleteForm.addEventListener('submit', function(event) {
+            // Check if any checkboxes are selected
+            const checkedCheckboxes = document.querySelectorAll('.custom-checkbox.checked:not(#selectAll)');
+
+            if (checkedCheckboxes.length > 0) {
+                if (confirm(`Are you sure you want to delete ${checkedCheckboxes.length} selected users?`)) {
+                    // Get IDs of selected users from data-id attribute or row index
+                    const selectedIds = [];
+                    checkedCheckboxes.forEach(checkbox => {
+                        const row = checkbox.closest('tr');
+                        const userId = row.getAttribute('data-id') || row.rowIndex;
+                        selectedIds.push(userId);
+                    });
+
+                    // Set the hidden input value with selected IDs
+                    // Continue from where we left off in the deleteForm submit handler
+                        selectedUserIdsInput.value = selectedIds.join(',');
+                        return true; // Proceed with form submission
+                    } else {
+                        event.preventDefault(); // Cancel form submission
+                        return false;
+                    }
+                } else {
+                    alert('Please select at least one user to delete.');
+                    event.preventDefault(); // Cancel form submission
+                    return false;
+                }
+            });
+        }
+
+        // Update delete button state based on checkbox selection
+        function updateDeleteButtonState() {
+            const deleteButton = document.querySelector('.delete-btn');
+            const checkedCheckboxes = document.querySelectorAll('.custom-checkbox.checked:not(#selectAll)');
+
+            if (checkedCheckboxes.length > 0) {
+                deleteButton.disabled = false;
+                deleteButton.style.opacity = '1';
+                deleteButton.style.cursor = 'pointer';
+            } else {
+                deleteButton.disabled = true;
+                deleteButton.style.opacity = '0.5';
+                deleteButton.style.cursor = 'not-allowed';
+            }
+        }
+
+        // Initialize pagination functionality
+        function initPagination() {
+            const prevButton = document.querySelector('.prev-btn');
+            const nextButton = document.querySelector('.next-btn');
+
+            // Handle disabled state
+            if (prevButton.classList.contains('disabled')) {
+                prevButton.addEventListener('click', function(event) {
+                    event.preventDefault();
+                });
+            }
+
+            if (nextButton.classList.contains('disabled')) {
+                nextButton.addEventListener('click', function(event) {
+                    event.preventDefault();
+                });
+            }
+
+            // Update pagination info when needed
+            updatePaginationInfo();
+        }
+
+        // Update pagination info based on visible rows
+        function updatePaginationInfo() {
+            const paginationInfo = document.querySelector('.pagination-info');
+            const tableRows = document.querySelectorAll('.data-table tbody tr');
+            const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
+
+            if (paginationInfo) {
+                const totalRows = tableRows.length;
+                const visibleCount = visibleRows.length;
+
+                if (visibleCount < totalRows) {
+                    paginationInfo.textContent = `Showing ${visibleCount} of ${totalRows}`;
+                } else {
+                    // Get current page and page size from the URL or default values
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const currentPage = parseInt(urlParams.get('page')) || 1;
+                    const pageSize = parseInt(urlParams.get('size')) || parseInt(document.querySelector('.page-size .dropdown-toggle span').textContent);
+
+                    const startIndex = (currentPage - 1) * pageSize + 1;
+                    const endIndex = Math.min(startIndex + pageSize - 1, totalRows);
+
+                    paginationInfo.textContent = `Showing ${startIndex}-${endIndex} of ${totalRows}`;
+                }
+            }
+        }
+
+        // Handle mobile responsive navigation
+        function initMobileNavigation() {
+            // Only execute for mobile devices
+            if (window.innerWidth <= 576) {
+                const logo = document.querySelector('.sidebar .logo');
+                const navMenu = document.querySelector('.nav-menu');
+
+                logo.addEventListener('click', function() {
+                    if (navMenu.style.display === 'block') {
+                        navMenu.style.display = 'none';
+                    } else {
+                        navMenu.style.display = 'block';
+                    }
+                });
+
+                // Hide menu when clicking outside
+                document.addEventListener('click', function(event) {
+                    if (!event.target.closest('.sidebar')) {
+                        navMenu.style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        // Add event listener for window resize
+        window.addEventListener('resize', function() {
+            initMobileNavigation();
+        });
+
+        // Call mobile navigation init
+        initMobileNavigation();
+
+        // Function to handle table sorting
+        function initTableSorting() {
+            const tableHeaders = document.querySelectorAll('.data-table th:not(:first-child)');
+
+            tableHeaders.forEach(header => {
+                header.style.cursor = 'pointer';
+                header.addEventListener('click', function() {
+                    const columnIndex = Array.from(header.parentElement.children).indexOf(header);
+                    const table = header.closest('table');
+                    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+                    // Check current sort direction
+                    const isAscending = header.classList.contains('sort-asc');
+
+                    // Reset all headers
+                    tableHeaders.forEach(h => {
+                        h.classList.remove('sort-asc', 'sort-desc');
+                        h.querySelector('i')?.remove();
+                    });
+
+                    // Set new sort direction
+                    if (isAscending) {
+                        header.classList.add('sort-desc');
+                        const icon = document.createElement('i');
+                        icon.className = 'fa fa-sort-down ml-1';
+                        header.appendChild(icon);
+                    } else {
+                        header.classList.add('sort-asc');
+                        const icon = document.createElement('i');
+                        icon.className = 'fa fa-sort-up ml-1';
+                        header.appendChild(icon);
+                    }
+
+                    // Sort rows
+                    rows.sort((a, b) => {
+                        const aValue = a.children[columnIndex].textContent.trim();
+                        const bValue = b.children[columnIndex].textContent.trim();
+
+                        // Handle special case for status column
+                        if (columnIndex === 5) { // Status column
+                            const aIsActive = a.querySelector('.tag.active') !== null;
+                            const bIsActive = b.querySelector('.tag.active') !== null;
+
+                            return isAscending ?
+                                (aIsActive === bIsActive ? 0 : aIsActive ? -1 : 1) :
+                                (aIsActive === bIsActive ? 0 : aIsActive ? 1 : -1);
+                        }
+
+                        // Normal string comparison
+                        return isAscending ?
+                            aValue.localeCompare(bValue) :
+                            bValue.localeCompare(aValue);
+                    });
+
+                    // Reattach sorted rows
+                    const tbody = table.querySelector('tbody');
+                    rows.forEach(row => tbody.appendChild(row));
+
+                    // Update pagination info
+                    updatePaginationInfo();
+                });
+            });
+        }
+
+        // Initialize table sorting
+        initTableSorting();
+
+        // Function to export data to CSV
+        function exportToCsv() {
+            const table = document.querySelector('.data-table');
+            const rows = Array.from(table.querySelectorAll('tr'));
+
+            // Create CSV content
+            let csvContent = "data:text/csv;charset=utf-8,";
+
+            rows.forEach(row => {
+                const cells = Array.from(row.querySelectorAll('th, td'));
+                const rowData = cells.map(cell => {
+                    // Skip checkbox cells
+                    if (cell.querySelector('.checkbox-container')) {
+                        return '';
+                    }
+
+                    // Clean text content (remove extra spaces, commas)
+                    return '"' + cell.textContent.trim().replace(/"/g, '""') + '"';
+                }).filter(text => text !== '');
+
+                csvContent += rowData.join(',') + '\r\n';
+            });
+
+            // Create download link
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', 'users_data.csv');
+            document.body.appendChild(link);
+
+            // Trigger download
+            link.click();
+
+            // Clean up
+            document.body.removeChild(link);
+        }
+
+        // Add export button to the UI
+        function addExportButton() {
+            const userActions = document.querySelector('.user-actions');
+
+            const exportButton = document.createElement('button');
+            exportButton.className = 'logout-btn';
+            exportButton.style.backgroundColor = '#00b074';
+            exportButton.textContent = 'Export';
+            exportButton.addEventListener('click', exportToCsv);
+
+            userActions.insertBefore(exportButton, userActions.firstChild);
+        }
+
+        // Initialize export functionality
+        addExportButton();
+    }
+</script>
+</body>
+</html>
