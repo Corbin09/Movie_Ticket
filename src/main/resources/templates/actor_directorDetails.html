@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title ?: 'CGVmax Cinema'}">CGVmax Cinema</title>
+    <style>
+        /* Reset CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a3d0a, #000000);
+            color: white;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 30px;
+            margin-right: 5px;
+        }
+
+        .logo-text {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .user-profile img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 8px;
+            object-fit: cover;
+        }
+
+        .login-btn {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .search-form {
+            display: flex;
+            margin-left: 15px;
+        }
+
+        .search-form input {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px 0 0 20px;
+            outline: none;
+            width: 200px;
+        }
+
+        .search-form button {
+            background-color: white;
+            border: none;
+            border-radius: 0 20px 20px 0;
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+
+        /* Main Content Styles */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .actor-profile {
+            display: flex;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .actor-image {
+            width: 200px;
+            height: 250px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-right: 30px;
+            flex-shrink: 0;
+        }
+
+        .actor-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .actor-info h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .actor-info p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .movie-section h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .movie-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .movie-card {
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .movie-poster {
+            position: relative;
+            height: 320px;
+            overflow: hidden;
+        }
+
+        .movie-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .movie-info {
+            padding: 15px;
+        }
+
+        .movie-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            height: 40px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .movie-meta {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+
+        .movie-rating {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ff4d4d;
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 30px 20px;
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo {
+            margin-bottom: 20px;
+        }
+
+        .footer-info {
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+
+        .footer-info p {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        .contact-info h4, .social-media h4 {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .contact-info p {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .social-icon {
+            width: 30px;
+            height: 30px;
+            background-color: #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .copyright {
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+        }
+
+        /* Hamburger Menu for Mobile */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 2px 0;
+            transition: all 0.3s;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 968px) {
+            .movie-list {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 10px 15px;
+            }
+
+            .hamburger {
+                display: flex;
+                z-index: 101;
+            }
+
+            nav ul {
+                position: fixed;
+                flex-direction: column;
+                background: rgba(0, 0, 0, 0.9);
+                top: 0;
+                left: -100%;
+                height: 100vh;
+                width: 70%;
+                padding-top: 60px;
+                transition: left 0.3s;
+                z-index: 100;
+            }
+
+            nav ul.active {
+                left: 0;
+            }
+
+            nav ul li {
+                margin: 15px 20px;
+            }
+
+            .search-form {
+                display: none;
+            }
+
+            .actor-profile {
+                flex-direction: column;
+            }
+
+            .actor-image {
+                width: 150px;
+                height: 200px;
+                margin: 0 auto 20px;
+            }
+
+            .actor-info h2 {
+                text-align: center;
+            }
+
+            .movie-list {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 15px;
+            }
+
+            .movie-poster {
+                height: 200px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+            }
+
+            .footer-info, .contact-info, .social-media {
+                margin-bottom: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .movie-list {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .movie-poster {
+                height: 180px;
+            }
+
+            .movie-title {
+                font-size: 14px;
+                height: 35px;
+            }
+
+            .movie-meta, .movie-rating {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="hamburger" id="hamburger-menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="logo">
+        <img th:src="@{/images/logo.png}" src="/api/placeholder/30/30" alt="CGVmax Logo">
+        <div class="logo-text" th:text="${companyName ?: 'CGVmax'}">CGVmax</div>
+    </div>
+
+    <nav>
+        <ul id="nav-menu">
+            <li th:each="menuItem : ${menuItems}">
+                <a th:href="@{${menuItem.url}}" th:text="${menuItem.name}">Menu Item</a>
+            </li>
+            <!-- Fallback static menu if no menuItems are provided -->
+            <li th:if="${menuItems == null || menuItems.isEmpty()}"><a th:href="@{/}">Home</a></li>
+            <li th:if="${menuItems == null || menuItems.isEmpty()}"><a th:href="@{/showtime}">Showtime</a></li>
+            <li th:if="${menuItems == null || menuItems.isEmpty()}"><a th:href="@{/news}">News</a></li>
+        </ul>
+    </nav>
+
+    <div class="user-actions">
+        <div class="user-profile" th:if="${loggedInUser != null}">
+            <img th:src="${loggedInUser.profileImage}" src="/api/placeholder/30/30" alt="User Profile">
+            <span th:text="${loggedInUser.name}">Phan Thuy Ngoc</span>
+        </div>
+        <button class="login-btn" th:text="${loggedInUser != null ? 'Log out' : 'Log in'}"
+                th:onclick="${loggedInUser != null ? 'logout()' : 'login()'}">Log in</button>
+        <form class="search-form" th:action="@{/search}" method="get">
+            <input type="text" name="query" placeholder="Search..." th:value="${param.query}">
+            <button type="submit">
+                🔍
+            </button>
+        </form>
+    </div>
+</header>
+
+<main class="container">
+    <section class="actor-profile" th:if="${actor != null}">
+        <div class="actor-image">
+            <img th:src="${actor.imageUrl}" src="/api/placeholder/200/250" th:alt="${actor.name}">
+        </div>
+        <div class="actor-info">
+            <h2 th:text="'Actor: ' + ${actor.name}">Actor: Kim Da-mi</h2>
+            <p th:text="${actor.biography}">Kim Da-mi is a South Korean actress. She is best known for playing the titular role in action-revenge film The Witch: Part 1. The Subversion (2018). She's also known for her roles in the television series Itaewon Class (2020) and Our Beloved Summer (2021) (2021-2022).</p>
+        </div>
+    </section>
+
+    <section class="movie-section">
+        <h3 th:text="${movieSectionTitle ?: 'List of Movies Participating'}">List of Movies Participating</h3>
+        <div class="movie-list">
+            <div class="movie-card" th:each="movie : ${movies}">
+                <div class="movie-poster">
+                    <img th:src="${movie.posterUrl}" src="/api/placeholder/240/320" th:alt="${movie.title}">
+                </div>
+                <div class="movie-info">
+                    <h4 class="movie-title" th:text="${movie.title}">CAPTAIN AMERICA: THE CIVIL WAR - T13 - 2D</h4>
+                    <div class="movie-meta" th:text="${movie.genres}">Hành động, Phiêu lưu</div>
+                    <div class="movie-rating" th:text="'IMDb: ' + ${movie.rating}">IMDb: 7.8</div>
+                </div>
+            </div>
+
+            <!-- Fallback static movies if no movies are provided -->
+            <div class="movie-card" th:if="${movies == null || movies.isEmpty()}">
+                <div class="movie-poster">
+                    <img src="/api/placeholder/240/320" alt="CAPTAIN AMERICA: THE CIVIL WAR">
+                </div>
+                <div class="movie-info">
+                    <h4 class="movie-title">CAPTAIN AMERICA: THE CIVIL WAR - T13 - 2D</h4>
+                    <div class="movie-meta">Hành động, Phiêu lưu</div>
+                    <div class="movie-rating">IMDb: 7.8</div>
+                </div>
+            </div>
+
+            <div class="movie-card" th:if="${movies == null || movies.isEmpty()}">
+                <div class="movie-poster">
+                    <img src="/api/placeholder/240/320" alt="INUYASHA">
+                </div>
+                <div class="movie-info">
+                    <h4 class="movie-title">INUYASHA</h4>
+                    <div class="movie-meta">Hài, Hoạt hình, Phiêu lưu</div>
+                    <div class="movie-rating">IMDb: 8.4</div>
+                </div>
+            </div>
+
+            <div class="movie-card" th:if="${movies == null || movies.isEmpty()}">
+                <div class="movie-poster">
+                    <img src="/api/placeholder/240/320" alt="NỤ HÔN BÁC TY">
+                </div>
+                <div class="movie-info">
+                    <h4 class="movie-title">NỤ HÔN BÁC TY - T13</h4>
+                    <div class="movie-meta">Hài, Tình cảm</div>
+                    <div class="movie-rating">IMDb: 7.6</div>
+                </div>
+            </div>
+
+            <div class="movie-card" th:if="${movies == null || movies.isEmpty()}">
+                <div class="movie-poster">
+                    <img src="/api/placeholder/240/320" alt="YÊU NHẦM BẠN THÂN">
+                </div>
+                <div class="movie-info">
+                    <h4 class="movie-title">YÊU NHẦM BẠN THÂN - T13</h4>
+                    <div class="movie-meta">Hài, Tình cảm</div>
+                    <div class="movie-rating">IMDb: 6.9</div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div class="footer-content">
+        <div class="footer-info">
+            <div class="footer-logo">
+                <img th:src="@{/images/logo.png}" src="/api/placeholder/50/20" alt="CGVmax Logo">
+            </div>
+            <p th:text="${footerText ?: 'Get your tickets now for an amazing cinematic experience. From drama to comedy, there\'s a movie for everyone!'}">
+                Get your tickets now for an amazing cinematic experience. From drama to comedy, there's a movie for everyone!
+            </p>
+        </div>
+
+        <div class="contact-info">
+            <h4 th:text="${contactTitle ?: 'CONTACT US'}">CONTACT US</h4>
+            <p th:text="${contactEmail ?: 'Email: info@cgvmax.com'}">Email: info@cgvmax.com</p>
+            <p th:text="${contactPhone ?: '+84 2399 045'}">+84 2399 045</p>
+        </div>
+
+        <div class="social-media">
+            <h4 th:text="${socialTitle ?: 'FOLLOW US'}">FOLLOW US</h4>
+            <div class="social-icons">
+                <a th:each="social : ${socialLinks}"
+                   th:href="${social.url}"
+                   class="social-icon"
+                   th:text="${social.icon}">f</a>
+                <!-- Fallback social icons if no socialLinks are provided -->
+                <a th:if="${socialLinks == null || socialLinks.isEmpty()}" href="#" class="social-icon">f</a>
+                <a th:if="${socialLinks == null || socialLinks.isEmpty()}" href="#" class="social-icon">in</a>
+                <a th:if="${socialLinks == null || socialLinks.isEmpty()}" href="#" class="social-icon">yt</a>
+            </div>
+        </div>
+    </div>
+    <div class="copyright" th:text="${copyright ?: 'Copyright 2025, CGC All Rights Reserved. Dev by REZ.vn'}">
+        Copyright 2025, CGC All Rights Reserved. Dev by REZ.vn
+    </div>
+</footer>
+
+<script th:inline="javascript">
+    // Get dynamic data from Thymeleaf
+    const isLoggedIn = /*[[${loggedInUser != null}]]*/ false;
+
+    // Mobile Menu Toggle
+    document.getElementById('hamburger-menu').addEventListener('click', function() {
+        document.getElementById('nav-menu').classList.toggle('active');
+
+        // Transform hamburger into X
+        const spans = this.getElementsByTagName('span');
+        for (let span of spans) {
+            span.classList.toggle('active');
+        }
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const hamburger = document.getElementById('hamburger-menu');
+        const navMenu = document.getElementById('nav-menu');
+
+        if (!hamburger.contains(event.target) && !navMenu.contains(event.target) && navMenu.classList.contains('active')) {
+            navMenu.classList.remove('active');
+
+            const spans = hamburger.getElementsByTagName('span');
+            for (let span of spans) {
+                span.classList.remove('active');
+            }
+        }
+    });
+
+    // Add hover effects to movie cards with JavaScript
+    const movieCards = document.querySelectorAll('.movie-card');
+    movieCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px)';
+            this.style.boxShadow = '0 10px 20px rgba(0,0,0,0.3)';
+        });
+
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+        });
+
+        // Make cards clickable
+        card.addEventListener('click', function() {
+            const movieId = this.getAttribute('data-id');
+            if (movieId) {
+                window.location.href = /*[[@{/movie/}]]*/ '' + movieId;
+            } else {
+                alert('Movie details will be shown here!');
+            }
+        });
+    });
+
+    // Login/Logout functionality
+    function login() {
+        window.location.href = /*[[@{/login}]]*/ '/login';
+    }
+
+    function logout() {
+        window.location.href = /*[[@{/logout}]]*/ '/logout';
+    }
+</script>
+</body>
+</html>
