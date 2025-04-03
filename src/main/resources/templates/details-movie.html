@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${film.filmName}">Movie Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/header_user.css}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to right, #052e16, #0f172a);
+            color: white;
+        }
+
+        .container-details-movie {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding-top: 100px;
+        }
+
+        /* Main Content */
+        .movie-detail-container {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+        }
+
+        .movie-poster {
+            width: 120px;
+            border-radius: 5px;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .movie-poster img {
+            width: 100%;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .movie-info {
+            flex-grow: 1;
+        }
+
+        .movie-title {
+            margin-bottom: 10px;
+        }
+
+        .movie-title h1 {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .movie-subtitle {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 15px;
+        }
+
+        .movie-rating {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .rating-label {
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        .stars {
+            color: gold;
+            margin-right: 0.5rem;
+            font-size: 14px;
+        }
+
+        .movie-meta {
+            display: grid;
+            grid-template-columns: auto auto;
+            gap: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .movie-meta-item {
+            display: flex;
+        }
+
+        .meta-label {
+            color: #aaa;
+            margin-right: 5px;
+            min-width: 60px;
+        }
+
+        .meta-value {
+            color: white;
+        }
+
+        .movie-description {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .movie-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn i {
+            margin-right: 5px;
+        }
+
+        .btn-primary {
+            background-color: #12b981;
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #12b981;
+            color: #12b981;
+        }
+
+        /* Trailer section */
+        .trailer-section {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .trailer-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 ratio */
+            height: 0;
+            overflow: hidden;
+        }
+
+        .trailer-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+        }
+
+        /* Rating section */
+        .ratings-section {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .rating-overview {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .rating-big {
+            font-size: 28px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .rating-scale {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .user-review {
+            padding: 15px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .reviewer-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .review-date {
+            color: #aaa;
+            font-size: 12px;
+        }
+
+        .review-content {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-top: 5px;
+        }
+
+        /* Review form */
+        .review-form {
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .form-title {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .star-rating {
+            margin-bottom: 10px;
+            display: flex;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            cursor: pointer;
+            font-size: 18px;
+            color: #ddd;
+            margin-right: 5px;
+        }
+
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label {
+            color: gold;
+        }
+
+        .comment-input {
+            width: 100%;
+            height: 80px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            margin-bottom: 15px;
+            resize: none;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .cancel-btn {
+            background-color: transparent;
+            color: #aaa;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            background-color: #12b981;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .movie-detail-container {
+                flex-direction: column;
+            }
+
+            .movie-poster {
+                width: 100%;
+                max-width: 200px;
+                margin-bottom: 15px;
+                margin-right: 0;
+            }
+
+            .movie-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .movie-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Header and navigation -->
+<div th:replace="fragments/header_user :: header_user"></div>
+
+<div class="container-details-movie">
+    <div class="movie-detail-container">
+        <!-- Movie poster -->
+        <div class="movie-poster">
+            <img th:src="${film.filmImg}" alt="Movie Poster">
+        </div>
+
+        <!-- Movie information -->
+        <div class="movie-info">
+            <div class="movie-title">
+                <h1 th:text="${film.filmName}">Captain America: The giới mới</h1>
+            </div>
+            <div class="movie-subtitle">
+                <span class="meta-value" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Action, Adventure</span>
+            </div>
+
+            <div class="movie-meta">
+                <div class="movie-meta-item">
+                    <span class="meta-label">Rating:</span>
+                    <span class="meta-value" th:text="${#numbers.formatDecimal(filmRating.filmRate, 1, 1)}">4.3/5</span>
+                </div>
+
+                <div class="movie-meta-item">
+                    <span class="meta-label">Time:</span>
+                    <span class="meta-value" th:text="${film.duration} + ' min'">128min</span>
+                </div>
+                <div class="movie-meta-item">
+                    <span class="meta-label">Country:</span>
+                    <span class="meta-value" th:text="${film.country}">USA</span>
+                </div>
+            </div>
+
+            <div class="movie-description">
+                <p th:text="${film.filmDescription}">Sam trở thành người giữ chiếc khiên trong truyền thuyết. Anh đã trở thành Captain America và cùng đồng đội Bucky đương đầu với một nhóm khủng bố quốc tế. Những người này trang bị rất hiện đại, bắt đầu tấn công các nước trên thế giới sau khi chiếc khiên được trao tay cho Sam.</p>
+            </div>
+
+            <div class="movie-actions">
+                <a href="#" class="btn btn-primary">
+                    <i class="fas fa-ticket-alt"></i> Buy Ticket
+                </a>
+                <button class="btn btn-outline" id="save-movie-btn">
+                    <i class="fas fa-bookmark"></i> Save Movie
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trailer section -->
+    <div class="trailer-section">
+        <h2 class="section-title">Trailer</h2>
+        <div class="trailer-container">
+            <iframe width="560" height="315" th:src="${film.filmTrailer}" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <!-- Ratings section -->
+    <div class="ratings-section">
+        <h2 class="section-title">Ratings</h2>
+
+        <div class="rating-overview">
+            <span class="rating-big" th:text="${#numbers.formatDecimal(filmRating.filmRate, 1, 1)}">4.3</span>
+            <span class="rating-scale">/5</span>
+        </div>
+
+        <p th:text="${film.filmName} + ' has received an average rating of ' + ${#numbers.formatDecimal(filmRating.filmRate, 1, 1)} + '/5'">
+            Captain America: The giới mới has received an average rating of 4.3/5
+        </p>
+
+        <!-- User reviews -->
+        <div class="user-review" th:each="review : ${userReviews}">
+            <div class="review-header">
+                <div class="reviewer-info">
+                    <img th:src="${review.userAvatar}" alt="User Avatar" class="user-avatar" onerror="this.src='images/anonymous.png';">
+                    <span class="reviewer-name" th:text="${review.username}">Le Minh Hùng</span>
+                </div>
+                <span class="review-date" th:text="${#dates.format(review.datePosted, 'dd MMM yyyy')}">One week ago</span>
+            </div>
+            <div class="stars">
+                <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                    <i class="fas fa-star" th:if="${i <= review.star}"></i>
+                    <i class="far fa-star" th:if="${i > review.star}"></i>
+                </th:block>
+            </div>
+            <div class="review-content" th:text="${review.comments}">The movie is not as interesting as the trailer have shown, but it is great and interesting.</div>
+        </div>
+
+        <div th:if="${userReviews.isEmpty()}">
+            <p>No reviews yet. Be the first to review!</p>
+        </div>
+
+        <!-- Review form -->
+        <div class="review-form" th:if="${user != null}">
+            <h3 class="form-title">Share your thoughts about this movie</h3>
+            <form id="reviewForm">
+                <input type="hidden" name="filmId" th:value="${film.filmId}">
+
+                <div class="star-rating">
+                    <input type="radio" id="star5" name="star" value="5" th:checked="${userReview != null && userReview.star == 5}">
+                    <label for="star5"><i class="fas fa-star"></i></label>
+                    <input type="radio" id="star4" name="star" value="4" th:checked="${userReview != null && userReview.star == 4}">
+                    <label for="star4"><i class="fas fa-star"></i></label>
+                    <input type="radio" id="star3" name="star" value="3" th:checked="${userReview != null && userReview.star == 3}">
+                    <label for="star3"><i class="fas fa-star"></i></label>
+                    <input type="radio" id="star2" name="star" value="2" th:checked="${userReview != null && userReview.star == 2}">
+                    <label for="star2"><i class="fas fa-star"></i></label>
+                    <input type="radio" id="star1" name="star" value="1" th:checked="${userReview != null && userReview.star == 1}">
+                    <label for="star1"><i class="fas fa-star"></i></label>
+                </div>
+
+                <textarea name="comment" class="comment-input" placeholder="Write your review..." th:text="${user != null ? userReview.comments : ''}"></textarea>
+
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn" id="cancel-btn">Cancel</button>
+                    <button type="submit" class="submit-btn">Submit</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Login prompt for non-logged in users -->
+        <div class="review-form" th:if="${user == null}">
+            <p>Please <a th:href="@{/login}">login</a> to write a review.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="fragments/footer :: footer"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Submit review form
+        $('#reviewForm').submit(function(e) {
+            e.preventDefault();
+
+            var formData = {
+                filmId: $('input[name=filmId]').val(),
+                star: $('input[name=star]:checked').val(),
+                comment: $('textarea[name=comment]').val()
+            };
+
+            if (!formData.star) {
+                alert("Please select a rating.");
+                return;
+            }
+
+            $.ajax({
+                url: '/api/add-review',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    alert("Review submitted successfully!");
+                    location.reload(); // Refresh to show the new review
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error submitting review: " + error);
+                    alert("Error submitting review. Please try again.");
+                }
+            });
+        });
+
+        // Cancel button handling
+        $('#cancel-btn').click(function() {
+            $('textarea[name=comment]').val('');
+            // Reset stars to default (no selection)
+            $('input[name=star]').prop('checked', false);
+        });
+
+        // Save movie functionality
+        $('#save-movie-btn').click(function() {
+            var filmId = $('input[name=filmId]').val();
+
+            $.ajax({
+                url: '/api/save-film',
+                type: 'POST',
+                data: {
+                    filmId: filmId
+                },
+                success: function(response) {
+                    alert("Movie saved successfully!");
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error saving movie: " + error);
+                    alert("Error saving movie. Please try again.");
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

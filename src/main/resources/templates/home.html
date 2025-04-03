@@ -106,13 +106,13 @@
     <!-- For search results section -->
     <div class="movie-grid" th:if="${not #lists.isEmpty(searchResults)}">
         <div th:each="film : ${searchResults}" class="movie-card">
-            <a th:href="@{'/View-movie-ticket?id=' + ${film.filmId}}">
+            <a th:href="@{'/detail-movie?id=' + ${film.filmId}}">
                 <div class="movie-poster-container">
                     <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
                 </div>
                 <div class="movie-info">
                     <div class="movie-meta">
-                        <span class="movie-category" th:text="${film.filmType}">Category</span>
+                        <span class="movie-category" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Category</span>
                         <span class="movie-release-date"
                               th:text="${film.formattedReleaseDate}">Release Date</span>
                         <span class="movie-duration" th:text="${film.duration + ' min'}">Duration</span>
@@ -165,7 +165,7 @@
     <h2 class="section-title">Now Showing</h2>
     <div class="movie-grid">
         <div th:each="film : ${nowShowingMovies}" class="movie-card">
-            <a th:href="@{'/View-movie-ticket?id=' + ${film.filmId}}">
+            <a th:href="@{'/detail-movie?id=' + ${film.filmId}}">
                 <div class="movie-poster-container">
                     <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
                 </div>
@@ -201,7 +201,7 @@
     <h2 class="section-title">Coming Soon</h2>
 <div class="movie-grid">
     <div th:each="film : ${comingSoonMovies}" class="movie-card">
-        <a th:href="@{'/View-movie-ticket?id=' + ${film.filmId}}">
+        <a th:href="@{'/detail-movie?id=' + ${film.filmId}}">
             <div class="movie-poster-container">
                 <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
             </div>

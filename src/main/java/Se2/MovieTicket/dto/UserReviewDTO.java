@@ -11,6 +11,8 @@ public class UserReviewDTO {
     private String comments;
     private Integer star;
     private Date datePosted;
+    private String username;  // Thêm trường này
+    private String userAvatar;  // Thêm trường này
 
     public Long getUserId() {
         return userId;
@@ -50,5 +52,21 @@ public class UserReviewDTO {
 
     public void setDatePosted(Date datePosted) {
         this.datePosted = datePosted;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUserAvatar() {
+        return userAvatar;
+    }
+
+    public void setUserAvatar(String userAvatar) {
+        this.userAvatar = userAvatar;
     }
 }

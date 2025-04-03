@@ -126,22 +126,57 @@ public class UserLikeFilmService {
         return false;
     }
 
-    /**
-     * Toggle a like relationship between a user and a film (add if not exists, remove if exists)
-     *
-     * @param userId the ID of the user
-     * @param filmId the ID of the film
-     * @return true if like was added, false if like was removed
-     * @throws RuntimeException if user or film not found
-     */
+
+
+    public boolean hasUserLikedFilm(Long userId, Long filmId) {
+        UserLikeFilmId id = new UserLikeFilmId(userId, filmId);
+        return userLikeFilmRepository.existsById(id);
+    }
+
     @Transactional
     public boolean toggleUserLikeFilm(Long userId, Long filmId) {
-        if (doesUserLikeFilm(userId, filmId)) {
-            removeUserLikeFilm(userId, filmId);
+
+        UserLikeFilmId id = new UserLikeFilmId(userId, filmId);
+        boolean currentlyLiked = userLikeFilmRepository.existsById(id);
+
+        if (currentlyLiked) {
+            // Unlike the film
+            userLikeFilmRepository.deleteById(id);
             return false;
         } else {
-            addUserLikeFilm(userId, filmId);
+            // Like the film
+            UserLikeFilm userLikeFilm = new UserLikeFilm();
+            userLikeFilm.setId(id);
+
+            // Set user
+            Optional<User> userOptional = userRepository.findById(userId);
+            if (userOptional.isPresent()) {
+                userLikeFilm.setUser(userOptional.get());
+            } else {
+                throw new IllegalArgumentException("User not found");
+            }
+
+            // Set film
+            Optional<Film> filmOptional = filmRepository.findById(filmId);
+            if (filmOptional.isPresent()) {
+                userLikeFilm.setFilm(filmOptional.get());
+            } else {
+                throw new IllegalArgumentException("Film not found");
+            }
+
+            userLikeFilmRepository.save(userLikeFilm);
             return true;
         }
     }
+
+    public int countLikesByFilmId(Long filmId) {
+        return userLikeFilmRepository.countByFilmFilmId(filmId);
+    }
+
+
+public boolean checkUserLikedFilm(Long userId, Long filmId) {
+    UserLikeFilmId id = new UserLikeFilmId(userId, filmId);
+    return userLikeFilmRepository.existsById(id);
+}
+
 }

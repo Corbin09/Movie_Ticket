@@ -2,7 +2,10 @@ package Se2.MovieTicket.controllers;
 
 import Se2.MovieTicket.dto.*;
 import Se2.MovieTicket.model.*;
+import Se2.MovieTicket.repository.FilmRatingRepository;
+import Se2.MovieTicket.repository.UserLikeFilmRepository;
 import Se2.MovieTicket.repository.UserRepository;
+import Se2.MovieTicket.repository.UserReviewRepository;
 import Se2.MovieTicket.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -20,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -699,6 +704,287 @@ private PopcornComboService popcornComboService;
 
         return "home";  // Trả về trang template home.html
     }
+@Autowired
+private UserLikeFilmService userLikeFilmService;
+
+
+    @Autowired
+    private UserReviewService userReviewService;
+
+
+@Autowired
+private UserLikeFilmRepository userLikeFilmRepository;
+
+@Autowired
+private FilmRatingRepository filmRatingRepository;
+
+@Autowired
+private UserReviewRepository userReviewRepository;
+
+    @GetMapping("/detail-movie")
+    public String viewMovieDetail(
+            @RequestParam("id") Long filmId,
+            Model model, HttpServletRequest request) {
+
+        logger.info("Accessing movie detail page for film ID: {}", filmId);
+
+        // Get user from session or SecurityContext
+        User sessionUser = getUserFromSessionOrContext(request);
+
+        if (sessionUser != null) {
+            logger.info("User found: {}", sessionUser.getUsername());
+            model.addAttribute("user", sessionUser);
+
+            // Check if user has liked this film
+            boolean userLikedFilm = userLikeFilmService.hasUserLikedFilm(sessionUser.getUserId(), filmId);
+            model.addAttribute("userLikedFilm", userLikedFilm);
+
+            // Check if user has reviewed this film
+            UserReview userReview = userReviewService.findUserReviewByUserAndFilm(sessionUser.getUserId(), filmId);
+            model.addAttribute("userReview", userReview);
+        } else {
+            model.addAttribute("userLikedFilm", false);
+        }
+
+        // Fetch film and convert to DTO
+        Optional<Film> filmOptional = filmService.getFilmById(filmId);
+        if (filmOptional.isPresent()) {
+            Film film = filmOptional.get();
+
+            FilmDTO filmDTO = convertFilmToDTO(film);
+            model.addAttribute("film", filmDTO);
+
+            // Get film rating
+            FilmRating filmRating = film.getFilmRating();
+            if (filmRating != null) {
+                model.addAttribute("filmRating", filmRating);
+
+                // Calculate star display (for CSS)
+                double starDisplay = Math.round(filmRating.getFilmRate() * 2) / 2.0; // Round to nearest 0.5
+                model.addAttribute("starDisplay", starDisplay);
+            } else {
+                // Default values if no ratings exist
+                model.addAttribute("filmRating", new FilmRating());
+                model.addAttribute("starDisplay", 0.0);
+            }
+
+            // Get user reviews
+            List<UserReviewDTO> userReviews = getUserReviewsForFilm(film);
+            model.addAttribute("userReviews", userReviews);
+
+            logger.info("Film details loaded for ID: {}", filmId);
+        } else {
+            logger.warn("Film not found with ID: {}", filmId);
+            return "redirect:/films";
+        }
+
+        return "details-movie";
+    }
+    // Save/Unsave film endpoint
+    @PostMapping("detail-movie/save-film")
+    public ResponseEntity<?> saveFilm(@RequestParam Long filmId, HttpServletRequest request) {
+        // Get user from session or SecurityContext - matching viewMovieDetail approach
+        User currentUser = getUserFromSessionOrContext(request);
+
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+        }
+
+        // Check if user already liked the film
+        UserLikeFilmId id = new UserLikeFilmId(currentUser.getUserId(), filmId);
+        Optional<UserLikeFilm> existingLike = userLikeFilmRepository.findById(id);
+
+        if (existingLike.isPresent()) {
+            // User already liked - remove like
+            userLikeFilmRepository.delete(existingLike.get());
+            return ResponseEntity.ok("Film removed from favorites");
+        } else {
+            // User hasn't liked - add like
+            UserLikeFilm userLikeFilm = new UserLikeFilm();
+            userLikeFilm.setId(id);
+            userLikeFilm.setUser(currentUser);
+
+            // In saveFilm method:
+            Optional<Film> filmOptional = filmService.getFilmById(filmId);
+            Film film = filmOptional.orElseThrow(() -> new RuntimeException("Film not found"));
+            userLikeFilm.setFilm(film);
+
+
+            userLikeFilmRepository.save(userLikeFilm);
+            return ResponseEntity.ok("Film added to favorites");
+        }
+    }
+
+    // Add or update review endpoint
+    @PostMapping("detail-movie/add-review")
+    public ResponseEntity<?> addReview(@RequestBody Map<String, Object> payload, HttpServletRequest request) {
+        // Get user from session or SecurityContext - matching viewMovieDetail approach
+        User currentUser = getUserFromSessionOrContext(request);
+
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+        }
+
+        Long filmId = Long.parseLong(payload.get("filmId").toString());
+        Integer star = Integer.parseInt(payload.get("star").toString());
+        String comment = (String) payload.get("comment");
+
+        // Create or update user review
+        UserReviewId reviewId = new UserReviewId(currentUser.getUserId(), filmId);
+        UserReview review = userReviewRepository.findById(reviewId)
+                .orElse(new UserReview());
+
+        if (review.getId() == null) {
+            review.setId(reviewId);
+            review.setUser(currentUser);
+
+            // In addReview method:
+            Optional<Film> filmOptional = filmService.getFilmById(filmId);
+            Film film = filmOptional.orElseThrow(() -> new RuntimeException("Film not found"));
+            review.setFilm(film);
+
+            review.setDatePosted(new Date());
+        }
+
+        // Check if star rating changed
+        Integer oldStar = review.getStar();
+        review.setComments(comment);
+        review.setStar(star);
+        userReviewRepository.save(review);
+
+        // Update film rating
+        updateFilmRating(filmId, oldStar, star);
+
+        return ResponseEntity.ok("Review submitted successfully");
+    }
+
+    /**
+     * Helper method to convert Optional<Film> to Film entity
+     */
+    private Film convertDtoToEntity(Optional<Film> filmOptional) {
+        if (filmOptional.isEmpty()) {
+            return null;
+        }
+
+        return filmOptional.get();
+    }
+
+    /**
+     * Helper method to update film rating
+     */
+    private void updateFilmRating(Long filmId, Integer oldStar, Integer newStar) {
+        FilmRating rating = filmRatingRepository.findById(filmId)
+                .orElse(new FilmRating());
+
+        if (rating.getFilmId() == null) {
+            // New rating entry
+            rating.setFilmId(filmId);
+            Optional<Film> filmOptional = filmService.getFilmById(filmId);
+            Film film = filmOptional.orElseThrow(() -> new RuntimeException("Film not found"));
+            rating.setFilm(film);
+            rating.setSumRate(1);
+            rating.setSumStar(newStar);
+        } else {
+            // Update existing rating
+            if (oldStar == null) {
+                // New review
+                rating.setSumRate(rating.getSumRate() + 1);
+                rating.setSumStar(rating.getSumStar() + newStar);
+            } else {
+                // Updated review - adjust sum of stars
+                rating.setSumStar(rating.getSumStar() - oldStar + newStar);
+            }
+        }
+
+        // Don't forget to save the updated rating
+        filmRatingRepository.save(rating);
+    }
+
+    // Helper methods
+    private User getUserFromSessionOrContext(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        User sessionUser = (session != null) ? (User) session.getAttribute("user") : null;
+
+        if (sessionUser == null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                sessionUser = userService.getUserById(userDetails.getId()).orElse(null);
+
+                if (sessionUser != null && session != null) {
+                    session.setAttribute("user", sessionUser);
+                    logger.info("User saved to session from SecurityContext");
+                }
+            }
+        }
+
+        return sessionUser;
+    }
+
+    private FilmDTO convertFilmToDTO(Film film) {
+        FilmDTO filmDTO = new FilmDTO();
+        filmDTO.setFilmId(film.getFilmId());
+        filmDTO.setFilmName(film.getFilmName());
+        filmDTO.setFilmImg(film.getFilmImg());
+        filmDTO.setFilmTrailer(film.getFilmTrailer());
+        filmDTO.setFilmDescription(film.getFilmDescription());
+        filmDTO.setReleaseDate(film.getReleaseDate());
+        filmDTO.setDuration(film.getDuration());
+        filmDTO.setFilmType(film.getFilmType());
+        filmDTO.setCountry(film.getCountry());
+        filmDTO.setAgeLimit(film.getAgeLimit());
+
+        // Chuyển đổi directors thành DirectorDTO
+        filmDTO.setDirectors(film.getFilmDirectors().stream()
+                .map(fd -> {
+                    DirectorDTO directorDTO = new DirectorDTO();
+                    directorDTO.setDirectorId(fd.getDirector().getDirectorId());
+                    directorDTO.setDirectorName(fd.getDirector().getDirectorName());
+                    return directorDTO;
+                })
+                .collect(Collectors.toList()));
+
+        // Chuyển đổi actors thành ActorDTO
+        filmDTO.setActors(film.getFilmActors().stream()
+                .map(fa -> {
+                    ActorDTO actorDTO = new ActorDTO();
+                    actorDTO.setActorId(fa.getActor().getActorId());
+                    actorDTO.setActorName(fa.getActor().getActorName());
+                    return actorDTO;
+                })
+                .collect(Collectors.toList()));
+
+        // Vẫn giữ categoryNames như cũ, hoặc bạn có thể chuyển đổi tương tự
+        filmDTO.setCategoryNames(film.getFilmCategories().stream()
+                .map(fc -> fc.getCategory().getCategoryName())
+                .collect(Collectors.toList()));
+
+        return filmDTO;
+    }
+
+    private List<UserReviewDTO> getUserReviewsForFilm(Film film) {
+        if (film.getUserReviews() == null || film.getUserReviews().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return film.getUserReviews().stream()
+                .map(review -> {
+                    UserReviewDTO dto = new UserReviewDTO();
+                    dto.setUserId(review.getUser().getUserId());
+                    dto.setFilmId(review.getFilm().getFilmId());
+                    dto.setUsername(review.getUser().getUsername());
+                    dto.setUserAvatar(review.getUser().getUserImg());
+                    dto.setComments(review.getComments());
+                    dto.setStar(review.getStar());
+                    dto.setDatePosted(review.getDatePosted());
+                    return dto;
+                })
+                .sorted(Comparator.comparing(UserReviewDTO::getDatePosted).reversed())
+                .collect(Collectors.toList());
+    }
+
+
+
 
     @GetMapping("/showtime")
     public String getShowtimes(

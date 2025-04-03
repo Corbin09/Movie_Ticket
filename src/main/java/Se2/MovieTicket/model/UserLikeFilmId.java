@@ -16,7 +16,8 @@ public class UserLikeFilmId implements Serializable {
     private Long userId;
     private Long filmId;
 
-    // Không cần viết lại constructor nữa vì @AllArgsConstructor đã làm điều đó
+
+// Không cần viết lại constructor nữa vì @AllArgsConstructor đã làm điều đó
 
     public Long getUserId() {
         return userId;

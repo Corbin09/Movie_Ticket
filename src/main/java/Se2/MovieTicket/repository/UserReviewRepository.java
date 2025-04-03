@@ -35,4 +35,6 @@ public interface UserReviewRepository extends JpaRepository<UserReview, UserRevi
 
     @Query("SELECT ur FROM UserReview ur WHERE ur.star >= :minStar")
     List<UserReview> findByStarGreaterThanEqual(@Param("minStar") Integer minStar);
+
+    List<UserReview> findByFilmFilmId(Long filmId);
 }

@@ -29,7 +29,8 @@ public class FilmDTO {
     private Set<News> news;
     private Set<UserReview> userReviews;
     private String formattedReleaseDate;
-
+    private List<DirectorDTO> directors;
+    private List<ActorDTO> actors;
     public Long getFilmId() {
         return filmId;
     }
@@ -190,4 +191,19 @@ public class FilmDTO {
         }
     }
 
+    public List<DirectorDTO> getDirectors() {
+        return directors;
+    }
+
+    public void setDirectors(List<DirectorDTO> directors) {
+        this.directors = directors;
+    }
+
+    public List<ActorDTO> getActors() {
+        return actors;
+    }
+
+    public void setActors(List<ActorDTO> actors) {
+        this.actors = actors;
+    }
 }

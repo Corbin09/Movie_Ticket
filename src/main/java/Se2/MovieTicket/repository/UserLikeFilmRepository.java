@@ -71,7 +71,7 @@ public interface UserLikeFilmRepository extends JpaRepository<UserLikeFilm, User
      * @param filmId the ID of the film
      * @return the count of users who like the film
      */
-    long countByFilmFilmId(Long filmId);
+    int countByFilmFilmId(Long filmId);
 
     /**
      * Find a specific UserLikeFilm entry by user and film entities
