@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: html(~{::body}, 'Showtimes Management')}">
+<body>
+<!-- Showtimes List Screen -->
+<section id="showtimes-screen" class="screen active">
+    <div class="actions-bar">
+        <div class="filter-section">
+            <label>Filter:</label>
+            <div class="dropdown">
+                <button class="dropdown-toggle" th:text="${filter != null} ? ${filter} : 'Movie Name'">
+                    Movie Name <i class="fas fa-caret-down"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a th:href="@{/showtimes(filter='Movie Name')}">Movie Name</a>
+                    <a th:href="@{/showtimes(filter='Theater Name')}">Theater Name</a>
+                    <a th:href="@{/showtimes(filter='Show Date')}">Show Date</a>
+                </div>
+            </div>
+            <div class="search-box">
+                <form th:action="@{/showtimes/search}" method="get">
+                    <input type="text" name="query" th:value="${searchQuery}" placeholder="Search...">
+                    <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+        <a th:href="@{/showtimes/add}" class="add-btn" id="add-showtime-btn">Add Showtime</a>
+    </div>
+
+    <div class="table-container">
+        <form th:action="@{/showtimes/bulk-delete}" method="post" id="showtimes-form">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" id="select-all"></th>
+                    <th>ID Showtime</th>
+                    <th>Movie Name</th>
+                    <th>Theater Name</th>
+                    <th>Auditorium Name</th>
+                    <th>Time</th>
+                    <th>Show Date</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="showtime : ${showtimes}" th:id="'showtime-' + ${showtime.id}">
+                    <td><input type="checkbox" class="row-checkbox" name="selectedIds" th:value="${showtime.id}"></td>
+                    <td th:text="${showtime.id}">1</td>
+                    <td th:text="${showtime.movie.name}">The Hunger Game</td>
+                    <td th:text="${showtime.theater.name}">Beta Thanh Xuan</td>
+                    <td th:text="${showtime.room.name}">Room 1</td>
+                    <td th:text="${#temporals.format(showtime.showTime, 'HH:mm')}">15:45</td>
+                    <td th:text="${#temporals.format(showtime.showDate, 'dd/MM/yyyy')}">15/3/2025</td>
+                    <td class="actions">
+                        <a th:href="@{/showtimes/edit/{id}(id=${showtime.id})}" class="edit-btn">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button type="button" class="delete-btn"
+                                th:data-id="${showtime.id}"
+                                th:onclick="confirmDelete([[${showtime.id}]])">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- Message when no showtimes available -->
+                <tr th:if="${#lists.isEmpty(showtimes)}">
+                    <td colspan="8" class="text-center">No showtimes available</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- Pagination controls -->
+            <div class="pagination" th:if="${totalPages > 1}">
+                <ul>
+                    <li th:class="${currentPage == 0} ? 'disabled' : ''">
+                        <a th:if="${currentPage > 0}" th:href="@{/showtimes(page=${currentPage - 1}, size=${size})}">Previous</a>
+                        <span th:unless="${currentPage > 0}">Previous</span>
+                    </li>
+
+                    <li th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:class="${pageNum == currentPage} ? 'active' : ''">
+                        <a th:if="${pageNum != currentPage}" th:href="@{/showtimes(page=${pageNum}, size=${size})}"
+                           th:text="${pageNum + 1}">1</a>
+                        <span th:unless="${pageNum != currentPage}" th:text="${pageNum + 1}">1</span>
+                    </li>
+
+                    <li th:class="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/showtimes(page=${currentPage + 1}, size=${size})}">Next</a>
+                        <span th:unless="${currentPage < totalPages - 1}">Next</span>
+                    </li>
+                </ul>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Delete confirmation modal (can be hidden by default with CSS) -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h3>Confirm Delete</h3>
+        <p>Are you sure you want to delete this showtime?</p>
+        <div class="modal-actions">
+            <button id="cancelDelete" class="cancel-btn">Cancel</button>
+            <form id="deleteForm" th:action="@{/showtimes/delete}" method="post">
+                <input type="hidden" id="deleteShowtimeId" name="id">
+                <button type="submit" class="delete-confirm-btn">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for delete confirmation -->
+<script th:inline="javascript">
+    function confirmDelete(id) {
+        const modal = document.getElementById('deleteModal');
+        const deleteIdInput = document.getElementById('deleteShowtimeId');
+        deleteIdInput.value = id;
+        modal.style.display = 'block';
+    }
+
+    document.getElementById('cancelDelete').addEventListener('click', function() {
+        document.getElementById('deleteModal').style.display = 'none';
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    // Select All Checkboxes
+    const selectAllCheckbox = document.getElementById('select-all');
+    if (selectAllCheckbox) {
+        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+
+        selectAllCheckbox.addEventListener('change', function() {
+            rowCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // Update select-all checkbox state when individual checkboxes change
+        rowCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const allChecked = [...rowCheckboxes].every(c => c.checked);
+                const someChecked = [...rowCheckboxes].some(c => c.checked);
+
+                selectAllCheckbox.checked = allChecked;
+                selectAllCheckbox.indeterminate = !allChecked && someChecked;
+            });
+        });
+    }
+
+    // Dropdown Toggle
+    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+
+    dropdownToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const menu = this.nextElementSibling;
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        const dropdowns = document.querySelectorAll('.dropdown-menu');
+        dropdowns.forEach(dropdown => {
+            if (dropdown.style.display === 'block' && !dropdown.previousElementSibling.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    });
+
+    // Close modal when clicking outside
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        window.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
+
+    // Form validation
+    const addForm = document.getElementById('add-showtime-form');
+    const editForm = document.getElementById('edit-showtime-form');
+
+    const validateForm = (form) => {
+        let isValid = true;
+
+        // Get all required fields
+        const requiredFields = form.querySelectorAll('[required]');
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                // Add error class
+                field.classList.add('invalid');
+
+                // Create error message if it doesn't exist
+                let errorSpan = field.nextElementSibling;
+                if (!errorSpan || !errorSpan.classList.contains('field-error')) {
+                    errorSpan = document.createElement('span');
+                    errorSpan.classList.add('field-error');
+                    errorSpan.textContent = 'This field is required';
+                    field.parentNode.insertBefore(errorSpan, field.nextSibling);
+                }
+
+                isValid = false;
+            } else {
+                // Remove error class
+                field.classList.remove('invalid');
+
+                // Remove error message if it exists
+                let errorSpan = field.nextElementSibling;
+                if (errorSpan && errorSpan.classList.contains('field-error')) {
+                    errorSpan.remove();
+                }
+            }
+        });
+
+        return isValid;
+    };
+
+    if (addForm) {
+        addForm.addEventListener('submit', function(e) {
+            if (!validateForm(this)) {
+                e.preventDefault();
+            }
+        });
+    }
+
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            if (!validateForm(this)) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+
+// Function to display success/error notifications
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+
+    // Automatically remove after 5 seconds
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => {
+            notification.remove();
+        }, 500);
+    }, 5000);
+}
+
+// Check for notification messages from server (Thymeleaf adds these to the page)
+document.addEventListener('DOMContentLoaded', function() {
+    const message = document.getElementById('server-message');
+    if (message) {
+        showNotification(message.dataset.message, message.dataset.type);
+        message.remove(); // Remove after displaying
+    }
+});
+</script>
+</body>
+</html>

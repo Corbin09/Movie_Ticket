@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: html(~{::body}, 'Showtimes Management\\Add Showtime')}">
+<body>
+<!-- Add Showtime Screen -->
+<section id="add-showtime-screen" class="screen active">
+    <div class="form-container">
+        <h2>Add Showtime</h2>
+        <form id="add-showtime-form" th:action="@{/showtimes/save}" th:object="${showtime}" method="post">
+            <div class="form-group">
+                <label for="movie-name">Movie Name</label>
+                <div class="select-wrapper">
+                    <select id="movie-name" th:field="*{movieId}" required>
+                        <option value="">Select Movie</option>
+                        <option th:each="movie : ${movies}"
+                                th:value="${movie.id}"
+                                th:text="${movie.name}">The Hunger Game</option>
+                    </select>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <span class="error" th:if="${#fields.hasErrors('movieId')}" th:errors="*{movieId}"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="cinema-name">Cinema Name</label>
+                <div class="select-wrapper">
+                    <select id="cinema-name" th:field="*{theaterId}" required>
+                        <option value="">Select Cinema</option>
+                        <option th:each="theater : ${theaters}"
+                                th:value="${theater.id}"
+                                th:text="${theater.name}">Beta Thanh Xuan</option>
+                    </select>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <span class="error" th:if="${#fields.hasErrors('theaterId')}" th:errors="*{theaterId}"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="room-name">Room Name</label>
+                <div class="select-wrapper">
+                    <select id="room-name" th:field="*{roomId}" required>
+                        <option value="">Select Room</option>
+                        <option th:each="room : ${rooms}"
+                                th:value="${room.id}"
+                                th:text="${room.name}">Room 1</option>
+                    </select>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <span class="error" th:if="${#fields.hasErrors('roomId')}" th:errors="*{roomId}"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="show-date">Day Show (Date)</label>
+                <input type="date" id="show-date" th:field="*{showDate}" required>
+                <span class="error" th:if="${#fields.hasErrors('showDate')}" th:errors="*{showDate}"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="show-time">Day Show (Time)</label>
+                <input type="time" id="show-time" th:field="*{showTime}" required>
+                <span class="error" th:if="${#fields.hasErrors('showTime')}" th:errors="*{showTime}"></span>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="@{/showtimes}" class="cancel-btn">Cancel</a>
+                <button type="submit" class="submit-btn">Add</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- JavaScript for dynamic room loading based on cinema selection -->
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const theaterSelect = document.getElementById('cinema-name');
+        const roomSelect = document.getElementById('room-name');
+
+        // Store the initial room options
+        const initialRoomOptions = Array.from(roomSelect.options).map(option => {
+            return {
+                value: option.value,
+                text: option.text,
+                theaterId: option.getAttribute('data-theater-id')
+            };
+        });
+
+        theaterSelect.addEventListener('change', function() {
+            const selectedTheaterId = this.value;
+
+            // Clear current options except the placeholder
+            while (roomSelect.options.length > 1) {
+                roomSelect.remove(1);
+            }
+
+            // If no theater selected, stop here
+            if (!selectedTheaterId) {
+                return;
+            }
+
+            // Make AJAX request to get rooms for the selected theater
+            fetch(`/api/theaters/${selectedTheaterId}/rooms`)
+                .then(response => response.json())
+                .then(rooms => {
+                    rooms.forEach(room => {
+                        const option = new Option(room.name, room.id);
+                        roomSelect.add(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading rooms:', error);
+                });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    // Select All Checkboxes
+    const selectAllCheckbox = document.getElementById('select-all');
+    if (selectAllCheckbox) {
+        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+
+        selectAllCheckbox.addEventListener('change', function() {
+            rowCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // Update select-all checkbox state when individual checkboxes change
+        rowCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const allChecked = [...rowCheckboxes].every(c => c.checked);
+                const someChecked = [...rowCheckboxes].some(c => c.checked);
+
+                selectAllCheckbox.checked = allChecked;
+                selectAllCheckbox.indeterminate = !allChecked && someChecked;
+            });
+        });
+    }
+
+    // Dropdown Toggle
+    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+
+    dropdownToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const menu = this.nextElementSibling;
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        const dropdowns = document.querySelectorAll('.dropdown-menu');
+        dropdowns.forEach(dropdown => {
+            if (dropdown.style.display === 'block' && !dropdown.previousElementSibling.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    });
+
+    // Close modal when clicking outside
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        window.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
+
+    // Form validation
+    const addForm = document.getElementById('add-showtime-form');
+    const editForm = document.getElementById('edit-showtime-form');
+
+    const validateForm = (form) => {
+        let isValid = true;
+
+        // Get all required fields
+        const requiredFields = form.querySelectorAll('[required]');
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                // Add error class
+                field.classList.add('invalid');
+
+                // Create error message if it doesn't exist
+                let errorSpan = field.nextElementSibling;
+                if (!errorSpan || !errorSpan.classList.contains('field-error')) {
+                    errorSpan = document.createElement('span');
+                    errorSpan.classList.add('field-error');
+                    errorSpan.textContent = 'This field is required';
+                    field.parentNode.insertBefore(errorSpan, field.nextSibling);
+                }
+
+                isValid = false;
+            } else {
+                // Remove error class
+                field.classList.remove('invalid');
+
+                // Remove error message if it exists
+                let errorSpan = field.nextElementSibling;
+                if (errorSpan && errorSpan.classList.contains('field-error')) {
+                    errorSpan.remove();
+                }
+            }
+        });
+
+        return isValid;
+    };
+
+    if (addForm) {
+        addForm.addEventListener('submit', function(e) {
+            if (!validateForm(this)) {
+                e.preventDefault();
+            }
+        });
+    }
+
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            if (!validateForm(this)) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+
+// Function to display success/error notifications
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+
+    // Automatically remove after 5 seconds
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => {
+            notification.remove();
+        }, 500);
+    }, 5000);
+}
+
+// Check for notification messages from server (Thymeleaf adds these to the page)
+document.addEventListener('DOMContentLoaded', function() {
+    const message = document.getElementById('server-message');
+    if (message) {
+        showNotification(message.dataset.message, message.dataset.type);
+        message.remove(); // Remove after displaying
+    }
+});
+</script>
+</body>
+</html>
