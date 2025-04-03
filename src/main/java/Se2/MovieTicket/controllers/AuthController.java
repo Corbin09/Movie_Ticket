@@ -10,6 +10,7 @@ import Se2.MovieTicket.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,6 +40,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.persistence.EntityManager;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -58,6 +60,8 @@ import java.util.stream.Collectors;
 @Controller
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -775,19 +779,29 @@ private UserReviewRepository userReviewRepository;
             logger.info("Film details loaded for ID: {}", filmId);
         } else {
             logger.warn("Film not found with ID: {}", filmId);
-            return "redirect:/films";
+            return "redirect:/home";
         }
 
         return "details-movie";
     }
     // Save/Unsave film endpoint
-    @PostMapping("detail-movie/save-film")
-    public ResponseEntity<?> saveFilm(@RequestParam Long filmId, HttpServletRequest request) {
-        // Get user from session or SecurityContext - matching viewMovieDetail approach
+    // Save/Unsave film endpoint
+// Save/Unsave film endpoint
+    @PostMapping("/detail-movie/save-film")
+    public ResponseEntity<?> saveFilm(@RequestBody Map<String, Object> payload, HttpServletRequest request) {
+        // Get user from session or SecurityContext
         User currentUser = getUserFromSessionOrContext(request);
 
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+        }
+
+        // Extract filmId from the request body
+        Long filmId;
+        try {
+            filmId = Long.parseLong(payload.get("filmId").toString());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Invalid film ID");
         }
 
         // Check if user already liked the film
@@ -804,60 +818,113 @@ private UserReviewRepository userReviewRepository;
             userLikeFilm.setId(id);
             userLikeFilm.setUser(currentUser);
 
-            // In saveFilm method:
             Optional<Film> filmOptional = filmService.getFilmById(filmId);
-            Film film = filmOptional.orElseThrow(() -> new RuntimeException("Film not found"));
-            userLikeFilm.setFilm(film);
+            if (filmOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Film not found");
+            }
 
-
+            userLikeFilm.setFilm(filmOptional.get());
             userLikeFilmRepository.save(userLikeFilm);
             return ResponseEntity.ok("Film added to favorites");
         }
     }
 
-    // Add or update review endpoint
-    @PostMapping("detail-movie/add-review")
+    @PostMapping("/detail-movie/add-review")
     public ResponseEntity<?> addReview(@RequestBody Map<String, Object> payload, HttpServletRequest request) {
-        // Get user from session or SecurityContext - matching viewMovieDetail approach
-        User currentUser = getUserFromSessionOrContext(request);
+        try {
+            // Get user from session
+            User currentUser = getUserFromSessionOrContext(request);
+            if (currentUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+            }
 
-        if (currentUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
-        }
+            Long userId = currentUser.getUserId();
+            Long filmId = Long.parseLong(payload.get("filmId").toString());
+            Integer star = Integer.parseInt(payload.get("star").toString());
+            String comment = (String) payload.get("comment");
+            boolean isUpdate = Boolean.parseBoolean(payload.get("isUpdate").toString());
 
-        Long filmId = Long.parseLong(payload.get("filmId").toString());
-        Integer star = Integer.parseInt(payload.get("star").toString());
-        String comment = (String) payload.get("comment");
-
-        // Create or update user review
-        UserReviewId reviewId = new UserReviewId(currentUser.getUserId(), filmId);
-        UserReview review = userReviewRepository.findById(reviewId)
-                .orElse(new UserReview());
-
-        if (review.getId() == null) {
-            review.setId(reviewId);
-            review.setUser(currentUser);
-
-            // In addReview method:
+            // Get the film
             Optional<Film> filmOptional = filmService.getFilmById(filmId);
-            Film film = filmOptional.orElseThrow(() -> new RuntimeException("Film not found"));
-            review.setFilm(film);
+            if (filmOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Film not found");
+            }
 
-            review.setDatePosted(new Date());
+            // Check if review exists using a direct count query
+            boolean exists = userReviewRepository.existsByUserIdAndFilmId(userId, filmId);
+            Integer oldStar = null;
+
+            if (exists) {
+                // Get the old star value for rating calculation
+                UserReview existingReview = userReviewRepository.findByUserIdAndFilmId(userId, filmId);
+                if (existingReview != null) {
+                    oldStar = existingReview.getStar();
+                }
+
+                // Update using a direct query
+                userReviewRepository.updateReview(userId, filmId, star, comment, new Date());
+            } else {
+                // Create new review using a direct insert or through repository
+                UserReview newReview = new UserReview();
+                UserReviewId reviewId = new UserReviewId(userId, filmId);
+                newReview.setId(reviewId);
+                newReview.setUser(currentUser);
+                newReview.setFilm(filmOptional.get());
+                newReview.setStar(star);
+                newReview.setComments(comment);
+                newReview.setDatePosted(new Date());
+                userReviewRepository.save(newReview);
+            }
+
+            // Update film rating
+            updateFilmRating(filmId, oldStar, star, !exists);
+
+            return ResponseEntity.ok("Review submitted successfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error submitting review: " + e.getMessage());
         }
-
-        // Check if star rating changed
-        Integer oldStar = review.getStar();
-        review.setComments(comment);
-        review.setStar(star);
-        userReviewRepository.save(review);
-
-        // Update film rating
-        updateFilmRating(filmId, oldStar, star);
-
-        return ResponseEntity.ok("Review submitted successfully");
     }
 
+    /**
+     * Helper method to update film rating
+     */
+    private void updateFilmRating(Long filmId, Integer oldStar, Integer newStar, boolean isNewReview) {
+        FilmRating rating = filmRatingRepository.findById(filmId)
+                .orElse(new FilmRating());
+
+        if (rating.getFilmId() == null) {
+            // New rating entry
+            rating.setFilmId(filmId);
+            Optional<Film> filmOptional = filmService.getFilmById(filmId);
+
+            if (filmOptional.isPresent()) {
+                rating.setFilm(filmOptional.get());
+                rating.setSumRate(1);
+                rating.setSumStar(newStar);
+            }
+        } else {
+            // Update existing rating
+            if (isNewReview) {
+                // New review
+                rating.setSumRate(rating.getSumRate() + 1);
+                rating.setSumStar(rating.getSumStar() + newStar);
+            } else if (oldStar != null) {
+                // Updated review - adjust sum of stars
+                rating.setSumStar(rating.getSumStar() - oldStar + newStar);
+            }
+        }
+
+        // Calculate the film rate (average)
+        if (rating.getSumRate() > 0) {
+            double filmRate = (double) rating.getSumStar() / rating.getSumRate();
+            rating.setFilmRate(filmRate);
+        }
+
+        // Save the updated rating
+        filmRatingRepository.save(rating);
+    }
     /**
      * Helper method to convert Optional<Film> to Film entity
      */
@@ -869,36 +936,6 @@ private UserReviewRepository userReviewRepository;
         return filmOptional.get();
     }
 
-    /**
-     * Helper method to update film rating
-     */
-    private void updateFilmRating(Long filmId, Integer oldStar, Integer newStar) {
-        FilmRating rating = filmRatingRepository.findById(filmId)
-                .orElse(new FilmRating());
-
-        if (rating.getFilmId() == null) {
-            // New rating entry
-            rating.setFilmId(filmId);
-            Optional<Film> filmOptional = filmService.getFilmById(filmId);
-            Film film = filmOptional.orElseThrow(() -> new RuntimeException("Film not found"));
-            rating.setFilm(film);
-            rating.setSumRate(1);
-            rating.setSumStar(newStar);
-        } else {
-            // Update existing rating
-            if (oldStar == null) {
-                // New review
-                rating.setSumRate(rating.getSumRate() + 1);
-                rating.setSumStar(rating.getSumStar() + newStar);
-            } else {
-                // Updated review - adjust sum of stars
-                rating.setSumStar(rating.getSumStar() - oldStar + newStar);
-            }
-        }
-
-        // Don't forget to save the updated rating
-        filmRatingRepository.save(rating);
-    }
 
     // Helper methods
     private User getUserFromSessionOrContext(HttpServletRequest request) {

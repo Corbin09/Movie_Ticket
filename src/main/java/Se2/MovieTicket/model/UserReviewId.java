@@ -2,19 +2,17 @@ package Se2.MovieTicket.model;
 
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Objects;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Embeddable
 public class UserReviewId implements Serializable {
     private Long userId;
     private Long filmId;
-
 
     public Long getUserId() {
         return userId;
@@ -31,6 +29,18 @@ public class UserReviewId implements Serializable {
     public void setFilmId(Long filmId) {
         this.filmId = filmId;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserReviewId that = (UserReviewId) o;
+        return Objects.equals(userId, that.userId) &&
+                Objects.equals(filmId, that.filmId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, filmId);
+    }
 }
-
-

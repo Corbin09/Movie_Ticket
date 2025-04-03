@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title th:text="${film.filmName}">Movie Details</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
@@ -24,7 +27,7 @@
             width: 100%;
             max-width: 800px;
             margin: 0 auto;
-            padding-top: 100px;
+            padding-top: 150px;
         }
 
         /* Main Content */
@@ -145,6 +148,10 @@
             color: #12b981;
         }
 
+        .heart-filled {
+            color: #ff69b4;
+        }
+
         /* Trailer section */
         .trailer-section {
             background-color: rgba(0, 0, 0, 0.3);
@@ -251,7 +258,7 @@
         }
 
         .star-rating {
-            margin-bottom: 10px;
+            direction: rtl; /* Right to left to reverse the flow */
             display: flex;
         }
 
@@ -304,6 +311,101 @@
             padding: 8px 12px;
             border-radius: 5px;
             cursor: pointer;
+        }
+
+        .user-has-reviewed {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #12b981;
+        }
+
+        /* Custom notification system */
+        .notification-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .notification-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .notification-box {
+            background: linear-gradient(135deg, #1e3a8a, #0f172a);
+            border-radius: 10px;
+            padding: 25px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(-20px);
+            transition: transform 0.3s;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .notification-overlay.active .notification-box {
+            transform: translateY(0);
+        }
+
+        .notification-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .notification-message {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #e2e8f0;
+            line-height: 1.5;
+        }
+
+        .notification-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .notification-icon.success {
+            color: #10b981;
+        }
+
+        .notification-icon.error {
+            color: #ef4444;
+        }
+
+        .notification-icon.info {
+            color: #3b82f6;
+        }
+
+        .notification-icon.warning {
+            color: #f59e0b;
+        }
+
+        .notification-btn {
+            background-color: #12b981;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .notification-btn:hover {
+            background-color: #0ea371;
         }
 
         /* Responsive Design */
@@ -367,18 +469,37 @@
                     <span class="meta-label">Country:</span>
                     <span class="meta-value" th:text="${film.country}">USA</span>
                 </div>
+
+                <div class="movie-meta-item">
+                    <span class="meta-label">Director:</span>
+                    <span class="meta-value">
+                        <th:block th:each="director, iterStat : ${film.directors}">
+                            <a th:href="@{'/detail-director?id=' + ${director.directorId}}" th:text="${director.directorName}">Director Name</a>
+                            <span th:if="${!iterStat.last}">, </span>
+                        </th:block>
+                    </span>
+                </div>
+                <div class="movie-meta-item">
+                    <span class="meta-label">Cast:</span>
+                    <span class="meta-value">
+                        <th:block th:each="actor, iterStat : ${film.actors}">
+                            <a th:href="@{'/detail-actor?id=' + ${actor.actorId}}" th:text="${actor.actorName}">Actor Name</a>
+                            <span th:if="${!iterStat.last}">, </span>
+                        </th:block>
+                    </span>
+                </div>
+
             </div>
 
             <div class="movie-description">
                 <p th:text="${film.filmDescription}">Sam trở thành người giữ chiếc khiên trong truyền thuyết. Anh đã trở thành Captain America và cùng đồng đội Bucky đương đầu với một nhóm khủng bố quốc tế. Những người này trang bị rất hiện đại, bắt đầu tấn công các nước trên thế giới sau khi chiếc khiên được trao tay cho Sam.</p>
             </div>
-
             <div class="movie-actions">
-                <a href="#" class="btn btn-primary">
+                <a th:href="@{'/View-movie-ticket?id=' + ${film.filmId}}" class="btn btn-primary">
                     <i class="fas fa-ticket-alt"></i> Buy Ticket
                 </a>
-                <button class="btn btn-outline" id="save-movie-btn">
-                    <i class="fas fa-bookmark"></i> Save Movie
+                <button class="btn btn-outline" id="save-movie-btn" th:data-film-id="${film.filmId}" th:data-is-saved="${userLikedFilm}">
+                    <i class="fa-heart" id="heart-icon" th:classappend="${userLikedFilm ? 'fas heart-filled' : 'far'}"></i> Save Movie
                 </button>
             </div>
         </div>
@@ -430,27 +551,50 @@
         <!-- Review form -->
         <div class="review-form" th:if="${user != null}">
             <h3 class="form-title">Share your thoughts about this movie</h3>
+
+            <!-- Show message if user has already reviewed -->
+            <div class="user-has-reviewed" th:if="${userReview != null}">
+                <div class="alert alert-info">
+                    <p>You've already rated this movie. You can update your review below.</p>
+                    <p>Your current rating:
+                        <span class="stars">
+                    <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                        <i class="fas fa-star" th:if="${i <= userReview.star}"></i>
+                        <i class="far fa-star" th:if="${i > userReview.star}"></i>
+                    </th:block>
+                </span>
+                    </p>
+                </div>
+            </div>
+
             <form id="reviewForm">
                 <input type="hidden" name="filmId" th:value="${film.filmId}">
+                <input type="hidden" name="isUpdate" th:value="${userReview != null}">
 
-                <div class="star-rating">
-                    <input type="radio" id="star5" name="star" value="5" th:checked="${userReview != null && userReview.star == 5}">
-                    <label for="star5"><i class="fas fa-star"></i></label>
-                    <input type="radio" id="star4" name="star" value="4" th:checked="${userReview != null && userReview.star == 4}">
-                    <label for="star4"><i class="fas fa-star"></i></label>
-                    <input type="radio" id="star3" name="star" value="3" th:checked="${userReview != null && userReview.star == 3}">
-                    <label for="star3"><i class="fas fa-star"></i></label>
-                    <input type="radio" id="star2" name="star" value="2" th:checked="${userReview != null && userReview.star == 2}">
-                    <label for="star2"><i class="fas fa-star"></i></label>
-                    <input type="radio" id="star1" name="star" value="1" th:checked="${userReview != null && userReview.star == 1}">
-                    <label for="star1"><i class="fas fa-star"></i></label>
+                <div class="star-rating-container">
+                    <span class="star-rating-label">Your Rating:</span>
+                    <div class="star-rating">
+                        <input type="radio" id="star5" name="star" value="5" th:checked="${userReview != null && userReview.star == 5}">
+                        <label for="star5"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="star4" name="star" value="4" th:checked="${userReview != null && userReview.star == 4}">
+                        <label for="star4"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="star3" name="star" value="3" th:checked="${userReview != null && userReview.star == 3}">
+                        <label for="star3"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="star2" name="star" value="2" th:checked="${userReview != null && userReview.star == 2}">
+                        <label for="star2"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="star1" name="star" value="1" th:checked="${userReview != null && userReview.star == 1}">
+                        <label for="star1"><i class="fas fa-star"></i></label>
+                    </div>
                 </div>
 
-                <textarea name="comment" class="comment-input" placeholder="Write your review..." th:text="${user != null ? userReview.comments : ''}"></textarea>
+                <div class="comment-container">
+                    <label for="comment-input">Your Review:</label>
+                    <textarea id="comment-input" name="comment" class="comment-input" placeholder="Write your review..." th:text="${userReview != null ? userReview.comments : ''}"></textarea>
+                </div>
 
                 <div class="form-actions">
                     <button type="button" class="cancel-btn" id="cancel-btn">Cancel</button>
-                    <button type="submit" class="submit-btn">Submit</button>
+                    <button type="submit" class="submit-btn" th:text="${userReview != null ? 'Update Review' : 'Submit Review'}">Submit</button>
                 </div>
             </form>
         </div>
@@ -465,66 +609,281 @@
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
 
+<!-- Custom notification overlay -->
+<div class="notification-overlay" id="notification-overlay">
+    <div class="notification-box">
+        <div class="notification-icon" id="notification-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="notification-title" id="notification-title">Success!</h3>
+        <p class="notification-message" id="notification-message">Operation completed successfully.</p>
+        <button class="notification-btn" id="notification-btn">OK</button>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function() {
-        // Submit review form
-        $('#reviewForm').submit(function(e) {
-            e.preventDefault();
+    document.addEventListener('DOMContentLoaded', function() {
+        // Notification system
+        const notificationOverlay = document.getElementById('notification-overlay');
+        const notificationTitle = document.getElementById('notification-title');
+        const notificationMessage = document.getElementById('notification-message');
+        const notificationIcon = document.getElementById('notification-icon');
+        const notificationBtn = document.getElementById('notification-btn');
 
-            var formData = {
-                filmId: $('input[name=filmId]').val(),
-                star: $('input[name=star]:checked').val(),
-                comment: $('textarea[name=comment]').val()
+        // Show notification
+        function showNotification(type, title, message, callback) {
+            // Set notification content
+            notificationTitle.textContent = title;
+            notificationMessage.textContent = message;
+
+            // Clear previous icon classes
+            notificationIcon.innerHTML = '';
+
+            // Set icon based on type
+            let iconElement = document.createElement('i');
+            switch(type) {
+                case 'success':
+                    iconElement.className = 'fas fa-check-circle';
+                    notificationIcon.className = 'notification-icon success';
+                    break;
+                case 'error':
+                    iconElement.className = 'fas fa-exclamation-circle';
+                    notificationIcon.className = 'notification-icon error';
+                    break;
+                case 'info':
+                    iconElement.className = 'fas fa-info-circle';
+                    notificationIcon.className = 'notification-icon info';
+                    break;
+                case 'warning':
+                    iconElement.className = 'fas fa-exclamation-triangle';
+                    notificationIcon.className = 'notification-icon warning';
+                    break;
+                default:
+                    iconElement.className = 'fas fa-bell';
+                    notificationIcon.className = 'notification-icon info';
+            }
+            notificationIcon.appendChild(iconElement);
+
+            // Show notification
+            notificationOverlay.classList.add('active');
+
+            // Set the callback for the OK button
+            notificationBtn.onclick = function() {
+                notificationOverlay.classList.remove('active');
+                if (typeof callback === 'function') {
+                    setTimeout(callback, 300); // Wait for animation to complete
+                }
             };
+        }
 
-            if (!formData.star) {
-                alert("Please select a rating.");
-                return;
+        // Close notification when clicking outside the box
+        notificationOverlay.addEventListener('click', function(e) {
+            if (e.target === notificationOverlay) {
+                notificationOverlay.classList.remove('active');
+            }
+        });
+
+        // Store initial values of comment and star
+        const commentTextarea = document.querySelector('textarea[name=comment]');
+        const originalComment = commentTextarea ? commentTextarea.value : '';
+        const originalStarInput = document.querySelector('input[name=star]:checked');
+        const originalStarValue = originalStarInput ? originalStarInput.value : null;
+
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+        // Function to send JSON data to backend
+        function sendJsonRequest(url, method, data, successCallback, errorCallback) {
+            // Create and configure the request
+            const xhr = new XMLHttpRequest();
+            xhr.open(method, url, true);
+
+            // Set headers for JSON
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            // Add CSRF token if available
+            if (csrfToken && csrfHeader) {
+                xhr.setRequestHeader(csrfHeader, csrfToken);
             }
 
-            $.ajax({
-                url: '/api/add-review',
-                type: 'POST',
-                data: formData,
-                success: function(response) {
-                    alert("Review submitted successfully!");
-                    location.reload(); // Refresh to show the new review
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error submitting review: " + error);
-                    alert("Error submitting review. Please try again.");
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    if (successCallback) successCallback(xhr.responseText);
+                } else {
+                    if (xhr.status === 401) {
+                        showNotification(
+                            'error',
+                            'Authentication Required',
+                            'Please login to perform this action.',
+                            function() { window.location.href = '/login'; }
+                        );
+                    } else {
+                        console.error(`Error: ${xhr.statusText}`, xhr.responseText);
+                        showNotification(
+                            'error',
+                            'Error',
+                            errorCallback || "An error occurred, please try again."
+                        );
+                    }
+                }
+            };
+
+            xhr.onerror = function() {
+                console.error('Request failed');
+                showNotification(
+                    'error',
+                    'Connection Error',
+                    errorCallback || "Failed to connect to the server. Please check your internet connection and try again."
+                );
+            };
+
+            // Send the request with JSON data
+            xhr.send(JSON.stringify(data));
+        }
+
+        // Handle review submission
+        const reviewForm = document.getElementById('reviewForm');
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const starChecked = document.querySelector('input[name=star]:checked');
+                if (!starChecked) {
+                    showNotification('warning', 'Rating Required', 'Please select a star rating.');
+                    return;
+                }
+
+                const filmIdInput = document.querySelector('input[name=filmId]');
+                const commentTextarea = document.querySelector('textarea[name=comment]');
+                const isUpdateInput = document.querySelector('input[name=isUpdate]');
+
+                const data = {
+                    filmId: filmIdInput.value,
+                    star: parseInt(starChecked.value),
+                    comment: commentTextarea.value,
+                    isUpdate: isUpdateInput.value === 'true'
+                };
+
+                sendJsonRequest(
+                    '/detail-movie/add-review',
+                    'POST',
+                    data,
+                    function(response) {
+                        showNotification(
+                            'success',
+                            'Review Submitted',
+                            'Your review has been successfully submitted!',
+                            function() { location.reload(); }
+                        );
+                    },
+                    "Error submitting review. Please try again later."
+                );
+            });
+        }
+
+        // Handle cancel button
+        const cancelBtn = document.getElementById('cancel-btn');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function() {
+                const commentTextarea = document.querySelector('textarea[name=comment]');
+                if (commentTextarea) {
+                    commentTextarea.value = originalComment;
+                }
+
+                // Uncheck all stars
+                const starInputs = document.querySelectorAll('input[name=star]');
+                starInputs.forEach(input => input.checked = false);
+
+                // Check original star if it existed
+                if (originalStarValue) {
+                    const originalStar = document.querySelector(`input[name=star][value="${originalStarValue}"]`);
+                    if (originalStar) {
+                        originalStar.checked = true;
+                    }
                 }
             });
-        });
+        }
 
-        // Cancel button handling
-        $('#cancel-btn').click(function() {
-            $('textarea[name=comment]').val('');
-            // Reset stars to default (no selection)
-            $('input[name=star]').prop('checked', false);
-        });
+        // Handle save/unsave film
+        const saveMovieBtn = document.getElementById('save-movie-btn');
+        if (saveMovieBtn) {
+            saveMovieBtn.addEventListener('click', function() {
+                const filmId = this.getAttribute('data-film-id');
+                const heartIcon = document.getElementById('heart-icon');
+                const isSaved = this.getAttribute('data-is-saved') === 'true';
 
-        // Save movie functionality
-        $('#save-movie-btn').click(function() {
-            var filmId = $('input[name=filmId]').val();
-
-            $.ajax({
-                url: '/api/save-film',
-                type: 'POST',
-                data: {
-                    filmId: filmId
-                },
-                success: function(response) {
-                    alert("Movie saved successfully!");
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error saving movie: " + error);
-                    alert("Error saving movie. Please try again.");
-                }
+                sendJsonRequest(
+                    '/detail-movie/save-film',
+                    'POST',
+                    { filmId: filmId },
+                    function(response) {
+                        if (!isSaved) {
+                            heartIcon.classList.remove('far');
+                            heartIcon.classList.add('fas', 'heart-filled');
+                            saveMovieBtn.setAttribute('data-is-saved', 'true');
+                            showNotification('success', 'Added to Favorites', 'Movie has been added to your favorites!');
+                        } else {
+                            heartIcon.classList.remove('fas', 'heart-filled');
+                            heartIcon.classList.add('far');
+                            saveMovieBtn.setAttribute('data-is-saved', 'false');
+                            showNotification('info', 'Removed from Favorites', 'Movie has been removed from your favorites.');
+                        }
+                    },
+                    "There was an error updating your favorites. Please try again."
+                );
             });
+        }
+
+        // Debug helper
+        console.log("Event listeners set up:", {
+            reviewForm: !!reviewForm,
+            saveMovieBtn: !!saveMovieBtn,
+            cancelBtn: !!cancelBtn,
+            notificationSystem: !!notificationOverlay
         });
     });
+</script>
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+  // Fix for YouTube iframe
+  const trailerIframe = document.querySelector('.trailer-container iframe');
+  if (trailerIframe) {
+    let src = trailerIframe.getAttribute('src');
+
+    // Check if it's a YouTube URL
+    if (src && (src.includes('youtube.com') || src.includes('youtu.be'))) {
+      // Convert any YouTube URL to embed format
+      let videoId = '';
+
+      if (src.includes('youtube.com/watch')) {
+        // Format: https://www.youtube.com/watch?v=VIDEO_ID
+        const urlParams = new URLSearchParams(new URL(src).search);
+        videoId = urlParams.get('v');
+      } else if (src.includes('youtu.be')) {
+        // Format: https://youtu.be/VIDEO_ID
+        videoId = src.split('/').pop();
+      } else if (src.includes('youtube.com/embed')) {
+        // Already in embed format, just ensure it's secure
+        if (src.startsWith('http:')) {
+          src = src.replace('http:', 'https:');
+        }
+        trailerIframe.setAttribute('src', src);
+        return;
+      }
+
+      if (videoId) {
+        // Set the correct embed URL
+        trailerIframe.setAttribute('src', `https://www.youtube.com/embed/${videoId}`);
+      }
+    }
+  }
+});
 </script>
 </body>
 </html>
