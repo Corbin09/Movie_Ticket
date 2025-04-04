@@ -508,93 +508,93 @@ body {
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Ticket slider functionality
-        const slides = document.querySelectorAll('.ticket-slide');
-        const dots = document.querySelectorAll('.indicator-dot');
-        const prevBtn = document.querySelector('.prev-ticket');
-        const nextBtn = document.querySelector('.next-ticket');
+     // Ticket slider functionality
+     const slides = document.querySelectorAll('.ticket-slide');
+     const dots = document.querySelectorAll('.indicator-dot');
+     const prevBtn = document.querySelector('.prev-ticket');
+     const nextBtn = document.querySelector('.next-ticket');
+     let currentIndex = 0;
 
-        if (slides.length <= 1) return; // Skip if only one ticket
+     // Thiết lập slider chỉ khi có nhiều hơn một vé
+     if (slides.length > 1) {
+         // Function to show specific slide
+         function showSlide(index) {
+             // Hide all slides
+             slides.forEach(slide => {
+                 slide.classList.remove('active');
+             });
 
-        let currentIndex = 0;
+             // Deactivate all dots
+             dots.forEach(dot => {
+                 dot.classList.remove('active');
+             });
 
-        // Function to show specific slide
-        function showSlide(index) {
-            // Hide all slides
-            slides.forEach(slide => {
-                slide.classList.remove('active');
-            });
+             // Show current slide and activate dot
+             slides[index].classList.add('active');
+             dots[index].classList.add('active');
 
-            // Deactivate all dots
-            dots.forEach(dot => {
-                dot.classList.remove('active');
-            });
+             currentIndex = index;
+         }
 
-            // Show current slide and activate dot
-            slides[index].classList.add('active');
-            dots[index].classList.add('active');
+         // Next button
+         if (nextBtn) {
+             nextBtn.addEventListener('click', function() {
+                 let newIndex = currentIndex + 1;
+                 if (newIndex >= slides.length) {
+                     newIndex = 0;
+                 }
+                 showSlide(newIndex);
+             });
+         }
 
-            currentIndex = index;
-        }
+         // Previous button
+         if (prevBtn) {
+             prevBtn.addEventListener('click', function() {
+                 let newIndex = currentIndex - 1;
+                 if (newIndex < 0) {
+                     newIndex = slides.length - 1;
+                 }
+                 showSlide(newIndex);
+             });
+         }
 
-        // Next button
-        if (nextBtn) {
-            nextBtn.addEventListener('click', function() {
-                let newIndex = currentIndex + 1;
-                if (newIndex >= slides.length) {
-                    newIndex = 0;
-                }
-                showSlide(newIndex);
-            });
-        }
+         // Dot indicators
+         dots.forEach((dot, index) => {
+             dot.addEventListener('click', function() {
+                 showSlide(index);
+             });
+         });
+     }
 
-        // Previous button
-        if (prevBtn) {
-            prevBtn.addEventListener('click', function() {
-                let newIndex = currentIndex - 1;
-                if (newIndex < 0) {
-                    newIndex = slides.length - 1;
-                }
-                showSlide(newIndex);
-            });
-        }
+     // Download ticket functionality - Hoạt động bất kể có bao nhiêu vé
+     const downloadBtn = document.getElementById('downloadTicket');
 
-        // Dot indicators
-        dots.forEach((dot, index) => {
-            dot.addEventListener('click', function() {
-                showSlide(index);
-            });
-        });
+     if (downloadBtn) {
+         downloadBtn.addEventListener('click', function(e) {
+             e.preventDefault();
 
-        // Download ticket functionality - Fixed to only capture the ticket container
-        const downloadBtn = document.getElementById('downloadTicket');
+             // Get the specific ticket container only (not including download button)
+             const ticketContainer = document.getElementById('ticket-container');
+             const activeTicket = document.querySelector('.ticket-slide.active');
 
-        if (downloadBtn) {
-            downloadBtn.addEventListener('click', function(e) {
-                e.preventDefault();
+             // Use html2canvas to capture only the ticket container
+             html2canvas(ticketContainer).then(function(canvas) {
+                 // Convert canvas to image data URL
+                 const imgData = canvas.toDataURL('image/png');
 
-                // Get the specific ticket container only (not including download button)
-                const ticketContainer = document.getElementById('ticket-container');
-                const activeTicket = document.querySelector('.ticket-slide.active');
+                 // Create download link
+                 const link = document.createElement('a');
+                 link.href = imgData;
+                 link.download = 'INUYASHA-ticket-' + (activeTicket.getAttribute('data-index') || '0') + '.png';
 
-                // Use html2canvas to capture only the ticket container
-                html2canvas(ticketContainer).then(function(canvas) {
-                    // Convert canvas to image data URL
-                    const imgData = canvas.toDataURL('image/png');
-
-                    // Create download link
-                    const link = document.createElement('a');
-                    link.href = imgData;
-                    link.download = 'INUYASHA-ticket-' + (activeTicket.getAttribute('data-index') || '0') + '.png';
-
-                    // Trigger download
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                });
-            });
-        }
-    });
+                 // Trigger download
+                 document.body.appendChild(link);
+                 link.click();
+                 document.body.removeChild(link);
+             });
+         });
+     }
+ });
 </script>
 </body>
 </html>

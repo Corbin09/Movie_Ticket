@@ -118,9 +118,9 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-@Bean
-public Jackson2ObjectMapperBuilderCustomizer jacksonCustomizer() {
-    return builder -> builder.featuresToDisable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-}
+    @Bean
+    public Jackson2ObjectMapperBuilderCustomizer jacksonCustomizer() {
+        return builder -> builder.featuresToDisable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+    }
 
 }

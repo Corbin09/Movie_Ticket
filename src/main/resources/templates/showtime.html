@@ -317,7 +317,7 @@ display: flex; flex-direction: row;}
         <div class="region-cinema-filter">
             <!-- Region Filter -->
             <div class="filter-row">
-                <div class="filter-label">Region:</div>
+<!--                <div class="filter-label">Region:</div>-->
                 <div class="dropdown-wrapper">
                     <div id="region-dropdown" class="dropdown">
                         <div class="dropdown-text" th:text="${selectedRegion != null ? selectedRegion.regionName : 'Select Region'}">Select Region</div>
@@ -335,7 +335,7 @@ display: flex; flex-direction: row;}
 
             <!-- Cinema Filter (only visible after region is selected) -->
             <div class="filter-row" id="cinema-filter-row" th:style="${selectedRegion == null ? 'display: none;' : ''}">
-                <div class="filter-label">Cinema:</div>
+<!--                <div class="filter-label">Cinema:</div>-->
                 <div class="dropdown-wrapper">
                     <div id="cinema-dropdown" class="dropdown">
                         <div class="dropdown-text" th:text="${selectedCinema != null ? selectedCinema.cinemaName : 'Select Cinema'}">Select Cinema</div>
