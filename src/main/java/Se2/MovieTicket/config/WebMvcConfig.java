@@ -1,6 +1,7 @@
 package Se2.MovieTicket.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -24,4 +25,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
 //        registry.addResourceHandler("/images/**")
 //                .addResourceLocations("file:/src/main/resources/static/images/news");
 //    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/favicon.ico")
+                .addResourceLocations("classpath:/static/")
+                .setCacheControl(CacheControl.noCache())
+                .resourceChain(false);
+    }
 }
