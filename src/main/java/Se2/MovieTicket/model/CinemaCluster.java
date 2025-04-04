@@ -2,10 +2,7 @@ package Se2.MovieTicket.model;
 
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Set;
 
@@ -16,6 +13,7 @@ import java.util.Set;
 @AllArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @ToString(exclude = {"cinemas"})
+@EqualsAndHashCode(exclude = {"cinemas"})
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "clusterId")
 public class CinemaCluster {
     @Id

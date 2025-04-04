@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title> Home </title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
     <link rel="stylesheet" th:href="@{/css/home.css}" />
     <link rel="stylesheet" th:href="@{/css/header_user.css}">
@@ -88,150 +88,150 @@
 
 <!-- Header -->
 <div class="content-container">
-<div th:replace="~{fragments/header_user :: header_user}"></div>
-<div class="adding-margin"></div>
+    <div th:replace="~{fragments/header_user :: header_user}"></div>
+    <div class="adding-margin"></div>
 
-<!-- Search Results Section (only shows when search is performed) -->
-<div class="search-results-section" th:if="${searchPerformed}">
-    <div class="search-results-title">
-        <div>
-            <h2>Search Results</h2>
-            <p class="search-query">for "<span th:text="${searchQuery}"></span>"</p>
-            <p class="search-count" th:text="${searchResultsCount} + ' results found'"></p>
-        </div>
-        <a th:href="@{/home}" class="clear-search">Clear Search</a>
-    </div>
-
-    <!-- When search has results -->
-    <!-- For search results section -->
-    <div class="movie-grid" th:if="${not #lists.isEmpty(searchResults)}">
-        <div th:each="film : ${searchResults}" class="movie-card">
-            <a th:href="@{'/detail-movie?id=' + ${film.filmId}}">
-                <div class="movie-poster-container">
-                    <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
-                </div>
-                <div class="movie-info">
-                    <div class="movie-meta">
-                        <span class="movie-category" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Category</span>
-                        <span class="movie-release-date"
-                              th:text="${film.formattedReleaseDate}">Release Date</span>
-                        <span class="movie-duration" th:text="${film.duration + ' min'}">Duration</span>
-                    </div>
-                    <div class="movie-title" th:text="${film.filmName}">Film Name</div>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <!-- When search has no results -->
-    <div class="no-results-message" th:if="${#lists.isEmpty(searchResults)}">
-        <i class="fas fa-search"></i>
-        <h3>No results found</h3>
-        <p>We couldn't find any movies matching "<span th:text="${searchQuery}"></span>"</p>
-        <p>Try checking your spelling or using different keywords</p>
-    </div>
-
-    <!-- HTML mới cho pagination "Search Results" -->
-    <div class="pagination" id="pagibar-search-results" th:if="${not #lists.isEmpty(searchResults)}">
-        <a th:href="@{/user-search(query=${searchQuery}, page=${(currentPageSearch ?: 1) - 1 <= 0 ? 1 : (currentPageSearch ?: 1) - 1})}"
-           class="prev" th:classappend="${(currentPageSearch ?: 1) <= 1 ? 'disabled' : ''}">‹</a>
-
-        <a th:each="i : ${#numbers.sequence(1, totalPagesSearch ?: 1)}"
-           th:href="@{/user-search(query=${searchQuery}, page=${i})}"
-           th:classappend="${(currentPageSearch ?: 1) == i ? 'active' : ''}"
-           th:text="${i}"></a>
-
-        <a th:href="@{/user-search(query=${searchQuery}, page=${(currentPageSearch ?: 1) + 1 > (totalPagesSearch ?: 1) ? (totalPagesSearch ?: 1) : (currentPageSearch ?: 1) + 1})}"
-           class="next" th:classappend="${(currentPageSearch ?: 1) >= (totalPagesSearch ?: 1) ? 'disabled' : ''}">›</a>
-    </div>
-</div>
-<div th:if="${!searchPerformed}">
-    <!-- Hero Banner (show only when not searching) -->
-    <div class="hero-banner" th:if="${!searchPerformed}">
-        <div class="hero-slider">
-            <img th:each="film, stat : ${nowShowingMovies}" th:if="${stat.index < 3}"
-                 th:src="@{${film.filmImg}}" alt="Featured Movie"
-                 class="hero-image" th:classappend="${stat.index == 0} ? 'active' : ''">
-        </div>
-
-        <!-- Pagination Default -->
-        <div class="pagination-default">
-            <div th:each="film, stat : ${nowShowingMovies}" th:if="${stat.index < 3}"
-                 class="pagination-dot" th:classappend="${stat.index == 0} ? 'active' : ''"></div>
-        </div>
-    </div>
-
-    <!-- For Now Showing section -->
-    <h2 class="section-title">Now Showing</h2>
-    <div class="movie-grid">
-        <div th:each="film : ${nowShowingMovies}" class="movie-card">
-            <a th:href="@{'/detail-movie?id=' + ${film.filmId}}">
-                <div class="movie-poster-container">
-                    <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
-                </div>
-                <div class="movie-info">
-                    <div class="movie-meta">
-                        <span class="movie-category" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Horror</span>
-                        <span class="movie-release-date"
-                              th:text="${film.formattedReleaseDate}">Release Date</span>
-                        <span class="movie-duration" th:text="${film.duration + ' min'}">114 min</span>
-                    </div>
-                    <div class="movie-title" th:text="${film.filmName}">DARK NUNS - T13 - 2D</div>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <!-- Pagination cho Now Showing -->
-    <div class="pagination" id="pagibar-now-showing">
-        <a th:href="@{/home(currentPageNowShowing=${(currentPageNowShowing ?: 1) - 1 <= 0 ? 1 : (currentPageNowShowing ?: 1) - 1}, currentPageComingSoon=${currentPageComingSoon ?: 1})}"
-           class="prev" th:classappend="${(currentPageNowShowing ?: 1) <= 1 ? 'disabled' : ''}">‹</a>
-
-        <a th:each="i : ${#numbers.sequence(1, totalPagesNowShowing ?: 1)}"
-           th:href="@{/home(currentPageNowShowing=${i}, currentPageComingSoon=${currentPageComingSoon ?: 1})}"
-           th:classappend="${(currentPageNowShowing ?: 1) == i ? 'active' : ''}"
-           th:text="${i}"></a>
-
-        <a th:href="@{/home(currentPageNowShowing=${(currentPageNowShowing ?: 1) + 1 > (totalPagesNowShowing ?: 1) ? (totalPagesNowShowing ?: 1) : (currentPageNowShowing ?: 1) + 1}, currentPageComingSoon=${currentPageComingSoon ?: 1})}"
-           class="next" th:classappend="${(currentPageNowShowing ?: 1) >= (totalPagesNowShowing ?: 1) ? 'disabled' : ''}">›</a>
-    </div>
-
-
-<!-- For Coming Soon section -->
-    <h2 class="section-title">Coming Soon</h2>
-<div class="movie-grid">
-    <div th:each="film : ${comingSoonMovies}" class="movie-card">
-        <a th:href="@{'/detail-movie?id=' + ${film.filmId}}">
-            <div class="movie-poster-container">
-                <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
+    <!-- Search Results Section (only shows when search is performed) -->
+    <div class="search-results-section" th:if="${searchPerformed}">
+        <div class="search-results-title">
+            <div>
+                <h2>Search Results</h2>
+                <p class="search-query">for "<span th:text="${searchQuery}"></span>"</p>
+                <p class="search-count" th:text="${searchResultsCount} + ' results found'"></p>
             </div>
-            <div class="movie-info">
-                <div class="movie-meta">
-                    <span class="movie-category" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Adventure</span>
-                    <span class="movie-release-date"
-                          th:text="${film.formattedReleaseDate}">Release Date</span>
-                    <span class="movie-duration" th:text="${film.duration + ' min'}">114 min</span>
-                </div>
-                <div class="movie-title" th:text="${film.filmName}">CAPTAIN AMERICA - T13 - 2D</div>
+            <a th:href="@{/home}" class="clear-search">Clear Search</a>
+        </div>
+
+        <!-- When search has results -->
+        <!-- For search results section -->
+        <div class="movie-grid" th:if="${not #lists.isEmpty(searchResults)}">
+            <div th:each="film : ${searchResults}" class="movie-card">
+                <a th:href="@{'/detail-movie?id=' + ${film.filmId}}">
+                    <div class="movie-poster-container">
+                        <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
+                    </div>
+                    <div class="movie-info">
+                        <div class="movie-meta">
+                            <span class="movie-category" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Category</span>
+                            <span class="movie-release-date"
+                                  th:text="${film.formattedReleaseDate}">Release Date</span>
+                            <span class="movie-duration" th:text="${film.duration + ' min'}">Duration</span>
+                        </div>
+                        <div class="movie-title" th:text="${film.filmName}">Film Name</div>
+                    </div>
+                </a>
             </div>
-        </a>
+        </div>
+
+        <!-- When search has no results -->
+        <div class="no-results-message" th:if="${#lists.isEmpty(searchResults)}">
+            <i class="fas fa-search"></i>
+            <h3>No results found</h3>
+            <p>We couldn't find any movies matching "<span th:text="${searchQuery}"></span>"</p>
+            <p>Try checking your spelling or using different keywords</p>
+        </div>
+
+        <!-- HTML mới cho pagination "Search Results" -->
+        <div class="pagination" id="pagibar-search-results" th:if="${not #lists.isEmpty(searchResults)}">
+            <a th:href="@{/user-search(query=${searchQuery}, page=${(currentPageSearch ?: 1) - 1 <= 0 ? 1 : (currentPageSearch ?: 1) - 1})}"
+               class="prev" th:classappend="${(currentPageSearch ?: 1) <= 1 ? 'disabled' : ''}">‹</a>
+
+            <a th:each="i : ${#numbers.sequence(1, totalPagesSearch ?: 1)}"
+               th:href="@{/user-search(query=${searchQuery}, page=${i})}"
+               th:classappend="${(currentPageSearch ?: 1) == i ? 'active' : ''}"
+               th:text="${i}"></a>
+
+            <a th:href="@{/user-search(query=${searchQuery}, page=${(currentPageSearch ?: 1) + 1 > (totalPagesSearch ?: 1) ? (totalPagesSearch ?: 1) : (currentPageSearch ?: 1) + 1})}"
+               class="next" th:classappend="${(currentPageSearch ?: 1) >= (totalPagesSearch ?: 1) ? 'disabled' : ''}">›</a>
+        </div>
     </div>
-</div>
+    <div th:if="${!searchPerformed}">
+        <!-- Hero Banner (show only when not searching) -->
+        <div class="hero-banner" th:if="${!searchPerformed}">
+            <div class="hero-slider">
+                <img th:each="film, stat : ${nowShowingMovies}" th:if="${stat.index < 3}"
+                     th:src="@{${film.filmImg}}" alt="Featured Movie"
+                     class="hero-image" th:classappend="${stat.index == 0} ? 'active' : ''">
+            </div>
 
-<!-- Pagination cho Coming Soon -->
-<div class="pagination" id="pagibar-coming-soon">
-    <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing ?: 1}, currentPageComingSoon=${(currentPageComingSoon ?: 1) - 1 <= 0 ? 1 : (currentPageComingSoon ?: 1) - 1})}"
-       class="prev" th:classappend="${(currentPageComingSoon ?: 1) <= 1 ? 'disabled' : ''}">‹</a>
+            <!-- Pagination Default -->
+            <div class="pagination-default">
+                <div th:each="film, stat : ${nowShowingMovies}" th:if="${stat.index < 3}"
+                     class="pagination-dot" th:classappend="${stat.index == 0} ? 'active' : ''"></div>
+            </div>
+        </div>
 
-    <a th:each="i : ${#numbers.sequence(1, totalPagesComingSoon ?: 1)}"
-       th:href="@{/home(currentPageNowShowing=${currentPageNowShowing ?: 1}, currentPageComingSoon=${i})}"
-       th:classappend="${(currentPageComingSoon ?: 1) == i ? 'active' : ''}"
-       th:text="${i}"></a>
+        <!-- For Now Showing section -->
+        <h2 class="section-title">Now Showing</h2>
+        <div class="movie-grid">
+            <div th:each="film : ${nowShowingMovies}" class="movie-card">
+                <a th:href="@{'/detail-movie?id=' + ${film.filmId}}">
+                    <div class="movie-poster-container">
+                        <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
+                    </div>
+                    <div class="movie-info">
+                        <div class="movie-meta">
+                            <span class="movie-category" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Horror</span>
+                            <span class="movie-release-date"
+                                  th:text="${film.formattedReleaseDate}">Release Date</span>
+                            <span class="movie-duration" th:text="${film.duration + ' min'}">114 min</span>
+                        </div>
+                        <div class="movie-title" th:text="${film.filmName}">DARK NUNS - T13 - 2D</div>
+                    </div>
+                </a>
+            </div>
+        </div>
 
-    <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing ?: 1}, currentPageComingSoon=${(currentPageComingSoon ?: 1) + 1 > (totalPagesComingSoon ?: 1) ? (totalPagesComingSoon ?: 1) : (currentPageComingSoon ?: 1) + 1})}"
-       class="next" th:classappend="${(currentPageComingSoon ?: 1) >= (totalPagesComingSoon ?: 1) ? 'disabled' : ''}">›</a>
-</div>
-</div>
+        <!-- Pagination cho Now Showing -->
+        <div class="pagination" id="pagibar-now-showing">
+            <a th:href="@{/home(currentPageNowShowing=${(currentPageNowShowing ?: 1) - 1 <= 0 ? 1 : (currentPageNowShowing ?: 1) - 1}, currentPageComingSoon=${currentPageComingSoon ?: 1})}"
+               class="prev" th:classappend="${(currentPageNowShowing ?: 1) <= 1 ? 'disabled' : ''}">‹</a>
+
+            <a th:each="i : ${#numbers.sequence(1, totalPagesNowShowing ?: 1)}"
+               th:href="@{/home(currentPageNowShowing=${i}, currentPageComingSoon=${currentPageComingSoon ?: 1})}"
+               th:classappend="${(currentPageNowShowing ?: 1) == i ? 'active' : ''}"
+               th:text="${i}"></a>
+
+            <a th:href="@{/home(currentPageNowShowing=${(currentPageNowShowing ?: 1) + 1 > (totalPagesNowShowing ?: 1) ? (totalPagesNowShowing ?: 1) : (currentPageNowShowing ?: 1) + 1}, currentPageComingSoon=${currentPageComingSoon ?: 1})}"
+               class="next" th:classappend="${(currentPageNowShowing ?: 1) >= (totalPagesNowShowing ?: 1) ? 'disabled' : ''}">›</a>
+        </div>
+
+
+        <!-- For Coming Soon section -->
+        <h2 class="section-title">Coming Soon</h2>
+        <div class="movie-grid">
+            <div th:each="film : ${comingSoonMovies}" class="movie-card">
+                <a th:href="@{'/detail-movie?id=' + ${film.filmId}}">
+                    <div class="movie-poster-container">
+                        <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
+                    </div>
+                    <div class="movie-info">
+                        <div class="movie-meta">
+                            <span class="movie-category" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Adventure</span>
+                            <span class="movie-release-date"
+                                  th:text="${film.formattedReleaseDate}">Release Date</span>
+                            <span class="movie-duration" th:text="${film.duration + ' min'}">114 min</span>
+                        </div>
+                        <div class="movie-title" th:text="${film.filmName}">CAPTAIN AMERICA - T13 - 2D</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Pagination cho Coming Soon -->
+        <div class="pagination" id="pagibar-coming-soon">
+            <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing ?: 1}, currentPageComingSoon=${(currentPageComingSoon ?: 1) - 1 <= 0 ? 1 : (currentPageComingSoon ?: 1) - 1})}"
+               class="prev" th:classappend="${(currentPageComingSoon ?: 1) <= 1 ? 'disabled' : ''}">‹</a>
+
+            <a th:each="i : ${#numbers.sequence(1, totalPagesComingSoon ?: 1)}"
+               th:href="@{/home(currentPageNowShowing=${currentPageNowShowing ?: 1}, currentPageComingSoon=${i})}"
+               th:classappend="${(currentPageComingSoon ?: 1) == i ? 'active' : ''}"
+               th:text="${i}"></a>
+
+            <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing ?: 1}, currentPageComingSoon=${(currentPageComingSoon ?: 1) + 1 > (totalPagesComingSoon ?: 1) ? (totalPagesComingSoon ?: 1) : (currentPageComingSoon ?: 1) + 1})}"
+               class="next" th:classappend="${(currentPageComingSoon ?: 1) >= (totalPagesComingSoon ?: 1) ? 'disabled' : ''}">›</a>
+        </div>
+    </div>
 </div>
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
