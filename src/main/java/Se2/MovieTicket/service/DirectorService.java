@@ -74,4 +74,8 @@ public class DirectorService {
     public void deleteDirector(Long id) {
         directorRepository.deleteById(id);
     }
+
+    public Director findDirectorById(Long id) {
+        return directorRepository.findById(id).orElse(null);
+    }
 }

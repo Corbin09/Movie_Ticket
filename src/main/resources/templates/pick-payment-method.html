@@ -1425,11 +1425,110 @@
          // Get selected payment method
          const selectedPayment = document.querySelector('input[name="paymentMethodOption"]:checked');
 
-         if (!selectedPayment) {
-             alert('Please select a payment method');
-             return;
-         }
+    if (!selectedPayment) {
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'payment-error-overlay';
 
+    // Create custom message box
+    const messageBox = document.createElement('div');
+    messageBox.className = 'payment-error-box';
+    messageBox.innerHTML = `
+        <div class="error-icon">ℹ️</div>
+        <div class="error-title">Payment Required</div>
+        <div class="error-msge">Please select a payment method before proceeding</div>
+        <button class="close-btn">OK</button>
+    `;
+
+    // Add styles
+    const styles = document.createElement('style');
+    styles.textContent = `
+        .payment-error-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .payment-error-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #173177;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-width: 300px;
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+        .error-icon {
+            font-size: 36px;
+            margin-bottom: 15px;
+            color: #4285F4;
+        }
+        .error-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: white;
+        }
+        .error-msge {
+            margin-bottom: 20px;
+            color: white;
+            font-size: 15px;
+        }
+        .close-btn {
+            padding: 8px 25px;
+            background-color: #00C853;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .close-btn:hover {
+            background-color: #00B248;
+        }
+        .close-btn:active {
+            transform: scale(0.98);
+        }
+    `;
+
+    // Add to document
+    document.body.appendChild(styles);
+    document.body.appendChild(overlay);
+    document.body.appendChild(messageBox);
+
+    // Add event listeners to close the message box
+    const closeBtn = messageBox.querySelector('.close-btn');
+    closeBtn.addEventListener('click', function() {
+        messageBox.remove();
+        overlay.remove();
+        styles.remove();
+    });
+
+    // Also close when clicking on overlay
+    overlay.addEventListener('click', function() {
+        messageBox.remove();
+        overlay.remove();
+        styles.remove();
+    });
+
+    return;
+}
          // Ensure form data is prepared properly
          preparePaymentFormData();
 

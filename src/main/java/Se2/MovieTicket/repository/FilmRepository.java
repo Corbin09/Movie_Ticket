@@ -130,4 +130,13 @@ public interface FilmRepository extends JpaRepository<Film, Long> {
     // In FilmRepository
     @Query("SELECT f FROM Film f JOIN UserLikeFilm ulf ON f.id = ulf.film.id WHERE ulf.user.userId = :userId")
     List<Film> findLikedFilmsByUserId(@Param("userId") Long userId);
+
+
+    // Add this to your FilmRepository interface
+    @Query("SELECT DISTINCT f FROM Film f JOIN f.filmActors fa WHERE fa.actor.actorId = :actorId")
+    Page<Film> findFilmsByActorId(@Param("actorId") Long actorId, Pageable pageable);
+
+    @Query("SELECT DISTINCT f FROM Film f JOIN f.filmDirectors fd WHERE fd.director.directorId = :directorId")
+    Page<Film> findByDirectorIdPage(@Param("directorId") Long directorId, Pageable pageable);
+
 }

@@ -3,7 +3,7 @@ package Se2.MovieTicket.service;
 import Se2.MovieTicket.dto.ShowtimeDTO;
 import Se2.MovieTicket.model.*;
 import Se2.MovieTicket.repository.ShowtimeRepository;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.*;
 import Se2.MovieTicket.dto.FilmDTO;
 import Se2.MovieTicket.repository.FilmRepository;
 import jakarta.persistence.EntityManager;
@@ -12,9 +12,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -391,6 +388,14 @@ public class FilmService {
         Page<Film> films = filmRepository.findFilmsByCinemaAndDate(cinemaId, date, pageable);
         return films.map(this::convertToDTO);
     }
+    public Page<Film> getFilmsByActorId(Long actorId, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return filmRepository.findFilmsByActorId(actorId, pageable);
+    }
 
+    public Page<Film> getFilmsByDirectorId(Long directorId, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return filmRepository.findByDirectorIdPage(directorId, pageable);
+    }
 }
 

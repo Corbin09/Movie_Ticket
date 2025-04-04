@@ -76,4 +76,12 @@ public class ActorService {
     public void deleteActor(Long id) {
         actorRepository.deleteById(id);
     }
+
+
+    public Actor findActorById(Long id) {
+        if (id == null) {
+            return null;
+        }
+        return actorRepository.findById(id).orElse(null);
+    }
 }

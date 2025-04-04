@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${actor.actorName ?: 'Details Info'}">CGVmax Cinema</title>
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/header_user.css}">
+    <style>
+        /* Reset CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a3d0a, #000000);
+            color: white;
+            min-height: 100vh;
+        }
+
+
+        /* Main Content Styles */
+        .container-actor {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .actor-profile {
+            display: flex;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .actor-image {
+            width: 200px;
+            height: 250px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-right: 30px;
+            flex-shrink: 0;
+        }
+
+        .actor-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .actor-info h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .actor-info p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .movie-section h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .movie-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .movie-card {
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .movie-poster {
+            position: relative;
+            height: 320px;
+            overflow: hidden;
+        }
+
+        .movie-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .movie-info {
+            padding: 15px;
+        }
+
+        .movie-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            height: 40px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .movie-meta {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+
+        .movie-rating {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ff4d4d;
+        }
+
+
+        /* Responsive Styles */
+        @media (max-width: 968px) {
+            .movie-list {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .actor-profile {
+                flex-direction: column;
+            }
+
+            .actor-image {
+                width: 150px;
+                height: 200px;
+                margin: 0 auto 20px;
+            }
+
+            .actor-info h2 {
+                text-align: center;
+            }
+
+            .movie-list {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 15px;
+            }
+
+            .movie-poster {
+                height: 200px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+            }
+
+            .footer-info, .contact-info, .social-media {
+                margin-bottom: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .movie-list {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .movie-poster {
+                height: 180px;
+            }
+
+            .movie-title {
+                font-size: 14px;
+                height: 35px;
+            }
+
+            .movie-meta, .movie-rating {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Header and navigation -->
+<div th:replace="fragments/header_user :: header_user"></div>
+
+<main class="container-actor">
+    <section class="actor-profile" th:if="${actor != null}">
+        <div class="actor-image">
+            <img th:src="${actor.actorImg}" src="/api/placeholder/200/250" th:alt="${actor.actorName}">
+        </div>
+        <div class="actor-info">
+            <h2 th:text="'Actor: ' + ${actor.actorName}">Actor: Kim Da-mi</h2>
+            <p th:text="${actor.actorDescription}">Actor biography</p>
+        </div>
+    </section>
+
+    <section class="movie-section">
+        <h3 th:text="${movieSectionTitle ?: 'List of Movies Participating'}">List of Movies Participating</h3>
+        <div class="movie-list">
+            <!-- Display actual movies from the database -->
+            <div class="movie-card" th:each="movie : ${movies}">
+                <a th:href="@{'/detail-movie?id=' + ${movie.filmId}}">
+                    <div class="movie-poster">
+                        <img th:src="${movie.filmImg}" src="/api/placeholder/240/320" th:alt="${movie.filmName}">
+                    </div>
+                    <div class="movie-info">
+                        <h4 class="movie-title" th:text="${movie.filmName}">Movie Title</h4>
+                        <div class="movie-meta" th:if="${movie.categoryNames != null && !movie.categoryNames.isEmpty()}"
+                             th:text="${#strings.listJoin(movie.categoryNames, ', ')}">Categories</div>
+                        <div class="movie-release-date"
+                              th:text="${movie.formattedReleaseDate}">Release Date</div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Fallback static movies if no movies are provided -->
+            <div class="movie-card" th:if="${movies == null || movies.isEmpty()}">
+                <div class="movie-poster">
+                    <img src="/api/placeholder/240/320" alt="No movies found">
+                </div>
+                <div class="movie-info">
+                    <h4 class="movie-title">No movies found for this actor</h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination controls -->
+        <div class="pagination" th:if="${totalPages > 1}">
+            <ul class="pagination-list">
+                <!-- Previous page link -->
+                <li th:class="${currentPage == 1} ? 'disabled' : ''">
+                    <a th:if="${currentPage > 1}" th:href="@{/detail-actor(id=${actor.actorId}, currentPage=${currentPage - 1})}">Previous</a>
+                    <span th:unless="${currentPage > 1}">Previous</span>
+                </li>
+
+                <!-- Page numbers -->
+                <li th:each="i : ${#numbers.sequence(1, totalPages)}" th:class="${i == currentPage} ? 'active' : ''">
+                    <a th:href="@{/detail-actor(id=${actor.actorId}, currentPage=${i})}" th:text="${i}"></a>
+                </li>
+
+                <!-- Next page link -->
+                <li th:class="${currentPage == totalPages} ? 'disabled' : ''">
+                    <a th:if="${currentPage < totalPages}" th:href="@{/detail-actor(id=${actor.actorId}, currentPage=${currentPage + 1})}">Next</a>
+                    <span th:unless="${currentPage < totalPages}">Next</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+
+</main>
+<!-- Footer -->
+<div th:replace="fragments/footer :: footer"></div>
+<script th:inline="javascript">
+
+
+
+    // Add hover effects to movie cards with JavaScript
+    const movieCards = document.querySelectorAll('.movie-card');
+    movieCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px)';
+            this.style.boxShadow = '0 10px 20px rgba(0,0,0,0.3)';
+        });
+
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+        });
+
+        // Make cards clickable
+        card.addEventListener('click', function() {
+    const movieId = this.getAttribute('data-id');
+    if (movieId) {
+        window.location.href = /*[[@{/movie/}]]*/ '' + movieId;
+    } else {
+        console.warn('Missing movie ID: Unable to navigate.');
+    }
+});
+        });
+    });
+
+
+</script>
+</body>
+</html>

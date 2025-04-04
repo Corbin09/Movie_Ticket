@@ -372,7 +372,7 @@ private PopcornComboService popcornComboService;
             Model model, HttpServletRequest request) {
 
         logger.info("Accessing view movie ticket page for film ID: {}", filmId);
-
+        model.addAttribute("currPage", "showtime");
         // Get user from session or SecurityContext
         HttpSession session = request.getSession(false);
         User sessionUser = (session != null) ? (User) session.getAttribute("user") : null;
@@ -453,7 +453,27 @@ private PopcornComboService popcornComboService;
             filmDTO.setActorNames(film.getFilmActors().stream()
                     .map(fa -> fa.getActor().getActorName())
                     .collect(Collectors.toList()));
+// Add new code: Extract Director DTOs with IDs
+            List<DirectorDTO> directors = film.getFilmDirectors().stream()
+                    .map(fd -> {
+                        DirectorDTO dto = new DirectorDTO();
+                        dto.setDirectorId(fd.getDirector().getDirectorId());
+                        dto.setDirectorName(fd.getDirector().getDirectorName());
+                        return dto;
+                    })
+                    .collect(Collectors.toList());
+            filmDTO.setDirectors(directors);
 
+            // Add new code: Extract Actor DTOs with IDs
+            List<ActorDTO> actors = film.getFilmActors().stream()
+                    .map(fa -> {
+                        ActorDTO dto = new ActorDTO();
+                        dto.setActorId(fa.getActor().getActorId());
+                        dto.setActorName(fa.getActor().getActorName());
+                        return dto;
+                    })
+                    .collect(Collectors.toList());
+            filmDTO.setActors(actors);
             filmDTO.setCategoryNames(film.getFilmCategories().stream()
                     .map(fc -> fc.getCategory().getCategoryName())
                     .collect(Collectors.toList()));
@@ -731,7 +751,7 @@ private UserReviewRepository userReviewRepository;
             Model model, HttpServletRequest request) {
 
         logger.info("Accessing movie detail page for film ID: {}", filmId);
-
+        model.addAttribute("currPage", "home");
         // Get user from session or SecurityContext
         User sessionUser = getUserFromSessionOrContext(request);
 
@@ -1020,6 +1040,164 @@ private UserReviewRepository userReviewRepository;
                 .collect(Collectors.toList());
     }
 
+
+    @Autowired
+    private ActorService actorService;
+
+
+    /**
+     * Display actor details and their filmography
+     * @param id Actor ID
+     * @param model Spring Model
+     * @param request HTTP request
+     * @return Actor detail view
+     */
+    @GetMapping("/detail-actor")
+    public String detailActor(
+            @RequestParam("id") Long id,
+            @RequestParam(defaultValue = "1") int currentPage,
+            Model model,
+            HttpServletRequest request) {
+        // Add user to model (similar to other methods)
+        addUserToModel(model, request);
+        model.addAttribute("currPage", "home");
+        // Get actor details
+        Actor actor = actorService.findActorById(id);
+
+        if (actor == null) {
+            return "redirect:/home"; // Or error page
+        }
+
+        // Convert Actor entity to ActorDTO
+        ActorDTO actorDTO = new ActorDTO();
+        actorDTO.setActorId(actor.getActorId());
+        actorDTO.setActorName(actor.getActorName());
+        actorDTO.setActorImg(actor.getActorImg());
+        actorDTO.setActorDescription(actor.getActorDescription());
+
+        // Format for dates
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        // Set up pagination
+        int size = 8; // Number of movies per page
+
+        // Assuming you'll create this method in your service
+        Page<Film> actorFilmsPage = filmService.getFilmsByActorId(id, currentPage, size);
+
+        // Convert to DTOs with formatted dates
+        List<FilmDTO> actorMovies = actorFilmsPage.getContent().stream().map(film -> {
+            FilmDTO filmDTO = new FilmDTO();
+            filmDTO.setFilmId(film.getFilmId());
+            filmDTO.setFilmName(film.getFilmName());
+            filmDTO.setFilmImg(film.getFilmImg());
+            filmDTO.setFilmTrailer(film.getFilmTrailer());
+            filmDTO.setFilmDescription(film.getFilmDescription());
+
+            // Set both the original date and formatted date
+            filmDTO.setReleaseDate(film.getReleaseDate());
+            filmDTO.setFormattedReleaseDate(film.getReleaseDate().format(formatter));
+
+            // For consistency with your Coming Soon formatting
+            filmDTO.setReleaseDateFormatted(film.getReleaseDate().format(formatter));
+
+            // Get category names for the film
+            List<String> categoryNames = filmService.getCategoryNamesByFilmId(film.getFilmId());
+            filmDTO.setCategoryNames(categoryNames);
+
+            filmDTO.setDuration(film.getDuration());
+            filmDTO.setFilmType(film.getFilmType());
+            filmDTO.setCountry(film.getCountry());
+            filmDTO.setAgeLimit(film.getAgeLimit());
+
+            return filmDTO;
+        }).collect(Collectors.toList());
+
+        // Add data to model
+        model.addAttribute("actor", actorDTO);
+        model.addAttribute("movies", actorMovies);
+        model.addAttribute("movieSectionTitle", "Movies Starring " + actor.getActorName());
+
+        // Add pagination attributes
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPages", actorFilmsPage.getTotalPages());
+
+        return "details-actor";
+    }
+
+    @Autowired
+    private DirectorService directorService;
+
+    @GetMapping("/detail-director")
+    public String detailDirector(
+            @RequestParam("id") Long id,
+            @RequestParam(defaultValue = "1") int currentPage,
+            Model model,
+            HttpServletRequest request) {
+        // Add user to model (similar to other methods)
+        addUserToModel(model, request);
+
+        // Get director details
+        Director director = directorService.findDirectorById(id);
+
+        if (director == null) {
+            return "redirect:/home"; // Or error page
+        }
+
+        // Convert Director entity to DirectorDTO
+        DirectorDTO directorDTO = new DirectorDTO();
+        directorDTO.setDirectorId(director.getDirectorId());
+        directorDTO.setDirectorName(director.getDirectorName());
+        directorDTO.setDirectorImg(director.getDirectorImg());
+        directorDTO.setDirectorDescription(director.getDirectorDescription());
+
+        // Format for dates
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        // Set up pagination
+        int size = 8; // Number of movies per page
+
+        // Assuming you'll create this method in your service
+        Page<Film> directorFilmsPage = filmService.getFilmsByDirectorId(id, currentPage, size);
+
+        // Convert to DTOs with formatted dates
+        List<FilmDTO> directorMovies = directorFilmsPage.getContent().stream().map(film -> {
+            FilmDTO filmDTO = new FilmDTO();
+            filmDTO.setFilmId(film.getFilmId());
+            filmDTO.setFilmName(film.getFilmName());
+            filmDTO.setFilmImg(film.getFilmImg());
+            filmDTO.setFilmTrailer(film.getFilmTrailer());
+            filmDTO.setFilmDescription(film.getFilmDescription());
+
+            // Set both the original date and formatted date
+            filmDTO.setReleaseDate(film.getReleaseDate());
+            filmDTO.setFormattedReleaseDate(film.getReleaseDate().format(formatter));
+
+            // For consistency with your Coming Soon formatting
+            filmDTO.setReleaseDateFormatted(film.getReleaseDate().format(formatter));
+
+            // Get category names for the film
+            List<String> categoryNames = filmService.getCategoryNamesByFilmId(film.getFilmId());
+            filmDTO.setCategoryNames(categoryNames);
+
+            filmDTO.setDuration(film.getDuration());
+            filmDTO.setFilmType(film.getFilmType());
+            filmDTO.setCountry(film.getCountry());
+            filmDTO.setAgeLimit(film.getAgeLimit());
+
+            return filmDTO;
+        }).collect(Collectors.toList());
+
+        // Add data to model
+        model.addAttribute("director", directorDTO);
+        model.addAttribute("movies", directorMovies);
+        model.addAttribute("movieSectionTitle", "Movies Directed by " + director.getDirectorName());
+
+        // Add pagination attributes
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPages", directorFilmsPage.getTotalPages());
+
+        return "details-director";
+    }
 
 
 

@@ -48,7 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/home", "/login", "/news/**", "/View-movie-ticket/**", "/showtime**", "/register", "/css/**", "/js/**").permitAll()
 
                         // Các trang dành cho USER
-                        .requestMatchers("/index", "/create-order", "/view-ticket", "/detail-movie/**", "/user-dashboard", "/profile", "/pick-seat", "pick-payment-method/**", "/user-tickets/**").hasRole("USER")
+                        .requestMatchers("/index", "/detail-actor/**", "/detail-director/**", "/create-order", "/view-ticket", "/detail-movie/**", "/user-dashboard", "/profile", "/pick-seat", "pick-payment-method/**", "/user-tickets/**").hasRole("USER")
 
                         // Các trang dành cho ADMIN
                         .requestMatchers("/pay-ticket", "/welcome-admin", "/admin-dashboard", "/reports/**", "/manage-users", "/manage-orders/**", "/manage-rooms/**", "/delete-rooms").hasRole("ADMIN")

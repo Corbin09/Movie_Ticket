@@ -26,8 +26,19 @@
             </p>
             <div class="movie-details">
                 <p><span>Director:</span> <span th:text="${#strings.listJoin(film.directorNames, ', ')}">Trần Thị Giang</span></p>
-                <p><span>Cast:</span> <span th:text="${#strings.listJoin(film.actorNames, ', ')}">Phan Giang, Lê Minh Hằng</span></p>
-                <p><span>Genre:</span> <span th:text="${#strings.listJoin(film.categoryNames, ', ')}">Family</span></p>
+                <p><span>Cast:</span>
+                    <th:block th:each="actor, iterStat : ${film.actors}">
+                        <a th:href="@{'/detail-actor?id=' + ${actor.actorId}}" th:text="${actor.actorName}">Actor Name</a>
+                        <span th:if="${!iterStat.last}">, </span>
+                    </th:block>
+                </p>
+
+                <p><span>Directors:</span>
+                    <th:block th:each="director, iterStat : ${film.directors}">
+                        <a th:href="@{'/detail-director?id=' + ${director.directorId}}" th:text="${director.directorName}">Director Name</a>
+                        <span th:if="${!iterStat.last}">, </span>
+                    </th:block>
+                </p>
                 <p><span>Release Date:</span> <span th:text="${film.formattedReleaseDate}">07/03/2025</span></p>
                 <p><span>Duration:</span> <span th:text="${film.duration} + ' minutes'">84 minutes</span></p>
             </div>
