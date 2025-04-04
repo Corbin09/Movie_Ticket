@@ -1,8 +1,10 @@
 package Se2.MovieTicket.repository;
 
 import Se2.MovieTicket.model.PopcornCombo;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -18,4 +20,9 @@ public interface PopcornComboRepository extends JpaRepository<PopcornCombo, Long
 
     @Query("SELECT p FROM PopcornCombo p WHERE p.comboPrice <= :maxPrice")
     List<PopcornCombo> findByComboPriceLessThanEqual(@Param("maxPrice") Double maxPrice);
+
+    // PopcornComboRepository.java
+    @Query("SELECT p FROM PopcornCombo p WHERE p.comboId IN :comboIds")
+    @QueryHints({@QueryHint(name = "org.hibernate.cacheable", value = "true")})
+    List<PopcornCombo> findAllByIds(@Param("comboIds") List<Long> comboIds);
 }

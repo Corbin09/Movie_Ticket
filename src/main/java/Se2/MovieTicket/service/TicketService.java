@@ -80,4 +80,8 @@ public class TicketService {
     public void deleteTicket(Long id) {
         ticketRepository.deleteById(id);
     }
+
+    public Ticket saveTicket(Ticket ticket) {
+        return ticketRepository.save(ticket);
+    }
 }

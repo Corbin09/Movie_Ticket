@@ -7,11 +7,9 @@ import Se2.MovieTicket.repository.SeatRepository;
 import Se2.MovieTicket.repository.SeatStatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,9 +24,9 @@ public class SeatService {
         return seatRepository.findAll();
     }
 
-    public Optional<Seat> getSeatById(Long id) {
-        return seatRepository.findById(id);
-    }
+//    public Optional<Seat> getSeatById(Long id) {
+//        return seatRepository.findById(id);
+//    }
 
     public Seat createSeat(SeatDTO seatDTO) {
         Seat seat = new Seat();
@@ -87,10 +85,30 @@ public class SeatService {
         return dto;
     }
 
-    public List<SeatDTO> getSeatsByIds(List<Long> selectedSeatIds) {
-        List<Seat> seats = seatRepository.findAllById(selectedSeatIds);
-        return seats.stream()
-                .map(this::convertToSeatDTO)
-                .collect(Collectors.toList());
+//    public List<Seat> getSeatsByIds(List<Long> selectedSeatIds) {
+//        return seatRepository.findAllById(selectedSeatIds);
+//    }
+
+    public Optional<Seat> getSeatById(Long id) {
+        return seatRepository.findById(id);
     }
+
+    // SeatService.java
+    public List<Seat> getSeatsByIds(List<Long> seatIds) {
+        if (seatIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return seatRepository.findAllByIds(seatIds);
+    }
+    // Add this to SeatService
+    @Transactional(readOnly = true)
+    public boolean areAllSeatsAvailable(List<Long> seatIds, Long showtimeId) {
+        // Single query to check all seats at once
+        int availableCount = seatRepository.countAvailableSeats(seatIds, showtimeId);
+        return availableCount == seatIds.size();
+    }
+//    // New method to get multiple seats at once
+//    public List<Seat> getSeatsByIds(List<Long> seatIds) {
+//        return seatRepository.findAllById(seatIds);
+//    }
 }

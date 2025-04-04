@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Ticket</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/header_user.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <style>
+        /* Base styles and variables */
+:root {
+    --primary: #00C853;
+    --background: #0A2E0F;
+    --dark-background: #0A1F0C;
+    --text-light: #ffffff;
+    --text-secondary: #7a7474;
+    --border-radius: 10px;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background);
+    color: var(--text-light);
+}
+
+.view-ticket-cash {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.frame {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Movie poster and header styles */
+.overlap-group {
+    position: relative;
+    background-color: rgba(10, 46, 15, 0.8);
+    border-radius: var(--border-radius);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.movie-header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.15;
+    z-index: -1;
+}
+
+.img {
+    width: 150px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    margin-right: 20px;
+}
+
+.text-wrapper {
+    font-size: 32px;
+    font-weight: bold;
+    color: var(--text-light);
+}
+
+/* Progress tracker */
+.progress-tracker {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 20px 0;
+    margin-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.step-circle {
+    width: 36px;
+    height: 36px;
+    background-color: var(--text-secondary);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.step-circle.active {
+    background-color: var(--primary);
+}
+
+.step-number {
+    color: var(--text-light);
+    font-weight: bold;
+}
+
+.step-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Ticket content */
+.ticket-container {
+    margin: 20px;
+    background-color: var(--dark-background);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+/* Ticket slider styles */
+.ticket-slider {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.ticket-slide {
+    display: none;
+    width: 100%;
+    position: relative;
+}
+
+.ticket-slide.active {
+    display: block;
+}
+
+/* Ticket information */
+.info-row {
+    margin-bottom: 15px;
+}
+
+.info-label {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.info-value {
+    color: var(--text-light);
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.status-unpaid {
+    color: #FF5252;
+}
+
+.info-column-left {
+    float: left;
+    width: 60%;
+}
+
+.info-column-right {
+    float: right;
+    width: 40%;
+    text-align: right;
+}
+
+/* Slider arrows */
+.slider-arrow-container {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    transform: translateY(-50%);
+    padding: 0 10px;
+    box-sizing: border-box;
+    z-index: 2;
+}
+
+.slider-arrow {
+    background-color: rgba(0, 200, 83, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.slider-arrow:hover {
+    background-color: var(--primary);
+}
+
+.slider-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.indicator-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--text-secondary);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.indicator-dot.active {
+    background-color: var(--primary);
+}
+
+/* Hide controls when only one ticket */
+.single-ticket .slider-arrow-container,
+.single-ticket .slider-indicator {
+    display: none;
+}
+
+/* Buttons */
+.download-button {
+    margin-top: 15px;
+}
+
+.download-btn {
+    background-color: var(--primary);
+    color: var(--text-light);
+    border: none;
+    border-radius: 5px;
+    padding: 12px;
+    width: 100%;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+}
+
+.download-btn:hover {
+    background-color: #00A844;
+}
+
+.back-button {
+    margin-top: 15px;
+}
+
+.back-btn {
+    background-color: transparent;
+    color: var(--text-light);
+    border: 1px solid var(--text-light);
+    border-radius: 5px;
+    padding: 12px;
+    width: 100%;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+}
+
+.back-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Clear fix for floats */
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* Responsive design */
+@media screen and (max-width: 600px) {
+    .img {
+        width: 100px;
+        height: 150px;
+    }
+
+    .text-wrapper {
+        font-size: 24px;
+    }
+
+    .info-column-left, .info-column-right {
+        float: none;
+        width: 100%;
+        text-align: left;
+    }
+
+    .info-column-right {
+        margin-top: 15px;
+    }
+}
+    </style>
+</head>
+<body>
+<header th:replace="fragments/header_user :: header_user"></header>
+<div class="view-ticket-cash">
+    <div class="frame">
+        <div class="overlap-group">
+            <!-- Background image -->
+            <img class="image" th:src="${film != null ? film.filmImg : ''}" alt="Background image" />
+
+            <!-- Movie header -->
+            <div class="movie-header">
+                <img class="img" th:src="${film != null ? film.filmImg : ''}" alt="Film poster" />
+                <div class="text-wrapper" th:text="${film != null ? film.filmName : ''}">INUYASHA</div>
+            </div>
+
+            <!-- Progress Tracker -->
+            <div class="progress-tracker">
+                <div class="step">
+                    <div class="step-circle">
+                        <div class="step-number">01</div>
+                    </div>
+                    <div class="step-label">PICK SEAT</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle">
+                        <div class="step-number">02</div>
+                    </div>
+                    <div class="step-label">POPCORNS</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle">
+                        <div class="step-number">03</div>
+                    </div>
+                    <div class="step-label">PAY</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle active">
+                        <div class="step-number">04</div>
+                    </div>
+                    <div class="step-label">TICKET</div>
+                </div>
+            </div>
+
+            <!-- Ticket Container -->
+            <div class="ticket-container" id="ticket-container">
+                <!-- Ticket slider container -->
+                <div th:class="${tickets != null && tickets.size() > 1 ? 'ticket-slider' : 'ticket-slider single-ticket'}">
+                    <!-- Individual ticket slides -->
+                    <th:block th:if="${tickets != null && !tickets.isEmpty()}">
+                        <th:block th:each="ticket, iterStat : ${tickets}">
+                            <div th:class="${iterStat.first ? 'ticket-slide active' : 'ticket-slide'}" th:attr="data-index=${iterStat.index}">
+                                <div class="ticket-content">
+                                    <!-- Left Column -->
+                                    <div class="info-column-left">
+                                        <!-- Date -->
+                                        <div class="info-row">
+                                            <div class="info-label">Date</div>
+                                            <div class="info-value" th:text="${#dates.format(showtime != null ? showtime.showDate : new java.util.Date(), 'EEE, dd MMM yyyy')}">Mon, 23 Oct 2023</div>
+                                        </div>
+
+                                        <!-- Movie Title -->
+                                        <div class="info-row">
+                                            <div class="info-label">Movie Title</div>
+                                            <div class="info-value" th:text="${film != null ? film.filmName : ''}">INUYASHA</div>
+                                        </div>
+
+                                        <!-- Cinema -->
+                                        <div class="info-row">
+                                            <div class="info-label">Cinema</div>
+                                            <div class="info-value" th:text="${cinema != null ? cinema.cinemaName : ''}">Vincom Ba Trieu</div>
+                                        </div>
+
+                                        <!-- Seats -->
+                                        <div class="info-row">
+                                            <div class="info-label">Seat(s)</div>
+                                            <div class="info-value" th:text="${ticket.seat != null ? ticket.seat.seatRow + ticket.seat.seatNumber : ''}">I7, I8, I9</div>
+                                        </div>
+
+
+                                    </div>
+
+                                    <!-- Right Column -->
+                                    <div class="info-column-right">
+                                        <!-- ID -->
+                                        <div class="info-row">
+                                            <div class="info-label">ID</div>
+                                            <div class="info-value" th:text="${order != null ? order.orderId : ''}">2101040075</div>
+                                        </div>
+
+                                        <!-- Room -->
+                                        <div class="info-row">
+                                            <div class="info-label">Room</div>
+                                            <div class="info-value" th:text="${showtime != null && showtime.room != null ? showtime.room.roomName : ''}">A1</div>
+                                        </div>
+
+                                        <!-- Hours -->
+                                        <div class="info-row">
+                                            <div class="info-label">Hours</div>
+                                            <div class="info-value" th:text="${showtime != null ? showtime.showTime : ''}">14:40</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="clearfix"></div>
+                                </div>
+                            </div>
+                        </th:block>
+                    </th:block>
+
+                    <!-- Default single ticket when no tickets available -->
+                    <div th:if="${tickets == null || tickets.isEmpty()}" class="ticket-slide active" data-index="0">
+                        <div class="ticket-content">
+                            <!-- Left Column -->
+                            <div class="info-column-left">
+                                <div class="info-row">
+                                    <div class="info-label">Date</div>
+                                    <div class="info-value">Mon, 23 Oct 2023</div>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-label">Movie Title</div>
+                                    <div class="info-value">INUYASHA</div>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-label">Cinema</div>
+                                    <div class="info-value">Vincom Ba Trieu</div>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-label">Seat(s)</div>
+                                    <div class="info-value">I7, I8, I9</div>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-label">Status</div>
+                                    <div class="info-value status-unpaid">Not paid</div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="info-column-right">
+                                <div class="info-row">
+                                    <div class="info-label">ID</div>
+                                    <div class="info-value">2101040075</div>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-label">Room</div>
+                                    <div class="info-value">A1</div>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-label">Hours</div>
+                                    <div class="info-value">14:40</div>
+                                </div>
+                            </div>
+
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+
+                    <!-- Slider controls (positioned absolutely) -->
+                    <div class="slider-arrow-container">
+                        <button class="slider-arrow prev-ticket">&#10094;</button>
+                        <button class="slider-arrow next-ticket">&#10095;</button>
+                    </div>
+
+                    <!-- Dots indicator -->
+                    <div class="slider-indicator" th:if="${tickets != null && !tickets.isEmpty()}">
+                        <th:block th:each="ticket, iterStat : ${tickets}">
+                            <div th:class="${iterStat.first ? 'indicator-dot active' : 'indicator-dot'}" th:attr="data-index=${iterStat.index}"></div>
+                        </th:block>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Button (outside the capture area) -->
+            <div class="download-button">
+                <a href="#" id="downloadTicket" class="download-btn">Download Ticket</a>
+            </div>
+        </div>
+
+        <!-- Back to Homepage Button -->
+        <div class="back-button">
+            <a href="#" th:href="@{/home}" class="back-btn">Back to Homepage</a>
+        </div>
+    </div>
+</div>
+<footer th:replace="fragments/footer :: footer"></footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ticket slider functionality
+        const slides = document.querySelectorAll('.ticket-slide');
+        const dots = document.querySelectorAll('.indicator-dot');
+        const prevBtn = document.querySelector('.prev-ticket');
+        const nextBtn = document.querySelector('.next-ticket');
+
+        if (slides.length <= 1) return; // Skip if only one ticket
+
+        let currentIndex = 0;
+
+        // Function to show specific slide
+        function showSlide(index) {
+            // Hide all slides
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+
+            // Deactivate all dots
+            dots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+
+            // Show current slide and activate dot
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+
+            currentIndex = index;
+        }
+
+        // Next button
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function() {
+                let newIndex = currentIndex + 1;
+                if (newIndex >= slides.length) {
+                    newIndex = 0;
+                }
+                showSlide(newIndex);
+            });
+        }
+
+        // Previous button
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function() {
+                let newIndex = currentIndex - 1;
+                if (newIndex < 0) {
+                    newIndex = slides.length - 1;
+                }
+                showSlide(newIndex);
+            });
+        }
+
+        // Dot indicators
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', function() {
+                showSlide(index);
+            });
+        });
+
+        // Download ticket functionality - Fixed to only capture the ticket container
+        const downloadBtn = document.getElementById('downloadTicket');
+
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // Get the specific ticket container only (not including download button)
+                const ticketContainer = document.getElementById('ticket-container');
+                const activeTicket = document.querySelector('.ticket-slide.active');
+
+                // Use html2canvas to capture only the ticket container
+                html2canvas(ticketContainer).then(function(canvas) {
+                    // Convert canvas to image data URL
+                    const imgData = canvas.toDataURL('image/png');
+
+                    // Create download link
+                    const link = document.createElement('a');
+                    link.href = imgData;
+                    link.download = 'INUYASHA-ticket-' + (activeTicket.getAttribute('data-index') || '0') + '.png';
+
+                    // Trigger download
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            });
+        }
+    });
+</script>
+</body>
+</html>

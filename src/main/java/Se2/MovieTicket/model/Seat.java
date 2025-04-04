@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Set;
 
@@ -17,8 +14,11 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
+@ToString(exclude = {"room", "seatStatuses", "tickets"})
+@EqualsAndHashCode(exclude = {"room", "seatStatuses", "tickets"})
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@ToString(exclude = {"room", "seatStatuses"})
 public class Seat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

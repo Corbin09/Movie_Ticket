@@ -7,7 +7,7 @@ public class PopcornComboDTO {
     private Long comboId;
     private String comboName;
     private Double comboPrice;
-
+    private Integer quantity; // Thêm trường số lượng
     public Long getComboId() {
         return comboId;
     }
@@ -30,5 +30,13 @@ public class PopcornComboDTO {
 
     public void setComboPrice(Double comboPrice) {
         this.comboPrice = comboPrice;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 }

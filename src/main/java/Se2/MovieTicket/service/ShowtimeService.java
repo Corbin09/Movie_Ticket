@@ -5,6 +5,7 @@ import Se2.MovieTicket.model.Showtime;
 import Se2.MovieTicket.repository.ShowtimeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -135,6 +136,18 @@ public class ShowtimeService {
         return showtimes.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    // In ShowtimeService:
+//    public Optional<Showtime> getShowtimeWithDetails(Long showtimeId) {
+//        return showtimeRepository.findShowtimeWithDetails(showtimeId);
+//    }
+
+    // Example for ShowtimeService
+    @Transactional(readOnly = true)
+    public Optional<Showtime> getShowtimeWithDetails(Long showtimeId) {
+        // Use a single optimized query with all necessary joins
+        return showtimeRepository.findByIdWithDetails(showtimeId);
     }
 
 }

@@ -6,6 +6,7 @@ import Se2.MovieTicket.repository.PopcornComboRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,11 +48,24 @@ public class PopcornComboService {
         return popcornComboRepository.save(popcornCombo);
     }
 
-//
-//    public void deletePopcornCombo(Long comboId) {
-//        popcornComboRepository.deleteById(comboId);
+//    public PopcornCombo getComboById(Long comboId) {
+//        return popcornComboRepository.findById(comboId).orElse(null);
 //    }
-//    public void deletePopcornCombo(Long id) {
-//        popcornComboRepository.deleteById(id);
+
+    public PopcornCombo getComboById(Long id) {
+        return popcornComboRepository.findById(id).orElse(null);
+    }
+
+    // New method to get multiple combos at once
+//    public List<PopcornCombo> getCombosByIds(List<Long> comboIds) {
+//        return popcornComboRepository.findAllById(comboIds);
 //    }
+
+    // PopcornComboService.java
+    public List<PopcornCombo> getCombosByIds(List<Long> comboIds) {
+        if (comboIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return popcornComboRepository.findAllByIds(comboIds);
+    }
 }

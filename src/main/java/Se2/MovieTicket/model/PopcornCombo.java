@@ -3,17 +3,19 @@ package Se2.MovieTicket.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 
 @Entity
 @Table(name = "popcorn_combos")
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "popcornOrders")
+@EqualsAndHashCode(exclude = "popcornOrders")
 public class PopcornCombo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

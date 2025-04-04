@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
@@ -100,4 +101,16 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
 
     @Query("SELECT s FROM Showtime s WHERE s.film.filmId = :filmId")
     List<Showtime> findByFilmId(@Param("filmId") Long filmId);
+
+    // In ShowtimeRepository:
+    @Query("SELECT s FROM Showtime s LEFT JOIN FETCH s.film LEFT JOIN FETCH s.cinema LEFT JOIN FETCH s.room WHERE s.showtimeId = :showtimeId")
+    Optional<Showtime> findShowtimeWithDetails(@Param("showtimeId") Long showtimeId);
+
+    @Query("SELECT s FROM Showtime s " +
+            "LEFT JOIN FETCH s.film " +
+            "LEFT JOIN FETCH s.room " +   // Fix here: use `room`, not `hall`
+            "LEFT JOIN FETCH s.cinema " + // `s.room.cinema` was incorrect
+            "WHERE s.showtimeId = :showtimeId")
+    Optional<Showtime> findByIdWithDetails(@Param("showtimeId") Long showtimeId);
+
 }

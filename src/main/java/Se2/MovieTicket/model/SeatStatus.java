@@ -3,10 +3,7 @@ package Se2.MovieTicket.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Date;
 
@@ -16,6 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = {"seat", "showtime"})
+@EqualsAndHashCode(exclude = {"seat", "showtime"})
 public class SeatStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -315,41 +315,41 @@ display: flex; flex-direction: row;}
     <!-- Filter Section -->
     <div class="filter-container">
         <div class="region-cinema-filter">
-        <!-- Region Filter -->
-        <div class="filter-row">
-            <div class="filter-label">Region:</div>
-            <div class="dropdown-wrapper">
-                <div id="region-dropdown" class="dropdown">
-                    <div class="dropdown-text" th:text="${selectedRegion != null ? selectedRegion.regionName : 'Select Region'}">Select Region</div>
-                    <i class="fas fa-chevron-down dropdown-icon"></i>
-                </div>
-                <div id="region-dropdown-menu" class="dropdown-menu" style="display: none;">
-                    <div th:each="region : ${regions}" class="dropdown-item"
-                         th:data-id="${region.regionId}"
-                         th:text="${region.regionName}"
-                         th:classappend="${selectedRegion != null && selectedRegion.regionId == region.regionId ? 'selected' : ''}">
+            <!-- Region Filter -->
+            <div class="filter-row">
+                <div class="filter-label">Region:</div>
+                <div class="dropdown-wrapper">
+                    <div id="region-dropdown" class="dropdown">
+                        <div class="dropdown-text" th:text="${selectedRegion != null ? selectedRegion.regionName : 'Select Region'}">Select Region</div>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </div>
+                    <div id="region-dropdown-menu" class="dropdown-menu" style="display: none;">
+                        <div th:each="region : ${regions}" class="dropdown-item"
+                             th:data-id="${region.regionId}"
+                             th:text="${region.regionName}"
+                             th:classappend="${selectedRegion != null && selectedRegion.regionId == region.regionId ? 'selected' : ''}">
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Cinema Filter (only visible after region is selected) -->
-        <div class="filter-row" id="cinema-filter-row" th:style="${selectedRegion == null ? 'display: none;' : ''}">
-            <div class="filter-label">Cinema:</div>
-            <div class="dropdown-wrapper">
-                <div id="cinema-dropdown" class="dropdown">
-                    <div class="dropdown-text" th:text="${selectedCinema != null ? selectedCinema.cinemaName : 'Select Cinema'}">Select Cinema</div>
-                    <i class="fas fa-chevron-down dropdown-icon"></i>
-                </div>
-                <div id="cinema-dropdown-menu" class="dropdown-menu" style="display: none;">
-                    <div th:each="cinema : ${cinemas}" class="dropdown-item"
-                         th:data-id="${cinema.cinemaId}"
-                         th:text="${cinema.cinemaName}"
-                         th:classappend="${selectedCinema != null && selectedCinema.cinemaId == cinema.cinemaId ? 'selected' : ''}">
+            <!-- Cinema Filter (only visible after region is selected) -->
+            <div class="filter-row" id="cinema-filter-row" th:style="${selectedRegion == null ? 'display: none;' : ''}">
+                <div class="filter-label">Cinema:</div>
+                <div class="dropdown-wrapper">
+                    <div id="cinema-dropdown" class="dropdown">
+                        <div class="dropdown-text" th:text="${selectedCinema != null ? selectedCinema.cinemaName : 'Select Cinema'}">Select Cinema</div>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </div>
+                    <div id="cinema-dropdown-menu" class="dropdown-menu" style="display: none;">
+                        <div th:each="cinema : ${cinemas}" class="dropdown-item"
+                             th:data-id="${cinema.cinemaId}"
+                             th:text="${cinema.cinemaName}"
+                             th:classappend="${selectedCinema != null && selectedCinema.cinemaId == cinema.cinemaId ? 'selected' : ''}">
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         </div>
         <!-- Showtime Filter -->
         <div class="filter-row" id="showtime-filter-row" th:style="${selectedCinema == null ? 'display: none;' : ''}">

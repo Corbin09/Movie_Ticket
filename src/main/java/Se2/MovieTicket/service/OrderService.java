@@ -1,11 +1,17 @@
 package Se2.MovieTicket.service;
 
 import Se2.MovieTicket.dto.OrderDTO;
-import Se2.MovieTicket.model.Order;
-import Se2.MovieTicket.model.User;
+import Se2.MovieTicket.model.*;
 import Se2.MovieTicket.repository.OrderRepository;
+import Se2.MovieTicket.repository.SeatStatusRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+import org.hibernate.FlushMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.hibernate.FlushMode;
+import org.hibernate.Session;
+//import javax.persistence.EntityManager;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,6 +22,10 @@ import java.util.stream.Collectors;
 public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private EntityManager entityManager;
+    @Autowired
+    private SeatStatusRepository seatStatusRepository;
 
     public List<Order> getAllOrders() {
         return orderRepository.findAllWithDetails();
@@ -238,9 +248,53 @@ public class OrderService {
      * @param order the order to save
      * @return the saved order with updated ID
      */
+//    public Order saveOrder(Order order) {
+//        return orderRepository.save(order);
+//    }
+
+    @Transactional
     public Order saveOrder(Order order) {
-        return orderRepository.save(order);
+        // Pre-calculate the total price if needed
+        if (order.getTotalPrice() == null || order.getTotalPrice() == 0) {
+            order.calculateTotal();
+        }
+
+        // Disable session-level flush to prevent intermediate flushes
+        Session session = entityManager.unwrap(Session.class);
+        FlushMode originalFlushMode = session.getHibernateFlushMode();
+        session.setHibernateFlushMode(FlushMode.MANUAL);
+
+        try {
+            // Set bidirectional relationships
+            if (order.getTickets() != null) {
+                for (Ticket ticket : order.getTickets()) {
+                    ticket.setOrder(order);
+                }
+            }
+
+            if (order.getPopcornOrders() != null) {
+                for (PopcornOrder popcornOrder : order.getPopcornOrders()) {
+                    popcornOrder.setOrder(order);
+                }
+            }
+
+            // Save the order with a single operation
+            Order savedOrder = orderRepository.save(order);
+
+            // Force a flush to execute all SQL at once
+            session.flush();
+
+            return savedOrder;
+        } finally {
+            // Restore original flush mode
+            session.setHibernateFlushMode(originalFlushMode);
+        }
     }
 
-
+    public Order findById(Long orderId) {
+        return orderRepository.findById(orderId).orElse(null);
+    }
+//    public Optional<Order> getOrderById(Long orderId) {
+//        return orderRepository.findById(orderId);
+//    }
 }

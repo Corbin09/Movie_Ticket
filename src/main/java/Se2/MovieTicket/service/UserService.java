@@ -236,4 +236,8 @@ private UserLikeFilmRepository userLikeFilmRepository;
         userLikeFilmRepository.findByUserAndFilm(user, film)
                 .ifPresent(userLikeFilmRepository::delete);
     }
+
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username).orElse(null);
+    }
 }

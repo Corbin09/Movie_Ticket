@@ -45,4 +45,8 @@ public class PopcornOrderService {
     public void deletePopcornOrder(Long id) {
         popcornOrderRepository.deleteById(id);
     }
+
+    public PopcornOrder savePopcornOrder(PopcornOrder popcornOrder) {
+        return popcornOrderRepository.save(popcornOrder);
+    }
 }

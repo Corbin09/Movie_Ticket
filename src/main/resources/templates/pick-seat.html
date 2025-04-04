@@ -649,8 +649,8 @@ section {
 }
 
 .seat.booked {
-    background-color: black;
-    color: white;
+    background-color: black !important;
+    color: white !important;
     cursor: not-allowed;
 }
         .seat.normal {
@@ -692,7 +692,68 @@ section {
     text-align: center;
     letter-spacing: 0.5px;
   }
+/* Add these styles to your existing CSS */
+.buy-ticket .seat-row {
+    display: flex;
+    align-items: center;
+    margin: 4px 0;
+    position: relative;
+}
 
+/* Style for couple seats */
+.buy-ticket .seat.couple {
+    position: relative;
+    background-color: #dc2929;
+    color: white;
+}
+
+/* Connect odd-numbered seats (1,3,5...) with the next even-numbered seat in the pair */
+.buy-ticket .seat.couple[data-seat-label$="1"],
+.buy-ticket .seat.couple[data-seat-label$="3"],
+.buy-ticket .seat.couple[data-seat-label$="5"],
+.buy-ticket .seat.couple[data-seat-label$="7"],
+.buy-ticket .seat.couple[data-seat-label$="9"] {
+    margin-right: -1px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+}
+
+/* Connect even-numbered seats (2,4,6...) with the previous odd-numbered seat in the pair */
+.buy-ticket .seat.couple[data-seat-label$="2"],
+.buy-ticket .seat.couple[data-seat-label$="4"],
+.buy-ticket .seat.couple[data-seat-label$="6"],
+.buy-ticket .seat.couple[data-seat-label$="8"],
+.buy-ticket .seat.couple[data-seat-label$="0"] {
+    margin-left: -1px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: none;
+}
+
+/* Add space between pairs */
+.buy-ticket .seat.couple[data-seat-label$="2"],
+.buy-ticket .seat.couple[data-seat-label$="4"],
+.buy-ticket .seat.couple[data-seat-label$="6"],
+.buy-ticket .seat.couple[data-seat-label$="8"],
+.buy-ticket .seat.couple[data-seat-label$="0"] {
+    margin-right: 6px; /* Add space after each pair */
+}
+
+/* Optional: Add a subtle heart symbol or pattern to emphasize couple seats */
+.buy-ticket .seat.couple::before {
+    content: "♥";
+    font-size: 10px;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    opacity: 0.7;
+}
+
+/* Make selected couple seats have the same selection color */
+.buy-ticket .seat.couple.selected {
+    background-color: #777;
+}
     </style>
 </head>
 <body>
@@ -751,7 +812,7 @@ section {
     (seat.seatType == 'Vip' ? 'vip' :
     (seat.seatType == 'Couple' ? 'couple' : 'normal')) + ' ' +
     (seatStatusMap.containsKey(seatLabel) ?
-        (seatStatusMap.get(seatLabel) == 'Booked' ? 'booked' :
+        (seatStatusMap.get(seatLabel) == 'BOOKED' ? 'booked' :
         (seatStatusMap.get(seatLabel) == 'Reserved' ? 'reserved' : 'available'))
         : 'available')}"
 
@@ -856,46 +917,122 @@ section {
      let selectedSeats = [];
      let totalPrice = 0;
 
-     // Toggle seat selection function
-     function toggleSeatSelection(seatElement) {
-         // Skip if seat is booked or reserved
-         if (seatElement.classList.contains('booked') || seatElement.classList.contains('reserved')) {
-             return;
-         }
+// Toggle seat selection function
+function toggleSeatSelection(seatElement) {
+    // Skip if seat is booked or reserved
+    if (seatElement.classList.contains('booked') || seatElement.classList.contains('reserved')) {
+        return;
+    }
 
-         const seatId = seatElement.getAttribute("data-seat-id");
-         const seatLabel = seatElement.getAttribute("data-seat-label");
-         const seatType = seatElement.getAttribute("data-seat-type");
-         const seatPrice = parseInt(seatElement.getAttribute("data-seat-price"));
+    const seatId = seatElement.getAttribute("data-seat-id");
+    const seatLabel = seatElement.getAttribute("data-seat-label");
+    const seatType = seatElement.getAttribute("data-seat-type");
+    const seatPrice = parseInt(seatElement.getAttribute("data-seat-price"));
 
-         // Check if seat is already selected
-         const seatIndex = selectedSeats.findIndex(seat => seat.id === seatId);
+    // Check if seat is already selected
+    const seatIndex = selectedSeats.findIndex(seat => seat.id === seatId);
 
-         if (seatIndex === -1) {
-             // Add seat to selection
-             selectedSeats.push({
-                 id: seatId,
-                 label: seatLabel,
-                 type: seatType,
-                 price: seatPrice
-             });
-             seatElement.style.backgroundColor = "#777";
-         } else {
-             // Remove seat from selection
-             selectedSeats.splice(seatIndex, 1);
+    // For couple seats, determine the partner seat
+    if (seatType.toLowerCase() === "couple") {
+        const seatRow = seatLabel.charAt(0);
+        const seatNumber = parseInt(seatLabel.substring(1));
 
-             // Reset background color based on seat type
-             if (seatType.toLowerCase() === "vip") {
-                 seatElement.style.backgroundColor = "#fba904";
-             } else if (seatType.toLowerCase() === "couple") {
-                 seatElement.style.backgroundColor = "#dc2929";
-             } else {
-                 seatElement.style.backgroundColor = "#ffffff";
-             }
-         }
+        // Determine partner seat number
+        // For odd seats (1,3,5...), partner is the next seat
+        // For even seats (2,4,6...), partner is the previous seat
+        const partnerNumber = seatNumber % 2 === 0 ? seatNumber - 1 : seatNumber + 1;
+        const partnerLabel = seatRow + partnerNumber;
 
-         updateDisplay();
-     }
+        // Find partner seat element
+        const partnerElement = document.querySelector(`.seat[data-seat-label="${partnerLabel}"]`);
+
+        if (partnerElement && partnerElement.getAttribute("data-seat-type").toLowerCase() === "couple") {
+            // If current seat is not selected, select both
+            if (seatIndex === -1) {
+                // Add current seat
+                selectedSeats.push({
+                    id: seatId,
+                    label: seatLabel,
+                    type: seatType,
+                    price: seatPrice
+                });
+                seatElement.style.backgroundColor = "#777";
+
+                // Add partner seat if it's not booked or reserved
+                if (!partnerElement.classList.contains('booked') &&
+                    !partnerElement.classList.contains('reserved')) {
+
+                    const partnerId = partnerElement.getAttribute("data-seat-id");
+                    const partnerType = partnerElement.getAttribute("data-seat-type");
+                    const partnerPrice = parseInt(partnerElement.getAttribute("data-seat-price"));
+
+                    // Check if partner is already selected
+                    const partnerIndex = selectedSeats.findIndex(seat => seat.id === partnerId);
+
+                    if (partnerIndex === -1) {
+                        // Add partner seat
+                        selectedSeats.push({
+                            id: partnerId,
+                            label: partnerLabel,
+                            type: partnerType,
+                            price: partnerPrice
+                        });
+                        partnerElement.style.backgroundColor = "#777";
+                    }
+                }
+            } else {
+                // Remove current seat
+                selectedSeats.splice(seatIndex, 1);
+
+                // Reset background color based on seat type
+                seatElement.style.backgroundColor = "#dc2929"; // Couple seat color
+
+                // Find and remove partner seat if it's selected
+                const partnerId = partnerElement.getAttribute("data-seat-id");
+                const partnerIndex = selectedSeats.findIndex(seat => seat.id === partnerId);
+
+                if (partnerIndex !== -1) {
+                    selectedSeats.splice(partnerIndex, 1);
+                    partnerElement.style.backgroundColor = "#dc2929"; // Couple seat color
+                }
+            }
+        } else {
+            // Standard toggle for this seat only if no partner found
+            toggleStandardSeat(seatElement, seatId, seatLabel, seatType, seatPrice, seatIndex);
+        }
+    } else {
+        // Standard toggle for non-couple seats
+        toggleStandardSeat(seatElement, seatId, seatLabel, seatType, seatPrice, seatIndex);
+    }
+
+    updateDisplay();
+}
+
+// Function to handle standard seat selection/deselection
+function toggleStandardSeat(seatElement, seatId, seatLabel, seatType, seatPrice, seatIndex) {
+    if (seatIndex === -1) {
+        // Add seat to selection
+        selectedSeats.push({
+            id: seatId,
+            label: seatLabel,
+            type: seatType,
+            price: seatPrice
+        });
+        seatElement.style.backgroundColor = "#777";
+    } else {
+        // Remove seat from selection
+        selectedSeats.splice(seatIndex, 1);
+
+        // Reset background color based on seat type
+        if (seatType.toLowerCase() === "vip") {
+            seatElement.style.backgroundColor = "#fba904";
+        } else if (seatType.toLowerCase() === "couple") {
+            seatElement.style.backgroundColor = "#dc2929";
+        } else {
+            seatElement.style.backgroundColor = "#ffffff";
+        }
+    }
+}
 
      // Update display of selected seats and price
      function updateDisplay() {

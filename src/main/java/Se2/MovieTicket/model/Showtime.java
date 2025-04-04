@@ -15,6 +15,8 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @ToString(exclude = {"film", "room", "cinema", "seatStatuses", "orders"})
 @EqualsAndHashCode(exclude = {"film", "room", "cinema", "seatStatuses", "orders"})
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "showtimeId")

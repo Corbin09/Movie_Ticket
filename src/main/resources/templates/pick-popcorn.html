@@ -674,7 +674,7 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <form th:action="@{/create-order}" method="post" class="mt-4">
+                <form id="popcornForm" th:action="@{/pick-payment-method}" method="get" onsubmit="prepareFormData(); return true;">
                     <input type="hidden" name="filmId" th:value="${film != null ? film.filmId : ''}">
                     <input type="hidden" name="cinemaId" th:value="${cinema != null ? cinema.cinemaId : ''}">
                     <input type="hidden" name="showtimeId" th:value="${showtime != null ? showtime.showtimeId : ''}">
@@ -687,6 +687,11 @@
 
                     <!-- Hidden inputs for selected combos (will be populated via JavaScript) -->
                     <div id="combo-inputs-container"></div>
+                    <!-- Hidden fields to retain all parameters -->
+                    <input type="hidden" name="ticketSubtotal" th:value="${ticketSubtotal}">
+                    <input type="hidden" name="selectedSeatsJson" th:value="${selectedSeatsJson}">
+                    <input type="hidden" id="selectedCombosJson" name="selectedCombosJson" value="[]">
+                    <input type="hidden" id="comboSubtotal" name="comboSubtotal" value="0.0">
 
                     <div class="action-buttons">
                         <button type="button" class="btn-cancel" id="cancelButton">CANCEL</button>
@@ -757,170 +762,230 @@
 <div th:replace="fragments/footer :: footer"></div>
 <script>
     // Store selected combos
-    let selectedCombos = {};
+ let selectedCombos = {};
 
-    // Custom alert functions
-    function showCustomAlert() {
-        const modal = document.getElementById('customAlertModal');
-        modal.classList.add('active');
-    }
+ // Custom alert functions
+ function showCustomAlert() {
+     const modal = document.getElementById('customAlertModal');
+     modal.classList.add('active');
+ }
 
-    function closeCustomAlert() {
-        const modal = document.getElementById('customAlertModal');
-        modal.classList.remove('active');
-    }
+ function closeCustomAlert() {
+     const modal = document.getElementById('customAlertModal');
+     modal.classList.remove('active');
+ }
 
-    // Add click event listener to the modal overlay for closing when clicking outside
-    document.getElementById('customAlertModal').addEventListener('click', function(event) {
-        // If the click is directly on the overlay (not on the alert content)
-        if (event.target === this) {
-            closeCustomAlert();
-        }
-    });
+ // Add click event listener to the modal overlay for closing when clicking outside
+ document.getElementById('customAlertModal').addEventListener('click', function(event) {
+     // If the click is directly on the overlay (not on the alert content)
+     if (event.target === this) {
+         closeCustomAlert();
+     }
+ });
 
-    // Function to increase quantity
-    function increaseQuantity(btn) {
-        const comboId = btn.getAttribute('data-id');
-        const quantityInput = document.getElementById('quantity-' + comboId);
-        let quantity = parseInt(quantityInput.value);
-        quantityInput.value = quantity + 1;
-    }
+ // Function to increase quantity
+ function increaseQuantity(btn) {
+     const comboId = btn.getAttribute('data-id');
+     const quantityInput = document.getElementById('quantity-' + comboId);
+     let quantity = parseInt(quantityInput.value);
+     quantityInput.value = quantity + 1;
+ }
 
-    // Function to decrease quantity
-    function decreaseQuantity(btn) {
-        const comboId = btn.getAttribute('data-id');
-        const quantityInput = document.getElementById('quantity-' + comboId);
-        let quantity = parseInt(quantityInput.value);
-        if (quantity > 0) {
-            quantityInput.value = quantity - 1;
-        }
-    }
+ // Function to decrease quantity
+ function decreaseQuantity(btn) {
+     const comboId = btn.getAttribute('data-id');
+     const quantityInput = document.getElementById('quantity-' + comboId);
+     let quantity = parseInt(quantityInput.value);
+     if (quantity > 0) {
+         quantityInput.value = quantity - 1;
+     }
+ }
 
-    // Function to add combo to selection
-    function addCombo(btn) {
-        const comboId = btn.getAttribute('data-id');
-        const comboName = btn.getAttribute('data-name');
-        const comboPrice = parseFloat(btn.getAttribute('data-price'));
-        const quantityInput = document.getElementById('quantity-' + comboId);
-        const quantity = parseInt(quantityInput.value);
+ // Function to add combo to selection
+ function addCombo(btn) {
+     const comboId = btn.getAttribute('data-id');
+     const comboName = btn.getAttribute('data-name');
+     const comboPrice = parseFloat(btn.getAttribute('data-price'));
+     const quantityInput = document.getElementById('quantity-' + comboId);
+     const quantity = parseInt(quantityInput.value);
 
-        if (quantity <= 0) {
-            // Show custom alert instead of browser alert
-            showCustomAlert();
-            return;
-        }
+     if (quantity <= 0) {
+         // Show custom alert instead of browser alert
+         showCustomAlert();
+         return;
+     }
 
-        // Add or update combo in selection
-        selectedCombos[comboId] = {
-            id: comboId,
-            name: comboName,
-            price: comboPrice,
-            quantity: quantity
-        };
+     // Add or update combo in selection
+     selectedCombos[comboId] = {
+         id: comboId,
+         name: comboName,
+         price: comboPrice,
+         quantity: quantity
+     };
 
-        // Update UI
-        updateSelectedCombosUI();
+     // Update UI
+     updateSelectedCombosUI();
 
-        // Reset quantity input
-        quantityInput.value = 0;
-    }
+     // Reset quantity input
+     quantityInput.value = 0;
+ }
 
-    // Function to update selected combos in UI
-    function updateSelectedCombosUI() {
-        const container = document.getElementById('selected-combos-container');
-        const noComboMessage = document.getElementById('no-combos-message');
-        const comboInputsContainer = document.getElementById('combo-inputs-container');
+ // Function to update selected combos in UI
+ function updateSelectedCombosUI() {
+     const container = document.getElementById('selected-combos-container');
+     const noComboMessage = document.getElementById('no-combos-message');
+     const comboInputsContainer = document.getElementById('combo-inputs-container');
 
-        // Clear current content
-        container.innerHTML = '';
-        comboInputsContainer.innerHTML = '';
+     // Clear current content
+     container.innerHTML = '';
+     comboInputsContainer.innerHTML = '';
 
-        let totalComboPrice = 0;
+     let totalComboPrice = 0;
 
-        // Check if there are any selected combos
-        if (Object.keys(selectedCombos).length === 0) {
-            container.appendChild(noComboMessage);
-        } else {
-            // Add each selected combo to UI
-            for (const comboId in selectedCombos) {
-                const combo = selectedCombos[comboId];
-                const comboTotal = combo.price * combo.quantity;
-                totalComboPrice += comboTotal;
+     // Check if there are any selected combos
+     if (Object.keys(selectedCombos).length === 0) {
+         container.appendChild(noComboMessage);
+     } else {
+         // Add each selected combo to UI
+         for (const comboId in selectedCombos) {
+             const combo = selectedCombos[comboId];
+             const comboTotal = combo.price * combo.quantity;
+             totalComboPrice += comboTotal;
 
-                // Create combo box
-                const comboBox = document.createElement('div');
-                comboBox.className = 'selected-combo-box';
-                comboBox.innerHTML = `
-                    <div class="combo-info">
-                        <div class="combo-name">${combo.name}</div>
-                        <div class="combo-quantity">$${combo.price.toFixed(2)} x ${combo.quantity}</div>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <span class="combo-price">$${comboTotal.toFixed(2)}</span>
-                        <button class="btn-remove" onclick="removeCombo('${comboId}')">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                `;
-                container.appendChild(comboBox);
+             // Create combo box
+             const comboBox = document.createElement('div');
+             comboBox.className = 'selected-combo-box';
+             comboBox.innerHTML = `
+                 <div class="combo-info">
+                     <div class="combo-name">${combo.name}</div>
+                     <div class="combo-quantity">$${combo.price.toFixed(2)} x ${combo.quantity}</div>
+                 </div>
+                 <div class="d-flex align-items-center">
+                     <span class="combo-price">$${comboTotal.toFixed(2)}</span>
+                     <button class="btn-remove" onclick="removeCombo('${comboId}')">
+                         <i class="fas fa-times"></i>
+                     </button>
+                 </div>
+             `;
+             container.appendChild(comboBox);
 
-                // Add hidden inputs for form submission
-                const idInput = document.createElement('input');
-                idInput.type = 'hidden';
-                idInput.name = 'comboIds';
-                idInput.value = comboId;
-                comboInputsContainer.appendChild(idInput);
+             // Add hidden inputs for form submission
+             const idInput = document.createElement('input');
+             idInput.type = 'hidden';
+             idInput.name = 'comboIds';
+             idInput.value = comboId;
+             comboInputsContainer.appendChild(idInput);
 
-                const quantityInput = document.createElement('input');
-                quantityInput.type = 'hidden';
-                quantityInput.name = 'comboQuantities';
-                quantityInput.value = combo.quantity;
-                comboInputsContainer.appendChild(quantityInput);
-            }
-        }
+             const quantityInput = document.createElement('input');
+             quantityInput.type = 'hidden';
+             quantityInput.name = 'comboQuantities';
+             quantityInput.value = combo.quantity;
+             comboInputsContainer.appendChild(quantityInput);
+         }
+     }
 
-        // Update subtotal and total
-        document.getElementById('combo-subtotal').textContent = '$' + totalComboPrice.toFixed(2);
+     // Update subtotal and total
+     document.getElementById('combo-subtotal').textContent = '$' + totalComboPrice.toFixed(2);
+     document.getElementById('comboSubtotal').value = totalComboPrice.toFixed(2);
 
-        // Update total price
-        const ticketSubtotal = parseFloat(document.getElementById('total-price').getAttribute('data-ticket-subtotal')) || 0;
-        const totalPrice = ticketSubtotal + totalComboPrice;
-        document.getElementById('total-price').textContent = '$' + totalPrice.toFixed(2);
-    }
+     // Update total price
+     const ticketSubtotal = parseFloat(document.getElementById('total-price').getAttribute('data-ticket-subtotal')) || 0;
+     const totalPrice = ticketSubtotal + totalComboPrice;
+     document.getElementById('total-price').textContent = '$' + totalPrice.toFixed(2);
+ }
 
-    // Function to remove combo from selection
-    function removeCombo(comboId) {
-        delete selectedCombos[comboId];
-        updateSelectedCombosUI();
-    }
+ // Function to remove combo from selection
+ function removeCombo(comboId) {
+     delete selectedCombos[comboId];
+     updateSelectedCombosUI();
+ }
 
-    // Add event handler for Cancel button
-    document.getElementById('cancelButton').addEventListener('click', function() {
-        // Get necessary information
-        const filmId = document.querySelector('input[name="filmId"]').value;
-        const cinemaId = document.querySelector('input[name="cinemaId"]').value;
-        const showtimeId = document.querySelector('input[name="showtimeId"]').value;
-        const selectedDate = document.querySelector('input[name="selectedDate"]').value;
-        const selectedSeatsJson = document.querySelector('input[name="selectedSeatsJsonHidden"]').value;
+ // Function to prepare form data before submission
+ function prepareFormData() {
+     // Create an array to hold the combo data in the correct format
+     const combosArray = [];
 
-        // Create URL to return to pick-seat page
-        let returnUrl = `/pick-seat?filmId=${filmId}&cinemaId=${cinemaId}&showtimeId=${showtimeId}&selectedDate=${selectedDate}`;
+     // Iterate through each selected combo
+     for (const comboId in selectedCombos) {
+         const combo = selectedCombos[comboId];
+         if (combo && combo.quantity > 0) {
+             combosArray.push({
+                 comboId: parseInt(comboId),  // Make sure it's an integer
+                 comboName: combo.name,       // Include name as comboName
+                 comboPrice: combo.price,     // Include price as comboPrice
+                 quantity: combo.quantity     // Include quantity
+             });
+         }
+     }
 
-        // Add selected seats information
-        if (selectedSeatsJson) {
-            returnUrl += `&selectedSeatsJson=${encodeURIComponent(selectedSeatsJson)}`;
-        }
+     // Convert to JSON and store in hidden field
+     const combosJson = JSON.stringify(combosArray);
+     console.log("Preparing combo data for submission:", combosJson);
 
-        // Redirect
-        window.location.href = returnUrl;
-    });
+     // Make sure the hidden field exists
+     const hiddenField = document.getElementById('selectedCombosJson');
+     if (hiddenField) {
+         hiddenField.value = combosJson;
+     } else {
+         console.error("Hidden field 'selectedCombosJson' not found!");
+         // Create the field if it doesn't exist
+         const newHiddenField = document.createElement('input');
+         newHiddenField.type = 'hidden';
+         newHiddenField.id = 'selectedCombosJson';
+         newHiddenField.name = 'selectedCombosJson';
+         newHiddenField.value = combosJson;
+         document.querySelector('form').appendChild(newHiddenField);
+     }
 
-    // Add keyboard event listener to close modal with Escape key
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            closeCustomAlert();
-        }
-    });
+     // Calculate and set combo subtotal
+     const subtotalValue = parseFloat(document.getElementById('combo-subtotal').textContent.replace('$', ''));
+     const comboSubtotalField = document.getElementById('comboSubtotal');
+     if (comboSubtotalField) {
+         comboSubtotalField.value = subtotalValue.toFixed(2);
+     }
+
+     return true;
+ }
+
+ // Add event listener for form submission
+ document.addEventListener('DOMContentLoaded', function() {
+     const comboForm = document.querySelector('form'); // Update this selector if needed to match your actual form
+     if (comboForm) {
+         comboForm.addEventListener('submit', function(event) {
+             // Call prepareFormData before form submission
+             if (!prepareFormData()) {
+                 event.preventDefault(); // Prevent form submission if data preparation fails
+             }
+         });
+     }
+ });
+
+ // Add event handler for Cancel button
+ document.getElementById('cancelButton').addEventListener('click', function() {
+     // Get necessary information
+     const filmId = document.querySelector('input[name="filmId"]').value;
+     const cinemaId = document.querySelector('input[name="cinemaId"]').value;
+     const showtimeId = document.querySelector('input[name="showtimeId"]').value;
+     const selectedDate = document.querySelector('input[name="selectedDate"]').value;
+     const selectedSeatsJson = document.querySelector('input[name="selectedSeatsJsonHidden"]').value;
+
+     // Create URL to return to pick-seat page
+     let returnUrl = `/pick-seat?filmId=${filmId}&cinemaId=${cinemaId}&showtimeId=${showtimeId}&selectedDate=${selectedDate}`;
+
+     // Add selected seats information
+     if (selectedSeatsJson) {
+         returnUrl += `&selectedSeatsJson=${encodeURIComponent(selectedSeatsJson)}`;
+     }
+
+     // Redirect
+     window.location.href = returnUrl;
+ });
+
+ // Add keyboard event listener to close modal with Escape key
+ document.addEventListener('keydown', function(event) {
+     if (event.key === 'Escape') {
+         closeCustomAlert();
+     }
+ });
 </script>
-</body>
-</html>
+</body> </html>

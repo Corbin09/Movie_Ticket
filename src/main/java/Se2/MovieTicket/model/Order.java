@@ -8,8 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -38,13 +42,18 @@ public class Order {
     @Temporal(TemporalType.TIMESTAMP)
     private Date orderDate;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private Set<Ticket> tickets;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private Set<PopcornOrder> popcornOrders;
+    @BatchSize(size = 50)
+    @Fetch(FetchMode.SUBSELECT)  // This is key for batch fetching
+    private Set<Ticket> tickets = new HashSet<>();
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    @BatchSize(size = 20)
+    @Fetch(FetchMode.SUBSELECT)
+    private Set<PopcornOrder> popcornOrders = new HashSet<>();
 
     @Column(name = "total_price", nullable = false)
     private Double totalPrice = 0.0;
@@ -141,4 +150,52 @@ public class Order {
         }
         this.showtime.setShowtimeId(showtimeId);
     }
-}
+
+    // Helper methods to maintain bidirectional relationship
+    public void addTicket(Ticket ticket) {
+        System.out.println("Adding ticket to order");
+        if (tickets == null) {
+            System.out.println("Tickets collection was null, initializing it");
+            tickets = new HashSet<>();
+        }
+        System.out.println("Current tickets size before adding: " + tickets.size());
+        tickets.add(ticket);
+        ticket.setOrder(this);
+        System.out.println("Current tickets size after adding: " + tickets.size());
+    }
+
+    public void removeTicket(Ticket ticket) {
+        System.out.println("Removing ticket from order");
+        if (tickets != null) {
+            System.out.println("Current tickets size before removing: " + tickets.size());
+            tickets.remove(ticket);
+            ticket.setOrder(null);
+            System.out.println("Current tickets size after removing: " + tickets.size());
+        } else {
+            System.out.println("Cannot remove ticket: tickets collection is null");
+        }
+    }
+
+    public void addPopcornOrder(PopcornOrder popcornOrder) {
+        System.out.println("Adding popcorn order to order");
+        if (popcornOrders == null) {
+            System.out.println("PopcornOrders collection was null, initializing it");
+            popcornOrders = new HashSet<>();
+        }
+        System.out.println("Current popcorn orders size before adding: " + popcornOrders.size());
+        popcornOrders.add(popcornOrder);
+        popcornOrder.setOrder(this);
+        System.out.println("Current popcorn orders size after adding: " + popcornOrders.size());
+    }
+
+    public void removePopcornOrder(PopcornOrder popcornOrder) {
+        System.out.println("Removing popcorn order from order");
+        if (popcornOrders != null) {
+            System.out.println("Current popcorn orders size before removing: " + popcornOrders.size());
+            popcornOrders.remove(popcornOrder);
+            popcornOrder.setOrder(null);
+            System.out.println("Current popcorn orders size after removing: " + popcornOrders.size());
+        } else {
+            System.out.println("Cannot remove popcorn order: popcornOrders collection is null");
+        }
+}}
