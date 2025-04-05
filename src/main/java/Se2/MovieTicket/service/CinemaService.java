@@ -4,10 +4,14 @@ import Se2.MovieTicket.dto.CinemaDTO;
 import Se2.MovieTicket.dto.CinemaWithShowtimesDTO;
 import Se2.MovieTicket.dto.ShowtimeDTO;
 import Se2.MovieTicket.model.Cinema;
+import Se2.MovieTicket.model.CinemaCluster;
 import Se2.MovieTicket.model.Showtime;
 import Se2.MovieTicket.repository.CinemaRepository;
 import Se2.MovieTicket.repository.ShowtimeRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -283,4 +287,113 @@ public class CinemaService {
     public List<Cinema> getCinemasBasicInfo() {
         return cinemaRepository.findAllBasicInfo();
     }
+
+    // Method to delete multiple cinemas by their IDs
+    public int deleteCinemasByIds(List<Long> cinemaIds) {
+        if (cinemaIds == null || cinemaIds.isEmpty()) {
+            return 0;
+        }
+
+        int deletedCount = 0;
+        for (Long id : cinemaIds) {
+            try {
+                cinemaRepository.deleteById(id);
+                deletedCount++;
+            } catch (Exception e) {
+                // Log the exception but continue with other deletions
+                System.err.println("Failed to delete cinema with ID: " + id + ". Error: " + e.getMessage());
+            }
+        }
+
+        return deletedCount;
+    }
+
+    // Method to save a new cinema
+    public void saveCinema(@Valid Cinema cinema) {
+        cinemaRepository.save(cinema);
+    }
+
+    // Method to get a cinema by ID with all its details
+    public Optional<Cinema> getCinemaByIdWithDetails(Long id) {
+        if (id == null) {
+            return Optional.empty();
+        }
+
+        // Using fetch joins to load related entities eagerly
+        return Optional.ofNullable(em.createQuery(
+                        "SELECT c FROM Cinema c " +
+                                "LEFT JOIN FETCH c.cinemaCluster " +
+                                "LEFT JOIN FETCH c.region " +
+                                "LEFT JOIN FETCH c.rooms " +
+                                "WHERE c.cinemaId = :id", Cinema.class)
+                .setParameter("id", id)
+                .getResultStream()
+                .findFirst()
+                .orElse(null));
+    }
+
+    // Method to update an existing cinema
+    public void updateCinema(@Valid Cinema cinema) {
+        if (cinema == null || cinema.getCinemaId() == null) {
+            throw new IllegalArgumentException("Cinema or cinema ID cannot be null");
+        }
+
+        // Check if cinema exists before updating
+        if (!cinemaRepository.existsById(cinema.getCinemaId())) {
+            throw new NoSuchElementException("Cinema with ID " + cinema.getCinemaId() + " not found");
+        }
+
+        cinemaRepository.save(cinema);
+    }
+
+    // Method to get cinemas with complex information for admin dashboard
+    private List<CinemaDTO> mapCinemasWithComplexInfo(List<Cinema> cinemas) {
+        return cinemas.stream().map(cinema -> {
+            CinemaDTO dto = new CinemaDTO();
+            dto.setCinemaId(cinema.getCinemaId());
+            dto.setCinemaName(cinema.getCinemaName());
+            dto.setAddress(cinema.getAddress());
+
+            // Set complex-related properties
+            if (cinema.getCinemaCluster() != null) {
+                dto.setClusterId(cinema.getCinemaCluster().getClusterId());
+                dto.setComplexName(cinema.getCinemaCluster().getClusterName());
+                dto.setComplexColor(getColorClassForCluster(cinema.getCinemaCluster()));
+            }
+
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    // Helper method to determine color class for cinema clusters
+    private String getColorClassForCluster(CinemaCluster cluster) {
+        if (cluster == null) {
+            return "bg-secondary";
+        }
+
+        // Generate consistent colors based on cluster ID
+        String[] colorClasses = {"bg-primary", "bg-success", "bg-warning", "bg-danger", "bg-info"};
+        return colorClasses[(int)(cluster.getClusterId() % colorClasses.length)];
+    }
+
+    public Page<Cinema> searchCinemasByNameOrAddressPaginated(String search, Pageable pageable) {
+        if (search == null || search.trim().isEmpty()) {
+            return cinemaRepository.findAll(pageable);
+        }
+        return cinemaRepository.findByCinemaNameContainingIgnoreCaseOrAddressContainingIgnoreCase(search, search, pageable);
+    }
+
+
+    public Page<Cinema> getCinemasByComplexNamePaginated(String complex, Pageable pageable) {
+        if (complex == null || complex.trim().isEmpty()) {
+            return Page.empty();
+        }
+        return cinemaRepository.findByCinemaCluster_ClusterNameContainingIgnoreCase(complex, pageable);
+    }
+
+
+    public Page<Cinema> getAllCinemasPaginated(Pageable pageable) {
+        return cinemaRepository.findAll(pageable);
+    }
+
 }

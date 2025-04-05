@@ -56,7 +56,7 @@ import java.time.format.TextStyle;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
-
+import Se2.MovieTicket.model.Cinema;
 @Controller
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -2534,6 +2534,7 @@ private OrderRepository orderRepository;
         }
     }
 
+
     // Add this method to your controller
     private void addUserToModel(Model model, HttpServletRequest request) {
         HttpSession session = request.getSession(false);
@@ -2557,9 +2558,325 @@ private OrderRepository orderRepository;
     }
 
 
+//--------------------------------MANAGE CINEMAS---------------------------------------
+@Autowired
+private CinemaClusterService cinemaClusterService;
 
+    @GetMapping("/manage-cinemas")
+    public String manageCinemas(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String complex,
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "10") int size,
+            Model model,
+            HttpServletRequest request) {
 
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
 
+        // Add user to model
+        addUserToModel(model, request);
+
+        // Get all complexes for the dropdown filter
+        List<CinemaCluster> complexes = cinemaClusterService.getAllCinemaClusters();
+        model.addAttribute("complexes", complexes);
+
+        // Create pageable object for database pagination
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        // Get cinemas with pagination
+        Page<Cinema> cinemasPage;
+
+        try {
+            if (search != null && !search.isEmpty()) {
+                // Search cinemas by name or address
+                cinemasPage = cinemaService.searchCinemasByNameOrAddressPaginated(search, pageable);
+                model.addAttribute("searchTerm", search);
+            } else if (complex != null && !complex.isEmpty()) {
+                // Filter cinemas by complex
+                cinemasPage = cinemaService.getCinemasByComplexNamePaginated(complex, pageable);
+                model.addAttribute("selectedComplex", complex);
+            } else {
+                // Get all cinemas with pagination
+                cinemasPage = cinemaService.getAllCinemasPaginated(pageable);
+            }
+
+            List<CinemaDTO> cinemaDTOs = mapCinemasWithComplexInfo(cinemasPage.getContent());
+
+            model.addAttribute("cinemas", cinemaDTOs);
+
+            // Add pagination parameters
+            model.addAttribute("currentPage", page);
+            model.addAttribute("pageSize", size);
+            model.addAttribute("totalCinemas", cinemasPage.getTotalElements());
+            model.addAttribute("totalPages", cinemasPage.getTotalPages());
+            model.addAttribute("pageSizes", Arrays.asList(5, 10, 20, 50));
+
+        } catch (Exception e) {
+            model.addAttribute("cinemas", new ArrayList<>());
+            model.addAttribute("errorMessage", "Error fetching cinemas: " + e.getMessage());
+            model.addAttribute("currentPage", 1);
+            model.addAttribute("pageSize", size);
+            model.addAttribute("totalCinemas", 0);
+            model.addAttribute("totalPages", 0);
+        }
+
+        // Add currPage attribute for sidebar active menu
+        model.addAttribute("currPage", "manage-cinemas");
+
+        return "manage-cinemas";
+    }
+
+//    private List<CinemaDTO> mapCinemasWithComplexInfo(List<Cinema> content) {
+//    }
+
+    private List<CinemaDTO> mapCinemasWithComplexInfo(List<Cinema> cinemas) {
+        return cinemas.stream().map(cinema -> {
+            CinemaDTO dto = new CinemaDTO();
+            dto.setCinemaId(cinema.getCinemaId());
+            dto.setCinemaName(cinema.getCinemaName());
+            dto.setAddress(cinema.getAddress());
+
+            // Set complex-related properties
+            if (cinema.getCinemaCluster() != null) {
+                dto.setClusterId(cinema.getCinemaCluster().getClusterId());
+                dto.setComplexName(cinema.getCinemaCluster().getClusterName());
+                dto.setComplexColor(getColorClassForCluster(cinema.getCinemaCluster()));
+            }
+
+            return dto;
+        }).collect(Collectors.toList());
+    }
+    private String getColorClassForCluster(CinemaCluster cluster) {
+        // Implement a simple hash-based color assignment or a predefined mapping
+        String[] colors = {"blue", "green", "orange", "purple", "red"};
+        return colors[Math.abs(cluster.getClusterId().hashCode()) % colors.length];
+    }
+
+    @PostMapping("/cinemas/delete")
+    @Transactional
+    public String deleteCinemas(@RequestParam("selectedIds") List<Long> cinemaIds,
+                                RedirectAttributes redirectAttributes) {
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
+
+        try {
+            int deletedCount = cinemaService.deleteCinemasByIds(cinemaIds);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    deletedCount + " cinema(s) successfully deleted.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error deleting cinemas: " + e.getMessage());
+        }
+
+        return "redirect:/manage-cinemas";
+    }
+
+    @GetMapping("/cinemas/add")
+    public String addCinemaForm(Model model, HttpServletRequest request) {
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
+
+        // Add user to model
+        addUserToModel(model, request);
+
+        // Add necessary attributes for the form
+        model.addAttribute("cinema", new Cinema());
+        model.addAttribute("clusters", cinemaClusterService.getAllCinemaClusters());
+        model.addAttribute("regions", regionService.getAllRegions());
+        model.addAttribute("currPage", "manage-cinemas");
+
+        return "add-cinema";
+    }
+
+    @PostMapping("/cinemas/save")
+    public String saveCinema(@Valid @ModelAttribute("cinema") Cinema cinema,
+                             BindingResult bindingResult,
+                             Model model,
+                             HttpServletRequest request) {
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
+
+        // Validate input fields
+        if (cinema.getCinemaName() == null || cinema.getCinemaName().trim().isEmpty()) {
+            bindingResult.rejectValue("cinemaName", "error.cinema", "Cinema name cannot be empty");
+        }
+
+        if (cinema.getAddress() == null || cinema.getAddress().trim().isEmpty()) {
+            bindingResult.rejectValue("address", "error.cinema", "Cinema address cannot be empty");
+        }
+
+        if (cinema.getCinemaCluster() == null || cinema.getCinemaCluster().getClusterId() == null) {
+            bindingResult.rejectValue("cinemaCluster", "error.cinema", "Please select a cinema complex");
+        }
+
+        // Add validation for region
+        if (cinema.getRegion() == null || cinema.getRegion().getRegionId() == null) {
+            bindingResult.rejectValue("region", "error.cinema", "Please select a region");
+        }
+
+        // Check if there are validation errors
+        if (bindingResult.hasErrors()) {
+            // Add necessary attributes back to the form
+            addUserToModel(model, request);
+            model.addAttribute("clusters", cinemaClusterService.getAllCinemaClusters());
+            model.addAttribute("regions", regionService.getAllRegions());
+            model.addAttribute("currPage", "manage-cinemas");
+            return "add-cinema";
+        }
+
+        // Save the cinema
+        cinemaService.saveCinema(cinema);
+
+        // Add success message to the same page to show the overlay
+        model.addAttribute("successMessage", "Cinema has been added successfully.");
+
+        // Return to the same page to show the success overlay
+        addUserToModel(model, request);
+        model.addAttribute("cinema", new Cinema()); // Reset form with new cinema object
+        model.addAttribute("clusters", cinemaClusterService.getAllCinemaClusters());
+        model.addAttribute("regions", regionService.getAllRegions());
+        model.addAttribute("currPage", "manage-cinemas");
+
+        return "add-cinema";
+    }
+
+    @GetMapping("/cinemas/edit")
+    public String showEditCinemaForm(@RequestParam Long id,
+                                     Model model,
+                                     HttpServletRequest request) {
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
+
+        // Add user to model
+        addUserToModel(model, request);
+
+        // Get the cinema by ID with eager loading of necessary relations
+        Optional<Cinema> cinemaOptional = cinemaService.getCinemaByIdWithDetails(id);
+
+        if (cinemaOptional.isEmpty()) {
+            // Cinema not found, redirect with error message
+            return "redirect:/manage-cinemas?error=Cinema+not+found";
+        }
+
+        // Add cinema to the model
+        model.addAttribute("cinema", cinemaOptional.get());
+
+        // Add cinema clusters and regions for the dropdown
+        model.addAttribute("clusters", cinemaClusterService.getAllCinemaClusters());
+        model.addAttribute("regions", regionService.getAllRegions());
+
+        // Set current page for navigation
+        model.addAttribute("currPage", "manage-cinemas");
+
+        return "edit-cinema";
+    }
+
+    @PostMapping("/cinemas/update/{id}")
+    public String updateCinema(@PathVariable("id") Long id,
+                               @Valid @ModelAttribute("cinema") Cinema cinema,
+                               BindingResult bindingResult,
+                               RedirectAttributes redirectAttributes,
+                               Model model,
+                               HttpServletRequest request) {
+        // Đảm bảo ID của cinema khớp với PathVariable
+        cinema.setCinemaId(id);
+
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
+
+        // Debug logging
+        logger.debug("Cinema update requested: {}", cinema);
+        logger.debug("Region ID received: {}", cinema.getRegion() != null ? cinema.getRegion().getRegionId() : "null");
+        logger.debug("Cluster ID received: {}", cinema.getCinemaCluster() != null ? cinema.getCinemaCluster().getClusterId() : "null");
+
+        // Get full region object by ID before validation
+        if (cinema.getRegion() != null && cinema.getRegion().getRegionId() != null) {
+            Optional<Region> regionOptional = regionService.getRegionById(cinema.getRegion().getRegionId());
+            if (regionOptional.isPresent()) {
+                cinema.setRegion(regionOptional.get());
+            }
+        }
+
+        // Get full cinema cluster object by ID before validation
+        if (cinema.getCinemaCluster() != null && cinema.getCinemaCluster().getClusterId() != null) {
+            Optional<CinemaCluster> clusterOptional = cinemaClusterService.getCinemaClusterById(cinema.getCinemaCluster().getClusterId());
+            if (clusterOptional.isPresent()) {
+                cinema.setCinemaCluster(clusterOptional.get());
+            }
+        }
+
+        logger.debug("After retrieving complete objects - Cinema: {}", cinema);
+        logger.debug("Binding errors: {}", bindingResult.getAllErrors());
+
+        // Add user to model
+        addUserToModel(model, request);
+
+        // Add cinema clusters and regions for the dropdown (needed if returning to the form page)
+        model.addAttribute("clusters", cinemaClusterService.getAllCinemaClusters());
+        model.addAttribute("regions", regionService.getAllRegions());
+        model.addAttribute("currPage", "manage-cinemas");
+
+        // Simple validation - check required fields are not empty
+        boolean hasCustomErrors = false;
+
+        // Validate cinema name
+        if (cinema.getCinemaName() == null || cinema.getCinemaName().trim().isEmpty()) {
+            bindingResult.rejectValue("cinemaName", "error.cinema", "Cinema name cannot be empty");
+            hasCustomErrors = true;
+        }
+
+        // Validate address
+        if (cinema.getAddress() == null || cinema.getAddress().trim().isEmpty()) {
+            bindingResult.rejectValue("address", "error.cinema", "Address cannot be empty");
+            hasCustomErrors = true;
+        }
+
+        // Validate that a cinema cluster is selected
+        if (cinema.getCinemaCluster() == null || cinema.getCinemaCluster().getClusterId() == null) {
+            bindingResult.rejectValue("cinemaCluster", "error.cinema", "Cinema cluster must be selected");
+            hasCustomErrors = true;
+        }
+
+        // Validate that a region is selected
+        if (cinema.getRegion() == null || cinema.getRegion().getRegionId() == null) {
+            bindingResult.rejectValue("region", "error.cinema", "Region must be selected");
+            hasCustomErrors = true;
+        }
+
+        // Check if there are any errors (from @Valid annotation or custom validations)
+        if (bindingResult.hasErrors() || hasCustomErrors) {
+            model.addAttribute("errorMessage", "Please correct the errors in the form");
+            return "edit-cinema";
+        }
+
+        try {
+            // Update the cinema
+            cinemaService.updateCinema(cinema);
+
+            // Add success message and flag for overlay display
+            model.addAttribute("successMessage", "Success! Cinema has been updated successfully.");
+            model.addAttribute("showSuccessOverlay", true);
+
+            return "edit-cinema";
+        } catch (Exception e) {
+            logger.error("Exception during cinema update: {}", e.getMessage(), e);
+            model.addAttribute("errorMessage", "Failed to update cinema: " + e.getMessage());
+            return "edit-cinema";
+        }
+    }
 
 
 

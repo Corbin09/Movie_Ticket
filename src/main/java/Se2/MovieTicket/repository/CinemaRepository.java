@@ -3,6 +3,8 @@ package Se2.MovieTicket.repository;
 import Se2.MovieTicket.model.Cinema;
 import Se2.MovieTicket.model.CinemaCluster;
 import Se2.MovieTicket.model.Region;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -39,4 +41,11 @@ public interface CinemaRepository extends JpaRepository<Cinema, Long> {
      */
     @Query("SELECT new Cinema(c.cinemaId, c.cinemaName) FROM Cinema c ORDER BY c.cinemaName")
     List<Cinema> findAllBasicInfo();
+
+    Page<Cinema> findByCinemaNameContainingIgnoreCaseOrAddressContainingIgnoreCase(String name, String address, Pageable pageable);
+
+
+    Page<Cinema> findByCinemaCluster_ClusterNameContainingIgnoreCase(String clusterName, Pageable pageable);
+
+
 }

@@ -11,6 +11,8 @@ public class CinemaDTO {
     private String cinemaName;
     private String address;
     private Long clusterId;
+    private String complexName;     // Added field
+    private String complexColor;    // Added field
     private Set<ShowtimeDTO> showtimes;
 
     public Long getCinemaId() {
@@ -43,6 +45,22 @@ public class CinemaDTO {
 
     public void setClusterId(Long clusterId) {
         this.clusterId = clusterId;
+    }
+
+    public String getComplexName() {
+        return complexName;
+    }
+
+    public void setComplexName(String complexName) {
+        this.complexName = complexName;
+    }
+
+    public String getComplexColor() {
+        return complexColor;
+    }
+
+    public void setComplexColor(String complexColor) {
+        this.complexColor = complexColor;
     }
 
     // Add getter and setter for showtimes
