@@ -4,7 +4,11 @@ import Se2.MovieTicket.model.Showtime;
 import Se2.MovieTicket.model.Film;
 import Se2.MovieTicket.model.Room;
 import Se2.MovieTicket.model.Cinema;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -106,11 +110,25 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
     @Query("SELECT s FROM Showtime s LEFT JOIN FETCH s.film LEFT JOIN FETCH s.cinema LEFT JOIN FETCH s.room WHERE s.showtimeId = :showtimeId")
     Optional<Showtime> findShowtimeWithDetails(@Param("showtimeId") Long showtimeId);
 
-    @Query("SELECT s FROM Showtime s " +
-            "LEFT JOIN FETCH s.film " +
-            "LEFT JOIN FETCH s.room " +   // Fix here: use `room`, not `hall`
-            "LEFT JOIN FETCH s.cinema " + // `s.room.cinema` was incorrect
-            "WHERE s.showtimeId = :showtimeId")
-    Optional<Showtime> findByIdWithDetails(@Param("showtimeId") Long showtimeId);
+//    @Query("SELECT s FROM Showtime s " +
+//            "LEFT JOIN FETCH s.film " +
+//            "LEFT JOIN FETCH s.room " +   // Fix here: use `room`, not `hall`
+//            "LEFT JOIN FETCH s.cinema " + // `s.room.cinema` was incorrect
+//            "WHERE s.showtimeId = :showtimeId")
+//    Optional<Showtime> findByIdWithDetails(@Param("showtimeId") Long showtimeId);
 
+    Page<Showtime> findByFilmFilmId(Long filmId, Pageable pageable);
+
+    Page<Showtime> findByCinemaCinemaId(Long cinemaId, Pageable pageable);
+
+    Page<Showtime> findByShowDate(Date date, Pageable pageable);
+
+    @Query("SELECT s FROM Showtime s JOIN FETCH s.film JOIN FETCH s.cinema JOIN FETCH s.room WHERE s.showtimeId = :id")
+    Optional<Showtime> findByIdWithDetails(@Param("id") Long id);
+
+    @Modifying
+    @Query("DELETE FROM Showtime s WHERE s.showtimeId IN :ids")
+    int deleteByShowtimeIdIn(@Param("ids") List<Long> ids);
+
+    Page<Showtime> findAll(Specification<Showtime> showtimeSpecification, Pageable pageable);
 }

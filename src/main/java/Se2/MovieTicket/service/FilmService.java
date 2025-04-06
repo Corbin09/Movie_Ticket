@@ -397,5 +397,10 @@ public class FilmService {
         Pageable pageable = PageRequest.of(page - 1, size);
         return filmRepository.findByDirectorIdPage(directorId, pageable);
     }
+
+    public Film findById(Long filmId) {
+        return filmRepository.findById(filmId).orElse(null);
+    }
+
 }
 

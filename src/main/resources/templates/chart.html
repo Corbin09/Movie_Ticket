@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Real-Time Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+</head>
+<body>
+<h2 style="text-align:center">Movie Revenue Realtime Dashboard</h2>
+<canvas id="myChart" width="600" height="300"></canvas>
+
+<script>
+    let chart;
+
+    async function loadInitialData() {
+      const response = await fetch('/api/chart/init');
+      const data = await response.json();
+      renderChart(data);
+    }
+
+    function renderChart(data) {
+      const ctx = document.getElementById('myChart').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.map(d => d.label),
+          datasets: [{
+            label: 'Revenue',
+            data: data.map(d => d.value),
+            backgroundColor: '#42a5f5'
+          }]
+        }
+      });
+    }
+
+    function connectWebSocket() {
+      const socket = new SockJS('/ws');
+      const stompClient = Stomp.over(socket);
+      stompClient.connect({}, function () {
+        stompClient.subscribe('/topic/chart-data', function (msg) {
+          const newData = JSON.parse(msg.body);
+          chart.data.labels = newData.map(d => d.label);
+          chart.data.datasets[0].data = newData.map(d => d.value);
+          chart.update();
+        });
+      });
+    }
+
+    loadInitialData();
+    connectWebSocket();
+</script>
+</body>
+</html>

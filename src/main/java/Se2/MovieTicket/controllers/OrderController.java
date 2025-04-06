@@ -76,14 +76,14 @@ public class OrderController {
         return updatedOrder != null ? new ResponseEntity<>(updatedOrder, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteOrder(@PathVariable("id") Long id) {
-        if (!userService.hasRole("Admin")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-        orderService.deleteOrder(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<HttpStatus> deleteOrder(@PathVariable("id") Long id) {
+//        if (!userService.hasRole("Admin")) {
+//            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+//        }
+//        orderService.deleteOrder(id);
+//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//    }
 
 
 

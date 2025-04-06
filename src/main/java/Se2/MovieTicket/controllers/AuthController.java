@@ -15,7 +15,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import Se2.MovieTicket.impl.UserDetailsImpl;
@@ -23,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -1284,7 +1284,43 @@ private UserReviewRepository userReviewRepository;
         }
 
         model.addAttribute("films", films);
-        model.addAttribute("allFilms", films);
+        Set<ShowtimeDTO> sts = new HashSet<>();
+        for (FilmDTO film : films) {
+                sts.addAll(film.getShowtimes());
+        }
+        ArrayList<ShowtimeDTO> sortedSts = new ArrayList<>();
+        sortedSts.addAll(sts);
+
+        Collections.sort(sortedSts, new Comparator<ShowtimeDTO>() {
+            @Override
+            public int compare(ShowtimeDTO o1, ShowtimeDTO o2) {
+                // Parse hours, minutes, and seconds from each showtime
+                String[] time1Parts = o1.getShowTime().split(":");
+                String[] time2Parts = o2.getShowTime().split(":");
+
+                // Compare hours first
+                int hourDiff = Integer.valueOf(time1Parts[0]) - Integer.valueOf(time2Parts[0]);
+                if (hourDiff != 0) {
+                    return hourDiff; // If hours are different, return the difference
+                }
+
+                // If hours are the same, compare minutes
+                if (time1Parts.length > 1 && time2Parts.length > 1) {
+                    int minuteDiff = Integer.valueOf(time1Parts[1]) - Integer.valueOf(time2Parts[1]);
+                    if (minuteDiff != 0) {
+                        return minuteDiff; // If minutes are different, return the difference
+                    }
+                }
+
+                // If hours and minutes are the same, compare seconds
+                if (time1Parts.length > 2 && time2Parts.length > 2) {
+                    return Integer.valueOf(time1Parts[2]) - Integer.valueOf(time2Parts[2]);
+                }
+
+                return 0; // Times are equal
+            }
+        });
+        model.addAttribute("showtimes", sortedSts);
 
         // Lọc danh sách showtimes dựa trên các filter được chọn
         if (showTime != null) {
@@ -2238,6 +2274,8 @@ private OrderRepository orderRepository;
     public String manageOrders(
             @RequestParam(required = false) String searchCriteria,
             @RequestParam(required = false) String searchQuery,
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "10") int pageSize,
             Model model,
             HttpServletRequest request) {
 
@@ -2266,24 +2304,39 @@ private OrderRepository orderRepository;
             return "redirect:/access-denied";
         }
 
-        // Get orders based on search criteria and query
-        List<Order> orders;
+        // Create pageable object for database pagination
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+
+        // Get orders based on search criteria and query with pagination
+        Page<?> ordersPage;
 
         try {
-            if (searchCriteria != null && !searchCriteria.isEmpty()) {
-                // Search based on selected criteria and query (even if query is empty)
-                orders = orderService.searchOrdersByCriteria(searchCriteria, searchQuery != null ? searchQuery : "");
+            // Only use search criteria if both searchCriteria and searchQuery are provided
+            if (searchCriteria != null && !searchCriteria.isEmpty() && searchQuery != null && !searchQuery.isEmpty()) {
+                // Search based on selected criteria and query with pagination
+                ordersPage = orderService.searchOrdersByCriteriaPaginated(searchCriteria, searchQuery, pageable);
             } else {
-                // Get all orders if no search criteria provided
-                orders = orderService.getAllOrders();
+                // Get all orders with pagination if no search criteria provided
+                ordersPage = orderService.getAllOrdersPaginated(pageable);
             }
-        } catch (Exception e) {
-            orders = new ArrayList<>();
-            model.addAttribute("errorMessage", "Error fetching orders: " + e.getMessage());
-        }
 
-        // Add orders to model
-        model.addAttribute("orders", orders);
+            // Add orders to model
+            model.addAttribute("orders", ordersPage.getContent());
+
+            // Add pagination parameters
+            model.addAttribute("currentPage", page);
+            model.addAttribute("pageSize", pageSize);
+            model.addAttribute("totalItems", ordersPage.getTotalElements());
+            model.addAttribute("totalPages", ordersPage.getTotalPages());
+
+        } catch (Exception e) {
+            model.addAttribute("orders", new ArrayList<>());
+            model.addAttribute("errorMessage", "Error fetching orders: " + e.getMessage());
+            model.addAttribute("currentPage", 1);
+            model.addAttribute("pageSize", pageSize);
+            model.addAttribute("totalItems", 0);
+            model.addAttribute("totalPages", 0);
+        }
 
         // Pass the selected search options to the view
         model.addAttribute("searchCriteria", searchCriteria);
@@ -2294,7 +2347,6 @@ private OrderRepository orderRepository;
 
         return "manage-orders";
     }
-
 
 
 
@@ -2369,11 +2421,11 @@ private OrderRepository orderRepository;
         return "manage-rooms";
     }
 
+
     @PostMapping("/delete-rooms")
     @Transactional
     public String deleteRooms(@RequestParam("roomIds") List<Long> roomIds,
-                              RedirectAttributes redirectAttributes,
-                              HttpServletRequest request) {
+                              RedirectAttributes redirectAttributes) {
         // Check if user has admin role
         if (!userService.hasRole("ROLE_ADMIN")) {
             return "redirect:/access-denied";
@@ -2383,6 +2435,9 @@ private OrderRepository orderRepository;
             int deletedCount = roomService.deleteRoomsByIds(roomIds);
             redirectAttributes.addFlashAttribute("successMessage",
                     deletedCount + " room(s) successfully deleted.");
+
+            // This will set the deleteSuccess variable directly in the model
+            redirectAttributes.addFlashAttribute("deleteSuccess", true);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Error deleting rooms: " + e.getMessage());
@@ -2390,6 +2445,7 @@ private OrderRepository orderRepository;
 
         return "redirect:/manage-rooms";
     }
+
 
     @GetMapping("/add-room")
     public String addRoomForm(Model model, HttpServletRequest request) {
@@ -2879,7 +2935,466 @@ private CinemaClusterService cinemaClusterService;
     }
 
 
+//-------------------------------------------------------SHOWTIMES---------------------------------------------------
+@GetMapping("/manage-showtimes")
+public String manageShowtimes(
+        @RequestParam(required = false) String search,
+        @RequestParam(required = false) String searchField,
+        @RequestParam(required = false) String cinemaId,
+        @RequestParam(required = false) String filmId,
+        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
+        @RequestParam(required = false, defaultValue = "1") int page,
+        @RequestParam(required = false, defaultValue = "10") int size,
+        Model model,
+        HttpServletRequest request) {
 
+    // Check if user has admin role
+    if (!userService.hasRole("ROLE_ADMIN")) {
+        return "redirect:/access-denied";
+    }
+
+    // Add user to model
+    addUserToModel(model, request);
+
+    // Get all cinemas and films for the dropdown filters
+    List<Cinema> cinemas = cinemaService.getAllCinemas();
+    List<Film> films = filmService.getAllFilms();
+    model.addAttribute("cinemas", cinemas);
+    model.addAttribute("films", films);
+
+    // Create pageable object for database pagination
+    Pageable pageable = PageRequest.of(page - 1, size);
+
+    // Get showtimes with pagination
+    Page<Showtime> showtimesPage;
+
+    try {
+        if (search != null && !search.isEmpty()) {
+            // Search showtimes based on searchField
+            switch (searchField) {
+                case "film":
+                    showtimesPage = showtimeService.searchShowtimesByFilmNamePaginated(search, pageable);
+                    break;
+                case "cinema":
+                    showtimesPage = showtimeService.searchShowtimesByCinemaNamePaginated(search, pageable);
+                    break;
+                case "room":
+                    showtimesPage = showtimeService.searchShowtimesByRoomNamePaginated(search, pageable);
+                    break;
+                default:
+                    // "all" or any other value - search across all fields
+                    showtimesPage = showtimeService.searchShowtimesPaginated(search, pageable);
+            }
+            model.addAttribute("searchTerm", search);
+            model.addAttribute("searchField", searchField);
+        } else if (date != null) {
+            // Filter showtimes by date
+            showtimesPage = showtimeService.getShowtimesByDatePaginated(date, pageable);
+            model.addAttribute("selectedDate", new SimpleDateFormat("yyyy-MM-dd").format(date));
+            model.addAttribute("searchField", "date");
+        } else if (cinemaId != null && !cinemaId.isEmpty()) {
+            // Filter showtimes by cinema
+            showtimesPage = showtimeService.getShowtimesByCinemaPaginated(Long.parseLong(cinemaId), pageable);
+            model.addAttribute("selectedCinema", cinemaId);
+        } else if (filmId != null && !filmId.isEmpty()) {
+            // Filter showtimes by film
+            showtimesPage = showtimeService.getShowtimesByFilmPaginated(Long.parseLong(filmId), pageable);
+            model.addAttribute("selectedFilm", filmId);
+        } else {
+            // Get all showtimes with pagination
+            showtimesPage = showtimeService.getAllShowtimesPaginated(pageable);
+            model.addAttribute("searchField", "all");
+        }
+
+        List<ShowtimeDTO> showtimeDTOs = mapShowtimesWithDetails(showtimesPage.getContent());
+
+        model.addAttribute("showtimes", showtimeDTOs);
+
+        // Add pagination parameters
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("totalShowtimes", showtimesPage.getTotalElements());
+        model.addAttribute("totalPages", showtimesPage.getTotalPages());
+        model.addAttribute("pageSizes", Arrays.asList(5, 10, 20, 50));
+
+    } catch (Exception e) {
+        model.addAttribute("showtimes", new ArrayList<>());
+        model.addAttribute("errorMessage", "Error fetching showtimes: " + e.getMessage());
+        model.addAttribute("currentPage", 1);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("totalShowtimes", 0);
+        model.addAttribute("totalPages", 0);
+    }
+
+    // Add currPage attribute for sidebar active menu
+    model.addAttribute("currPage", "manage-showtimes");
+
+    return "manage-showtime";
+}
+
+// Các phương thức khác giữ nguyên
+
+    private List<ShowtimeDTO> mapShowtimesWithDetails(List<Showtime> showtimes) {
+        return showtimes.stream().map(showtime -> {
+            ShowtimeDTO dto = new ShowtimeDTO();
+            dto.setShowtimeId(showtime.getShowtimeId());
+            dto.setShowDate(showtime.getShowDate());
+            dto.setShowTime(showtime.getShowTime());
+
+            // Set film-related properties
+            if (showtime.getFilm() != null) {
+                dto.setFilmId(showtime.getFilm().getFilmId());
+                dto.setFilmName(showtime.getFilm().getFilmName());
+            }
+
+            // Set cinema-related properties
+            if (showtime.getCinema() != null) {
+                dto.setCinemaId(showtime.getCinema().getCinemaId());
+                dto.setCinemaName(showtime.getCinema().getCinemaName());
+            }
+
+            // Set room-related properties
+            if (showtime.getRoom() != null) {
+                dto.setRoomId(showtime.getRoom().getRoomId());
+                dto.setRoomName(showtime.getRoom().getRoomName());
+            }
+
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    // In ShowtimeController.java
+    @PostMapping("/showtimes/delete")
+    @Transactional
+    public String deleteShowtimes(@RequestParam("selectedIds") List<Long> showtimeIds,
+                                  RedirectAttributes redirectAttributes,
+                                  @RequestParam(value = "showSuccessModal", required = false) Boolean showSuccessModal) {
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
+
+        try {
+            int deletedCount = showtimeService.deleteShowtimesByIds(showtimeIds);
+
+            // No flash attribute message, only show the modal
+            if (showSuccessModal != null && showSuccessModal) {
+                return "redirect:/manage-showtimes?deleteSuccess=true";
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error deleting showtimes: " + e.getMessage());
+        }
+
+        return "redirect:/manage-showtimes";
+    }
+
+    @GetMapping("/showtimes/add")
+    public String addShowtimeForm(Model model, HttpServletRequest request) {
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
+
+        // Add user to model
+        addUserToModel(model, request);
+
+        // Add necessary attributes for the form
+        model.addAttribute("showtime", new Showtime());
+        model.addAttribute("films", filmService.getAllFilms());
+        model.addAttribute("cinemas", cinemaService.getAllCinemas());
+        model.addAttribute("rooms", roomService.getAllRooms());
+        model.addAttribute("currPage", "manage-showtimes");
+
+        return "add-showtime";
+    }
+
+    @PostMapping("/showtimes/save")
+    public String saveShowtime(@Valid @ModelAttribute("showtime") Showtime showtime,
+                               BindingResult bindingResult,
+                               Model model,
+                               HttpServletRequest request) {
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
+
+        // Validate input fields
+        if (showtime.getFilm() == null || showtime.getFilm().getFilmId() == null) {
+            bindingResult.rejectValue("film", "error.showtime", "Film must be selected");
+        }
+
+        if (showtime.getCinema() == null || showtime.getCinema().getCinemaId() == null) {
+            bindingResult.rejectValue("cinema", "error.showtime", "Cinema must be selected");
+        }
+
+        if (showtime.getRoom() == null || showtime.getRoom().getRoomId() == null) {
+            bindingResult.rejectValue("room", "error.showtime", "Room must be selected");
+        }
+
+        if (showtime.getShowDate() == null) {
+            bindingResult.rejectValue("showDate", "error.showtime", "Show date must be selected");
+        }
+
+        if (showtime.getShowTime() == null || showtime.getShowTime().trim().isEmpty()) {
+            bindingResult.rejectValue("showTime", "error.showtime", "Show time must be entered");
+        }
+
+        // Check if there are validation errors
+        if (bindingResult.hasErrors()) {
+            // Add necessary attributes back to the form
+            addUserToModel(model, request);
+            model.addAttribute("films", filmService.getAllFilms());
+            model.addAttribute("cinemas", cinemaService.getAllCinemas());
+            model.addAttribute("rooms", roomService.getAllRooms());
+            model.addAttribute("currPage", "manage-showtimes");
+            return "add-showtime";
+        }
+
+        // Save the showtime
+        showtimeService.saveShowtime(showtime);
+
+        // Add success message to the same page to show the overlay
+        model.addAttribute("successMessage", "Showtime has been added successfully.");
+
+        // Return to the same page to show the success overlay
+        addUserToModel(model, request);
+        model.addAttribute("showtime", new Showtime()); // Reset form with new showtime object
+        model.addAttribute("films", filmService.getAllFilms());
+        model.addAttribute("cinemas", cinemaService.getAllCinemas());
+        model.addAttribute("rooms", roomService.getAllRooms());
+        model.addAttribute("currPage", "manage-showtimes");
+
+        return "add-showtime";
+    }
+
+    @GetMapping("/showtimes/edit/{id}")
+    public String showEditShowtimeForm(@PathVariable("id") Long id,
+                                       Model model,
+                                       HttpServletRequest request) {
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
+
+        // Add user to model
+        addUserToModel(model, request);
+
+        // Get the showtime by ID with eager loading of necessary relations
+        Optional<Showtime> showtimeOptional = showtimeService.getShowtimeByIdWithDetails(id);
+
+        if (showtimeOptional.isEmpty()) {
+            // Showtime not found, redirect with error message
+            return "redirect:/manage-showtimes?error=Showtime+not+found";
+        }
+
+        Showtime showtime = showtimeOptional.get();
+        // Create a DTO or ensure entity is properly prepared for form binding
+        // This avoids the direct binding of complex objects like Film entities
+
+        // Add showtime to the model
+        model.addAttribute("showtime", showtime);
+
+        // Add films, cinemas, and rooms for the dropdowns
+        model.addAttribute("films", filmService.getAllFilms());
+        model.addAttribute("cinemas", cinemaService.getAllCinemas());
+        model.addAttribute("rooms", roomService.getAllRooms());
+
+        // Set current page for navigation
+        model.addAttribute("currPage", "manage-showtimes");
+
+        return "edit-showtime";
+    }
+
+    @PostMapping("/showtimes/update/{id}")
+    @ResponseBody
+    public Map<String, Object> updateShowtime(@PathVariable("id") Long id,
+                                              @Valid @ModelAttribute Showtime showtimeData,
+                                              BindingResult bindingResult) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            response.put("success", false);
+            response.put("message", "Access denied");
+            return response;
+        }
+
+        // Check for validation errors
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getFieldErrors().stream()
+                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                    .collect(Collectors.toList());
+
+            response.put("success", false);
+            response.put("message", "Validation errors");
+            response.put("errors", errors);
+            return response;
+        }
+
+        try {
+            // Get the existing showtime with its orders
+            Showtime existingShowtime = showtimeService.getShowtimeById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid showtime ID"));
+
+            // Get the entities based on their IDs
+            Film film = filmService.getFilmById(showtimeData.getFilm().getFilmId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid film ID"));
+
+            Cinema cinema = cinemaService.getCinemaById(showtimeData.getCinema().getCinemaId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid cinema ID"));
+
+            // Verify that room belongs to the selected cinema
+            Room room = roomService.getRoomById(showtimeData.getRoom().getRoomId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid room ID"));
+
+            if (!room.getCinema().getCinemaId().equals(cinema.getCinemaId())) {
+                throw new IllegalArgumentException("Room does not belong to the selected cinema");
+            }
+
+            // Update the existing showtime with new values while preserving orders
+            existingShowtime.setFilm(film);
+            existingShowtime.setCinema(cinema);
+            existingShowtime.setRoom(room);
+            existingShowtime.setShowDate(showtimeData.getShowDate());
+            existingShowtime.setShowTime(showtimeData.getShowTime());
+
+            // Save the updated showtime (with orders preserved)
+            Showtime updatedShowtime = showtimeService.updateShowtime(existingShowtime);
+
+            response.put("success", true);
+            response.put("message", "Showtime updated successfully!");
+            response.put("showtimeId", updatedShowtime.getShowtimeId());
+            return response;
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error updating showtime: " + e.getMessage());
+            return response;
+        }
+    }
+
+    @GetMapping("/manage-users")
+    public String manageUsers(
+            @RequestParam(required = false) String searchText,
+            @RequestParam(required = false) String searchField,
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "10") int pageSize,
+            Model model,
+            HttpServletRequest request) {
+
+        // Check if user has admin role
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
+        }
+
+        // Add user to model
+        addUserToModel(model, request);
+
+        // Create pageable object for database pagination
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+
+        // Get users with pagination directly from database
+        Page<User> usersPage;
+
+        try {
+            if (searchText != null && !searchText.isEmpty() && searchField != null && !searchField.isEmpty()) {
+                // Search users by specific field with pagination
+                usersPage = userService.searchUsersByFieldPaginated(searchField, searchText, pageable);
+            } else {
+                // Get all users with pagination
+                usersPage = userService.getAllUsersPaginated(pageable);
+            }
+
+            model.addAttribute("users", usersPage.getContent());
+
+            // Add pagination parameters
+            model.addAttribute("currentPage", page);
+            model.addAttribute("pageSize", pageSize);
+            model.addAttribute("totalItems", usersPage.getTotalElements());
+            model.addAttribute("totalPages", usersPage.getTotalPages());
+
+        } catch (Exception e) {
+            model.addAttribute("users", new ArrayList<>());
+            model.addAttribute("errorMessage", "Error fetching users: " + e.getMessage());
+            model.addAttribute("currentPage", 1);
+            model.addAttribute("pageSize", pageSize);
+            model.addAttribute("totalItems", 0);
+            model.addAttribute("totalPages", 0);
+        }
+
+        // Pass the selected search options to the view
+        model.addAttribute("currentSearchField", searchField);
+        model.addAttribute("currentSearchText", searchText);
+
+        // Available search fields for users
+        Map<String, String> searchFields = new HashMap<>();
+        searchFields.put("username", "Username");
+        searchFields.put("email", "Email");
+        searchFields.put("phoneNumber", "Phone Number");
+        searchFields.put("role", "Role");
+        model.addAttribute("searchFields", searchFields);
+
+        // Add currPage attribute for sidebar active menu
+        model.addAttribute("currPage", "manage-users");
+        model.addAttribute("activeMenu", "users");
+
+        return "manage-users";
+    }
+
+    @PostMapping("/users/update-role")
+    public ResponseEntity<Map<String, Object>> updateUserRole(@RequestBody Map<String, Object> payload) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // Extract user ID and new role from request
+            Long userId = Long.parseLong(payload.get("userId").toString());
+            String newRole = payload.get("role").toString();
+
+            // Log the request for debugging
+            logger.info("Role update request received - userId: {}, newRole: {}", userId, newRole);
+
+            // Get current authenticated user for logging
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            logger.info("Current user: {}, authorities: {}",
+                    auth.getName(),
+                    auth.getAuthorities().stream().map(a -> a.getAuthority()).collect(Collectors.joining(", ")));
+
+            // Validate that current user has admin privileges
+            // Chỉ kiểm tra vai trò "ADMIN" (không có tiền tố ROLE_)
+            if (!userService.hasRole("ADMIN")) {
+                logger.warn("Unauthorized role update attempt by user: {}", auth.getName());
+                response.put("success", false);
+                response.put("message", "Unauthorized");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+
+            // Get the user by ID
+            Optional<User> userOptional = userService.getUserById(userId);
+            if (!userOptional.isPresent()) {
+                logger.warn("User not found for role update: {}", userId);
+                response.put("success", false);
+                response.put("message", "User not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+            // Update user role
+            User user = userOptional.get();
+            userService.updateUserRole(user, newRole);
+
+            logger.info("User role updated successfully - userId: {}, newRole: {}", userId, newRole);
+
+            response.put("success", true);
+            response.put("message", "User role updated successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Error updating user role", e);
+            response.put("success", false);
+            response.put("message", "Error updating user role: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 
 
 

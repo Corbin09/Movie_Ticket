@@ -8,6 +8,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.hibernate.FlushMode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
@@ -57,9 +59,65 @@ public class OrderService {
         return null;
     }
 
-    public void deleteOrder(Long id) {
-        orderRepository.deleteById(id);
+    public Page<Order> getAllOrdersPaginated(Pageable pageable) {
+        return orderRepository.findAll(pageable);
     }
+
+
+    public Page<Order> searchOrdersByCriteriaPaginated(String criteria, String query, Pageable pageable) {
+        if (query == null || query.trim().isEmpty()) {
+            return getAllOrdersPaginated(pageable);
+        }
+
+        query = query.trim();
+
+        switch (criteria) {
+            case "ordercode":
+                try {
+                    Long orderId = Long.parseLong(query);
+                    return orderRepository.findByOrderId(orderId, pageable);
+                } catch (NumberFormatException e) {
+                    return Page.empty(pageable);
+                }
+            case "user":
+                return orderRepository.findByUserUsernameContainingIgnoreCase(query, pageable);
+            case "movie":
+                return orderRepository.findByShowtimeFilmFilmNameContainingIgnoreCase(query, pageable);
+            case "theater":
+                return orderRepository.findByShowtimeCinemaCinemaNameContainingIgnoreCase(query, pageable);
+            case "room":
+                return orderRepository.findByShowtimeRoomRoomNameContainingIgnoreCase(query, pageable);
+            case "showdate":
+                // Parse date from DD/MM/YYYY format
+                try {
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                    Date date = formatter.parse(query);
+                    return orderRepository.findByShowtimeShowDate(date, pageable);
+                } catch (ParseException e) {
+                    return Page.empty(pageable);
+                }
+            case "ordervalue":
+                try {
+                    double value = Double.parseDouble(query);
+                    return orderRepository.findByTotalPrice(value, pageable);
+                } catch (NumberFormatException e) {
+                    return Page.empty(pageable);
+                }
+            case "orderdate":
+                // Parse date from DD/MM/YYYY format
+                try {
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                    Date date = formatter.parse(query);
+                    return orderRepository.findByOrderDate(date, pageable);
+                } catch (ParseException e) {
+                    return Page.empty(pageable);
+                }
+            default:
+                return getAllOrdersPaginated(pageable);
+        }
+    }
+
+
 
 
     public List<Order> searchOrdersByCriteria(String criteria, String query) {

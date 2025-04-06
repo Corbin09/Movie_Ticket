@@ -9,6 +9,8 @@ import Se2.MovieTicket.repository.UserLikeFilmRepository;
 import Se2.MovieTicket.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -91,41 +93,15 @@ private UserLikeFilmRepository userLikeFilmRepository;
         userRepository.deleteById(id);
     }
 
-    public boolean hasRole(String role) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            return false;
-        }
-
-        return authentication.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(role));
-    }
-
-
-
-
-//    public User getCurrentUser() {
+//    public boolean hasRole(String role) {
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() == null) {
-//            return null;
+//        if (authentication == null) {
+//            return false;
 //        }
 //
-//        Object principal = authentication.getPrincipal();
-//
-//        if (principal instanceof UserDetailsImpl) {
-//            Long userId = ((UserDetailsImpl) principal).getId();
-//            return userRepository.findById(userId).orElse(null);
-//        } else if (principal instanceof org.springframework.security.core.userdetails.User) {
-//            String username = ((org.springframework.security.core.userdetails.User) principal).getUsername();
-//            return userRepository.findByUsername(username).orElse(null);
-//        } else if (principal instanceof String) {
-//            return userRepository.findByUsername((String) principal).orElse(null);
-//        }
-//
-//        return null;
+//        return authentication.getAuthorities().stream()
+//                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(role));
 //    }
-
 
 
     public Collection<? extends GrantedAuthority> getAuthorities(Long userId) {
@@ -136,21 +112,6 @@ private UserLikeFilmRepository userLikeFilmRepository;
             return Collections.emptyList(); // Or handle the case when the user is not found
         }
     }
-//
-//    public Optional<User> getUserByUsername(String username) {
-//        // Assuming you have a userRepository field in your UserService class
-//        return userRepository.findByUsername(username);
-//    }
-
-//    public void unlikeFilm(User user, Film film) {
-//        // Find the UserLikeFilm entry
-//        Optional<UserLikeFilm> userLikeFilmOptional = userLikeFilmRepository.findByUserAndFilm(user, film);
-//        userLikeFilmOptional.ifPresent(userLikeFilm -> {
-//            // Remove the like
-//            userLikeFilmRepository.delete(userLikeFilm);
-//        });
-//    }
-
 
 
     // Phương thức truy vấn hiệu quả cho việc lấy thông tin người dùng hiện tại
@@ -239,5 +200,117 @@ private UserLikeFilmRepository userLikeFilmRepository;
 
     public User findByUsername(String username) {
         return userRepository.findByUsername(username).orElse(null);
+    }
+
+    public Long getTotalUserCount() {
+        return userRepository.count();
+    }
+
+    public Page<User> searchUsersByFieldPaginated(String searchField, String searchText, Pageable pageable) {
+        // If no search text is provided, return all users paginated
+        if (searchText == null || searchText.trim().isEmpty()) {
+            return userRepository.findAll(pageable);
+        }
+
+        // Use the appropriate repository method based on the search field
+        switch (searchField) {
+            case "username":
+                return userRepository.findByUsernameContainingIgnoreCase(searchText, pageable);
+            case "email":
+                return userRepository.findByEmailContainingIgnoreCase(searchText, pageable);
+            case "phoneNumber":
+                return userRepository.findByPhoneNumberContaining(searchText, pageable);
+            case "role":
+                return userRepository.findByRoleIgnoreCase(searchText, pageable);
+            default:
+                // Default to username search if field is not recognized
+                return userRepository.findByUsernameContainingIgnoreCase(searchText, pageable);
+        }
+    }
+
+    public Page<User> getAllUsersPaginated(Pageable pageable) {
+        // This method simply delegates to the repository's findAll with pagination
+        return userRepository.findAll(pageable);
+    }
+
+    public void saveUser(User user) {
+        // First check if this is updating an existing user
+        if (user.getUserId() != null) {
+            // Check if password needs to be encoded (if it doesn't look like it's already encoded)
+            if (user.getPassword() != null && !user.getPassword().startsWith("$2a$")) {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+        } else {
+            // For new users, always encode the password
+            if (user.getPassword() != null) {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+
+            // Set default values for new users if not provided
+            if (user.getRole() == null) {
+                user.setRole("USER");
+            }
+            if (user.getStatus() == null) {
+                user.setStatus("Active");
+            }
+            if (user.getUserImg() == null) {
+                user.setUserImg("/static/images/anonymous.jpg");
+            }
+        }
+
+        // Save or update the user
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateUserRole(User user, String newRole) {
+        if (user == null || newRole == null || newRole.trim().isEmpty()) {
+            throw new IllegalArgumentException("User and role must not be null or empty");
+        }
+
+        // Check if the user exists in the database
+        User existingUser = userRepository.findById(user.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + user.getUserId()));
+
+        // Normalize role format to remove ROLE_ prefix if present
+        String normalizedRole = newRole.startsWith("ROLE_") ? newRole.substring(5) : newRole;
+
+
+        // Update the role
+        existingUser.setRole(normalizedRole);
+
+        // Save the updated user
+        userRepository.save(existingUser);
+
+        // If the user is currently authenticated, update their authorities in the security context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getName().equals(existingUser.getUsername())) {
+            // Create updated authentication with new role
+            UserDetailsImpl userDetails = new UserDetailsImpl(existingUser);
+            Authentication newAuth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                    userDetails, authentication.getCredentials(), userDetails.getAuthorities());
+
+            // Update the security context
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
+        }
+    }
+
+    // Check if current user has a specific role
+    public boolean hasRole(String roleName) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return false;
+        }
+
+        // Remove ROLE_ prefix if present in the parameter
+        String normalizedRole = roleName.startsWith("ROLE_") ? roleName.substring(5) : roleName;
+
+        return authentication.getAuthorities().stream()
+                .map(authority -> {
+                    // Remove ROLE_ prefix from authorities if present
+                    String auth = authority.getAuthority();
+                    return auth.startsWith("ROLE_") ? auth.substring(5) : auth;
+                })
+                .anyMatch(authority -> authority.equals(normalizedRole));
     }
 }

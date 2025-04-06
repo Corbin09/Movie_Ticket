@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -48,11 +49,11 @@ public class Showtime {
     private String showTime;
 
 
-    @OneToMany(mappedBy = "showtime", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "showtime", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<SeatStatus> seatStatuses;
 
-    @OneToMany(mappedBy = "showtime", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Order> orders;
+    @OneToMany(mappedBy = "showtime", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Set<Order> orders = new HashSet<>();
 
     public Long getShowtimeId() {
         return showtimeId;
@@ -114,8 +115,12 @@ public class Showtime {
         return orders;
     }
 
+    // Important: Add this method to merge existing orders
     public void setOrders(Set<Order> orders) {
-        this.orders = orders;
+        this.orders.clear();
+        if (orders != null) {
+            this.orders.addAll(orders);
+        }
     }
 
     public void setFilmId(Long filmId) {

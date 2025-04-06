@@ -4,6 +4,9 @@ import Se2.MovieTicket.dto.ShowtimeDTO;
 import Se2.MovieTicket.model.Showtime;
 import Se2.MovieTicket.repository.ShowtimeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -149,5 +152,100 @@ public class ShowtimeService {
         // Use a single optimized query with all necessary joins
         return showtimeRepository.findByIdWithDetails(showtimeId);
     }
+
+
+
+
+    public Page<Showtime> getAllShowtimesPaginated(Pageable pageable) {
+        return showtimeRepository.findAll(pageable);
+    }
+
+
+//    public Optional<Showtime> getShowtimeById(Long id) {
+//        return showtimeRepository.findById(id);
+//    }
+
+
+    public Optional<Showtime> getShowtimeByIdWithDetails(Long id) {
+        return showtimeRepository.findByIdWithDetails(id);
+    }
+
+
+    public Page<Showtime> searchShowtimesPaginated(String searchTerm, Pageable pageable) {
+        return showtimeRepository.findAll((Specification<Showtime>) (root, query, criteriaBuilder) -> {
+            String likePattern = "%" + searchTerm.toLowerCase() + "%";
+
+            return criteriaBuilder.or(
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("film").get("filmName")), likePattern),
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("cinema").get("cinemaName")), likePattern)
+            );
+        }, pageable);
+    }
+
+
+    public Page<Showtime> getShowtimesByFilmPaginated(Long filmId, Pageable pageable) {
+        return showtimeRepository.findByFilmFilmId(filmId, pageable);
+    }
+
+
+    public Page<Showtime> getShowtimesByCinemaPaginated(Long cinemaId, Pageable pageable) {
+        return showtimeRepository.findByCinemaCinemaId(cinemaId, pageable);
+    }
+
+
+    public Page<Showtime> getShowtimesByDatePaginated(Date date, Pageable pageable) {
+        return showtimeRepository.findByShowDate(date, pageable);
+    }
+
+
+    @Transactional
+    public Showtime saveShowtime(Showtime showtime) {
+        return showtimeRepository.save(showtime);
+    }
+
+
+    @Transactional
+    public Showtime updateShowtime(Showtime showtime) {
+        return showtimeRepository.save(showtime);
+    }
+
+
+    // In ShowtimeService.java
+    @Transactional
+    public int deleteShowtimesByIds(List<Long> showtimeIds) {
+        return showtimeRepository.deleteByShowtimeIdIn(showtimeIds);
+    }
+
+    public Page<Showtime> searchShowtimesByFilmNamePaginated(String search, Pageable pageable) {
+        return showtimeRepository.findAll((Specification<Showtime>) (root, query, criteriaBuilder) -> {
+            String likePattern = "%" + search.toLowerCase() + "%";
+            return criteriaBuilder.like(criteriaBuilder.lower(root.get("film").get("filmName")), likePattern);
+        }, pageable);
+    }
+
+    public Page<Showtime> searchShowtimesByCinemaNamePaginated(String search, Pageable pageable) {
+        return showtimeRepository.findAll((Specification<Showtime>) (root, query, criteriaBuilder) -> {
+            String likePattern = "%" + search.toLowerCase() + "%";
+            return criteriaBuilder.like(criteriaBuilder.lower(root.get("cinema").get("cinemaName")), likePattern);
+        }, pageable);
+    }
+
+    public Page<Showtime> searchShowtimesByRoomNamePaginated(String search, Pageable pageable) {
+        return showtimeRepository.findAll((Specification<Showtime>) (root, query, criteriaBuilder) -> {
+            String likePattern = "%" + search.toLowerCase() + "%";
+            return criteriaBuilder.like(criteriaBuilder.lower(root.get("room").get("roomName")), likePattern);
+        }, pageable);
+    }
+
+
+//    @Transactional
+//    public boolean deleteShowtime(Long id) {
+//        try {
+//            showtimeRepository.deleteById(id);
+//            return true;
+//        } catch (Exception e) {
+//            return false;
+//        }
+//    }
 
 }

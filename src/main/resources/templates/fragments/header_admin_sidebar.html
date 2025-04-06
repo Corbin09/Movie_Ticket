@@ -149,14 +149,14 @@
   <div class="sidebar" id="sidebar">
     <nav class="sidebar-nav">
       <ul>
-        <li><a th:href="@{/dashboard}" th:classappend="${currPage == 'admin-dashboard'} ? 'active' : ''"><i class="fas fa-th-large"></i><span class="nav-text">Dashboard</span></a></li>
+        <li><a th:href="@{/admin-dashboard}" th:classappend="${currPage == 'admin-dashboard'} ? 'active' : ''"><i class="fas fa-th-large"></i><span class="nav-text">Dashboard</span></a></li>
         <li><a th:href="@{/manage-movies}" th:classappend="${currPage == 'manage-movies'} ? 'active' : ''"><i class="fas fa-film"></i><span class="nav-text">Movies</span></a></li>
         <li><a th:href="@{/manage-cinemas}" th:classappend="${currPage == 'manage-cinemas'} ? 'active' : ''"><i class="fas fa-video"></i><span class="nav-text">Cinemas</span></a></li>
-        <li><a th:href="@{/showtimes}" th:classappend="${currPage == 'manage-showtimes'} ? 'active' : ''"><i class="fas fa-calendar-alt"></i><span class="nav-text">Showtimes</span></a></li>
+        <li><a th:href="@{/manage-showtimes}" th:classappend="${currPage == 'manage-showtimes'} ? 'active' : ''"><i class="fas fa-calendar-alt"></i><span class="nav-text">Showtimes</span></a></li>
         <li><a th:href="@{/manage-rooms}" th:classappend="${currPage == 'manage-rooms'} ? 'active' : ''"><i class="fas fa-users"></i><span class="nav-text">Rooms</span></a></li>
         <li><a th:href="@{/manage-orders}" th:classappend="${currPage == 'manage-orders'} ? 'active' : ''"><i class="fas fa-file-invoice-dollar"></i><span class="nav-text">Orders</span></a></li>
-        <li><a th:href="@{/users}" th:classappend="${currPage == 'manage-users'} ? 'active' : ''"><i class="fas fa-user"></i><span class="nav-text">Users</span></a></li>
-        <li><a th:href="@{/admin-welcome}" th:classappend="${currPage == 'homepage'} ? 'active' : ''"><i class="fas fa-home"></i><span class="nav-text">Homepage</span></a></li>
+        <li><a th:href="@{/manage-users}" th:classappend="${currPage == 'manage-users'} ? 'active' : ''"><i class="fas fa-user"></i><span class="nav-text">Users</span></a></li>
+        <li><a th:href="@{/welcome-admin}" th:classappend="${currPage == 'homepage'} ? 'active' : ''"><i class="fas fa-home"></i><span class="nav-text">Homepage</span></a></li>
       </ul>
     </nav>
   </div>

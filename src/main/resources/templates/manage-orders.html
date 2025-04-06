@@ -318,6 +318,67 @@
     .table-dark {
       background-color: #044a2c;
     }
+    /* Pagination */
+  .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      padding: 1rem;
+  }
+
+  .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+  }
+
+  .pagination-controls button {
+      background-color: #DC2626;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+  }
+
+  .pagination-controls button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+  }
+
+  .pagination-controls select {
+      background-color: white;
+      color: #064E3B;
+      border: 1px solid #059669;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+      .container-orders-management {
+          flex-direction: column;
+      }
+
+      .main-content {
+          width: 100%;
+          margin-left: 0;
+      }
+
+      .filter-area {
+          flex-direction: column;
+          align-items: stretch;
+      }
+  }
+
+  @media (max-width: 768px) {
+      .pagination {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 1rem;
+      }
+  }
   </style>
 </head>
 <body>
@@ -360,8 +421,22 @@
       <button type="button" id="clearSearch" class="btn btn-secondary" style="margin-left: 10px;">Clear</button>
     </div>
 
+    <!-- Custom Alert Message Overlay -->
+    <div id="customAlertOverlay" class="custom-alert-overlay">
+      <div class="custom-alert-box">
+        <div class="custom-alert-header">
+          <span id="alertTitle">Notification</span>
+          <span class="close-alert">&times;</span>
+        </div>
+        <div class="custom-alert-content">
+          <p id="alertMessage"></p>
+          <button class="btn btn-primary close-alert-btn">OK</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Error message if any -->
-    <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+    <div th:if="${errorMessage}" id="errorMessageContainer" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
 
     <!-- Orders table -->
     <div class="table-responsive">
@@ -390,185 +465,350 @@
           <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy')}"></td>
         </tr>
         <tr th:if="${#lists.isEmpty(orders)}">
-          <td colspan="10" class="text-center">No orders found</td>
+          <td colspan="8" class="text-center">No orders found</td>
         </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Pagination controls if needed -->
-
+    <!-- Pagination controls -->
+    <div class="pagination">
+      <span th:text="${'Showing ' + (totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0) + '-' + (currentPage * pageSize < totalItems ? currentPage * pageSize : totalItems) + ' of ' + totalItems}">
+        Showing 1-10 of 20
+      </span>
+      <div class="pagination-controls">
+        <div class="page-size-container">
+          <span class="lines-per-page-label">Lines per page:</span>
+          <select id="pageSizeSelect">
+            <option value="10" th:selected="${pageSize == 10}">10</option>
+            <option value="20" th:selected="${pageSize == 20}">20</option>
+            <option value="30" th:selected="${pageSize == 30}">30</option>
+          </select>
+        </div>
+        <button id="prevPage" th:disabled="${currentPage <= 1}"><i class="fas fa-chevron-left"></i></button>
+        <button id="nextPage" th:disabled="${currentPage >= totalPages}"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- JavaScript for handling functionality -->
+<!-- Custom CSS for alert box -->
+<style>
+  /* Custom Alert Box Styles */
+  .custom-alert-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .custom-alert-box {
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    width: 400px;
+    max-width: 90%;
+  }
+
+  .custom-alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 4px 4px 0 0;
+  }
+
+  #alertTitle {
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  .close-alert {
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .custom-alert-content {
+    padding: 20px;
+  }
+
+  .close-alert-btn {
+    margin-top: 10px;
+    float: right;
+  }
+
+  /* Pagination Styles */
+  .page-size-container {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+  }
+
+  .lines-per-page-label {
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+  }
+</style>
+
+<!-- JavaScript for handling pagination -->
 <script>
-  // Store the selected criteria and value
-  let selectedCriteria = '';
 
-  // Function to perform search
-  function performSearch() {
-    // Get the selected criteria
-    const selectedText = document.querySelector('#searchCriteria span').textContent;
+   // Store current page state
+   let currentPage = [[${currentPage}]];
+   let pageSize = [[${pageSize}]];
+   let totalItems = [[${totalItems}]];
+   let totalPages = [[${totalPages}]];
+   let selectedCriteria = /*[[${searchCriteria != null ? searchCriteria : ''}]]*/ '';
+   let searchQuery = /*[[${searchQuery != null ? searchQuery : ''}]]*/ '';
 
-    // Map the text to the value
-    document.querySelectorAll('.dropdown-item').forEach(function(item) {
-      if (item.textContent === selectedText) {
-        selectedCriteria = item.getAttribute('data-value');
-      }
-    });
+   // Show custom alert instead of browser alert
+   function showCustomAlert(message, title = "Notification") {
+     document.getElementById('alertTitle').textContent = title;
+     document.getElementById('alertMessage').textContent = message;
+     document.getElementById('customAlertOverlay').style.display = 'flex';
+   }
 
-    const searchQuery = document.getElementById('searchQuery').value;
+   // Close alert on X or OK button click
+   document.querySelectorAll('.close-alert, .close-alert-btn').forEach(function(el) {
+     el.addEventListener('click', function() {
+       document.getElementById('customAlertOverlay').style.display = 'none';
+     });
+   });
 
-    // Validate inputs
-    if (!selectedCriteria) {
-      alert('Please select a search criteria');
-      return;
-    }
+   // Function to handle pagination without requiring search criteria
+   function navigateToPage(page) {
+     // Create URL with current state parameters
+     let url = window.location.pathname;
+     const params = new URLSearchParams();
 
-    if (!searchQuery) {
-      // If search query is empty, just show all orders
-      window.location.href = window.location.pathname;
-      return;
-    }
+     // Add page and pageSize parameters
+     params.append('page', page);
+     params.append('pageSize', pageSize);
 
-    // Validate date format for date fields
-    if (selectedCriteria === 'showdate' || selectedCriteria === 'orderdate') {
-      const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
-      if (!dateRegex.test(searchQuery)) {
-        alert('Please enter date in DD/MM/YYYY format');
-        return;
-      }
-    }
+     // Only add search parameters if they exist
+     if (selectedCriteria && selectedCriteria.trim() !== '') {
+       params.append('searchCriteria', selectedCriteria);
 
-    // Validate numeric format for ordervalue
-    if (selectedCriteria === 'ordervalue') {
-      if (isNaN(searchQuery)) {
-        alert('Please enter a valid number for Order Value');
-        return;
-      }
-    }
+       // Only add query if criteria exists
+       if (searchQuery && searchQuery.trim() !== '') {
+         params.append('searchQuery', searchQuery);
+       }
+     }
 
-    // Validate numeric format for ordercode
-    if (selectedCriteria === 'ordercode') {
-      if (isNaN(searchQuery)) {
-        alert('Please enter a valid number for Order Code');
-        return;
-      }
-    }
+     // Navigate to the page
+     window.location.href = url + '?' + params.toString();
+   }
 
-    // Redirect to the search URL
-    window.location.href = window.location.pathname + '?searchCriteria=' + selectedCriteria + '&searchQuery=' + encodeURIComponent(searchQuery);
-  }
+   // Function to perform search
+   function performSearch(page = 1) {
+     // Get the selected criteria
+     const selectedText = document.querySelector('#searchCriteria span').textContent;
+     let criteriaValue = '';
 
-  // Initialize selectedCriteria from URL parameters if available
-  function initializeFromURL() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const criteriaFromURL = urlParams.get('searchCriteria');
+     // Map the text to the value
+     document.querySelectorAll('.dropdown-item').forEach(function(item) {
+       if (item.textContent === selectedText) {
+         criteriaValue = item.getAttribute('data-value');
+       }
+     });
 
-    if (criteriaFromURL) {
-      selectedCriteria = criteriaFromURL;
+     const searchQueryValue = document.getElementById('searchQuery').value;
 
-      // Update the dropdown text based on the URL parameter
-      document.querySelectorAll('.dropdown-item').forEach(function(item) {
-        if (item.getAttribute('data-value') === criteriaFromURL) {
-          document.querySelector('#searchCriteria span').textContent = item.textContent;
+     // Validate inputs if search query is provided
+     if (searchQueryValue && searchQueryValue.trim() !== '') {
+       if (!criteriaValue) {
+         showCustomAlert('Please select a search criteria');
+         return;
+       }
 
-          // Also update the placeholder based on the selected criteria
-          updatePlaceholder(criteriaFromURL);
-        }
-      });
-    }
-  }
+       // Validate date format for date fields
+       if ((criteriaValue === 'showdate' || criteriaValue === 'orderdate') && searchQueryValue) {
+         const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+         if (!dateRegex.test(searchQueryValue)) {
+           showCustomAlert('Please enter date in DD/MM/YYYY format');
+           return;
+         }
+       }
 
-  // Update placeholder based on selected criteria
-  function updatePlaceholder(value) {
-    const searchQuery = document.getElementById('searchQuery');
-    switch(value) {
-      case 'ordercode':
-        searchQuery.placeholder = 'Enter order code number...';
-        break;
-      case 'user':
-        searchQuery.placeholder = 'Enter username...';
-        break;
-      case 'movie':
-        searchQuery.placeholder = 'Enter movie name...';
-        break;
-      case 'theater':
-        searchQuery.placeholder = 'Enter theater name...';
-        break;
-      case 'room':
-        searchQuery.placeholder = 'Enter room number...';
-        break;
-      case 'showdate':
-        searchQuery.placeholder = 'Enter date (DD/MM/YYYY)...';
-        break;
-      case 'ordervalue':
-        searchQuery.placeholder = 'Enter value (numeric only)...';
-        break;
-      case 'orderdate':
-        searchQuery.placeholder = 'Enter date (DD/MM/YYYY)...';
-        break;
-      default:
-        searchQuery.placeholder = 'Search...';
-    }
-  }
+       // Validate numeric format for ordervalue
+       if (criteriaValue === 'ordervalue' && searchQueryValue) {
+         if (isNaN(searchQueryValue)) {
+           showCustomAlert('Please enter a valid number for Order Value');
+           return;
+         }
+       }
 
-  // Call initialize function when page loads
-  document.addEventListener('DOMContentLoaded', function() {
-    initializeFromURL();
-  });
+       // Validate numeric format for ordercode
+       if (criteriaValue === 'ordercode' && searchQueryValue) {
+         if (isNaN(searchQueryValue)) {
+           showCustomAlert('Please enter a valid number for Order Code');
+           return;
+         }
+       }
+     }
 
-  // Handle search button click
-  document.getElementById('doSearch').addEventListener('click', performSearch);
+     // Update state variables
+     selectedCriteria = criteriaValue;
+     searchQuery = searchQueryValue;
 
-  // Handle clear search button
-  document.getElementById('clearSearch').addEventListener('click', function() {
-    document.getElementById('searchQuery').value = '';
-    document.querySelector('#searchCriteria span').textContent = 'User Name';
-    selectedCriteria = '';
-    // Redirect to base URL without parameters
-    window.location.href = window.location.pathname;
-  });
+     // Navigate to page 1 with search parameters
+     navigateToPage(1);
+   }
 
-  // Handle dropdown toggle
-  document.querySelector('.dropdown-toggle').addEventListener('click', function() {
-    document.getElementById('searchCriteriaDropdown').classList.toggle('show');
-  });
+   // Handle page size change
+   document.getElementById('pageSizeSelect').addEventListener('change', function() {
+     pageSize = parseInt(this.value);
+     navigateToPage(1); // Reset to page 1 when changing page size
+   });
 
-  // Handle dropdown item selection
-  document.querySelectorAll('.dropdown-item').forEach(function(item) {
-    item.addEventListener('click', function() {
-      const value = this.getAttribute('data-value');
-      const text = this.textContent;
-      document.querySelector('#searchCriteria span').textContent = text;
-      document.getElementById('searchCriteriaDropdown').classList.remove('show');
-      selectedCriteria = value;
+   // Handle previous page button
+   document.getElementById('prevPage').addEventListener('click', function() {
+     if (currentPage > 1) {
+       navigateToPage(currentPage - 1);
+     }
+   });
 
-      // Update placeholder based on selected criteria
-      updatePlaceholder(value);
-    });
-  });
+   // Handle next page button
+   document.getElementById('nextPage').addEventListener('click', function() {
+     if (currentPage < totalPages) {
+       navigateToPage(currentPage + 1);
+     }
+   });
 
-  // Close dropdown when clicking outside
-  window.addEventListener('click', function(event) {
-    if (!event.target.matches('.dropdown-toggle') && !event.target.matches('.dropdown-toggle *')) {
-      const dropdowns = document.getElementsByClassName('dropdown-menu');
-      for (let i = 0; i < dropdowns.length; i++) {
-        const openDropdown = dropdowns[i];
-        if (openDropdown.classList.contains('show')) {
-          openDropdown.classList.remove('show');
-        }
-      }
-    }
-  });
+   // Initialize from URL and set up event listeners
+   document.addEventListener('DOMContentLoaded', function() {
+     // Initialize selectedCriteria from URL parameters if available
+     const urlParams = new URLSearchParams(window.location.search);
+     const criteriaFromURL = urlParams.get('searchCriteria');
 
-  // Handle Enter key press in search input
-  document.querySelector('.search-input').addEventListener('keyup', function(e) {
-    if (e.key === 'Enter') {
-      performSearch();
-    }
-  });
-</script>
-</body>
-</html>
+     if (criteriaFromURL) {
+       selectedCriteria = criteriaFromURL;
+
+       // Update the dropdown text based on the URL parameter
+       document.querySelectorAll('.dropdown-item').forEach(function(item) {
+         if (item.getAttribute('data-value') === criteriaFromURL) {
+           document.querySelector('#searchCriteria span').textContent = item.textContent;
+
+           // Also update the placeholder based on the selected criteria
+           updatePlaceholder(criteriaFromURL);
+         }
+       });
+     }
+
+     // Set up disabled state for pagination buttons
+     const prevPageButton = document.getElementById('prevPage');
+     const nextPageButton = document.getElementById('nextPage');
+
+     if (prevPageButton) {
+       prevPageButton.disabled = currentPage <= 1;
+       prevPageButton.style.opacity = currentPage <= 1 ? '0.5' : '1';
+     }
+
+     if (nextPageButton) {
+       nextPageButton.disabled = currentPage >= totalPages;
+       nextPageButton.style.opacity = currentPage >= totalPages ? '0.5' : '1';
+     }
+   });
+
+   // Function to update placeholder based on selected criteria
+   function updatePlaceholder(value) {
+     const searchQuery = document.getElementById('searchQuery');
+     switch(value) {
+       case 'ordercode':
+         searchQuery.placeholder = 'Enter order code number...';
+         break;
+       case 'user':
+         searchQuery.placeholder = 'Enter username...';
+         break;
+       case 'movie':
+         searchQuery.placeholder = 'Enter movie name...';
+         break;
+       case 'theater':
+         searchQuery.placeholder = 'Enter theater name...';
+         break;
+       case 'room':
+         searchQuery.placeholder = 'Enter room number...';
+         break;
+       case 'showdate':
+         searchQuery.placeholder = 'Enter date (DD/MM/YYYY)...';
+         break;
+       case 'ordervalue':
+         searchQuery.placeholder = 'Enter value (numeric only)...';
+         break;
+       case 'orderdate':
+         searchQuery.placeholder = 'Enter date (DD/MM/YYYY)...';
+         break;
+       default:
+         searchQuery.placeholder = 'Search...';
+     }
+   }
+
+   // Handle search button click
+   document.getElementById('doSearch').addEventListener('click', function() {
+     performSearch(1); // Start at page 1 when doing a new search
+   });
+
+   // Handle clear search button
+   document.getElementById('clearSearch').addEventListener('click', function() {
+     document.getElementById('searchQuery').value = '';
+     document.querySelector('#searchCriteria span').textContent = 'User Name';
+     selectedCriteria = '';
+     searchQuery = '';
+     // Navigate to base URL with only pagination parameters
+     navigateToPage(1);
+   });
+
+   // Handle dropdown toggle
+   document.querySelector('.dropdown-toggle').addEventListener('click', function() {
+     document.getElementById('searchCriteriaDropdown').classList.toggle('show');
+   });
+
+   // Handle dropdown item selection
+   document.querySelectorAll('.dropdown-item').forEach(function(item) {
+     item.addEventListener('click', function() {
+       const value = this.getAttribute('data-value');
+       const text = this.textContent;
+       document.querySelector('#searchCriteria span').textContent = text;
+       document.getElementById('searchCriteriaDropdown').classList.remove('show');
+       selectedCriteria = value;
+
+       // Update placeholder based on selected criteria
+       updatePlaceholder(value);
+     });
+   });
+
+   // Close dropdown when clicking outside
+   window.addEventListener('click', function(event) {
+     if (!event.target.matches('.dropdown-toggle') && !event.target.matches('.dropdown-toggle *')) {
+       const dropdowns = document.getElementsByClassName('dropdown-menu');
+       for (let i = 0; i < dropdowns.length; i++) {
+         const openDropdown = dropdowns[i];
+         if (openDropdown.classList.contains('show')) {
+           openDropdown.classList.remove('show');
+         }
+       }
+     }
+   });
+
+   // Handle Enter key press in search input
+   document.querySelector('.search-input').addEventListener('keyup', function(e) {
+     if (e.key === 'Enter') {
+       performSearch(1); // Start at page 1 when doing a new search
+     }
+   });
+
+</script> </body> </html>
