@@ -47,7 +47,7 @@
   <h2>VIETNAMESE MOVIES</h2>
   <div class="movie-grid">
     <div th:each="movie : ${vnMovies}" class="movie-card">
-      <a th:href="@{'/films/' + ${movie.filmId}}">
+      <a th:href="@{'/detail-movie?id=' + ${movie.filmId}}">
         <img th:src="${movie.filmImg}" th:alt="${movie.filmName}" class="movie-poster"/>
         <div class="movie-info">
           <p th:text="${#lists.isEmpty(movie.categoryNames) ? 'N/A' : #strings.arrayJoin(movie.categoryNames, ', ')}"></p>
@@ -89,7 +89,7 @@
   <h2>INTERNATIONAL MOVIES</h2>
   <div class="movie-grid">
     <div th:each="movie : ${intMovies}" class="movie-card">
-      <a th:href="@{'/films/' + ${movie.filmId}}">
+      <a th:href="@{'/detail-movie?id=' + ${movie.filmId}}">
         <img th:src="${movie.filmImg}" th:alt="${movie.filmName}" class="movie-poster"/>
         <div class="movie-info">
           <p th:text="${#lists.isEmpty(movie.categoryNames) ? 'N/A' : #strings.arrayJoin(movie.categoryNames, ', ')}"></p>

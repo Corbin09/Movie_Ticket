@@ -3,6 +3,7 @@ package Se2.MovieTicket.service;
 import Se2.MovieTicket.dto.ShowtimeDTO;
 import Se2.MovieTicket.model.*;
 import Se2.MovieTicket.repository.ShowtimeRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.*;
 import Se2.MovieTicket.dto.FilmDTO;
 import Se2.MovieTicket.repository.FilmRepository;
@@ -399,8 +400,11 @@ public class FilmService {
     }
 
     public Film findById(Long filmId) {
-        return filmRepository.findById(filmId).orElse(null);
+        if (filmId == null) {
+            throw new IllegalArgumentException("Film ID cannot be null");
+        }
+
+        return filmRepository.findById(filmId)
+                .orElseThrow(() -> new EntityNotFoundException("Film not found with ID: " + filmId));
     }
-
 }
-

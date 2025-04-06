@@ -83,7 +83,18 @@ public class Film {
     @JsonManagedReference
     private Set<News> news;
 
+    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private Set<UserLikeFilm> filmLikes;
 
+    // Add getter and setter
+    public Set<UserLikeFilm> getFilmLikes() {
+        return filmLikes;
+    }
+
+    public void setFilmLikes(Set<UserLikeFilm> filmLikes) {
+        this.filmLikes = filmLikes;
+    }
     public Long getFilmId() {
         return filmId;
     }

@@ -118,8 +118,6 @@ public class OrderService {
     }
 
 
-
-
     public List<Order> searchOrdersByCriteria(String criteria, String query) {
         List<Order> allOrders = orderRepository.findAllWithDetails();
 
