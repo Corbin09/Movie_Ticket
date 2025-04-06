@@ -53,4 +53,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE LOWER(u.role) = LOWER(:searchText)")
     Page<User> findByRoleIgnoreCase(@Param("searchText") String searchText, Pageable pageable);
+
+    @Query("SELECT COUNT(u) FROM User u")
+    Long countAllUsers();
 }

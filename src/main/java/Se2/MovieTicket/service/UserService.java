@@ -203,7 +203,7 @@ private UserLikeFilmRepository userLikeFilmRepository;
     }
 
     public Long getTotalUserCount() {
-        return userRepository.count();
+        return userRepository.countAllUsers();
     }
 
     public Page<User> searchUsersByFieldPaginated(String searchField, String searchText, Pageable pageable) {

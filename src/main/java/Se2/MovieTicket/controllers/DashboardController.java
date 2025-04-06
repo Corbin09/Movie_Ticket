@@ -110,9 +110,8 @@ public class DashboardController {
 // Get dashboard summary with date parameters
         var summary = dashboardService.getDashboardSummary(startDate, endDate);
 
-        // Get the total user count from user service
-        Long totalUsers = userService.getTotalUserCount();
-        summary.setTotalUsers(totalUsers);
+        // Instead of setting it in the summary
+        model.addAttribute("totalUsers", userService.getTotalUserCount());
 
         // Add all required attributes
         model.addAttribute("filmNames", filmNames);
