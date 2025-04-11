@@ -1,0 +1,444 @@
+:root {
+            --white: rgba(255, 255, 255, 1);
+        }
+        * {
+            -webkit-font-smoothing: antialiased;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0px;
+            height: 100%;
+        }
+
+        .showtime-container {
+            position: relative;
+            background-color: rgba(255, 255, 255, 1.0);
+            border: 1px solid;
+            border-color: #000000;
+            background: linear-gradient(180deg,
+                    rgba(1, 15, 5, 1) 0%,
+                    rgba(19, 96, 38, 1) 100%);
+        }
+
+        /* Additional CSS for improved layout */
+        .filter-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 20px 0;
+        }
+        .region-cinema-filter {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .filter-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .filter-label {
+            font-weight: bold;
+            min-width: 80px;
+        }
+
+        .dropdown-wrapper {
+            position: relative;
+            width: 250px;
+        }
+
+        .dropdown {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+        }
+
+        .dropdown-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .dropdown-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #f1f1f1;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f8f8;
+        }
+
+        .dropdown-item.selected {
+            background-color: #f1f1f1;
+            font-weight: bold;
+        }
+
+        .time-button.active {
+            background-color: #e50914;
+            color: white;
+            border-color: #e50914;
+        }
+
+        .time-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .time-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            color: white;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap;
+            min-width: 50px;
+            border: 1px solid white;
+        }
+
+        .time-button:hover {
+            background-color: #e50914;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0 40px;
+        }
+
+        .pagination {
+            display: inline-flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 5px;
+        }
+
+        .page-item {
+            color: #fff;
+            float: left;
+            text-decoration: none;
+            margin: 0 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            width: 36px;
+            height: 36px;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .page-item:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .page-item.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .page-item.disabled {
+            color: rgba(255, 255, 255, 0.4);
+            cursor: not-allowed;
+            pointer-events: none;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+
+        .showtime-selector {
+            display: flex;
+            transition: transform 0.3s ease;
+            width: max-content;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .film-showtime {
+            display: flex;
+            margin-right: 10px;
+        }
+
+        .showtime-scroll-btn {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .showtime-scroll-btn:hover {
+            background-color: #e50914;
+        }
+
+        .showtime-scroll-btn:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
+        .showtimes-section {
+            margin-top: 15px;
+        }
+
+        .showtimes-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .showtimes-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex-direction: row;
+        }
+
+        .showtime-date {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .showtime-time {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        /* Gạch dưới hiển thị cho mục active */
+        .nav-menu a.active::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: white;
+        }
+
+
+/* Age Restriction Note */
+.age-restriction-note {
+    text-align: center;
+    margin: 10px 0;
+    font-size: 14px;
+    color: #f5ab0b;
+}
+
+.note-label {
+    font-weight: bold;
+}
+
+/* Movie Container */
+.movies-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Movie Grid */
+.movies-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    width: 1000px;
+    margin: 0 auto;
+}
+
+/* Movie Card */
+.movie-card {
+    text-decoration: none !important;
+    color: inherit !important;
+    display: flex;
+    width: 450px;
+    height: 220px;
+    border-radius: 12px;
+    padding: 15px;
+    gap: 15px;
+    transition: transform 0.3s;
+    border: 1px solid rgb(255, 255, 255);
+    align-items: stretch;
+}
+
+.movie-card:hover {
+    transform: scale(1.02);
+}
+
+/* Movie Poster */
+.poster-container {
+    flex: 0 0 120px;
+    height: 100%;
+}
+
+.poster-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+}
+
+/* Movie Details */
+.movie-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-right: 15px;
+}
+
+/* Movie Metadata */
+.movie-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+
+.movie-metadata {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    width: 100%;
+}
+
+.metadata-row {
+    display: flex;
+    flex-grow: 1;
+}
+
+.movie-genre {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+}
+
+.movie-duration {
+    margin-left: auto;
+}
+
+.movie-format {
+    margin-left: 10px;
+}
+
+/* Movie Origin & Release Date */
+.movie-origin,
+.release-date {
+    font-size: 12px;
+    color: rgb(255, 255, 255);
+}
+
+/* Age Rating */
+.age-rating {
+    font-size: 12px;
+    color: #e6322c;
+    font-weight: bold;
+}
+
+.showtime-section {
+    border-radius: 5px;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.section-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+@media screen and (max-width: 1200px) {
+    .movies-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .movies-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        padding: 0 15px;
+    }
+
+    .movie-card {
+        width: 100%;
+    }
+
+    .region-cinema-filter {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filter-row {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .movies-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 0 10px;
+    }
+
+    .time-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        max-width: 420px;
+        margin: 0 auto;
+        gap: 10px;
+        justify-content: center;
+    }
+
+}
+
+@media screen and (max-width: 480px) {
+    .movie-title {
+        font-size: 14px;
+    }
+
+    .movie-metadata,
+    .movie-origin,
+    .release-date,
+    .age-rating {
+        font-size: 12px;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
