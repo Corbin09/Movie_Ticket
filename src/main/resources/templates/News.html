@@ -6,25 +6,38 @@
   <title> News </title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" th:href="@{/css/news.css}" />
+  <link rel="stylesheet" th:href="@{/css/header_user.css}" />
+  <link rel="stylesheet" th:href="@{/css/footer.css}" />
 </head>
 
 <body>
 <!-- Header -->
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header_user :: header"></div>
+<div style="height: 132px;" class="adding-margin"></div>
 <section class="latest-news">
   <h2>LATEST NEWS</h2>
   <div class="news-container">
     <div class="main-news" th:each="news : ${latestNews}">
-      <img th:src="${news.image}" alt="News Image">
-      <h3 th:text="${news.title}"></h3>
-      <p th:text="${news.content}"></p>
-      <span th:text="'Date: ' + ${#dates.format(news.date, 'dd/MM/yyyy')}"></span>
-      <span th:text="'Write by: ' + ${news.author}"></span>
+      <img th:src="${news.newsImg}" alt="News Image">
+      <h3 th:text="${news.newsHeader}"></h3>
+      <div th:utext="${news.newsContent}"></div>
+      <h3 th:text="${news.newsFooter}"></h3>-->
+      <!-- Manual date formatting -->
+      <div class="news-ps">
+        <span th:text="'Date: ' + ${#temporals.format(news.newsTime, 'dd/MM/yyyy HH:mm:ss')}"></span>
+        <span th:text="'Write by: ' + ${news.user.username}"></span>
+      </div>
     </div>
     <div class="news-list">
-      <div class="news-item" th:each="review : ${newsReviews}">
-        <img th:src="${review.image}" alt="Review Image">
-        <p th:text="'Review: ' + ${review.title}"></p>
+      <div th:each="review : ${newsReviews}">
+        <a class="news-item" th:href="@{/news/{id}(id=${review.newsId})}">
+          <img th:src="${review.newsImg}" alt="Review Image">
+          <div class="review-metadata">
+            <p th:text="${review.newsHeader}"></p>
+            <span th:text="'Date: ' + ${#temporals.format(review.newsTime, 'dd/MM/yyyy HH:mm:ss')}"></span>
+            <span th:text="'Written by: ' + ${review.user.username}"></span>
+          </div>
+        </a>
       </div>
     </div>
   </div>
@@ -33,59 +46,85 @@
 <section class="movie-section">
   <h2>VIETNAMESE MOVIES</h2>
   <div class="movie-grid">
-    <div th:each="film : ${vietnameseMovies}" class="movie-card">
-      <a th:href="@{'/films/' + ${film.filmId}}">
-        <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
+    <div th:each="movie : ${vnMovies}" class="movie-card">
+      <a th:href="@{'/films/' + ${movie.filmId}}">
+        <img th:src="${movie.filmImg}" th:alt="${movie.filmName}" class="movie-poster"/>
         <div class="movie-info">
-          <p th:text="${film.filmType}"></p>
-          <p th:text="${#dates.format(film.releaseDate, 'dd/MM/yyyy')}"></p>
-          <p th:text="${film.filmName}"></p>
+          <p th:text="${#lists.isEmpty(movie.categoryNames) ? 'N/A' : #strings.arrayJoin(movie.categoryNames, ', ')}"></p>
+          <p th:text="${movie.formattedReleaseDate}"></p>
+          <p th:text="${movie.filmName}"></p>
         </div>
       </a>
     </div>
   </div>
 </section>
 
-<!-- Pagination for Vietnamese Movies -->
-<div class="pagination" id="pagination-vietnamese-movies">
-  <a th:if="${currentVietnamesePage > 0}" th:href="@{'/vietnamese-movies?page=' + ${currentVietnamesePage - 1}}" class="prev">‹</a>
+<div class="pagination-container" th:if="${vnPages > 0}">
+  <div class="pagination">
 
-  <a th:each="i : ${#numbers.sequence(0, vietnamesePages - 1)}"
-     th:href="@{'/vietnamese-movies?page=' + ${i}}"
-     th:class="${currentVietnamesePage == i ? 'active' : ''}"
-     th:text="${i + 1}"></a>
+    <!-- Nút Previous - luôn hiển thị nhưng disabled nếu ở trang đầu -->
+    <a th:href="${currentVnPage > 1} ? @{'/news?vnPage=' + (${currentVnPage - 1}) + '&intPage=' + ${currentIntPage}} : '#'"
+       class="page-item prev-page"
+       th:classappend="${currentVnPage == 1} ? 'disabled' : ''">&laquo;</a>
 
-  <a th:if="${currentVietnamesePage < vietnamesePages - 1}" th:href="@{'/vietnamese-movies?page=' + ${currentVietnamesePage + 1}}" class="next">›</a>
+    <!-- Các trang (loop) -->
+    <a th:each="page : ${#numbers.sequence(1, vnPages)}"
+       th:href="@{'/news?vnPage=' + ${page} + '&intPage=' + ${currentIntPage}}"
+       class="page-item"
+       th:classappend="${currentVnPage == page} ? 'active' : ''"
+       th:text="${page}"></a>
+
+    <!-- Nút Next - luôn hiển thị nhưng disabled nếu ở trang cuối -->
+    <a th:href="${currentVnPage < vnPages} ? @{'/news?vnPage=' + (${currentVnPage + 1}) + '&intPage=' + ${currentIntPage}} : '#'"
+       class="page-item next-page"
+       th:classappend="${currentVnPage == vnPages} ? 'disabled' : ''">&raquo;</a>
+
+  </div>
 </div>
+
 
 <section class="movie-section">
   <h2>INTERNATIONAL MOVIES</h2>
   <div class="movie-grid">
-    <div th:each="film : ${internationalMovies}" class="movie-card">
-      <a th:href="@{'/films/' + ${film.filmId}}">
-        <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
+    <div th:each="movie : ${intMovies}" class="movie-card">
+      <a th:href="@{'/films/' + ${movie.filmId}}">
+        <img th:src="${movie.filmImg}" th:alt="${movie.filmName}" class="movie-poster"/>
         <div class="movie-info">
-          <p th:text="${film.filmType}"></p>
-          <p th:text="${#dates.format(film.releaseDate, 'dd/MM/yyyy')}"></p>
-          <p th:text="${film.filmName}"></p>
+          <p th:text="${#lists.isEmpty(movie.categoryNames) ? 'N/A' : #strings.arrayJoin(movie.categoryNames, ', ')}"></p>
+          <p th:text="${movie.formattedReleaseDate}"></p>
+          <p th:text="${movie.filmName}"></p>
         </div>
       </a>
     </div>
   </div>
 </section>
 
-<!-- Pagination for International Movies -->
-<div class="pagination" id="pagination-international-movies">
-  <a th:if="${currentInternationalPage > 0}" th:href="@{'/international-movies?page=' + ${currentInternationalPage - 1}}" class="prev">‹</a>
+<!-- Pagination cho danh sách phim Quốc tế -->
+<div class="pagination-container" th:if="${intPages > 0}">
+  <div class="pagination">
 
-  <a th:each="i : ${#numbers.sequence(0, internationalPages - 1)}"
-     th:href="@{'/international-movies?page=' + ${i}}"
-     th:class="${currentInternationalPage == i ? 'active' : ''}"
-     th:text="${i + 1}"></a>
+    <!-- Nút Previous - luôn hiển thị nhưng disabled nếu ở trang đầu -->
+    <a th:href="${currentIntPage > 1} ? @{'/news?intPage=' + (${currentIntPage - 1}) + '&vnPage=' + ${currentVnPage}} : '#'"
+       class="page-item prev-page"
+       th:classappend="${currentIntPage == 1} ? 'disabled' : ''">&laquo;</a>
 
-  <a th:if="${currentInternationalPage < internationalPages - 1}" th:href="@{'/international-movies?page=' + ${currentInternationalPage + 1}}" class="next">›</a>
+    <!-- Các trang (loop) -->
+    <a th:each="page : ${#numbers.sequence(1, intPages)}"
+       th:href="@{'/news?intPage=' + ${page} + '&vnPage=' + ${currentVnPage}}"
+       class="page-item"
+       th:classappend="${currentIntPage == page} ? 'active' : ''"
+       th:text="${page}"></a>
+
+    <!-- Nút Next - luôn hiển thị nhưng disabled nếu ở trang cuối -->
+    <a th:href="${currentIntPage < intPages} ? @{'/news?intPage=' + (${currentIntPage + 1}) + '&vnPage=' + ${currentVnPage}} : '#'"
+       class="page-item next-page"
+       th:classappend="${currentIntPage == intPages} ? 'disabled' : ''">&raquo;</a>
+
+  </div>
 </div>
+
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
 
-
+</body>
+</html>
