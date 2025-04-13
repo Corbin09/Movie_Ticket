@@ -5,446 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
   <title>Room Management</title>
-  <style>
-    :root {
-        --green-900: #14532d;
-        --green-700: #15803d;
-        --green-600: #16a34a;
-        --red-500: #ef4444;
-        --white: #ffffff;
-        --text-gray: #e5e7eb;
-    }
-
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
-
-    body {
-        font-family: 'Arial', sans-serif;
-        background: linear-gradient(to bottom, var(--green-900), var(--green-700));
-        color: var(--white);
-        min-height: 100vh;
-        line-height: 1.6;
-    }
-
-    .container-room-management {
-        display: flex;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    /* Main Content */
-    .main-content {
-        margin-left: 250px;
-        padding: 2rem;
-        width: calc(100% - 250px);
-    }
-
-    .content-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .add-room-btn {
-        background-color: var(--white);
-        color: var(--green-900);
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 9999px;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-        border-radius: 20px;
-    }
-
-    /* Filter section styles */
-    .filter-section {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        background-color: rgba(255, 255, 255, 0.1);
-        padding: 1rem;
-        border-radius: 0.5rem;
-    }
-
-    .filter-label {
-        margin-right: 0.5rem;
-        font-weight: 500;
-    }
-
-    .filter-dropdown {
-        position: relative;
-        margin-right: 15px;
-        min-width: 150px;
-    }
-
-    .dropdown-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.5rem 1rem;
-        background-color: var(--white);
-        color: var(--green-900);
-        border: 1px solid var(--green-600);
-        border-radius: 0.25rem;
-        cursor: pointer;
-    }
-
-    .dropdown-toggle i {
-        margin-left: 10px;
-    }
-
-    .dropdown-menu {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        z-index: 1000;
-        display: none;
-        width: 100%;
-        padding: 0.25rem 0;
-        margin-top: 0.25rem;
-        background-color: var(--white);
-        border: 1px solid var(--green-600);
-        border-radius: 0.25rem;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-    }
-
-    .dropdown-menu.show {
-        display: block;
-    }
-
-    .dropdown-item {
-        display: block;
-        padding: 0.5rem 1rem;
-        color: var(--green-900);
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-    .dropdown-item:hover {
-        background-color: rgba(22, 163, 74, 0.1);
-    }
-
-    /* Search bar styles */
-    .search-bar {
-        display: flex;
-        align-items: center;
-        flex-grow: 1;
-        max-width: 400px;
-        position: relative;
-    }
-
-    .search-input {
-        width: 100%;
-        padding: 0.5rem 1rem;
-        padding-right: 40px;
-        border: 1px solid var(--green-600);
-        border-radius: 0.25rem;
-        background-color: var(--white);
-        color: var(--green-900);
-    }
-
-    .search-icon {
-        position: absolute;
-        right: 10px;
-        color: var(--green-900);
-        cursor: pointer;
-    }
-
-    /* Button styles */
-    .btn-secondary {
-        padding: 0.5rem 1rem;
-        background-color: var(--white);
-        color: var(--green-900);
-        border: 1px solid var(--green-600);
-        border-radius: 0.25rem;
-        cursor: pointer;
-    }
-
-    .btn-secondary:hover {
-        background-color: rgba(255, 255, 255, 0.9);
-    }
-
-    /* Table */
-    .table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        background-color: var(--white);
-        border-radius: 0.5rem;
-        overflow: hidden;
-    }
-
-    .table thead {
-        background-color: var(--white);
-        color: #454444;
-    }
-
-    .table th,
-    .table td {
-        color: #454444;
-        padding: 1rem;
-        text-align: left;
-        border-bottom: 1px solid var(--green-600);
-    }
-
-    .badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.8rem;
-    }
-
-    .badge-red { background-color: #fee2e2; color: #7f1d1d; }
-    .badge-blue { background-color: #dbeafe; color: #1e3a8a; }
-    .badge-green { background-color: #dcfce7; color: #14532d; }
-
-    /* Pagination */
-    .pagination {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 1rem;
-        color: var(--white);
-        padding: 1rem;
-    }
-
-    .pagination-controls {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .pagination-controls button {
-        background-color: var(--red-500);
-        color: var(--white);
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 0.25rem;
-        cursor: pointer;
-    }
-
-    .pagination-controls select {
-        background-color: var(--white);
-        color: var(--green-900);
-        border: 1px solid var(--green-600);
-        padding: 0.5rem;
-        border-radius: 0.25rem;
-    }
-/* Delete Modal Styles */
-  .delete-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .delete-modal-content {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    max-width: 450px;
-    width: 100%;
-    text-align: center;
-    margin: auto;
-  }
-
-  .delete-modal-icon {
-    font-size: 60px;
-    color: #DC2626;
-    margin-bottom: 10px;
-  }
-
-  .delete-modal-title {
-    color: #DC2626;
-    font-size: 24px;
-    font-weight: bold;
-  }
-
-  .delete-modal-message {
-    color: #DC2626;
-    margin-bottom: 15px;
-  }
-
-  .delete-modal-buttons {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 10px;
-  }
-
-  .delete-modal-btn {
-    padding: 10px 20px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: bold;
-    text-align: center;
-    display: inline-block;
-    width: 120px;
-    cursor: pointer;
-    border: none;
-  }
-
-  .delete-modal-cancel {
-    background-color: #DC2626;
-    color: white;
-  }
-
-  .delete-modal-cancel:hover {
-    background-color: #B91C1C;
-  }
-
-  .delete-modal-proceed {
-    background-color: #10B981;
-    color: white;
-  }
-
-  .delete-modal-proceed:hover {
-    background-color: #059669;
-  }
-    /* Responsive Design */
-    @media (max-width: 1024px) {
-        .container-room-management {
-            flex-direction: column;
-        }
-
-        .main-content {
-            width: 100%;
-            margin-left: 0;
-        }
-
-        .filter-section {
-            flex-direction: column;
-            align-items: stretch;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .content-header {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 1rem;
-        }
-
-        .table {
-            font-size: 0.9rem;
-        }
-
-        .pagination {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 1rem;
-        }
-    }
-    .success-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Poppins', sans-serif;
-}
-
-.success-modal-content {
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  padding: 20px;
-  max-width: 500px;
-  width: 90%;
-  text-align: center;
-  margin: auto;
-}
-
-.success-modal-icon img {
-  border-radius: 30px;
-  width: 80px;
-  height: 80px;
-  margin-bottom: 15px;
-}
-
-.success-modal-title {
-  color: #16a34a; /* Green-600 */
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.success-modal-message {
-  color: #4b5563; /* Gray-600 */
-  margin-bottom: 20px;
-}
-
-.success-modal-buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.success-modal-btn {
-  display: block;
-  width: 95%;
-  text-align: center;
-  padding: 10px;
-  font-size: 1rem;
-  font-weight: bold;
-  border-radius: 25px;
-  border: none;
-  cursor: pointer;
-  margin-bottom: 10px; text-decoration: none;
-  transition: all 0.3s ease-in-out;
-}
-
-.success-modal-list {
-  background-color: #22c55e; /* Green-500 */
-  color: white;
-}
-
-.success-modal-list:hover {
-  background-color: #16a34a; /* Darker Green */
-}
-
-.success-modal-dashboard {
-  background-color: #e5e7eb; /* Gray-200 */
-  color: #374151; /* Gray-700 */
-}
-
-.success-modal-dashboard:hover {
-  background-color: #d1d5db; /* Darker Gray */
-}
-
-/* Responsive Design */
-@media (max-width: 480px) {
-  .success-modal-content {
-    padding: 15px;
-  }
-
-  .success-modal-title {
-    font-size: 1.3rem;
-  }
-
-  .success-modal-btn {
-    font-size: 0.9rem;
-    padding: 8px;
-  }
-}
-  </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
@@ -542,543 +102,6 @@
 
   </main>
 </div>
-
-<!-- JavaScript for filtering and interaction -->
-<script th:inline="javascript">
-  // Toggle sidebar on mobile
-  document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-    document.getElementById('sidebar').classList.toggle('active');
-  });
-
-  // Handle responsive behavior
-  window.addEventListener('resize', function() {
-    if (window.innerWidth > 992) {
-      document.getElementById('sidebar')?.classList.remove('active');
-    }
-  });
-
-  // Track current parameters
-  let currentSearchField = [[${currentSearchField}]] || 'roomName';
-  let currentSearchText = [[${currentSearchText}]] || '';
-
-  // Set initial display text based on the current search field value
-  const selectedSearchField = document.getElementById('selectedSearchField');
-  if (selectedSearchField && currentSearchField) {
-    const fieldItems = document.querySelectorAll('#searchFieldMenu .dropdown-item');
-    for (let item of fieldItems) {
-      if (item.getAttribute('data-value') === currentSearchField) {
-        selectedSearchField.textContent = item.textContent.trim();
-        break;
-      }
-    }
-  }
-
-  // Search field dropdown functionality
-  const searchFieldToggle = document.getElementById('searchFieldToggle');
-  const searchFieldMenu = document.getElementById('searchFieldMenu');
-
-  if (searchFieldToggle) {
-    searchFieldToggle.addEventListener('click', function(event) {
-      event.stopPropagation();
-      searchFieldMenu.classList.toggle('show');
-    });
-  }
-
-  // Handle search field dropdown item selection
-  const fieldItems = document.querySelectorAll('#searchFieldMenu .dropdown-item');
-  fieldItems.forEach(function(item) {
-    item.addEventListener('click', function(event) {
-      event.stopPropagation();
-      const value = this.getAttribute('data-value');
-      const text = this.textContent.trim();
-      document.getElementById('selectedSearchField').textContent = text;
-      searchFieldMenu.classList.remove('show');
-
-      // Store the search field value
-      currentSearchField = value;
-
-      // Update search placeholder based on selected field
-      const searchInput = document.getElementById('searchInput');
-      if (searchInput) {
-        if (value === 'seats') {
-          searchInput.placeholder = "Enter number of seats...";
-        } else if (value === 'cinema') {
-          searchInput.placeholder = "Enter cinema name...";
-        } else if (value === 'cinemaComplex') {
-          searchInput.placeholder = "Enter cinema complex name...";
-        } else {
-          searchInput.placeholder = "Enter room name...";
-        }
-      }
-    });
-  });
-
-  // Handle search input when Enter key is pressed
-  const searchInput = document.getElementById('searchInput');
-  if (searchInput) {
-    searchInput.addEventListener('keyup', function(event) {
-      if (event.key === 'Enter') {
-        currentSearchText = this.value;
-        applySearch();
-      }
-    });
-  }
-
-  // Handle search icon click
-  const searchIcon = document.getElementById('searchIcon');
-  if (searchIcon) {
-    searchIcon.addEventListener('click', function() {
-      currentSearchText = searchInput.value;
-      applySearch();
-    });
-  }
-
-  // Handle clear button click
-  const clearButton = document.getElementById('clearButton');
-  if (clearButton) {
-    clearButton.addEventListener('click', function() {
-      currentSearchText = '';
-      currentSearchField = 'roomName';
-      window.location.href = window.location.pathname;
-    });
-  }
-
-  // Function to apply search and redirect
-  function applySearch() {
-    let url = window.location.pathname + '?';
-    const searchParams = new URLSearchParams();
-
-    // Add search field parameter
-    searchParams.append('searchField', currentSearchField);
-
-    // Add search text parameter if exists
-    if (currentSearchText) {
-      searchParams.append('searchText', currentSearchText);
-    }
-
-    // Append the search parameters to the URL
-    const paramString = searchParams.toString();
-    if (paramString) {
-      url += paramString;
-    }
-
-    // Redirect
-    console.log('Navigating to: ' + url);
-    window.location.href = url;
-  }
-
-  // Close dropdown menus when clicking outside
-  document.addEventListener('click', function(event) {
-    const dropdowns = document.getElementsByClassName('dropdown-menu');
-    for (let i = 0; i < dropdowns.length; i++) {
-      if (dropdowns[i].classList.contains('show') &&
-          !event.target.closest('.filter-dropdown')) {
-        dropdowns[i].classList.remove('show');
-      }
-    }
-  });
-
-  // Debug info
-  console.log('Current search field:', currentSearchField);
-  console.log('Current search text:', currentSearchText);
-</script>
-
-
-<script>
-  // Room Management JavaScript
-
-// Initialize the pagination variables
-let currentPage = 1;
-let pageSize = 10; // Default page size
-let totalItems = 0;
-let totalPages = 0;
-let selectedRooms = [];
-
-// DOM Elements
-const mainCheckbox = document.querySelector('thead input[type="checkbox"]');
-const rowCheckboxes = document.querySelectorAll('tbody input[type="checkbox"]');
-const deleteButton = document.querySelector('.pagination-controls button:first-child');
-const pageSizeSelect = document.getElementById('pageSizeSelect');
-const prevPageButton = document.getElementById('prevPage');
-const nextPageButton = document.getElementById('nextPage');
-const roomRows = document.querySelectorAll('tbody tr');
-const addRoomButton = document.querySelector('.add-room-btn');
-const paginationText = document.querySelector('.pagination span');
-
-// Get the total number of items from the DOM
-totalItems = [[${rooms.size()}]];
-
-// Toggle sidebar (already in your code)
-document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-  document.getElementById('sidebar').classList.toggle('active');
-});
-
-// Search field functionality (already in your code)
-// Keeping your existing search functionality...
-
-// Initialize pagination
-function initializePagination() {
-  // Get page size from URL param or use default
-  const urlParams = new URLSearchParams(window.location.search);
-  pageSize = parseInt(urlParams.get('pageSize')) || pageSize;
-  currentPage = parseInt(urlParams.get('page')) || currentPage;
-
-  // Set the page size select value
-  if (pageSizeSelect) {
-    for (let i = 0; i < pageSizeSelect.options.length; i++) {
-      if (pageSizeSelect.options[i].value == pageSize) {
-        pageSizeSelect.selectedIndex = i;
-        break;
-      }
-    }
-  }
-
-  // Calculate total pages
-  totalPages = Math.ceil(totalItems / pageSize);
-
-  // Update pagination display
-  updatePaginationDisplay();
-
-  // Show only the current page of items
-  showCurrentPageItems();
-
-  // Disable/enable pagination buttons
-  updatePaginationButtons();
-}
-
-// Function to update the pagination info text
-function updatePaginationDisplay() {
-  if (paginationText) {
-    const start = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-    const end = Math.min(currentPage * pageSize, totalItems);
-    paginationText.textContent = `Showing ${start}-${end} of ${totalItems}`;
-  }
-}
-
-// Function to show only the current page items
-function showCurrentPageItems() {
-  // If there are no rooms or only the "No rooms found" message
-  if (roomRows.length === 0 || (roomRows.length === 1 && roomRows[0].querySelector('td[colspan="5"]'))) {
-    // Make sure the "No rooms found" row is visible
-    if (roomRows.length === 1) {
-      roomRows[0].style.display = '';
-    }
-    return;
-  }
-
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = Math.min(startIndex + pageSize, totalItems);
-
-  roomRows.forEach((row, index) => {
-    // Skip the "No rooms found" row if it exists
-    if (row.querySelector('td[colspan="5"]')) {
-      row.style.display = totalItems === 0 ? '' : 'none';
-      return;
-    }
-
-    if (index >= startIndex && index < endIndex) {
-      row.style.display = '';
-    } else {
-      row.style.display = 'none';
-    }
-  });
-}
-
-// Function to update pagination buttons state
-function updatePaginationButtons() {
-  if (prevPageButton) {
-    prevPageButton.disabled = currentPage <= 1;
-    prevPageButton.style.opacity = currentPage <= 1 ? '0.5' : '1';
-  }
-
-  if (nextPageButton) {
-    nextPageButton.disabled = currentPage >= totalPages;
-    nextPageButton.style.opacity = currentPage >= totalPages ? '0.5' : '1';
-  }
-}
-
-// Function to apply pagination and redirect
-function applyPagination(newPage, newPageSize) {
-  const url = new URL(window.location.href);
-  const params = new URLSearchParams(url.search);
-
-  // Update pagination parameters
-  params.set('page', newPage);
-  params.set('pageSize', newPageSize || pageSize);
-
-  // Keep existing search parameters
-  if (currentSearchField) {
-    params.set('searchField', currentSearchField);
-  }
-
-  if (currentSearchText) {
-    params.set('searchText', currentSearchText);
-  }
-
-  // Redirect
-  url.search = params.toString();
-  window.location.href = url.toString();
-}
-
-// Handle page size change
-if (pageSizeSelect) {
-  pageSizeSelect.addEventListener('change', function() {
-    if (this.value && this.value !== 'Lines per page') {
-      const newPageSize = parseInt(this.value);
-      applyPagination(1, newPageSize); // Reset to page 1 when changing page size
-    }
-  });
-}
-
-// Handle previous page button
-if (prevPageButton) {
-  prevPageButton.addEventListener('click', function() {
-    if (currentPage > 1) {
-      applyPagination(currentPage - 1);
-    }
-  });
-}
-
-// Handle next page button
-if (nextPageButton) {
-  nextPageButton.addEventListener('click', function() {
-    if (currentPage < totalPages) {
-      applyPagination(currentPage + 1);
-    }
-  });
-}
-
-// Checkbox selection functionality
-// Main checkbox to select/deselect all
-if (mainCheckbox) {
-  mainCheckbox.addEventListener('change', function() {
-    const isChecked = this.checked;
-
-    // Update all row checkboxes
-    rowCheckboxes.forEach(checkbox => {
-      checkbox.checked = isChecked;
-
-      // Get the row associated with this checkbox
-      const row = checkbox.closest('tr');
-      if (row) {
-        // Find the room ID from a data attribute we'll add
-        const roomId = row.getAttribute('data-room-id');
-
-        if (isChecked && roomId) {
-          // Add to selected rooms if not already there
-          if (!selectedRooms.includes(roomId)) {
-            selectedRooms.push(roomId);
-          }
-        } else if (roomId) {
-          // Remove from selected rooms
-          selectedRooms = selectedRooms.filter(id => id !== roomId);
-        }
-      }
-    });
-
-    // Update delete button state
-    updateDeleteButtonState();
-  });
-}
-
-// Individual checkbox selection
-rowCheckboxes.forEach(checkbox => {
-  checkbox.addEventListener('change', function() {
-    const row = this.closest('tr');
-    if (row) {
-      const roomId = row.getAttribute('data-room-id');
-
-      if (this.checked && roomId) {
-        // Add to selected rooms
-        if (!selectedRooms.includes(roomId)) {
-          selectedRooms.push(roomId);
-        }
-      } else if (roomId) {
-        // Remove from selected rooms
-        selectedRooms = selectedRooms.filter(id => id !== roomId);
-      }
-
-      // Check if all visible checkboxes are checked
-      const visibleRows = Array.from(roomRows).filter(r => r.style.display !== 'none');
-      const visibleCheckboxes = visibleRows.map(r => r.querySelector('input[type="checkbox"]'));
-      const allChecked = visibleCheckboxes.every(cb => cb.checked);
-
-      // Update main checkbox
-      if (mainCheckbox) {
-        mainCheckbox.checked = allChecked;
-      }
-    }
-
-    // Update delete button state
-    updateDeleteButtonState();
-  });
-});
-
-// Function to update delete button state
-function updateDeleteButtonState() {
-  if (deleteButton) {
-    if (selectedRooms.length > 0) {
-      deleteButton.disabled = false;
-      deleteButton.style.opacity = '1';
-      deleteButton.style.cursor = 'pointer';
-    } else {
-      deleteButton.disabled = true;
-      deleteButton.style.opacity = '0.5';
-      deleteButton.style.cursor = 'not-allowed';
-    }
-  }
-}
-
-// Function to show the delete modal
-function showDeleteModal() {
-  const modal = document.getElementById('deleteModal');
-  modal.style.display = 'flex';
-
-  // Update the message with the number of selected rooms
-  const messageElement = document.querySelector('.delete-modal-message');
-  messageElement.textContent = `Are you sure you want to delete ${selectedRooms.length} selected room(s)? This action cannot be undone.`;
-}
-
-// Function to hide the delete modal
-function hideDeleteModal() {
-  const modal = document.getElementById('deleteModal');
-  modal.style.display = 'none';
-}
-
-// Function to handle the delete action
-// Function to show the success modal
-function showSuccessModal() {
-  const modal = document.getElementById('successModal');
-  modal.style.display = 'flex';
-}
-
-// Function to handle the delete action
-function performDelete() {
-  if (selectedRooms.length > 0) {
-    // Create a form to submit the delete request
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/delete-rooms';
-
-    // Add CSRF token if using Spring Security
-    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
-
-    if (csrfToken) {
-      const csrfInput = document.createElement('input');
-      csrfInput.type = 'hidden';
-      csrfInput.name = '_csrf';
-      csrfInput.value = csrfToken;
-      form.appendChild(csrfInput);
-    }
-
-    // Add selected room IDs
-    selectedRooms.forEach(roomId => {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = 'roomIds';
-      input.value = roomId;
-      form.appendChild(input);
-    });
-
-    // Instead of submitting the form directly, use fetch to handle the response
-    const formData = new FormData(form);
-
-    fetch('/delete-rooms', {
-      method: 'POST',
-      body: formData,
-      headers: csrfToken ? {
-        [document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content')]: csrfToken
-      } : {}
-    })
-    .then(response => {
-      if (response.ok) {
-        // Hide delete modal
-        hideDeleteModal();
-
-        // Show success modal
-        showSuccessModal();
-
-        // Update the success message to reflect the number of rooms deleted
-        const messageElement = document.querySelector('.success-modal-message');
-        messageElement.textContent = `Success! ${selectedRooms.length} room(s) has been deleted successfully.`;
-
-        // Clear the selected rooms array
-        selectedRooms = [];
-
-        // Update delete button state
-        updateDeleteButtonState();
-      } else {
-        // Handle error (optional)
-        alert('Error deleting rooms. Please try again.');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('An error occurred while deleting rooms.');
-    });
-  }
-}
-
-// Handle delete button click
-if (deleteButton) {
-  // Initially disable delete button
-  deleteButton.disabled = true;
-  deleteButton.style.opacity = '0.5';
-  deleteButton.style.cursor = 'not-allowed';
-
-  deleteButton.addEventListener('click', function() {
-    if (selectedRooms.length > 0) {
-      // Show custom delete modal instead of confirm dialog
-      showDeleteModal();
-    }
-  });
-}
-
-// Add room button click handler
-if (addRoomButton) {
-  addRoomButton.addEventListener('click', function() {
-    window.location.href = '/add-room';
-  });
-}
-
-// Make table rows clickable to edit
-roomRows.forEach(row => {
-  // Skip the empty result row if present
-  if (!row.querySelector('td[colspan]')) {
-    row.style.cursor = 'pointer';
-
-    // Add click event to the row (excluding the checkbox cell)
-    row.querySelectorAll('td:not(:first-child)').forEach(cell => {
-      cell.addEventListener('click', function() {
-        const roomId = row.getAttribute('data-room-id');
-        if (roomId) {
-          window.location.href = `/edit-room?id=${roomId}`;
-        }
-      });
-    });
-  }
-});
-
-// Initialize pagination on page load
-document.addEventListener('DOMContentLoaded', function() {
-  initializePagination();
-  updateDeleteButtonState();
-
-  // Add event listeners for modal buttons
-  const cancelButton = document.querySelector('.delete-modal-cancel');
-  if (cancelButton) {
-    cancelButton.addEventListener('click', hideDeleteModal);
-  }
-
-  const proceedButton = document.querySelector('.delete-modal-proceed');
-  if (proceedButton) {
-    proceedButton.addEventListener('click', function() {
-      performDelete();
-      // Don't hide delete modal here as we'll do that after successful deletion
-    });
-  }
-});
-</script>
 </body>
 
 
@@ -1112,3 +135,444 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 </div>
 </html>
+
+<style>
+  :root {
+      --green-900: #14532d;
+      --green-700: #15803d;
+      --green-600: #16a34a;
+      --red-500: #ef4444;
+      --white: #ffffff;
+      --text-gray: #e5e7eb;
+  }
+
+  * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+  }
+
+  body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to bottom, var(--green-900), var(--green-700));
+      color: var(--white);
+      min-height: 100vh;
+      line-height: 1.6;
+  }
+
+  .container-room-management {
+      display: flex;
+      max-width: 1200px;
+      margin: 0 auto;
+  }
+
+  /* Main Content */
+  .main-content {
+      margin-left: 250px;
+      padding: 2rem;
+      width: calc(100% - 250px);
+  }
+
+  .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+  }
+
+  .add-room-btn {
+      background-color: var(--white);
+      color: var(--green-900);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      border-radius: 20px;
+  }
+
+  /* Filter section styles */
+  .filter-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 0.5rem;
+  }
+
+  .filter-label {
+      margin-right: 0.5rem;
+      font-weight: 500;
+  }
+
+  .filter-dropdown {
+      position: relative;
+      margin-right: 15px;
+      min-width: 150px;
+  }
+
+  .dropdown-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1rem;
+      background-color: var(--white);
+      color: var(--green-900);
+      border: 1px solid var(--green-600);
+      border-radius: 0.25rem;
+      cursor: pointer;
+  }
+
+  .dropdown-toggle i {
+      margin-left: 10px;
+  }
+
+  .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 1000;
+      display: none;
+      width: 100%;
+      padding: 0.25rem 0;
+      margin-top: 0.25rem;
+      background-color: var(--white);
+      border: 1px solid var(--green-600);
+      border-radius: 0.25rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  }
+
+  .dropdown-menu.show {
+      display: block;
+  }
+
+  .dropdown-item {
+      display: block;
+      padding: 0.5rem 1rem;
+      color: var(--green-900);
+      text-decoration: none;
+      cursor: pointer;
+  }
+
+  .dropdown-item:hover {
+      background-color: rgba(22, 163, 74, 0.1);
+  }
+
+  /* Search bar styles */
+  .search-bar {
+      display: flex;
+      align-items: center;
+      flex-grow: 1;
+      max-width: 400px;
+      position: relative;
+  }
+
+  .search-input {
+      width: 100%;
+      padding: 0.5rem 1rem;
+      padding-right: 40px;
+      border: 1px solid var(--green-600);
+      border-radius: 0.25rem;
+      background-color: var(--white);
+      color: var(--green-900);
+  }
+
+  .search-icon {
+      position: absolute;
+      right: 10px;
+      color: var(--green-900);
+      cursor: pointer;
+  }
+
+  /* Button styles */
+  .btn-secondary {
+      padding: 0.5rem 1rem;
+      background-color: var(--white);
+      color: var(--green-900);
+      border: 1px solid var(--green-600);
+      border-radius: 0.25rem;
+      cursor: pointer;
+  }
+
+  .btn-secondary:hover {
+      background-color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Table */
+  .table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background-color: var(--white);
+      border-radius: 0.5rem;
+      overflow: hidden;
+  }
+
+  .table thead {
+      background-color: var(--white);
+      color: #454444;
+  }
+
+  .table th,
+  .table td {
+      color: #454444;
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--green-600);
+  }
+
+  .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+  }
+
+  .badge-red { background-color: #fee2e2; color: #7f1d1d; }
+  .badge-blue { background-color: #dbeafe; color: #1e3a8a; }
+  .badge-green { background-color: #dcfce7; color: #14532d; }
+
+  /* Pagination */
+  .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      color: var(--white);
+      padding: 1rem;
+  }
+
+  .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+  }
+
+  .pagination-controls button {
+      background-color: var(--red-500);
+      color: var(--white);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+  }
+
+  .pagination-controls select {
+      background-color: var(--white);
+      color: var(--green-900);
+      border: 1px solid var(--green-600);
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+  }
+/* Delete Modal Styles */
+.delete-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.delete-modal-content {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+  margin: auto;
+}
+
+.delete-modal-icon {
+  font-size: 60px;
+  color: #DC2626;
+  margin-bottom: 10px;
+}
+
+.delete-modal-title {
+  color: #DC2626;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.delete-modal-message {
+  color: #DC2626;
+  margin-bottom: 15px;
+}
+
+.delete-modal-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+}
+
+.delete-modal-btn {
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  text-align: center;
+  display: inline-block;
+  width: 120px;
+  cursor: pointer;
+  border: none;
+}
+
+.delete-modal-cancel {
+  background-color: #DC2626;
+  color: white;
+}
+
+.delete-modal-cancel:hover {
+  background-color: #B91C1C;
+}
+
+.delete-modal-proceed {
+  background-color: #10B981;
+  color: white;
+}
+
+.delete-modal-proceed:hover {
+  background-color: #059669;
+}
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+      .container-room-management {
+          flex-direction: column;
+      }
+
+      .main-content {
+          width: 100%;
+          margin-left: 0;
+      }
+
+      .filter-section {
+          flex-direction: column;
+          align-items: stretch;
+      }
+  }
+
+  @media (max-width: 768px) {
+      .content-header {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 1rem;
+      }
+
+      .table {
+          font-size: 0.9rem;
+      }
+
+      .pagination {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 1rem;
+      }
+  }
+  .success-modal {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.5);
+z-index: 1000;
+justify-content: center;
+align-items: center;
+font-family: 'Poppins', sans-serif;
+}
+
+.success-modal-content {
+background: white;
+border-radius: 10px;
+box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+padding: 20px;
+max-width: 500px;
+width: 90%;
+text-align: center;
+margin: auto;
+}
+
+.success-modal-icon img {
+border-radius: 30px;
+width: 80px;
+height: 80px;
+margin-bottom: 15px;
+}
+
+.success-modal-title {
+color: #16a34a; /* Green-600 */
+font-size: 1.5rem;
+font-weight: bold;
+margin-bottom: 10px;
+}
+
+.success-modal-message {
+color: #4b5563; /* Gray-600 */
+margin-bottom: 20px;
+}
+
+.success-modal-buttons {
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+
+.success-modal-btn {
+display: block;
+width: 95%;
+text-align: center;
+padding: 10px;
+font-size: 1rem;
+font-weight: bold;
+border-radius: 25px;
+border: none;
+cursor: pointer;
+margin-bottom: 10px; text-decoration: none;
+transition: all 0.3s ease-in-out;
+}
+
+.success-modal-list {
+background-color: #22c55e; /* Green-500 */
+color: white;
+}
+
+.success-modal-list:hover {
+background-color: #16a34a; /* Darker Green */
+}
+
+.success-modal-dashboard {
+background-color: #e5e7eb; /* Gray-200 */
+color: #374151; /* Gray-700 */
+}
+
+.success-modal-dashboard:hover {
+background-color: #d1d5db; /* Darker Gray */
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+.success-modal-content {
+  padding: 15px;
+}
+
+.success-modal-title {
+  font-size: 1.3rem;
+}
+
+.success-modal-btn {
+  font-size: 0.9rem;
+  padding: 8px;
+}
+}
+</style>

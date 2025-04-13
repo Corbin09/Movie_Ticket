@@ -45,13 +45,18 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         // Các trang công khai
-                        .requestMatchers("/", "/chart.html",  "/home", "/login", "/news/**", "/View-movie-ticket/**", "/showtime**", "/register", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/", "/chart.html",  "/home", "/login", "/news/**", "/View-movie-ticket/**",
+                                "/showtime**", "/register", "/css/**", "/js/**").permitAll()
 
                         // Các trang dành cho USER
-                        .requestMatchers("/index", "/detail-actor/**", "/detail-director/**", "/create-order", "/view-ticket", "/detail-movie/**", "/user-dashboard", "/profile", "/pick-seat", "pick-payment-method/**", "/user-tickets/**").hasRole("USER")
+                        .requestMatchers("/index", "/detail-actor/**", "/detail-director/**", "/create-order", "/view-ticket",
+                                "/detail-movie/**", "/user-dashboard", "/profile", "/pick-seat", "pick-payment-method/**", "/user-tickets/**").hasRole("USER")
 
                         // Các trang dành cho ADMIN
-                        .requestMatchers("/pay-ticket", "showtimes/**", "/users/update-role/**",  "/manage-showtimes/**", "/manage-cinema/**", "/cinemas/save", "cinemas/edit/**",  "/cinemas/**", "/welcome-admin", "/admin-dashboard", "/reports/**", "/manage-users", "/manage-orders/**", "/manage-rooms/**", "/delete-rooms").hasRole("ADMIN")
+                        .requestMatchers("/pay-ticket", "showtimes/**", "/users/update-role/**",
+                                "/manage-showtimes/**", "/manage-cinema/**", "/cinemas/save", "cinemas/edit/**",
+                                "/cinemas/**", "/welcome-admin", "/admin-dashboard", "/reports/**", "/manage-users",
+                                "/manage-orders/**", "/manage-rooms/**", "/delete-rooms", "/manage-movies/**").hasRole("ADMIN")
 
                         // Các trang chung cho cả USER và ADMIN
                         .requestMatchers("/account", "/change-password", "/notifications").hasAnyRole("USER", "ADMIN")

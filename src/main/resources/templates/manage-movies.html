@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Movie Management</title>
+    <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+<div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
+
+// views
+<div class="container-orders-management">
+    <div class="main-content">
+        <h1 class="page-title">Movies Management</h1>
+
+        <!-- Search form -->
+        <div class="filter-area">
+            <div class="filter-label">Filter:</div>
+            <div class="filter-dropdown">
+                <div class="dropdown-toggle" id="searchCriteria">
+                <span th:text="${searchCriteria != null ? (searchCriteria == 'moviename' ? 'Movie Name' :
+                                  searchCriteria == 'description' ? 'Description' :
+                                  searchCriteria == 'agelimit' ? 'Age limit' :
+                                  searchCriteria == 'duration' ? 'Time' :
+                                  searchCriteria == 'status' ? 'Status' : 'Movie Name') : 'Movie Name'}">Movie Name</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="dropdown-menu" id="searchCriteriaDropdown">
+                    <div class="dropdown-item" data-value="moviename">Movie Name</div>
+                    <div class="dropdown-item" data-value="description">Description</div>
+                    <div class="dropdown-item" data-value="agelimit">Age limit</div>
+                    <div class="dropdown-item" data-value="duration">Time</div>
+                    <div class="dropdown-item" data-value="status">Status</div>
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="text" class="search-input" id="searchQuery" placeholder="Search..." th:value="${searchQuery}">
+                <span class="search-icon" id="doSearch"><i class="fas fa-search"></i></span>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="window.location.href='/manage-movies/add-movie'" style="margin-left: auto;">
+                <i class="fas fa-plus"></i> Add movie
+            </button>
+        </div>
+
+        <!-- Error message if any -->
+        <div th:if="${errorMessage}" id="errorMessageContainer" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th><input type="checkbox" id="selectAll"></th>
+                    <th>Movie Name</th>
+                    <th>Description</th>
+                    <th>Age limit</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="film : ${films}">
+                    <td><input type="checkbox" class="movie-checkbox" th:data-id="${film.filmId}"></td>
+                    <td th:text="${film.filmName}"></td>
+                    <td th:text="${film.filmDescription != null ? film.filmDescription : 'N/A'}"></td>
+                    <td th:text="${film.ageLimit != null ? film.ageLimit : 'N/A'}"></td>
+                    <td th:text="${film.duration != null ? film.duration + ' min' : 'N/A'}"></td>
+                    <td th:text="${film.releaseDate != null && film.releaseDate <= T(java.time.LocalDate).now() ? 'Now Showing' : 'Coming Soon'}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(films)}">
+                    <td colspan="5" class="text-center">No movie found</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+        <span th:text="${'Showing ' + (totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0) + '-' + (currentPage * pageSize < totalItems ? currentPage * pageSize : totalItems) + ' of ' + totalItems}">
+            Showing 1-10 of 20
+        </span>
+            <div class="pagination-controls">
+                <button class="btn btn-danger" id="deleteSelected" disabled>Delete</button>
+                <div class="page-size-container">
+                    <span class="lines-per-page-label">Lines per page:</span>
+                    <select id="pageSizeSelect">
+                        <option value="10" th:selected="${pageSize == 10}">10</option>
+                        <option value="20" th:selected="${pageSize == 20}">20</option>
+                        <option value="30" th:selected="${pageSize == 30}">30</option>
+                    </select>
+                </div>
+                <button id="prevPage" th:disabled="${currentPage <= 1}"><i class="fas fa-chevron-left"></i></button>
+                <button id="nextPage" th:disabled="${currentPage >= totalPages}"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const selectAll = document.getElementById("selectAll");
+        const checkboxes = document.querySelectorAll(".movie-checkbox");
+        const deleteBtn = document.getElementById("deleteSelected");
+
+        function toggleDeleteButton() {
+            const anyChecked = [...checkboxes].some(cb => cb.checked);
+            deleteBtn.disabled = !anyChecked;
+        }
+
+        checkboxes.forEach(cb => cb.addEventListener("change", toggleDeleteButton));
+
+        if (selectAll) {
+            selectAll.addEventListener("change", () => {
+                checkboxes.forEach(cb => cb.checked = selectAll.checked);
+                toggleDeleteButton();
+            });
+        }
+
+        deleteBtn.addEventListener("click", () => {
+            const selectedIds = [...checkboxes]
+                .filter(cb => cb.checked)
+                .map(cb => cb.getAttribute("data-id"));
+
+            if (selectedIds.length > 0 && confirm("Are you sure you want to delete selected movies?")) {
+                fetch("/admin/delete-movies", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": document.querySelector("meta[name='_csrf']").content
+                    },
+                    body: JSON.stringify({ ids: selectedIds })
+                }).then(res => {
+                    if (res.ok) {
+                        window.location.reload();
+                    } else {
+                        alert("Failed to delete.");
+                    }
+                });
+            }
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggle = document.getElementById("searchCriteria");
+        const dropdown = document.getElementById("searchCriteriaDropdown");
+
+        if (toggle && dropdown) {
+            toggle.addEventListener("click", () => {
+                dropdown.classList.toggle("show");
+            });
+
+            // Optional: click outside to close
+            document.addEventListener("click", (event) => {
+                if (!toggle.contains(event.target)) {
+                    dropdown.classList.remove("show");
+                }
+            });
+
+            // Optional: capture selected value
+            document.querySelectorAll(".dropdown-item").forEach(item => {
+                item.addEventListener("click", () => {
+                    const value = item.getAttribute("data-value");
+                    toggle.querySelector("span").textContent = item.textContent;
+
+                    // Optional: do something with value (like submit or update hidden input)
+                });
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
+
+<style>
+    /* Global Styles */
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #044a2c;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    /* Main Container */
+    .container-orders-management {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .main-content {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 1200px;
+      padding: 20px;
+      margin: 70px 0px 0px 250px;
+    }
+
+    /* Page Title */
+    .page-title {
+      color: #044a2c;
+      font-size: 24px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    /* Search Form */
+    .search-form {
+      background-color: transparent;
+      padding: 0;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-control, .form-select {
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+
+    .search-input {
+      flex-grow: 1;
+      padding: 8px 12px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 14px;
+      background-color: #fff;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: #044a2c;
+      color: white;
+      border: none;
+    }
+
+    .status-badge {
+    background-color: #fce4ec;
+    color: #d32f2f;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: lowercase;
+    display: inline-block;
+    }
+
+    .btn-secondary {
+      background-color: #f8f9fa;
+      color: #333;
+      border: 1px solid #ced4da;
+    }
+
+    .btn-primary:hover {
+      background-color: #033821;
+    }
+
+    .btn-secondary:hover {
+      background-color: #e2e6ea;
+    }
+
+    /* Filter Area */
+    .filter-area {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .filter-label {
+      margin-right: 10px;
+      font-weight: 500;
+    }
+
+    /* Table Styles */
+    .table-responsive {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      font-size: 14px;
+    }
+
+    .table th, .table td {
+      padding: 10px 15px;
+      text-align: left;
+      border-bottom: 1px solid #f1f1f1;
+    }
+
+    .table th {
+      background-color: #044a2c;
+      color: white;
+      font-weight: normal;
+    }
+
+    .table tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: #fafafa;
+    }
+
+    /* Checkbox Styles */
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      border: 1px solid #ced4da;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    /* Action Buttons */
+    .btn-group {
+      display: flex;
+      gap: 5px;
+    }
+
+    .btn-info {
+      background-color: #17a2b8;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      font-size: 12px;
+      border-radius: 3px;
+    }
+
+    .btn-info:hover {
+      background-color: #138496;
+    }
+
+    /* Simplified Search Form */
+    .search-form .row {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .col-md-3 {
+      width: 25%;
+      padding: 0 10px;
+    }
+
+    .col-md-7 {
+      width: 58.33%;
+      padding: 0 10px;
+    }
+
+    .col-md-2 {
+      width: 16.66%;
+      padding: 0 10px;
+    }
+
+    .d-flex {
+      display: flex;
+    }
+
+    .flex-grow-1 {
+      flex-grow: 1;
+    }
+
+    .me-2 {
+      margin-right: 0.5rem;
+    }
+
+    /* Dropdown Styles */
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+      border-radius: 4px;
+    }
+
+    .dropdown-menu.show {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 10px 16px;
+      text-decoration: none;
+      display: block;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .dropdown-item:hover {
+      background-color: #f1f1f1;
+    }
+
+    .filter-dropdown {
+      position: relative;
+      display: inline-block;
+      margin-right: 15px;
+    }
+
+    .dropdown-toggle {
+      background-color: #fff;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-width: 150px;
+      border: 1px solid #ced4da;
+    }
+
+    .dropdown-toggle i {
+      margin-left: 8px;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background-color: #fff;
+      border-radius: 4px;
+      padding: 0;
+      position: relative;
+      border: 1px solid #ced4da;
+      flex-grow: 1;
+    }
+
+    .search-input {
+      width: 100%;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px 0 0 4px;
+    }
+
+    .search-icon {
+      color: #fff;
+      padding: 8px 12px;
+      background-color: #044a2c;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+    }
+
+    .search-icon:hover {
+      background-color: #033821;
+    }
+
+    /* Alert Styles */
+    .alert {
+      padding: 12px 20px;
+      margin-bottom: 20px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+    }
+
+    .alert-danger {
+      color: #721c24;
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    /* Responsive modifications */
+    @media (max-width: 768px) {
+      .row {
+        flex-direction: column;
+      }
+
+      .col-md-3, .col-md-7, .col-md-2 {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+    }
+
+    /* Additional styles for the mockup */
+    .mb-4 {
+      margin-bottom: 1.5rem;
+    }
+
+    .table-dark {
+      background-color: #044a2c;
+    }
+    /* Pagination */
+  .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      padding: 1rem;
+  }
+
+  .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+  }
+
+  .pagination-controls button {
+      background-color: #DC2626;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+  }
+
+  .pagination-controls button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+  }
+
+  .pagination-controls select {
+      background-color: white;
+      color: #064E3B;
+      border: 1px solid #059669;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+      .container-orders-management {
+          flex-direction: column;
+      }
+
+      .main-content {
+          width: 100%;
+          margin-left: 0;
+      }
+
+      .filter-area {
+          flex-direction: column;
+          align-items: stretch;
+      }
+  }
+
+  @media (max-width: 768px) {
+      .pagination {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 1rem;
+      }
+  }
+</style>

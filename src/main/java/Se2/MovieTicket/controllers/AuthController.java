@@ -2613,7 +2613,6 @@ private OrderRepository orderRepository;
         }
     }
 
-
 //--------------------------------MANAGE CINEMAS---------------------------------------
 @Autowired
 private CinemaClusterService cinemaClusterService;
@@ -3415,4 +3414,8 @@ public String logout(HttpServletRequest request, HttpServletResponse response, H
 
     // Chuyển hướng người dùng về trang login với thông báo logout thành công
     return "redirect:/login?logout";
-}}
+}
+
+//-------------------------------------------------------MOVIES---------------------------------------------------
+
+}
