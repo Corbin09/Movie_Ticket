@@ -162,12 +162,9 @@ private PopcornComboService popcornComboService;
             if ("ROLE_ADMIN".equals(role)) {
                 logger.info("Redirecting Admin to /pay-ticket");
                 return "redirect:/welcome-admin";
-            } else if ("ROLE_USER".equals(role)) {
+            } else {
                 logger.info("Redirecting User to /home");
                 return "redirect:/home";
-            } else {
-                logger.info("Redirecting to default index page");
-                return "redirect:/pick-seat";
             }
         } catch (Exception e) {
             logger.error("Login failed: {}", e.getMessage());
@@ -311,57 +308,6 @@ private PopcornComboService popcornComboService;
         }
     }
 
-    @GetMapping("/access-denied")
-    public String accessDenied() {
-        logger.warn("Access denied page accessed");
-        return "error/access-denied";
-    }
-
-    @GetMapping("/pay-ticket")
-    public String payTicket(Model model, HttpServletRequest request) {
-        logger.info("Accessing pay-ticket page");
-
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            logger.warn("Unauthorized access attempt to pay-ticket page");
-            return "redirect:/access-denied";
-        }
-
-        // First try to get user from session
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            User sessionUser = (User) session.getAttribute("user");
-            if (sessionUser != null) {
-                logger.info("User found in session: {}", sessionUser.getUsername());
-                model.addAttribute("user", sessionUser);
-                return "pay-ticket";
-            }
-        }
-
-        // If not in session, try from SecurityContext
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            Optional<User> userOptional = userService.getUserById(userDetails.getId());
-
-            if (userOptional.isPresent()) {
-                User user = userOptional.get();
-                model.addAttribute("user", user);
-                logger.info("User found in SecurityContext: {} - {}", user.getUsername(), user.getUserImg());
-
-                // Save to session for future requests
-                if (session != null) {
-                    session.setAttribute("user", user);
-                    logger.info("User saved to session from SecurityContext");
-                }
-            } else {
-                logger.warn("User not found in database");
-            }
-        } else {
-            logger.warn("No authenticated user found");
-        }
-
-        return "pay-ticket";
-    }
 
     @GetMapping("/View-movie-ticket")
     public String viewMovieTicket(
@@ -501,17 +447,6 @@ private PopcornComboService popcornComboService;
 
         return "View-movie-ticket";
     }
-    private String getCurrentMonthName() {
-        return LocalDate.now().getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault());
-    }
-
-    private int getCurrentYear() {
-        return LocalDate.now().getYear();
-    }
-
-    private int getCurrentMonthNumber() {
-        return LocalDate.now().getMonthValue();
-    }
 
     private List<DayDTO> getWeekDays() {
         List<DayDTO> days = new ArrayList<>();
@@ -561,56 +496,6 @@ private PopcornComboService popcornComboService;
             weeks.add(new WeekDTO(days));  // Thêm tuần với danh sách các ngày
         }
         return weeks;
-    }
-
-
-    // Dummy method to check if showtimes exist on a specific date (logic tùy chỉnh)
-    private boolean checkIfHasShowtimes(LocalDate date) {
-        // Thêm logic kiểm tra (ví dụ, lấy showtimes từ database nếu cần)
-        return false;  // Default logic
-    }
-
-
-    private LocalDate getSelectedDate() {
-        return LocalDate.now();
-    }
-
-
-    @GetMapping("/index")
-    public String index(Model model, HttpServletRequest request) {
-        logger.info("Accessing index page");
-
-        // First try to get user from session
-        HttpSession session = request.getSession(false);
-        User sessionUser = null;
-        if (session != null) {
-            sessionUser = (User) session.getAttribute("user");
-            if (sessionUser != null) {
-                logger.info("User found in session: {}", sessionUser.getUsername());
-                model.addAttribute("user", sessionUser);
-                return "index";
-            }
-        }
-
-        // If not in session, try from SecurityContext
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            Optional<User> userOptional = userService.getUserById(userDetails.getId());
-
-            if (userOptional.isPresent()) {
-                User user = userOptional.get();
-                model.addAttribute("user", user);
-
-                // Save to session for future requests
-                if (session != null) {
-                    session.setAttribute("user", user);
-                    logger.info("User saved to session from SecurityContext");
-                }
-            }
-        }
-
-        return "index";
     }
 
 
@@ -945,17 +830,6 @@ private UserReviewRepository userReviewRepository;
         // Save the updated rating
         filmRatingRepository.save(rating);
     }
-    /**
-     * Helper method to convert Optional<Film> to Film entity
-     */
-    private Film convertDtoToEntity(Optional<Film> filmOptional) {
-        if (filmOptional.isEmpty()) {
-            return null;
-        }
-
-        return filmOptional.get();
-    }
-
 
     // Helper methods
     private User getUserFromSessionOrContext(HttpServletRequest request) {
@@ -1816,37 +1690,6 @@ private UserReviewRepository userReviewRepository;
 @Autowired
 private OrderRepository orderRepository;
 
-    // Thêm phương thức parseSeatsFromJson đúng
-//    private List<SeatDTO> parseSeatsFromJson(String jsonString) {
-//        try {
-//            System.out.println("Parsing JSON seats: " + jsonString);
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            return objectMapper.readValue(jsonString, new TypeReference<List<SeatDTO>>() {});
-//        } catch (Exception e) {
-//            System.out.println("Error parsing seats from JSON: " + e.getMessage());
-//            e.printStackTrace();
-//            return new ArrayList<>();
-//        }
-//    }
-
-    // Thêm phương thức parseCombosFromJson đúng
-//    private List<PopcornComboDTO> parseCombosFromJson(String jsonString) {
-//        try {
-//            if (jsonString == null || jsonString.trim().isEmpty()) {
-//                System.out.println("Empty combo JSON, returning empty list");
-//                return new ArrayList<>();
-//            }
-//
-//            System.out.println("Parsing JSON combos: " + jsonString);
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            return objectMapper.readValue(jsonString, new TypeReference<List<PopcornComboDTO>>() {});
-//        } catch (Exception e) {
-//            System.out.println("Error parsing combos from JSON: " + e.getMessage());
-//            e.printStackTrace();
-//            return new ArrayList<>();
-//        }
-//    }
-
     @PostMapping("/create-order")
     @ResponseBody
     @Transactional
@@ -1920,15 +1763,6 @@ private OrderRepository orderRepository;
                         .collect(Collectors.toMap(Seat::getSeatId, seat -> seat));
                 System.out.println("Found " + seatsMap.size() + " seats in database");
 
-                // Create tickets
-//
-//                    Ticket ticket = new Ticket();
-//                    ticket.setSeat(seat);
-//                    ticket.setOrder(order);
-//                    order.getTickets().add(ticket);
-//                    seatIdsToUpdate.add(seat.getSeatId());
-//                }
-// Debug by adding print statements
                 for (SeatDTO seatDTO : selectedSeats) {
                     Seat seat = seatsMap.get(seatDTO.getSeatId());
                     if (seat == null) {
@@ -2132,24 +1966,6 @@ private OrderRepository orderRepository;
         return combos;
     }
 
-    private double calculateTotalPrice(List<SeatDTO> seats, List<PopcornComboDTO> combos) {
-        double total = 0.0;
-
-        // Calculate seats price
-        for (SeatDTO seat : seats) {
-            total += seat.getSeatType().equals("Vip") ? 150000.0 : 100000.0;
-        }
-
-        // Calculate combos price
-        for (PopcornComboDTO combo : combos) {
-            total += combo.getComboPrice() * combo.getQuantity();
-        }
-
-        return total;
-    }
-
-
-
 
     @GetMapping("/view-ticket/{orderId}")
     public String viewTicket(@PathVariable Long orderId, Model model, HttpServletRequest request) {
@@ -2206,42 +2022,10 @@ private OrderRepository orderRepository;
             index = 0;
         }
 
-        // For server-side rendering, you'd need to:
-        // 1. Generate an HTML ticket
-        // 2. Convert it to an image
-        // 3. Send it as a download
 
-        // This would typically require libraries like Flying Saucer with IText
-        // Or external services like wkhtmltopdf or Chrome Headless
-
-        // For this example, we'll simulate a download with a simple PDF
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=ticket-" + orderId + "-" + index + ".pdf");
 
-        // This is a placeholder - in a real implementation you'd generate a PDF here
-        // Below is just a simple example structure of what you might do
-
-        // Example using PDFBox (you'd need to add this dependency)
-    /*
-    PDDocument document = new PDDocument();
-    PDPage page = new PDPage(PDRectangle.A4);
-    document.addPage(page);
-
-    PDPageContentStream contentStream = new PDPageContentStream(document, page);
-
-    // Add ticket details
-    contentStream.beginText();
-    contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
-    contentStream.newLineAtOffset(100, 700);
-    contentStream.showText("Movie: " + order.getShowtime().getFilm().getFilmName());
-    // Add more ticket details here
-    contentStream.endText();
-
-    contentStream.close();
-
-    document.save(response.getOutputStream());
-    document.close();
-    */
 
         // For this demo, we'll just write a placeholder text
         PrintWriter writer = response.getWriter();
@@ -2260,9 +2044,7 @@ private OrderRepository orderRepository;
     @GetMapping("/welcome-admin")
     public String showWelcomeAdminPage(Model model, HttpServletRequest request) {
         // Kiểm tra quyền ADMIN
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+
 
         // Thêm user vào model để Thymeleaf hiển thị trong header
         addUserToModel(model, request);
@@ -2300,9 +2082,9 @@ private OrderRepository orderRepository;
         }
 
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//        if (!userService.hasRole("ROLE_ADMIN")) {
+//            return "redirect:/access-denied";
+//        }
 
         // Create pageable object for database pagination
         Pageable pageable = PageRequest.of(page - 1, pageSize);
@@ -2360,9 +2142,9 @@ private OrderRepository orderRepository;
             HttpServletRequest request) {
 
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//        if (!userService.hasRole("ROLE_ADMIN")) {
+//            return "redirect:/access-denied";
+//        }
 
         // Add user to model
         addUserToModel(model, request);
@@ -2427,9 +2209,9 @@ private OrderRepository orderRepository;
     public String deleteRooms(@RequestParam("roomIds") List<Long> roomIds,
                               RedirectAttributes redirectAttributes) {
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//        if (!userService.hasRole("ROLE_ADMIN")) {
+//            return "redirect:/access-denied";
+//        }
 
         try {
             int deletedCount = roomService.deleteRoomsByIds(roomIds);
@@ -2450,9 +2232,9 @@ private OrderRepository orderRepository;
     @GetMapping("/add-room")
     public String addRoomForm(Model model, HttpServletRequest request) {
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//        if (!userService.hasRole("ROLE_ADMIN")) {
+//            return "redirect:/access-denied";
+//        }
 
         // Add user to model
         addUserToModel(model, request);
@@ -2494,9 +2276,9 @@ private OrderRepository orderRepository;
         }
 
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//        if (!userService.hasRole("ROLE_ADMIN")) {
+//            return "redirect:/access-denied";
+//        }
 
         // Validate the input
         if (bindingResult.hasErrors()) {
@@ -2525,9 +2307,9 @@ private OrderRepository orderRepository;
                                    Model model,
                                    HttpServletRequest request) {
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//        if (!userService.hasRole("ROLE_ADMIN")) {
+//            return "redirect:/access-denied";
+//        }
 
         // Add user to model
         addUserToModel(model, request);
@@ -2559,9 +2341,9 @@ private OrderRepository orderRepository;
                              Model model,
                              HttpServletRequest request) {
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//        if (!userService.hasRole("ROLE_ADMIN")) {
+//            return "redirect:/access-denied";
+//        }
 
         // Add user to model
         addUserToModel(model, request);
@@ -2628,9 +2410,9 @@ private CinemaClusterService cinemaClusterService;
             HttpServletRequest request) {
 
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//        if (!userService.hasRole("ROLE_ADMIN")) {
+//            return "redirect:/access-denied";
+//        }
 
         // Add user to model
         addUserToModel(model, request);
@@ -2716,9 +2498,9 @@ private CinemaClusterService cinemaClusterService;
     public String deleteCinemas(@RequestParam("selectedIds") List<Long> cinemaIds,
                                 RedirectAttributes redirectAttributes) {
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//        if (!userService.hasRole("ROLE_ADMIN")) {
+//            return "redirect:/access-denied";
+//        }
 
         try {
             int deletedCount = cinemaService.deleteCinemasByIds(cinemaIds);
@@ -2735,9 +2517,9 @@ private CinemaClusterService cinemaClusterService;
     @GetMapping("/cinemas/add")
     public String addCinemaForm(Model model, HttpServletRequest request) {
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//        if (!userService.hasRole("ROLE_ADMIN")) {
+//            return "redirect:/access-denied";
+//        }
 
         // Add user to model
         addUserToModel(model, request);
@@ -2757,9 +2539,9 @@ private CinemaClusterService cinemaClusterService;
                              Model model,
                              HttpServletRequest request) {
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//        if (!userService.hasRole("ROLE_ADMIN")) {
+//            return "redirect:/access-denied";
+//        }
 
         // Validate input fields
         if (cinema.getCinemaName() == null || cinema.getCinemaName().trim().isEmpty()) {
@@ -2810,9 +2592,9 @@ private CinemaClusterService cinemaClusterService;
                                      Model model,
                                      HttpServletRequest request) {
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//        if (!userService.hasRole("ROLE_ADMIN")) {
+//            return "redirect:/access-denied";
+//        }
 
         // Add user to model
         addUserToModel(model, request);
@@ -2849,9 +2631,9 @@ private CinemaClusterService cinemaClusterService;
         cinema.setCinemaId(id);
 
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//        if (!userService.hasRole("ROLE_ADMIN")) {
+//            return "redirect:/access-denied";
+//        }
 
         // Debug logging
         logger.debug("Cinema update requested: {}", cinema);
@@ -2949,9 +2731,9 @@ public String manageShowtimes(
         HttpServletRequest request) {
 
     // Check if user has admin role
-    if (!userService.hasRole("ROLE_ADMIN")) {
-        return "redirect:/access-denied";
-    }
+//    if (!userService.hasRole("ROLE_ADMIN")) {
+//        return "redirect:/access-denied";
+//    }
 
     // Add user to model
     addUserToModel(model, request);
@@ -3070,9 +2852,9 @@ public String manageShowtimes(
                                   RedirectAttributes redirectAttributes,
                                   @RequestParam(value = "showSuccessModal", required = false) Boolean showSuccessModal) {
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//        if (!userService.hasRole("ROLE_ADMIN")) {
+//            return "redirect:/access-denied";
+//        }
 
         try {
             int deletedCount = showtimeService.deleteShowtimesByIds(showtimeIds);
@@ -3092,9 +2874,9 @@ public String manageShowtimes(
     @GetMapping("/showtimes/add")
     public String addShowtimeForm(Model model, HttpServletRequest request) {
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//        if (!userService.hasRole("ROLE_ADMIN")) {
+//            return "redirect:/access-denied";
+//        }
 
         // Add user to model
         addUserToModel(model, request);
@@ -3115,9 +2897,7 @@ public String manageShowtimes(
                                Model model,
                                HttpServletRequest request) {
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+//
 
         // Validate input fields
         if (showtime.getFilm() == null || showtime.getFilm().getFilmId() == null) {
@@ -3173,9 +2953,7 @@ public String manageShowtimes(
                                        Model model,
                                        HttpServletRequest request) {
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
+
 
         // Add user to model
         addUserToModel(model, request);
@@ -3285,9 +3063,6 @@ public String manageShowtimes(
             HttpServletRequest request) {
 
         // Check if user has admin role
-        if (!userService.hasRole("ROLE_ADMIN")) {
-            return "redirect:/access-denied";
-        }
 
         // Add user to model
         addUserToModel(model, request);

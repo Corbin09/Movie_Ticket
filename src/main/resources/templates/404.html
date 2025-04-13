@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 Error</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+          --green-900: #064e3b;
+          --green-700: #15803d;
+        }
+
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: "Poppins", sans-serif;
+        }
+
+        body {
+          background: linear-gradient(to bottom, var(--green-900), var(--green-700));
+          color: #fff;
+        }
+
+        .container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          padding: 20px;
+          flex-wrap: wrap;
+        }
+
+        .error {
+          flex: 1 1 320px;
+          max-width: 500px;
+          text-align: left;
+          padding: 20px;
+        }
+
+        h1 {
+          font-size: 42px;
+          font-weight: 700;
+          margin-bottom: 15px;
+          color: #fff;
+        }
+
+        p {
+          font-size: 18px;
+          line-height: 1.5;
+          color: #f1f5f9;
+          margin-bottom: 25px;
+        }
+
+        .cta-back {
+          padding: 12px 24px;
+          font-size: 16px;
+          background-color: #facc15;
+          color: #000;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .cta-back:hover {
+          background-color: #eab308;
+          transform: scale(1.05);
+        }
+
+        .hero-img {
+          flex: 1 1 300px;
+          max-width: 500px;
+          height: auto;
+          animation: MoveUpDown 2s ease-in-out infinite alternate-reverse both;
+        }
+
+        @keyframes MoveUpDown {
+          0% {
+            transform: translateY(10px);
+          }
+
+          100% {
+            transform: translateY(-10px);
+          }
+        }
+
+        @media (max-width: 768px) {
+          .container {
+            flex-direction: column;
+            text-align: center;
+          }
+
+          .error {
+            text-align: center;
+          }
+
+          .hero-img {
+            width: 80%;
+          }
+        }
+    </style>
+</head>
+
+<body>
+<section class="container">
+    <div class="error">
+        <h1>Uh Ohh!</h1>
+        <p>We couldn't find the page that you're looking for :(</p>
+        <button class="cta-back" onclick="goBack()">Go Back</button>
+    </div>
+    <img src="https://github.com/smthari/404-page-using-html-css/blob/Starter/Images/404.png?raw=true" alt="404 illustration" class="hero-img" />
+</section>
+
+<script>
+    function goBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = '/';
+      }
+    }
+</script>
+</body>
+
+</html>
