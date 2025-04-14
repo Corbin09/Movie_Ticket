@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <title>Movie Ticket Booking</title>
+    <title>Movie Calendar</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" th:href="@{/css/movie-detail-book.css}">
     <link rel="stylesheet" type="text/css" th:href="@{/css/header_user.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
     <link rel="stylesheet" type="text/css" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
+
 <body>
 <!-- Header fragment -->
 <div th:replace="~{fragments/header_user :: header_user}"></div>
 
 <div class="container">
     <div class="adding-margin"></div>
+
     <!-- Movie Details Section -->
     <section class="movie-detail">
         <div class="movie-poster">
@@ -23,25 +26,38 @@
         <div class="movie-info">
             <h1 th:text="${film.filmName}">INUYASHA</h1>
             <p class="movie-description" th:text="${film.filmDescription}">
-                Get your tickets now for an amazing cinematic experience. From drama to comedy, there's a movie for just about everyone!
+                Get your tickets now for an amazing cinematic experience. From drama to comedy, there's a movie for
+                just about everyone!
             </p>
             <div class="movie-details">
-                <p><span>Director:</span> <span th:text="${#strings.listJoin(film.directorNames, ', ')}">Trần Thị Giang</span></p>
-                <p><span>Cast:</span>
+                <p>
+                    <span>Director:</span>
+                    <span th:text="${#strings.listJoin(film.directorNames, ', ')}">Trần Thị Giang</span>
+                </p>
+                <p>
+                    <span>Cast:</span>
                     <th:block th:each="actor, iterStat : ${film.actors}">
-                        <a th:href="@{'/detail-actor?id=' + ${actor.actorId}}" th:text="${actor.actorName}">Actor Name</a>
+                        <a th:href="@{'/detail-actor?id=' + ${actor.actorId}}" th:text="${actor.actorName}">Actor
+                            Name</a>
                         <span th:if="${!iterStat.last}">, </span>
                     </th:block>
                 </p>
-
-                <p><span>Directors:</span>
+                <p>
+                    <span>Directors:</span>
                     <th:block th:each="director, iterStat : ${film.directors}">
-                        <a th:href="@{'/detail-director?id=' + ${director.directorId}}" th:text="${director.directorName}">Director Name</a>
+                        <a th:href="@{'/detail-director?id=' + ${director.directorId}}"
+                           th:text="${director.directorName}">Director Name</a>
                         <span th:if="${!iterStat.last}">, </span>
                     </th:block>
                 </p>
-                <p><span>Release Date:</span> <span th:text="${film.formattedReleaseDate}">07/03/2025</span></p>
-                <p><span>Duration:</span> <span th:text="${film.duration} + ' minutes'">84 minutes</span></p>
+                <p>
+                    <span>Release Date:</span>
+                    <span th:text="${film.formattedReleaseDate}">07/03/2025</span>
+                </p>
+                <p>
+                    <span>Duration:</span>
+                    <span th:text="${film.duration} + ' minutes'">84 minutes</span>
+                </p>
             </div>
             <a th:href="@{/home}" class="btn btn-outline">
                 <i class="fas fa-arrow-left"></i> SELECT OTHER MOVIE
@@ -66,18 +82,16 @@
 
         <div class="calendar">
             <div class="weekdays">
-                <div th:each="day : ${weekDays}" th:class="${day.isWeekend} ? 'day weekend' : 'day'" th:text="${day.shortName}">MON</div>
+                <div th:each="day : ${weekDays}" th:class="${day.isWeekend} ? 'day weekend' : 'day'"
+                     th:text="${day.shortName}">MON</div>
             </div>
 
             <div class="days-grid">
                 <!-- Week rows -->
                 <div th:each="week : ${weeks}" class="week">
-                    <div th:each="day : ${week.days}"
-                         th:class="${day.isToday} ? 'day today' : 'day'"
+                    <div th:each="day : ${week.days}" th:class="${day.isToday} ? 'day today' : 'day'"
                          th:classappend="${day.isPast} ? 'disabled' : (${day.hasShowtimes} ? 'has-showtime' : '')"
-                         th:text="${day.dayOfMonth}"
-                         th:attr="data-date=${day.fullDate}"
-                         onclick="selectDate(this)">
+                         th:text="${day.dayOfMonth}" th:attr="data-date=${day.fullDate}" onclick="selectDate(this)">
                         1
                     </div>
                 </div>
@@ -92,11 +106,13 @@
         <div th:each="cinema : ${cinemas}" class="cinema-item">
             <div class="cinema-info">
                 <h3 th:text="${cinema.cinemaName}">BHD Star The Garden</h3>
-                <p th:text="${cinema.address}">4th & 5th Floors, The Garden Shopping Center, The Manor Urban Area</p>
+                <p th:text="${cinema.address}">4th & 5th Floors, The Garden Shopping Center, The Manor Urban Area
+                </p>
             </div>
 
             <div class="showtime-slots">
-                <form th:each="showtime : ${cinema.showtimes}" th:action="@{/pick-seat}" method="GET" class="time-slot-form">
+                <form th:each="showtime : ${cinema.showtimes}" th:action="@{/pick-seat}" method="GET"
+                      class="time-slot-form">
                     <input type="hidden" name="filmId" th:value="${film.filmId}">
                     <input type="hidden" name="cinemaId" th:value="${cinema.cinemaId}">
                     <input type="hidden" name="showtimeId" th:value="${showtime.showtimeId}">
@@ -109,155 +125,152 @@
         </div>
     </section>
 </div>
-<!--     Footer-->
-<div th:replace="fragments/footer :: footer"></div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const filmId = urlParams.get('id');
-    const currentMonth = Number(urlParams.get('month')) || new Date().getMonth() + 1;
-    const currentYear = Number(urlParams.get('year')) || new Date().getFullYear();
-    let selectedDate = urlParams.get('date') || new Date().toISOString().slice(0, 10);
+        const urlParams = new URLSearchParams(window.location.search);
+        const filmId = urlParams.get('id');
+        const currentMonth = Number(urlParams.get('month')) || new Date().getMonth() + 1;
+        const currentYear = Number(urlParams.get('year')) || new Date().getFullYear();
+        let selectedDate = urlParams.get('date') || new Date().toISOString().slice(0, 10);
 
-    // Thêm các phần tử UI cho việc chọn tháng và năm
-    const monthSelector = document.createElement('select');
-    monthSelector.id = 'month-selector';
-    for (let i = 1; i <= 12; i++) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.textContent = new Date(2000, i-1, 1).toLocaleString('default', { month: 'long' });
-        if (i === currentMonth) option.selected = true;
-        monthSelector.appendChild(option);
-    }
+        // Create UI elements for month and year selection
+        function createDateSelectors() {
+            const monthSelector = document.createElement('select');
+            monthSelector.id = 'month-selector';
+            for (let i = 1; i <= 12; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = new Date(2000, i - 1, 1).toLocaleString('default', { month: 'long' });
+                if (i === currentMonth) option.selected = true;
+                monthSelector.appendChild(option);
+            }
 
-    const yearSelector = document.createElement('select');
-    yearSelector.id = 'year-selector';
-    const currentYearNum = new Date().getFullYear();
-    for (let i = currentYearNum - 1; i <= currentYearNum + 5; i++) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.textContent = i;
-        if (i === currentYear) option.selected = true;
-        yearSelector.appendChild(option);
-    }
+            const yearSelector = document.createElement('select');
+            yearSelector.id = 'year-selector';
+            const currentYearNum = new Date().getFullYear();
+            for (let i = currentYearNum - 1; i <= currentYearNum + 5; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                if (i === currentYear) option.selected = true;
+                yearSelector.appendChild(option);
+            }
 
-    // Thêm các selector vào DOM
-    const currentMonthElement = document.querySelector('.current-month');
-    currentMonthElement.innerHTML = '';
-    currentMonthElement.appendChild(monthSelector);
-    currentMonthElement.appendChild(yearSelector);
+            // Add selectors to DOM
+            const currentMonthElement = document.querySelector('.current-month');
+            currentMonthElement.innerHTML = '';
+            currentMonthElement.appendChild(monthSelector);
+            currentMonthElement.appendChild(yearSelector);
 
-    // Event listeners cho selectors
-    monthSelector.addEventListener('change', () => {
-        handleMonthYearChange(monthSelector.value, yearSelector.value);
-    });
+            // Event listeners for selectors
+            monthSelector.addEventListener('change', () => {
+                handleMonthYearChange(monthSelector.value, yearSelector.value);
+            });
 
-    yearSelector.addEventListener('change', () => {
-        handleMonthYearChange(monthSelector.value, yearSelector.value);
-    });
-
-    // Update URL without page refresh
-    function updateUrlParams(params) {
-        const url = new URL(window.location.href);
-        for (const [key, value] of Object.entries(params)) {
-            url.searchParams.set(key, value);
+            yearSelector.addEventListener('change', () => {
+                handleMonthYearChange(monthSelector.value, yearSelector.value);
+            });
         }
-        window.history.pushState({}, '', url);
-    }
 
-    // Fetch calendar data via AJAX
-    async function fetchCalendarData(month, year) {
-        try {
-            const response = await fetch(`/api/calendar?filmId=${filmId}&month=${month}&year=${year}`);
-            if (!response.ok) throw new Error('Failed to fetch calendar data');
-            const data = await response.json();
+        // Update URL without page refresh
+        function updateUrlParams(params) {
+            const url = new URL(window.location.href);
+            for (const [key, value] of Object.entries(params)) {
+                url.searchParams.set(key, value);
+            }
+            window.history.pushState({}, '', url);
+        }
 
-            // Lấy ngày hiện tại để so sánh
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+        // Fetch calendar data via AJAX
+        async function fetchCalendarData(month, year) {
+            try {
+                const response = await fetch(`/api/calendar?filmId=${filmId}&month=${month}&year=${year}`);
+                if (!response.ok) throw new Error('Failed to fetch calendar data');
+                const data = await response.json();
 
-            // Đánh dấu ngày thuộc tháng hiện tại và xác định ngày trong quá khứ
-            data.weeks.forEach(week => {
+                // Get current date for comparison
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                // Mark days in current month and identify past days
+                data.weeks.forEach(week => {
+                    week.days.forEach(day => {
+                        if (day.fullDate) {
+                            const dateObj = new Date(day.fullDate);
+                            dateObj.setHours(0, 0, 0, 0);
+
+                            day.isCurrentMonth = dateObj.getMonth() + 1 == month && dateObj.getFullYear() == year;
+                            day.isPast = dateObj < today;
+                        }
+                    });
+                });
+
+                return data;
+            } catch (error) {
+                console.error('Error fetching calendar data:', error);
+                return null;
+            }
+        }
+
+        // Fetch showtimes data via AJAX
+        async function fetchShowtimes(date) {
+            try {
+                const response = await fetch(`/api/showtimes-movie-ticket?filmId=${filmId}&date=${date}`);
+                if (!response.ok) throw new Error('Failed to fetch showtimes');
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching showtimes:', error);
+                return null;
+            }
+        }
+
+        // Update calendar UI
+        function updateCalendar(calendarData) {
+            const daysGrid = document.querySelector('.days-grid');
+
+            // Build calendar weeks
+            let calendarHtml = '';
+            calendarData.weeks.forEach(week => {
+                let weekHtml = '<div class="week">';
                 week.days.forEach(day => {
-                    // Nếu có ngày đầy đủ
-                    if (day.fullDate) {
-                        // Kiểm tra xem ngày có thuộc tháng hiện tại không
-                        const dateObj = new Date(day.fullDate);
-                        dateObj.setHours(0, 0, 0, 0);
+                    // Only display days of current month, leave other cells empty
+                    if (day.isCurrentMonth) {
+                        let classes = 'day';
+                        if (day.isToday) classes += ' today';
+                        if (day.isPast) classes += ' disabled';
+                        if (day.hasShowtimes) classes += ' has-showtime';
+                        if (day.fullDate === selectedDate) classes += ' selected';
 
-                        day.isCurrentMonth = dateObj.getMonth() + 1 == month &&
-                                           dateObj.getFullYear() == year;
-
-                        // Đảm bảo isPast được xác định chính xác ở phía client
-                        // So sánh với ngày hiện tại để xác định ngày quá khứ
-                        day.isPast = dateObj < today;
+                        weekHtml += `<div class="${classes}" data-date="${day.fullDate}" onclick="selectDate(this)">${day.dayOfMonth}</div>`;
+                    } else {
+                        // Create empty cell for days not in current month
+                        weekHtml += `<div class="day empty"></div>`;
                     }
                 });
+                weekHtml += '</div>';
+                calendarHtml += weekHtml;
             });
 
-            return data;
-        } catch (error) {
-            console.error('Error fetching calendar data:', error);
-            return null;
+            daysGrid.innerHTML = calendarHtml;
+
+            // Reattach event listeners
+            attachDateClickEvents();
         }
-    }
 
-    // Fetch showtimes data via AJAX
-    async function fetchShowtimes(date) {
-        try {
-            const response = await fetch(`/api/showtimes-movie-ticket?filmId=${filmId}&date=${date}`);
-            if (!response.ok) throw new Error('Failed to fetch showtimes');
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching showtimes:', error);
-            return null;
-        }
-    }
+        // Update showtimes UI
+        function updateShowtimes(showtimesData) {
+            const showtimesSection = document.querySelector('.showtimes-section');
+            let html = '<h2>Available Showtimes</h2>';
 
-    // Update calendar UI
-    function updateCalendar(calendarData) {
-        const daysGrid = document.querySelector('.days-grid');
-
-        // Build calendar weeks
-        let calendarHtml = '';
-        calendarData.weeks.forEach(week => {
-            let weekHtml = '<div class="week">';
-            week.days.forEach(day => {
-                // Chỉ hiển thị ngày của tháng hiện tại, để trống những ô khác
-                if (day.isCurrentMonth) {
-                    let classes = 'day';
-                    if (day.isToday) classes += ' today';
-                    if (day.isPast) classes += ' disabled';
-                    if (day.hasShowtimes) classes += ' has-showtime';
-                    if (day.fullDate === selectedDate) classes += ' selected';
-
-                    weekHtml += `<div class="${classes}" data-date="${day.fullDate}" onclick="selectDate(this)">${day.dayOfMonth}</div>`;
-                } else {
-                    // Tạo ô trống cho ngày không thuộc tháng hiện tại
-                    weekHtml += `<div class="day empty"></div>`;
-                }
-            });
-            weekHtml += '</div>';
-            calendarHtml += weekHtml;
-        });
-
-        daysGrid.innerHTML = calendarHtml;
-
-        // Reattach event listeners
-        attachDateClickEvents();
-    }
-
-    // Update showtimes UI
-    function updateShowtimes(showtimesData) {
-        const showtimesSection = document.querySelector('.showtimes-section');
-        let html = '<h2>Available Showtimes</h2>';
-
-        if (showtimesData.length === 0) {
-            html += '<p class="no-showtimes">No showtimes available for this date.</p>';
-        } else {
-            showtimesData.forEach(cinema => {
-                html += `
+            if (showtimesData.length === 0) {
+                html += '<p class="no-showtimes">No showtimes available for this date.</p>';
+            } else {
+                showtimesData.forEach(cinema => {
+                    html += `
                 <div class="cinema-item">
                     <div class="cinema-info">
                         <h3>${cinema.cinemaName}</h3>
@@ -266,8 +279,8 @@
                     <div class="showtime-slots">
                 `;
 
-                cinema.showtimes.forEach(showtime => {
-                    html += `
+                    cinema.showtimes.forEach(showtime => {
+                        html += `
                     <form action="/pick-seat" method="GET" class="time-slot-form">
                         <input type="hidden" name="filmId" value="${filmId}">
                         <input type="hidden" name="cinemaId" value="${cinema.cinemaId}">
@@ -278,143 +291,129 @@
                         </button>
                     </form>
                     `;
-                });
+                    });
 
-                html += `
+                    html += `
                     </div>
                 </div>
                 `;
+                });
+            }
+
+            showtimesSection.innerHTML = html;
+        }
+
+        // Attach click events to calendar days
+        function attachDateClickEvents() {
+            document.querySelectorAll('.calendar .day:not(.empty)').forEach(dayElement => {
+                // Don't attach event for disabled days
+                if (!dayElement.classList.contains('disabled')) {
+                    dayElement.addEventListener('click', async () => {
+                        // Remove selected class from previously selected date
+                        const previouslySelected = document.querySelector('.day.selected');
+                        if (previouslySelected) {
+                            previouslySelected.classList.remove('selected');
+                        }
+
+                        // Add selected class to new date
+                        dayElement.classList.add('selected');
+
+                        // Update selected date and URL
+                        selectedDate = dayElement.getAttribute('data-date');
+                        updateUrlParams({ date: selectedDate });
+
+                        // Fetch and update showtimes for the selected date
+                        const showtimesData = await fetchShowtimes(selectedDate);
+                        if (showtimesData) {
+                            updateShowtimes(showtimesData);
+                        }
+                    });
+                }
             });
         }
 
-        showtimesSection.innerHTML = html;
-    }
+        // Change month handler
+        async function handleMonthChange(next = true) {
+            const monthSelector = document.getElementById('month-selector');
+            const yearSelector = document.getElementById('year-selector');
+            let newMonth = Number(monthSelector.value);
+            let newYear = Number(yearSelector.value);
 
-    // Attach click events to calendar days
-    function attachDateClickEvents() {
-        document.querySelectorAll('.calendar .day:not(.empty)').forEach(dayElement => {
-            // Không gắn sự kiện click cho ngày đã bị disabled
-            if (!dayElement.classList.contains('disabled')) {
-                dayElement.addEventListener('click', async () => {
-                    // Remove selected class from previously selected date
-                    document.querySelector('.day.selected')?.classList.remove('selected');
+            if (next) {
+                newMonth++;
+                if (newMonth > 12) {
+                    newMonth = 1;
+                    newYear++;
+                }
+            } else {
+                newMonth--;
+                if (newMonth < 1) {
+                    newMonth = 12;
+                    newYear--;
+                }
+            }
 
-                    // Add selected class to new date
-                    dayElement.classList.add('selected');
+            // Update selectors
+            monthSelector.value = newMonth;
+            yearSelector.value = newYear;
 
-                    // Update selected date and URL
-                    selectedDate = dayElement.getAttribute('data-date');
-                    updateUrlParams({ date: selectedDate });
+            // Update URL and fetch data
+            await handleMonthYearChange(newMonth, newYear);
+        }
 
-                    // Fetch and update showtimes for the selected date
-                    const showtimesData = await fetchShowtimes(selectedDate);
-                    if (showtimesData) {
-                        updateShowtimes(showtimesData);
+        // Handle month and year change
+        async function handleMonthYearChange(month, year) {
+            // Update URL without page refresh
+            updateUrlParams({ month: month, year: year });
+
+            // Fetch and update calendar data
+            const calendarData = await fetchCalendarData(month, year);
+            if (calendarData) {
+                updateCalendar(calendarData);
+            }
+        }
+
+        // Initialize UI and events
+        function init() {
+            createDateSelectors();
+
+            // Initialize event listeners
+            document.getElementById('prev-month').addEventListener('click', () => handleMonthChange(false));
+            document.getElementById('next-month').addEventListener('click', () => handleMonthChange(true));
+
+            // Initial setup
+            attachDateClickEvents();
+
+            // Highlight selected date if in URL
+            highlightSelectedDateFromUrl();
+        }
+
+        // Highlight selected date from URL parameter
+        function highlightSelectedDateFromUrl() {
+            if (selectedDate) {
+                const dateElements = document.querySelectorAll('.day');
+                dateElements.forEach(dateElement => {
+                    const dateValue = dateElement.getAttribute('data-date');
+                    if (dateValue === selectedDate) {
+                        dateElement.classList.add('selected');
                     }
                 });
             }
-        });
-    }
-
-    // Change month handler
-    async function handleMonthChange(next = true) {
-        let newMonth = Number(monthSelector.value);
-        let newYear = Number(yearSelector.value);
-
-        if (next) {
-            newMonth++;
-            if (newMonth > 12) {
-                newMonth = 1;
-                newYear++;
-            }
-        } else {
-            newMonth--;
-            if (newMonth < 1) {
-                newMonth = 12;
-                newYear--;
-            }
         }
 
-        // Update selectors
-        monthSelector.value = newMonth;
-        yearSelector.value = newYear;
-
-        // Update URL and fetch data
-        await handleMonthYearChange(newMonth, newYear);
-    }
-
-    // Handle month and year change
-    async function handleMonthYearChange(month, year) {
-        // Update URL without page refresh
-        updateUrlParams({ month: month, year: year });
-
-        // Fetch and update calendar data
-        const calendarData = await fetchCalendarData(month, year);
-        if (calendarData) {
-            updateCalendar(calendarData);
-        }
-    }
-
-    // Initialize event listeners
-    document.getElementById('prev-month').addEventListener('click', () => handleMonthChange(false));
-    document.getElementById('next-month').addEventListener('click', () => handleMonthChange(true));
-
-    // Initial setup
-    attachDateClickEvents();
-});
-
-// Global function to be accessible from HTML onclick
-function selectDate(dayElement) {
-    // Chỉ cho phép chọn ngày nếu không phải ngày bị disable
-    if (!dayElement.classList.contains('disabled') && !dayElement.classList.contains('empty')) {
-        const clickEvent = new Event('click');
-        dayElement.dispatchEvent(clickEvent);
-    }
-}
-
-
-</script>
-
-<script>
-    // Lấy tất cả các form bên trong div showtime-slots
-    document.querySelectorAll('.time-slot-form').forEach(form => {
-        console.log("Form data:");
-        console.log("Film ID:", form.querySelector('input[name="filmId"]').value);
-        console.log("Cinema ID:", form.querySelector('input[name="cinemaId"]').value);
-        console.log("Showtime ID:", form.querySelector('input[name="showtimeId"]').value);
-        console.log("Selected Date:", form.querySelector('input[name="selectedDate"]').value);
+        // Initialize application
+        init();
     });
-</script>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-    // Lấy tham số date từ URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const selectedDate = urlParams.get('date');
-
-    // Nếu có tham số date trong URL
-    if (selectedDate) {
-        // Format lại date để so sánh (nếu cần)
-        // Ví dụ: từ 2025-06-25 thành 25/06/2025 nếu format hiển thị khác với format URL
-
-        // Tìm tất cả các phần tử ngày (giả sử class là 'date-option')
-        const dateElements = document.querySelectorAll('.day');
-
-        dateElements.forEach(dateElement => {
-            // Lấy giá trị date từ thuộc tính data-date
-            const dateValue = dateElement.getAttribute('data-date');
-
-            // Nếu date này trùng với selectedDate từ URL
-            if (dateValue === selectedDate) {
-                // Thêm class selected hoặc active
-                dateElement.classList.add('selected');
-                // Hoặc set style trực tiếp nếu cần
-                dateElement.style.backgroundColor = '#00a755';
-                dateElement.style.color = 'white';
-            }
-        });
+    // Global function accessible from HTML onclick
+    function selectDate(dayElement) {
+        // Only allow selection if day is not disabled
+        if (!dayElement.classList.contains('disabled') && !dayElement.classList.contains('empty')) {
+            const clickEvent = new Event('click');
+            dayElement.dispatchEvent(clickEvent);
+        }
     }
-});
 </script>
 </body>
+
 </html>

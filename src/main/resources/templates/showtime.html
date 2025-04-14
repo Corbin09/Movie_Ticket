@@ -4,18 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Showtime</title>
-    <link rel="stylesheet" th:href="@{/css/showtime.css}"/>
-    <link rel="stylesheet" th:href="@{/css/header_user.css}"/>
-    <link rel="stylesheet" th:href="@{/css/footer.css}"/>
+    <link rel="stylesheet" th:href="@{/css/showtime.css}" />
+    <link rel="stylesheet" th:href="@{/css/header_user.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
 <body>
 <!-- Header -->
 <header th:replace="fragments/header_user :: header"></header>
-<div class="showtime-container">
 
-    <div style="height: 132px;" class="adding-margin"></div>
+<div class="showtime-container">
+    <div class="adding-margin" style="height: 132px;"></div>
 
     <!-- Filter Section -->
     <div class="filter-container">
@@ -25,14 +25,13 @@
                 <div class="dropdown-wrapper">
                     <div id="region-dropdown" class="dropdown">
                         <div class="dropdown-text"
-                             th:text="${selectedRegion != null ? selectedRegion.regionName : 'Select Region'}">Select
-                            Region
+                             th:text="${selectedRegion != null ? selectedRegion.regionName : 'Select Region'}">
+                            Select Region
                         </div>
                         <i class="fas fa-chevron-down dropdown-icon"></i>
                     </div>
                     <div id="region-dropdown-menu" class="dropdown-menu" style="display: none;">
-                        <div th:each="region : ${regions}" class="dropdown-item"
-                             th:data-id="${region.regionId}"
+                        <div th:each="region : ${regions}" class="dropdown-item" th:data-id="${region.regionId}"
                              th:text="${region.regionName}"
                              th:classappend="${selectedRegion != null && selectedRegion.regionId == region.regionId ? 'selected' : ''}">
                         </div>
@@ -41,18 +40,18 @@
             </div>
 
             <!-- Cinema Filter (only visible after region is selected) -->
-            <div class="filter-row" id="cinema-filter-row" th:style="${selectedRegion == null ? 'display: none;' : ''}">
+            <div class="filter-row" id="cinema-filter-row"
+                 th:style="${selectedRegion == null ? 'display: none;' : ''}">
                 <div class="dropdown-wrapper">
                     <div id="cinema-dropdown" class="dropdown">
                         <div class="dropdown-text"
-                             th:text="${selectedCinema != null ? selectedCinema.cinemaName : 'Select Cinema'}">Select
-                            Cinema
+                             th:text="${selectedCinema != null ? selectedCinema.cinemaName : 'Select Cinema'}">
+                            Select Cinema
                         </div>
                         <i class="fas fa-chevron-down dropdown-icon"></i>
                     </div>
                     <div id="cinema-dropdown-menu" class="dropdown-menu" style="display: none;">
-                        <div th:each="cinema : ${cinemas}" class="dropdown-item"
-                             th:data-id="${cinema.cinemaId}"
+                        <div th:each="cinema : ${cinemas}" class="dropdown-item" th:data-id="${cinema.cinemaId}"
                              th:text="${cinema.cinemaName}"
                              th:classappend="${selectedCinema != null && selectedCinema.cinemaId == cinema.cinemaId ? 'selected' : ''}">
                         </div>
@@ -60,14 +59,14 @@
                 </div>
             </div>
         </div>
-        <!-- Showtime Filter -->
-        <div class="filter-row" id="showtime-filter-row" th:style="${selectedCinema == null ? 'display: none;' : ''}">
 
+        <!-- Showtime Filter -->
+        <div class="filter-row" id="showtime-filter-row"
+             th:style="${selectedCinema == null ? 'display: none;' : ''}">
             <div class="showtime-selector">
                 <div class="time-buttons">
                     <div th:each="showtime : ${showtimes}" class="time-button"
-                         th:data-showtime="${showtime.showTime}"
-                         th:text="${showtime.showTime}">
+                         th:data-showtime="${showtime.showTime}" th:text="${showtime.showTime}">
                     </div>
                 </div>
             </div>
@@ -76,115 +75,130 @@
         <!-- Age Restriction Note -->
         <div class="age-restriction-note">
             <span class="note-label">Note</span>
-            <span class="note-content">: Viewers under 13 years old can only select showtimes that end before 10:00 PM, and viewers under 16 years old can only select showtimes that end before 11:00 PM.</span>
+            <span class="note-content">: Viewers under 13 years old can only select showtimes that end before 10:00
+                    PM,
+                    and viewers under 16 years old can only select showtimes that end before 11:00 PM.</span>
         </div>
-
-        <!-- Movies Container -->
-        <div class="movies-container">
-            <!-- No Results Message -->
-            <div class="no-results" th:if="${#lists.isEmpty(films)}">
-                <h3>No films found matching your criteria</h3>
-                <p>Please try different filters or check back later for new showtimes.</p>
-            </div>
-
-            <!-- Films List -->
-            <div class="movies-grid" th:if="${not #lists.isEmpty(films)}">
-                <div th:each="film : ${films}">
-                    <a class="movie-card" th:href="@{'/View-movie-ticket?id=' + ${film.filmId}}">
-                        <div class="poster-container">
-                            <img th:src="@{${film.filmImg}}" th:alt="${film.filmName}" class="poster-image">
-                        </div>
-                        <div class="movie-details">
-                            <div class="movie-metadata">
-                                <div class="metadata-row">
-                                    <div class="movie-genre"
-                                         th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}"
-                                    ></div>
-                                    <div class="movie-duration" th:text="${film.duration} + ' mins'"></div>
-                                </div>
-                                <div class="movie-format">
-                                    <div class="format-text" th:text="${film.filmType}"></div>
-                                </div>
-                            </div>
-                            <div class="movie-title"
-                                 th:text="${film.filmName} + (${film.ageLimit != null && film.ageLimit > 0 ? ' - T' + film.ageLimit : ''})"></div>
-                            <div class="movie-origin" th:text="'Origin: ' + ${film.country}"></div>
-                            <div class="release-date"
-                                 th:text="'Release date: ' + ${#temporals.format(film.releaseDate, 'dd/MM/yyyy')}"></div>
-                            <div class="age-rating">
-                                <p class="rating-text"
-                                   th:text="'T' + ${film.ageLimit} + ' - The film is rated ' + ${film.ageLimit} + '+'"></p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pagination -->
-        <div class="pagination-container" th:if="${totalPages > 0}">
-            <div class="pagination">
-                <div class="page-item prev-page" th:classappend="${currentPage == 1} ? 'disabled'" th:text="'<<'"></div>
-                <div th:each="page : ${#numbers.sequence(1, totalPages)}"
-                     class="page-item"
-                     th:classappend="${page == currentPage} ? 'active' : ''"
-                     th:text="${page}"
-                     th:onclick="'window.location.href = \'' + @{/showtime(page=${page}, regionId=${selectedRegion?.regionId}, cinemaId=${selectedCinema?.cinemaId}, showTime=${param.showTime != null ? param.showTime[0] : null})} + '\''">
-                </div>
-                <div class="page-item next-page" th:classappend="${currentPage == totalPages} ? 'disabled'"
-                     th:text="'>>'"></div>
-            </div>
-        </div>
-
     </div>
-    <!-- Footer -->
-    <div th:replace="fragments/footer :: footer"></div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Get DOM elements
-            const regionDropdown = document.getElementById("region-dropdown");
-            const regionDropdownMenu = document.getElementById("region-dropdown-menu");
-            const cinemaFilterRow = document.getElementById("cinema-filter-row");
-            const cinemaDropdown = document.getElementById("cinema-dropdown");
-            const cinemaDropdownMenu = document.getElementById("cinema-dropdown-menu");
-            const showtimeFilterRow = document.getElementById("showtime-filter-row");
-            const showtimeSelector = document.querySelector('.showtime-selector');
-            const showtimeWrapper = document.querySelector('.showtime-selector-wrapper');
-            const prevBtn = document.querySelector('.prev-showtime-btn');
-            const nextBtn = document.querySelector('.next-showtime-btn');
-            const moviesContainer = document.querySelector(".movies-container");
+    <!-- Movies Container -->
+    <div class="movies-container">
+        <!-- No Results Message -->
+        <div class="no-results" th:if="${#lists.isEmpty(films)}">
+            <h3>No films found matching your criteria</h3>
+            <p>Please try different filters or check back later for new showtimes.</p>
+        </div>
 
-            // Get current URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            let currentRegionId = urlParams.get("regionId");
-            let currentCinemaId = urlParams.get("cinemaId");
-            let currentShowTime = urlParams.get("showTime");
-            let currentPage = urlParams.get("page") || 1;
+        <!-- Films List -->
+        <div class="movies-grid" th:if="${not #lists.isEmpty(films)}">
+            <div th:each="film : ${films}">
+                <a class="movie-card" th:href="@{'/View-movie-ticket?id=' + ${film.filmId}}">
+                    <div class="poster-container">
+                        <img th:src="@{${film.filmImg}}" th:alt="${film.filmName}" class="poster-image">
+                    </div>
+                    <div class="movie-details">
+                        <div class="movie-metadata">
+                            <div class="metadata-row">
+                                <div class="movie-genre"
+                                     th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">
+                                </div>
+                                <div class="movie-duration" th:text="${film.duration} + ' mins'"></div>
+                            </div>
+                            <div class="movie-format">
+                                <div class="format-text" th:text="${film.filmType}"></div>
+                            </div>
+                        </div>
+                        <div class="movie-title"
+                             th:text="${film.filmName} + (${film.ageLimit != null && film.ageLimit > 0 ? ' - T' + film.ageLimit : ''})">
+                        </div>
+                        <div class="movie-origin" th:text="'Origin: ' + ${film.country}"></div>
+                        <div class="release-date"
+                             th:text="'Release date: ' + ${#temporals.format(film.releaseDate, 'dd/MM/yyyy')}">
+                        </div>
+                        <div class="age-rating">
+                            <p class="rating-text"
+                               th:text="'T' + ${film.ageLimit} + ' - The film is rated ' + ${film.ageLimit} + '+'">
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
 
-            // Close dropdowns when clicking outside
-            document.addEventListener("click", function(event) {
-                if (!regionDropdown.contains(event.target)) {
-                    regionDropdownMenu.style.display = "none";
-                }
-                if (!cinemaDropdown.contains(event.target)) {
-                    cinemaDropdownMenu.style.display = "none";
-                }
-            });
+    <!-- Pagination -->
+    <div class="pagination-container" th:if="${totalPages > 0}">
+        <div class="pagination">
+            <div class="page-item prev-page" th:classappend="${currentPage == 1} ? 'disabled'" th:text="'<<'"></div>
+            <div th:each="page : ${#numbers.sequence(1, totalPages)}" class="page-item"
+                 th:classappend="${page == currentPage} ? 'active' : ''" th:text="${page}"
+                 th:onclick="'window.location.href = \'' + @{/showtime(page=${page}, regionId=${selectedRegion?.regionId}, cinemaId=${selectedCinema?.cinemaId}, showTime=${param.showTime != null ? param.showTime[0] : null})} + '\''">
+            </div>
+            <div class="page-item next-page" th:classappend="${currentPage == totalPages} ? 'disabled'"
+                 th:text="'>>'"></div>
+        </div>
+    </div>
+</div>
 
-            // Toggle region dropdown
-            regionDropdown.addEventListener("click", function(event) {
-                event.stopPropagation();
-                regionDropdownMenu.style.display = regionDropdownMenu.style.display === "none" ? "block" : "none";
-                cinemaDropdownMenu.style.display = "none"; // Close cinema dropdown
-            });
+<!-- Footer -->
+<div th:replace="fragments/footer :: footer"></div>
 
-            // Helper function to fetch data and update UI
-            function fetchAndUpdateContent(url, updateUrl = true) {
-                return fetch(url, {
-                    method: "GET",
-                    headers: { "X-Requested-With": "XMLHttpRequest" }
-                })
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Cache DOM elements
+        const elements = {
+            regionDropdown: document.getElementById("region-dropdown"),
+            regionDropdownMenu: document.getElementById("region-dropdown-menu"),
+            cinemaFilterRow: document.getElementById("cinema-filter-row"),
+            cinemaDropdown: document.getElementById("cinema-dropdown"),
+            cinemaDropdownMenu: document.getElementById("cinema-dropdown-menu"),
+            showtimeFilterRow: document.getElementById("showtime-filter-row"),
+            showtimeSelector: document.querySelector('.showtime-selector'),
+            moviesContainer: document.querySelector(".movies-container")
+        };
+
+        // Current state
+        const state = {
+            regionId: new URLSearchParams(window.location.search).get("regionId"),
+            cinemaId: new URLSearchParams(window.location.search).get("cinemaId"),
+            showTime: new URLSearchParams(window.location.search).get("showTime"),
+            page: new URLSearchParams(window.location.search).get("page") || 1
+        };
+
+        // Close dropdowns when clicking outside
+        document.addEventListener("click", function (event) {
+            if (!elements.regionDropdown.contains(event.target)) {
+                elements.regionDropdownMenu.style.display = "none";
+            }
+            if (!elements.cinemaDropdown.contains(event.target)) {
+                elements.cinemaDropdownMenu.style.display = "none";
+            }
+        });
+
+        // Toggle region dropdown
+        elements.regionDropdown.addEventListener("click", function (event) {
+            event.stopPropagation();
+            elements.regionDropdownMenu.style.display = elements.regionDropdownMenu.style.display === "none" ? "block" : "none";
+            elements.cinemaDropdownMenu.style.display = "none"; // Close cinema dropdown
+        });
+
+        // Toggle cinema dropdown
+        elements.cinemaDropdown.addEventListener("click", function (event) {
+            event.stopPropagation();
+            elements.cinemaDropdownMenu.style.display = elements.cinemaDropdownMenu.style.display === "none" ? "block" : "none";
+        });
+
+        /**
+         * Fetches content from the server and updates the UI
+         * @param {string} url - URL to fetch
+         * @param {boolean} updateUrl - Whether to update browser URL
+         * @returns {Promise} - Fetch promise
+         */
+        function fetchAndUpdateContent(url, updateUrl = true) {
+            return fetch(url, {
+                method: "GET",
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            })
                 .then(response => response.text())
                 .then(html => {
                     const parser = new DOMParser();
@@ -193,7 +207,7 @@
                     // Update movies container
                     const newMoviesContainer = doc.querySelector(".movies-container");
                     if (newMoviesContainer) {
-                        moviesContainer.innerHTML = newMoviesContainer.innerHTML;
+                        elements.moviesContainer.innerHTML = newMoviesContainer.innerHTML;
                     }
 
                     // Update pagination if it exists
@@ -208,11 +222,11 @@
                     if (url.includes("regionId=") && !url.includes("cinemaId=")) {
                         const newCinemaDropdown = doc.querySelector("#cinema-dropdown-menu");
                         if (newCinemaDropdown) {
-                            cinemaDropdownMenu.innerHTML = newCinemaDropdown.innerHTML;
+                            elements.cinemaDropdownMenu.innerHTML = newCinemaDropdown.innerHTML;
                             initializeCinemaListeners();
                         }
-                        cinemaFilterRow.style.display = "flex";
-                        showtimeFilterRow.style.display = "none";
+                        elements.cinemaFilterRow.style.display = "flex";
+                        elements.showtimeFilterRow.style.display = "none";
                     }
 
                     // If this is a cinema change, update showtimes list
@@ -223,7 +237,7 @@
                             currentShowtimeSelector.innerHTML = newShowtimeSelector.innerHTML;
                             initializeShowtimeListeners();
                         }
-                        showtimeFilterRow.style.display = "flex";
+                        elements.showtimeFilterRow.style.display = "flex";
                     }
 
                     // Update URL if needed
@@ -234,244 +248,192 @@
                 .catch(error => {
                     console.error("Error fetching data:", error);
                 });
-            }
+        }
 
-            // Handle region selection
-            function initializeRegionListeners() {
-                const regionItems = regionDropdownMenu.querySelectorAll(".dropdown-item");
-                regionItems.forEach(item => {
-                    item.addEventListener("click", function() {
-                        const regionId = this.getAttribute("data-id");
-                        const regionName = this.textContent.trim();
+        // Initialize region selection listeners
+        function initializeRegionListeners() {
+            const regionItems = elements.regionDropdownMenu.querySelectorAll(".dropdown-item");
+            regionItems.forEach(item => {
+                item.addEventListener("click", function () {
+                    const regionId = this.getAttribute("data-id");
+                    const regionName = this.textContent.trim();
 
-                        // Update dropdown text
-                        regionDropdown.querySelector(".dropdown-text").textContent = regionName;
+                    // Update dropdown text
+                    elements.regionDropdown.querySelector(".dropdown-text").textContent = regionName;
 
-                        // Mark this item as selected
-                        regionItems.forEach(ri => ri.classList.remove("selected"));
-                        this.classList.add("selected");
+                    // Mark this item as selected
+                    regionItems.forEach(ri => ri.classList.remove("selected"));
+                    this.classList.add("selected");
 
-                        // Reset cinema selection
-                        cinemaDropdown.querySelector(".dropdown-text").textContent = "Select Cinema";
+                    // Reset cinema selection
+                    elements.cinemaDropdown.querySelector(".dropdown-text").textContent = "Select Cinema";
 
-                        // Update current region ID
-                        currentRegionId = regionId;
-                        currentCinemaId = null;
-                        currentShowTime = null;
-                        currentPage = 1;
+                    // Update state
+                    state.regionId = regionId;
+                    state.cinemaId = null;
+                    state.showTime = null;
+                    state.page = 1;
 
-                        // Fetch new data with AJAX
-                        const url = `/showtime?regionId=${regionId}`;
-                        fetchAndUpdateContent(url);
+                    // Fetch new data with AJAX
+                    const url = `/showtime?regionId=${regionId}`;
+                    fetchAndUpdateContent(url);
 
-                        // Close dropdown
-                        regionDropdownMenu.style.display = "none";
-                    });
+                    // Close dropdown
+                    elements.regionDropdownMenu.style.display = "none";
                 });
-            }
+            });
+        }
 
-            // Toggle cinema dropdown
-            cinemaDropdown.addEventListener("click", function(event) {
-                event.stopPropagation();
-                cinemaDropdownMenu.style.display = cinemaDropdownMenu.style.display === "none" ? "block" : "none";
+        // Initialize cinema selection listeners
+        function initializeCinemaListeners() {
+            const cinemaItems = document.querySelectorAll("#cinema-dropdown-menu .dropdown-item");
+            cinemaItems.forEach(item => {
+                item.addEventListener("click", function () {
+                    const cinemaId = this.getAttribute("data-id");
+                    const cinemaName = this.textContent.trim();
+
+                    // Update dropdown text
+                    elements.cinemaDropdown.querySelector(".dropdown-text").textContent = cinemaName;
+
+                    // Mark this item as selected
+                    cinemaItems.forEach(ci => ci.classList.remove("selected"));
+                    this.classList.add("selected");
+
+                    // Update state
+                    state.cinemaId = cinemaId;
+                    state.showTime = null;
+                    state.page = 1;
+
+                    // Fetch new data with AJAX
+                    const url = `/showtime?regionId=${state.regionId}&cinemaId=${cinemaId}`;
+                    fetchAndUpdateContent(url);
+
+                    // Close dropdown
+                    elements.cinemaDropdownMenu.style.display = "none";
+                });
+            });
+        }
+
+        // Initialize showtime button listeners
+        function initializeShowtimeListeners() {
+            const showtimeButtons = document.querySelectorAll(".time-button");
+
+            // Remove duplicate times
+            const uniqueTimesSet = new Set();
+            showtimeButtons.forEach(button => {
+                const time = button.textContent.trim();
+                if (uniqueTimesSet.has(time)) {
+                    button.remove();
+                } else {
+                    uniqueTimesSet.add(time);
+                }
             });
 
-            // Handle cinema selection
-            function initializeCinemaListeners() {
-                const cinemaItems = document.querySelectorAll("#cinema-dropdown-menu .dropdown-item");
-                cinemaItems.forEach(item => {
-                    item.addEventListener("click", function() {
-                        const cinemaId = this.getAttribute("data-id");
-                        const cinemaName = this.textContent.trim();
+            // Add click listeners to remaining buttons
+            document.querySelectorAll(".time-button").forEach(button => {
+                button.addEventListener("click", function () {
+                    const selectedShowtime = this.getAttribute("data-showtime");
 
-                        // Update dropdown text
-                        cinemaDropdown.querySelector(".dropdown-text").textContent = cinemaName;
-
-                        // Mark this item as selected
-                        cinemaItems.forEach(ci => ci.classList.remove("selected"));
-                        this.classList.add("selected");
-
-                        // Update current cinema ID
-                        currentCinemaId = cinemaId;
-                        currentShowTime = null;
-                        currentPage = 1;
-
-                        // Fetch new data with AJAX
-                        const url = `/showtime?regionId=${currentRegionId}&cinemaId=${cinemaId}`;
-                        fetchAndUpdateContent(url);
-
-                        // Close dropdown
-                        cinemaDropdownMenu.style.display = "none";
+                    // Update active button visual state
+                    document.querySelectorAll(".time-button").forEach(btn => {
+                        btn.classList.remove("active");
                     });
+                    this.classList.add("active");
+
+                    // Update state
+                    state.showTime = selectedShowtime;
+                    state.page = 1;
+
+                    // Fetch new data with AJAX
+                    const url = `/showtime?regionId=${state.regionId}&cinemaId=${state.cinemaId}&showTime=${selectedShowtime}`;
+                    fetchAndUpdateContent(url);
                 });
-            }
+            });
 
-            // Initialize showtime buttons
-            function initializeShowtimeListeners() {
-                const showtimeButtons = document.querySelectorAll(".time-button");
-
-                // Remove duplicate times
-                const uniqueTimesSet = new Set();
-                showtimeButtons.forEach(button => {
-                    const time = button.textContent.trim();
-                    if (uniqueTimesSet.has(time)) {
-                        button.remove();
-                    } else {
-                        uniqueTimesSet.add(time);
+            // Highlight selected showtime if exists
+            if (state.showTime) {
+                document.querySelectorAll(".time-button").forEach(button => {
+                    if (button.getAttribute("data-showtime") === state.showTime) {
+                        button.classList.add('active');
                     }
                 });
+            }
+        }
 
-                // Add click listeners to remaining buttons
-                document.querySelectorAll(".time-button").forEach(button => {
-                    button.addEventListener("click", function() {
-                        const selectedShowtime = this.getAttribute("data-showtime");
-
-                        // Update active button visual state
-                        document.querySelectorAll(".time-button").forEach(btn => {
-                            btn.classList.remove("active");
-                        });
-                        this.classList.add("active");
-
-                        // Update current showtime
-                        currentShowTime = selectedShowtime;
-                        currentPage = 1;
-
-                        // Fetch new data with AJAX
-                        const url = `/showtime?regionId=${currentRegionId}&cinemaId=${currentCinemaId}&showTime=${selectedShowtime}`;
-                        fetchAndUpdateContent(url);
-                    });
-                });
-
-                // Highlight selected showtime if exists
-                if (currentShowTime) {
-                    document.querySelectorAll(".time-button").forEach(button => {
-                        if (button.getAttribute("data-showtime") === currentShowTime) {
-                            button.classList.add('active');
-                        }
-                    });
-                }
+        // Initialize pagination event listeners
+        function initializePaginationListeners() {
+            // Helper function to build URL with current parameters
+            function buildUrlWithParams(pageNumber) {
+                let url = `/showtime?page=${pageNumber}`;
+                if (state.regionId) url += `&regionId=${state.regionId}`;
+                if (state.cinemaId) url += `&cinemaId=${state.cinemaId}`;
+                if (state.showTime) url += `&showTime=${state.showTime}`;
+                return url;
             }
 
-            // Initialize pagination event listeners
-            function initializePaginationListeners() {
-                // Page number items
-                const paginationItems = document.querySelectorAll(".pagination .page-item:not(.prev-page):not(.next-page)");
-                paginationItems.forEach(item => {
-                    item.addEventListener("click", function(e) {
-                        e.preventDefault();
-                        const pageNumber = this.textContent.trim();
-                        currentPage = pageNumber;
-
-                        // Construct URL with all current parameters
-                        let url = `/showtime?page=${pageNumber}`;
-                        if (currentRegionId) url += `&regionId=${currentRegionId}`;
-                        if (currentCinemaId) url += `&cinemaId=${currentCinemaId}`;
-                        if (currentShowTime) url += `&showTime=${currentShowTime}`;
-
-                        fetchAndUpdateContent(url);
-                    });
+            // Page number items
+            const paginationItems = document.querySelectorAll(".pagination .page-item:not(.prev-page):not(.next-page)");
+            paginationItems.forEach(item => {
+                item.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const pageNumber = this.textContent.trim();
+                    state.page = pageNumber;
+                    fetchAndUpdateContent(buildUrlWithParams(pageNumber));
                 });
-
-                // Previous page button
-                const prevPageButton = document.querySelector(".prev-page");
-                if (prevPageButton) {
-                    prevPageButton.addEventListener("click", function(e) {
-                        e.preventDefault();
-                        const activePage = document.querySelector(".pagination .page-item.active");
-                        if (activePage && activePage.previousElementSibling && !activePage.previousElementSibling.classList.contains("prev-page")) {
-                            const prevPage = activePage.previousElementSibling;
-                            const pageNumber = prevPage.textContent.trim();
-                            currentPage = pageNumber;
-
-                            // Construct URL with all current parameters
-                            let url = `/showtime?page=${pageNumber}`;
-                            if (currentRegionId) url += `&regionId=${currentRegionId}`;
-                            if (currentCinemaId) url += `&cinemaId=${currentCinemaId}`;
-                            if (currentShowTime) url += `&showTime=${currentShowTime}`;
-
-                            fetchAndUpdateContent(url);
-                        }
-                    });
-                }
-
-                // Next page button
-                const nextPageButton = document.querySelector(".next-page");
-                if (nextPageButton) {
-                    nextPageButton.addEventListener("click", function(e) {
-                        e.preventDefault();
-                        const activePage = document.querySelector(".pagination .page-item.active");
-                        if (activePage && activePage.nextElementSibling && !activePage.nextElementSibling.classList.contains("next-page")) {
-                            const nextPage = activePage.nextElementSibling;
-                            const pageNumber = nextPage.textContent.trim();
-                            currentPage = pageNumber;
-
-                            // Construct URL with all current parameters
-                            let url = `/showtime?page=${pageNumber}`;
-                            if (currentRegionId) url += `&regionId=${currentRegionId}`;
-                            if (currentCinemaId) url += `&cinemaId=${currentCinemaId}`;
-                            if (currentShowTime) url += `&showTime=${currentShowTime}`;
-
-                            fetchAndUpdateContent(url);
-                        }
-                    });
-                }
-            }
-
-            // Ensure all required elements exist before adding scroll functionality
-            if (showtimeSelector && showtimeWrapper && prevBtn && nextBtn) {
-                // Scroll functionality
-                function updateScrollButtons() {
-                    const scrollLeft = showtimeSelector.scrollLeft;
-                    const maxScroll = showtimeSelector.scrollWidth - showtimeWrapper.clientWidth;
-
-                    prevBtn.style.display = scrollLeft > 0 ? 'block' : 'none';
-                    nextBtn.style.display = scrollLeft < maxScroll ? 'block' : 'none';
-                }
-
-                // Initial button state
-                updateScrollButtons();
-
-                // Scroll event listener
-                showtimeSelector.addEventListener('scroll', updateScrollButtons);
-
-                // Next button
-                nextBtn.addEventListener('click', function() {
-                    const scrollAmount = showtimeWrapper.clientWidth;
-                    showtimeSelector.scrollBy({
-                        left: scrollAmount,
-                        behavior: 'smooth'
-                    });
-                });
-
-                // Previous button
-                prevBtn.addEventListener('click', function() {
-                    const scrollAmount = showtimeWrapper.clientWidth;
-                    showtimeSelector.scrollBy({
-                        left: -scrollAmount,
-                        behavior: 'smooth'
-                    });
-                });
-            }
-
-            // Handle browser back/forward buttons
-            window.addEventListener('popstate', function(event) {
-                const urlParams = new URLSearchParams(window.location.search);
-                currentRegionId = urlParams.get("regionId");
-                currentCinemaId = urlParams.get("cinemaId");
-                currentShowTime = urlParams.get("showTime");
-                currentPage = urlParams.get("page") || 1;
-
-                // Update UI based on current URL params
-                fetchAndUpdateContent(window.location.href, false);
             });
 
-            // Initialize all listeners
-            initializeRegionListeners();
-            initializeCinemaListeners();
-            initializeShowtimeListeners();
-            initializePaginationListeners();
+            // Previous page button
+            const prevPageButton = document.querySelector(".prev-page");
+            if (prevPageButton) {
+                prevPageButton.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const activePage = document.querySelector(".pagination .page-item.active");
+                    if (activePage && activePage.previousElementSibling &&
+                        !activePage.previousElementSibling.classList.contains("prev-page")) {
+                        const prevPage = activePage.previousElementSibling;
+                        const pageNumber = prevPage.textContent.trim();
+                        state.page = pageNumber;
+                        fetchAndUpdateContent(buildUrlWithParams(pageNumber));
+                    }
+                });
+            }
+
+            // Next page button
+            const nextPageButton = document.querySelector(".next-page");
+            if (nextPageButton) {
+                nextPageButton.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const activePage = document.querySelector(".pagination .page-item.active");
+                    if (activePage && activePage.nextElementSibling &&
+                        !activePage.nextElementSibling.classList.contains("next-page")) {
+                        const nextPage = activePage.nextElementSibling;
+                        const pageNumber = nextPage.textContent.trim();
+                        state.page = pageNumber;
+                        fetchAndUpdateContent(buildUrlWithParams(pageNumber));
+                    }
+                });
+            }
+        }
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function (event) {
+            const urlParams = new URLSearchParams(window.location.search);
+            state.regionId = urlParams.get("regionId");
+            state.cinemaId = urlParams.get("cinemaId");
+            state.showTime = urlParams.get("showTime");
+            state.page = urlParams.get("page") || 1;
+
+            // Update UI based on current URL params
+            fetchAndUpdateContent(window.location.href, false);
         });
-    </script>
-</div>
+
+        // Initialize all listeners
+        initializeRegionListeners();
+        initializeCinemaListeners();
+        initializeShowtimeListeners();
+        initializePaginationListeners();
+    });
+</script>
 </body>
+
 </html>

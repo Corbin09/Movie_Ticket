@@ -3,93 +3,20 @@
 
 <head>
     <meta charset="UTF-8">
-    <title> Home </title>
+    <title>Home</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
-    <link rel="stylesheet" th:href="@{/css/home.css}" />
+    <link rel="stylesheet" th:href="@{/css/home.css}">
     <link rel="stylesheet" th:href="@{/css/header_user.css}">
-    <!-- Font Awesome -->
-    <!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">-->
-
-    <style>
-        .search-results-section {
-    margin: 15px 0 0;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.6); /* Adds transparency for gradient harmony */
-    border-radius: 8px;
-    color: white; /* Ensure text remains visible */
-}
-
-        .search-results-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .search-results-title h2 {
-    margin: 0;
-    font-size: 24px;
-    color: #0ad021; /* Matches active pagination dot */
-}
-
-
-        .search-query {
-            font-style: italic;
-            color: #555;
-        }
-
-        .search-count {
-            color: #888;
-            font-size: 14px;
-        }
-
-        .clear-search {
-    background-color: rgba(255, 69, 0, 0.9); /* Transparent red */
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s; text-decoration: none;
-}
-
-
-        .clear-search:hover {
-    background-color: #ff4e00; /* Bright orange on hover */
-}
-        .no-results-message {
-            text-align: center;
-            padding: 40px 0;
-            color: #555;
-        }
-
-        .no-results-message i {
-            font-size: 48px;
-            color: #ddd;
-            margin-bottom: 15px;
-            display: block;
-        }
-
-        .no-results-message h3 {
-            margin-bottom: 10px;
-            font-size: 20px;
-        }
-
-        .no-results-message p {
-            margin-bottom: 20px;
-        }
-    </style>
 </head>
 
 <body>
-
 <!-- Header -->
 <div th:replace="~{fragments/header_user :: header_user}"></div>
 
-<div style="height: 132px;" class="adding-margin"></div>
+<div class="adding-margin"></div>
 
 <div class="content-container">
     <!-- Search Results Section (only shows when search is performed) -->
@@ -104,18 +31,18 @@
         </div>
 
         <!-- When search has results -->
-        <!-- For search results section -->
         <div class="movie-grid" th:if="${not #lists.isEmpty(searchResults)}">
             <div th:each="film : ${searchResults}" class="movie-card">
                 <a th:href="@{'/detail-movie?id=' + ${film.filmId}}">
                     <div class="movie-poster-container">
-                        <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
+                        <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster" />
                     </div>
                     <div class="movie-info">
                         <div class="movie-meta">
-                            <span class="movie-category" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Category</span>
-                            <span class="movie-release-date"
-                                  th:text="${film.formattedReleaseDate}">Release Date</span>
+                                <span class="movie-category"
+                                      th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Category</span>
+                            <span class="movie-release-date" th:text="${film.formattedReleaseDate}">Release
+                                    Date</span>
                             <span class="movie-duration" th:text="${film.duration + ' min'}">Duration</span>
                         </div>
                         <div class="movie-title" th:text="${film.filmName}">Film Name</div>
@@ -132,20 +59,24 @@
             <p>Try checking your spelling or using different keywords</p>
         </div>
 
-        <!-- HTML mới cho pagination "Search Results" -->
-        <div class="pagination" id="pagibar-search-results" th:if="${not #lists.isEmpty(searchResults)}">
-            <a th:href="@{/user-search(query=${searchQuery}, page=${(currentPageSearch ?: 1) - 1 <= 0 ? 1 : (currentPageSearch ?: 1) - 1})}"
-               class="prev" th:classappend="${(currentPageSearch ?: 1) <= 1 ? 'disabled' : ''}">‹</a>
+        <!-- Pagination for Search Results -->
+        <div class="pagination-container">
+            <div class="pagination" id="pagibar-search-results" th:if="${not #lists.isEmpty(searchResults)}">
+                <a th:href="@{/user-search(query=${searchQuery}, page=${(currentPageSearch ?: 1) - 1 <= 0 ? 1 : (currentPageSearch ?: 1) - 1})}"
+                   class="prev" th:classappend="${(currentPageSearch ?: 1) <= 1 ? 'disabled' : ''}">‹‹</a>
 
-            <a th:each="i : ${#numbers.sequence(1, totalPagesSearch ?: 1)}"
-               th:href="@{/user-search(query=${searchQuery}, page=${i})}"
-               th:classappend="${(currentPageSearch ?: 1) == i ? 'active' : ''}"
-               th:text="${i}"></a>
+                <a th:each="i : ${#numbers.sequence(1, totalPagesSearch ?: 1)}"
+                   th:href="@{/user-search(query=${searchQuery}, page=${i})}"
+                   th:classappend="${(currentPageSearch ?: 1) == i ? 'active' : ''}" th:text="${i}"></a>
 
-            <a th:href="@{/user-search(query=${searchQuery}, page=${(currentPageSearch ?: 1) + 1 > (totalPagesSearch ?: 1) ? (totalPagesSearch ?: 1) : (currentPageSearch ?: 1) + 1})}"
-               class="next" th:classappend="${(currentPageSearch ?: 1) >= (totalPagesSearch ?: 1) ? 'disabled' : ''}">›</a>
+                <a th:href="@{/user-search(query=${searchQuery}, page=${(currentPageSearch ?: 1) + 1 > (totalPagesSearch ?: 1) ? (totalPagesSearch ?: 1) : (currentPageSearch ?: 1) + 1})}"
+                   class="next"
+                   th:classappend="${(currentPageSearch ?: 1) >= (totalPagesSearch ?: 1) ? 'disabled' : ''}">››</a>
+            </div>
         </div>
     </div>
+
+    <!-- Main Content (shown when not searching) -->
     <div th:if="${!searchPerformed}">
         <!-- Hero Banner -->
         <div class="hero-banner">
@@ -161,19 +92,20 @@
             </div>
         </div>
 
-        <!-- For Now Showing section -->
+        <!-- Now Showing section -->
         <h2 class="section-title">Now Showing</h2>
         <div class="movie-grid">
             <div th:each="film : ${nowShowingMovies}" class="movie-card">
                 <a th:href="@{'/detail-movie?id=' + ${film.filmId}}">
                     <div class="movie-poster-container">
-                        <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
+                        <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster" />
                     </div>
                     <div class="movie-info">
                         <div class="movie-meta">
-                            <span class="movie-category" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Horror</span>
-                            <span class="movie-release-date"
-                                  th:text="${film.formattedReleaseDate}">Release Date</span>
+                                <span class="movie-category"
+                                      th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Horror</span>
+                            <span class="movie-release-date" th:text="${film.formattedReleaseDate}">Release
+                                    Date</span>
                             <span class="movie-duration" th:text="${film.duration + ' min'}">114 min</span>
                         </div>
                         <div class="movie-title" th:text="${film.filmName}">DARK NUNS - T13 - 2D</div>
@@ -182,35 +114,36 @@
             </div>
         </div>
 
-        <!-- Pagination cho Now Showing -->
-        <div class = "pagination-container">
+        <!-- Pagination for Now Showing -->
+        <div class="pagination-container">
             <div class="pagination" id="pagibar-now-showing">
                 <a th:href="@{/home(currentPageNowShowing=${(currentPageNowShowing ?: 1) - 1 <= 0 ? 1 : (currentPageNowShowing ?: 1) - 1}, currentPageComingSoon=${currentPageComingSoon ?: 1})}"
                    class="prev" th:classappend="${(currentPageNowShowing ?: 1) <= 1 ? 'disabled' : ''}">‹‹</a>
 
                 <a th:each="i : ${#numbers.sequence(1, totalPagesNowShowing ?: 1)}"
                    th:href="@{/home(currentPageNowShowing=${i}, currentPageComingSoon=${currentPageComingSoon ?: 1})}"
-                   th:classappend="${(currentPageNowShowing ?: 1) == i ? 'active' : ''}"
-                   th:text="${i}"></a>
+                   th:classappend="${(currentPageNowShowing ?: 1) == i ? 'active' : ''}" th:text="${i}"></a>
 
                 <a th:href="@{/home(currentPageNowShowing=${(currentPageNowShowing ?: 1) + 1 > (totalPagesNowShowing ?: 1) ? (totalPagesNowShowing ?: 1) : (currentPageNowShowing ?: 1) + 1}, currentPageComingSoon=${currentPageComingSoon ?: 1})}"
-                   class="next" th:classappend="${(currentPageNowShowing ?: 1) >= (totalPagesNowShowing ?: 1) ? 'disabled' : ''}">››</a>
+                   class="next"
+                   th:classappend="${(currentPageNowShowing ?: 1) >= (totalPagesNowShowing ?: 1) ? 'disabled' : ''}">››</a>
             </div>
         </div>
 
-        <!-- For Coming Soon section -->
+        <!-- Coming Soon section -->
         <h2 class="section-title">Coming Soon</h2>
         <div class="movie-grid">
             <div th:each="film : ${comingSoonMovies}" class="movie-card">
                 <a th:href="@{'/detail-movie?id=' + ${film.filmId}}">
                     <div class="movie-poster-container">
-                        <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster"/>
+                        <img th:src="${film.filmImg}" th:alt="${film.filmName}" class="movie-poster" />
                     </div>
                     <div class="movie-info">
                         <div class="movie-meta">
-                            <span class="movie-category" th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Adventure</span>
-                            <span class="movie-release-date"
-                                  th:text="${film.formattedReleaseDate}">Release Date</span>
+                                <span class="movie-category"
+                                      th:text="${film.categoryNames != null && !film.categoryNames.isEmpty() ? #strings.listJoin(film.categoryNames, ', ') : 'N/A'}">Adventure</span>
+                            <span class="movie-release-date" th:text="${film.formattedReleaseDate}">Release
+                                    Date</span>
                             <span class="movie-duration" th:text="${film.duration + ' min'}">114 min</span>
                         </div>
                         <div class="movie-title" th:text="${film.filmName}">CAPTAIN AMERICA - T13 - 2D</div>
@@ -219,45 +152,47 @@
             </div>
         </div>
 
-        <!-- Pagination cho Coming Soon -->
-        <div class = "pagination-container">
+        <!-- Pagination for Coming Soon -->
+        <div class="pagination-container">
             <div class="pagination" id="pagibar-coming-soon">
                 <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing ?: 1}, currentPageComingSoon=${(currentPageComingSoon ?: 1) - 1 <= 0 ? 1 : (currentPageComingSoon ?: 1) - 1})}"
                    class="prev" th:classappend="${(currentPageComingSoon ?: 1) <= 1 ? 'disabled' : ''}">‹‹</a>
 
                 <a th:each="i : ${#numbers.sequence(1, totalPagesComingSoon ?: 1)}"
                    th:href="@{/home(currentPageNowShowing=${currentPageNowShowing ?: 1}, currentPageComingSoon=${i})}"
-                   th:classappend="${(currentPageComingSoon ?: 1) == i ? 'active' : ''}"
-                   th:text="${i}"></a>
+                   th:classappend="${(currentPageComingSoon ?: 1) == i ? 'active' : ''}" th:text="${i}"></a>
 
                 <a th:href="@{/home(currentPageNowShowing=${currentPageNowShowing ?: 1}, currentPageComingSoon=${(currentPageComingSoon ?: 1) + 1 > (totalPagesComingSoon ?: 1) ? (totalPagesComingSoon ?: 1) : (currentPageComingSoon ?: 1) + 1})}"
-                   class="next" th:classappend="${(currentPageComingSoon ?: 1) >= (totalPagesComingSoon ?: 1) ? 'disabled' : ''}">››</a>
+                   class="next"
+                   th:classappend="${(currentPageComingSoon ?: 1) >= (totalPagesComingSoon ?: 1) ? 'disabled' : ''}">››</a>
             </div>
         </div>
     </div>
 </div>
-<!-- Footer -->
-<div th:replace="fragments/footer :: footer"></div>
 
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
 
 <script>
-    <!--    Pagination Default-->
     document.addEventListener('DOMContentLoaded', function () {
+        // Hero slider functionality
         const heroImages = document.querySelectorAll('.hero-image');
         const dots = document.querySelectorAll('.pagination-dot');
         let currentSlide = 0;
 
-        // Hàm hiển thị slide theo chỉ số
+        // Show slide by index with smooth transition
         function showSlide(index) {
-            heroImages.forEach((img, i) => {
+            // Hide all slides
+            heroImages.forEach((img) => {
                 img.style.display = 'none';
                 img.classList.remove('active');
                 img.style.opacity = 0;
             });
 
+            // Remove active class from all dots
             dots.forEach(dot => dot.classList.remove('active'));
 
-            // Hiện ảnh với hiệu ứng mượt
+            // Show selected slide with fade-in effect
             const selectedImage = heroImages[index];
             selectedImage.style.display = 'block';
             setTimeout(() => {
@@ -265,215 +200,95 @@
                 selectedImage.classList.add('active');
             }, 50);
 
+            // Activate corresponding dot
             dots[index].classList.add('active');
             currentSlide = index;
         }
 
-        // Gán sự kiện click cho các dot
+        // Add click event to pagination dots
         dots.forEach((dot, index) => {
             dot.addEventListener('click', function () {
                 showSlide(index);
-                console.log(`Switched to slide ${index + 1}`);
             });
         });
 
-        // Hiển thị slide đầu tiên
+        // Initialize with first slide
         showSlide(0);
 
-        // Tự động chuyển slide mỗi 3 giây
+        // Auto-rotate slides every 3 seconds
         setInterval(() => {
             const nextSlide = (currentSlide + 1) % heroImages.length;
             showSlide(nextSlide);
-            console.log(`Automatically switched to slide ${nextSlide + 1}`);
         }, 3000);
-    });
 
+        // Define section identifiers for scroll handling
+        const sectionSelectors = {
+            'now-showing': '.section-title:nth-of-type(1)',
+            'coming-soon': '.section-title:nth-of-type(2)',
+            'search-results': '.search-results-section'
+        };
 
+        // Handle pagination link clicks for scroll positioning
+        const allPaginationLinks = document.querySelectorAll('.pagination a:not(.disabled)');
+        allPaginationLinks.forEach(link => {
+            link.addEventListener('click', function () {
+                let sectionId = null;
 
-
-    document.addEventListener('DOMContentLoaded', function () {
-        // Hero slider functionality with improved transitions
-    const slides = document.querySelectorAll('.hero-slider .hero-image');
-    const dots = document.querySelectorAll('.pagination-default .pagination-dot');
-    let currentSlide = 0;
-    let slideInterval;
-
-    function showSlide(index) {
-        // Hide all slides with fadeout
-        slides.forEach(slide => {
-            slide.style.opacity = 0;
-            setTimeout(() => {
-                slide.style.display = 'none';
-                slide.classList.remove('active');
-            }, 300);
-        });
-
-        // Remove active from all dots
-        dots.forEach(dot => {
-            dot.classList.remove('active');
-        });
-
-        // Show current slide with fadein
-        setTimeout(() => {
-            slides[index].style.display = 'block';
-            setTimeout(() => {
-                slides[index].style.opacity = 1;
-                slides[index].classList.add('active');
-            }, 50);
-
-            dots[index].classList.add('active');
-        }, 300);
-    }
-
-    function nextSlide() {
-        currentSlide = (currentSlide + 1) % slides.length;
-        showSlide(currentSlide);
-    }
-
-    // Initialize slider
-    slides.forEach(slide => {
-        slide.style.opacity = 0;
-        slide.style.transition = 'opacity 0.5s ease';
-    });
-    showSlide(0);
-
-    // Auto-rotate slides with reset on manual navigation
-    function startSlideshow() {
-        // Clear any existing interval
-        if (slideInterval) {
-            clearInterval(slideInterval);
-        }
-
-        // Set new interval
-        slideInterval = setInterval(nextSlide, 5000);
-    }
-
-    // Start the slideshow
-    startSlideshow();
-
-    // Manual navigation with dots
-    dots.forEach((dot, index) => {
-        dot.addEventListener('click', function() {
-            currentSlide = index;
-            showSlide(currentSlide);
-            startSlideshow(); // Reset interval
-        });
-    });
-
-    // Add scroll tracking with improved position calculation
-    function addSectionAnchors() {
-        // Add invisible anchor elements for better scrolling
-        const sections = [
-            { id: 'now-showing', selector: '.movie-section:nth-of-type(1)' },
-            { id: 'coming-soon', selector: '.movie-section:nth-of-type(2)' },
-            { id: 'search-results', selector: '.search-results-section' }
-        ];
-
-        sections.forEach(section => {
-            const element = document.querySelector(section.selector);
-            if (element) {
-                const anchor = document.createElement('span');
-                anchor.id = section.id + '-anchor';
-                anchor.className = 'section-anchor';
-                element.insertBefore(anchor, element.firstChild);
-            }
-        });
-    }
-
-    // Call the function to add anchors
-    addSectionAnchors();
-
-    });
-</script>
-<script>
-    // IMPROVED PAGINATION SCROLL HANDLING
-document.addEventListener('DOMContentLoaded', function () {
-    // Define section identifiers and their selectors
-    const sectionSelectors = {
-        'now-showing': '.movie-section:nth-of-type(1)',
-        'coming-soon': '.movie-section:nth-of-type(2)',
-        'search-results': '.search-results-section'
-    };
-
-    // Process click events on pagination links
-    const allPaginationLinks = document.querySelectorAll('.pagination a:not(.disabled)');
-    allPaginationLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            let sectionId = null;
-
-            // Identify which section was clicked
-            const paginationContainer = this.closest('.pagination');
-            if (paginationContainer) {
-                if (paginationContainer.id === 'pagibar-now-showing') {
-                    sectionId = 'now-showing';
-                } else if (paginationContainer.id === 'pagibar-coming-soon') {
-                    sectionId = 'coming-soon';
-                } else if (paginationContainer.id === 'pagibar-search-results') {
-                    sectionId = 'search-results';
-                }
-            }
-
-            if (sectionId) {
-                // Store both section ID and an exact Y-offset for more precise scrolling
-                const targetSection = document.querySelector(sectionSelectors[sectionId]);
-                if (targetSection) {
-                    const headerOffset = 132; // Adjust based on your header height
-                    const sectionPosition = targetSection.getBoundingClientRect().top + window.pageYOffset - headerOffset;
-
-                    // Save both section ID and exact position
-                    localStorage.setItem('scrollToSection', sectionId);
-                    localStorage.setItem('scrollPosition', sectionPosition);
-                    localStorage.setItem('scrollTimestamp', Date.now()); // Add timestamp to ensure freshness
-                }
-            }
-        });
-    });
-
-    // Handle scrolling after page load
-    const scrollToSection = localStorage.getItem('scrollToSection');
-    const scrollPosition = localStorage.getItem('scrollPosition');
-    const scrollTimestamp = localStorage.getItem('scrollTimestamp');
-
-    // Only use stored scroll data if it's recent (within last 5 seconds)
-    const isRecentScroll = scrollTimestamp && (Date.now() - parseInt(scrollTimestamp) < 5000);
-
-    if (scrollToSection && scrollPosition && isRecentScroll) {
-        // Use requestAnimationFrame for more reliable scrolling after DOM is rendered
-        window.requestAnimationFrame(() => {
-            // Try direct position first (more precise)
-            window.scrollTo({
-                top: parseInt(scrollPosition),
-                behavior: 'auto' // Use 'auto' for immediate jump to position
-            });
-
-            // As a backup, also try to scroll to the section element
-            setTimeout(() => {
-                const targetSelector = sectionSelectors[scrollToSection];
-                if (targetSelector) {
-                    const targetElement = document.querySelector(targetSelector);
-                    if (targetElement) {
-                        const headerHeight = 132;
-                        const sectionTitle = targetElement.querySelector('.section-title');
-                        const scrollTarget = sectionTitle || targetElement;
-
-                        const offsetPosition = scrollTarget.getBoundingClientRect().top +
-                                              window.pageYOffset - headerHeight;
-
-                        window.scrollTo({
-                            top: offsetPosition,
-                            behavior: 'auto'
-                        });
+                // Identify which section's pagination was clicked
+                const paginationContainer = this.closest('.pagination');
+                if (paginationContainer) {
+                    if (paginationContainer.id === 'pagibar-now-showing') {
+                        sectionId = 'now-showing';
+                    } else if (paginationContainer.id === 'pagibar-coming-soon') {
+                        sectionId = 'coming-soon';
+                    } else if (paginationContainer.id === 'pagibar-search-results') {
+                        sectionId = 'search-results';
                     }
                 }
 
-                // Clear the stored data regardless of success
-                localStorage.removeItem('scrollToSection');
-                localStorage.removeItem('scrollPosition');
-                localStorage.removeItem('scrollTimestamp');
-            }, 100);
+                if (sectionId) {
+                    // Store section information for scrolling after page load
+                    const targetSection = document.querySelector(sectionSelectors[sectionId]);
+                    if (targetSection) {
+                        const headerOffset = 132;
+                        const sectionPosition = targetSection.getBoundingClientRect().top +
+                            window.pageYOffset - headerOffset;
+
+                        localStorage.setItem('scrollToSection', sectionId);
+                        localStorage.setItem('scrollPosition', sectionPosition);
+                        localStorage.setItem('scrollTimestamp', Date.now());
+                    }
+                }
+            });
         });
-    }
-});
+
+        // Handle scrolling after page load
+        const scrollToSection = localStorage.getItem('scrollToSection');
+        const scrollPosition = localStorage.getItem('scrollPosition');
+        const scrollTimestamp = localStorage.getItem('scrollTimestamp');
+
+        // Only use stored scroll data if it's recent (within last 5 seconds)
+        const isRecentScroll = scrollTimestamp && (Date.now() - parseInt(scrollTimestamp) < 5000);
+
+        if (scrollToSection && scrollPosition && isRecentScroll) {
+            // Use requestAnimationFrame for reliable scrolling after DOM is rendered
+            window.requestAnimationFrame(() => {
+                // Scroll to the stored position
+                window.scrollTo({
+                    top: parseInt(scrollPosition),
+                    behavior: 'auto'
+                });
+
+                // Clean up stored scroll data
+                setTimeout(() => {
+                    localStorage.removeItem('scrollToSection');
+                    localStorage.removeItem('scrollPosition');
+                    localStorage.removeItem('scrollTimestamp');
+                }, 100);
+            });
+        }
+    });
 </script>
 </body>
+
 </html>
