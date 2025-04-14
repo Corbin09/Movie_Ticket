@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Movie Management</title>
+    <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Global Styles */
+        body {
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          background-color: #044a2c;
+          margin: 0;
+          padding: 0;
+          color: #333;
+        }
+
+        /* Main Container */
+        .container-orders-management {
+          display: flex;
+          justify-content: center;
+          padding: 20px;
+        }
+
+        .main-content {
+          background-color: #fff;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          width: 100%;
+          max-width: 1200px;
+          padding: 20px;
+          margin: 70px 0px 0px 250px;
+        }
+
+        /* Page Title */
+        .page-title {
+          color: #044a2c;
+          font-size: 24px;
+          margin-bottom: 20px;
+          font-weight: 600;
+        }
+
+        /* Search Form */
+        .search-form {
+          background-color: transparent;
+          padding: 0;
+          margin-bottom: 15px;
+          display: flex;
+          align-items: center;
+        }
+
+        .form-control, .form-select {
+          border: 1px solid #ced4da;
+          border-radius: 4px;
+          padding: 8px 12px;
+          font-size: 14px;
+        }
+
+        .search-input {
+          flex-grow: 1;
+          padding: 8px 12px;
+          border: 1px solid #ced4da;
+          border-radius: 4px;
+          font-size: 14px;
+          background-color: #fff;
+        }
+
+        .btn {
+          padding: 8px 16px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: 500;
+          transition: all 0.2s;
+        }
+
+        .btn-primary {
+          background-color: #044a2c;
+          color: white;
+          border: none;
+        }
+ /* Button styles - Updated Clear button */
+    .btn-clear {
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+      height: 38px;
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-clear {
+      background-color: #f8f9fa;
+      color: #333;
+      border: 1px solid #ced4da;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 38px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-weight: 500;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-clear:hover {
+      background-color: #e2e6ea;
+    }
+        .status-badge {
+        background-color: #fce4ec;
+        color: #d32f2f;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: lowercase;
+        display: inline-block;
+        }
+
+        .btn-clear {
+          background-color: #f8f9fa;
+          color: #333;
+          border: 1px solid #ced4da; margin-right: 18px;
+        }
+
+        .btn-primary:hover {
+          background-color: #033821;
+        }
+
+        .btn-clear:hover {
+          background-color: #e2e6ea;
+        }
+
+        /* Filter Area */
+        .filter-area {
+          display: flex;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+
+        .filter-label {
+          margin-right: 10px;
+          font-weight: 500;
+        }
+
+        /* Table Styles */
+        .table-responsive {
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .table {
+          width: 100%;
+          border-collapse: collapse;
+          background-color: #fff;
+          font-size: 14px;
+        }
+
+        .table th, .table td {
+          padding: 10px 15px;
+          text-align: left;
+          border-bottom: 1px solid #f1f1f1;
+        }
+
+        .table th {
+          background-color: #044a2c;
+          color: white;
+          font-weight: normal;
+        }
+
+        .table tr:hover {
+          background-color: #f8f9fa;
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+          background-color: #fafafa;
+        }
+
+        /* Checkbox Styles */
+        input[type="checkbox"] {
+          width: 16px;
+          height: 16px;
+          border: 1px solid #ced4da;
+          border-radius: 3px;
+          cursor: pointer;
+        }
+
+        /* Action Buttons */
+        .btn-group {
+          display: flex;
+          gap: 5px;
+        }
+
+        .btn-info {
+          background-color: #17a2b8;
+          color: white;
+          border: none;
+          padding: 4px 8px;
+          font-size: 12px;
+          border-radius: 3px;
+        }
+
+        .btn-info:hover {
+          background-color: #138496;
+        }
+
+        /* Simplified Search Form */
+        .search-form .row {
+          display: flex;
+          align-items: center;
+          width: 100%;
+        }
+
+        .col-md-3 {
+          width: 25%;
+          padding: 0 10px;
+        }
+
+        .col-md-7 {
+          width: 58.33%;
+          padding: 0 10px;
+        }
+
+        .col-md-2 {
+          width: 16.66%;
+          padding: 0 10px;
+        }
+
+        .d-flex {
+          display: flex;
+        }
+
+        .flex-grow-1 {
+          flex-grow: 1;
+        }
+
+        .me-2 {
+          margin-right: 0.5rem;
+        }
+
+        /* Dropdown Styles */
+        .dropdown-menu {
+          display: none;
+          position: absolute;
+          background-color: #fff;
+          min-width: 160px;
+          box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+          z-index: 1;
+          border-radius: 4px;
+        }
+
+        .dropdown-menu.show {
+          display: block;
+        }
+
+        .dropdown-item {
+          padding: 10px 16px;
+          text-decoration: none;
+          display: block;
+          color: #333;
+          cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+          background-color: #f1f1f1;
+        }
+
+        .filter-dropdown {
+          position: relative;
+          display: inline-block;
+          margin-right: 15px;
+        }
+
+        .dropdown-toggle {
+          background-color: #fff;
+          padding: 8px 12px;
+          border-radius: 4px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          min-width: 150px;
+          border: 1px solid #ced4da;
+        }
+
+        .dropdown-toggle i {
+          margin-left: 8px;
+        }
+
+        /* Search bar styles - Extended width */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      position: relative;
+      flex-grow: 1; margin-right: 20px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 8px 12px;
+      padding-right: 40px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 14px;
+      height: 38px;
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      background-color: #044a2c;
+      color: white;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+    }
+
+    .search-icon:hover {
+      background-color: #033821;
+    }
+
+
+        /* Alert Styles */
+        .alert {
+          padding: 12px 20px;
+          margin-bottom: 20px;
+          border: 1px solid transparent;
+          border-radius: 4px;
+        }
+
+        .alert-danger {
+          color: #721c24;
+          background-color: #f8d7da;
+          border-color: #f5c6cb;
+        }
+
+        .alert-success {
+          color: #155724;
+          background-color: #d4edda;
+          border-color: #c3e6cb;
+        }
+
+        .text-center {
+          text-align: center;
+        }
+
+        /* Pagination */
+        .pagination {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 1rem;
+          padding: 1rem;
+        }
+
+        .pagination-controls {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .del-paginate-movies {
+          display: flex;
+          flex-direction: row;
+        }
+
+        .del-paginate-movies .btn-danger {
+          margin-right: 12px;
+        }
+
+        .btn-danger {
+          background-color: #DC2626;
+          color: white;
+          border: none;
+        }
+
+        .btn-danger:hover {
+          background-color: #B91C1C;
+        }
+
+        .btn-danger:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .page-size-container {
+          display: flex;
+          align-items: center;
+          margin-right: 15px;
+        }
+
+        .lines-per-page-label {
+          margin-right: 8px;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+          visibility: hidden;
+          opacity: 0;
+          transition: visibility 0s, opacity 0.3s;
+        }
+
+        .modal-overlay.show {
+          visibility: visible;
+          opacity: 1;
+        }
+
+        .modal-content {
+          background-color: #fff;
+          border-radius: 8px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+          width: 90%;
+          max-width: 450px;
+          padding: 30px;
+          text-align: center;
+          transform: translateY(-20px);
+          transition: transform 0.3s;
+        }
+
+        .modal-overlay.show .modal-content {
+          transform: translateY(0);
+        }
+
+        .modal-icon {
+          margin-bottom: 20px;
+        }
+
+        .modal-icon i {
+          font-size: 48px;
+        }
+
+        .modal-title {
+          font-size: 24px;
+          font-weight: 600;
+          margin-bottom: 15px;
+        }
+
+        .modal-message {
+          font-size: 16px;
+          color: #666;
+          margin-bottom: 25px;
+          line-height: 1.5;
+        }
+
+        .modal-buttons {
+          display: flex;
+          justify-content: center;
+          gap: 15px;
+        }
+
+        .modal-btn {
+          padding: 10px 20px;
+          border-radius: 5px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: background-color 0.2s, transform 0.1s;
+          border: none;
+          outline: none;
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 100px;
+        }
+
+        .modal-btn:hover {
+          transform: translateY(-2px);
+        }
+
+        .modal-btn:active {
+          transform: translateY(0);
+        }
+
+        /* Delete Modal Specific Styles */
+        #deleteModal .modal-icon i {
+          color: #ff4d4f;
+        }
+
+        .delete-modal-cancel {
+          background-color: #f0f0f0;
+          color: #666;
+        }
+
+        .delete-modal-cancel:hover {
+          background-color: #e0e0e0;
+        }
+
+        .delete-modal-proceed {
+          background-color: #ff4d4f;
+          color: white;
+        }
+
+        .delete-modal-proceed:hover {
+          background-color: #ff3333;
+        }
+
+        /* Success Modal Specific Styles */
+        #successModal .modal-icon i {
+          color: #52c41a;
+        }
+
+        .success-modal-list {
+          background-color: #f0f0f0;
+          color: #666;
+        }
+
+        .success-modal-list:hover {
+          background-color: #e0e0e0;
+        }
+
+        .success-modal-dashboard {
+          background-color: #52c41a;
+          color: white;
+        }
+
+        .success-modal-dashboard:hover {
+          background-color: #49ad17;
+        }
+
+        /* Responsive modifications */
+        @media (max-width: 768px) {
+          .row {
+            flex-direction: column;
+          }
+
+          .col-md-3, .col-md-7, .col-md-2 {
+            width: 100%;
+            margin-bottom: 10px;
+          }
+
+          .filter-area {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .pagination {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+          }
+
+          .del-paginate-movies {
+            width: 100%;
+            justify-content: space-between;
+          }
+
+          .main-content {
+            margin: 70px 0 0 0;
+          }
+        }
+
+        @media (max-width: 576px) {
+          .container-orders-management {
+            padding: 10px;
+          }
+
+          .main-content {
+            padding: 15px;
+          }
+
+          .modal-content {
+            padding: 20px;
+          }
+
+          .modal-buttons {
+            flex-direction: column;
+          }
+        }
+
+             /* Updated pagination buttons for red color */
+    .pagination-controls button {
+      background-color: #e02220;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .pagination-controls button:hover {
+      background-color: #c41e1c;
+    }
+
+    .pagination-controls button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    </style>
+</head>
+<body>
+<!--<div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>-->
+
+<div class="container-orders-management">
+    <div class="main-content">
+        <h1 class="page-title">Movies Management</h1>
+
+        <form id="filterForm" method="get" th:action="@{/manage-movies}">
+            <div class="filter-area">
+                <div class="filter-label">Sort by:</div>
+                <div class="filter-dropdown">
+                    <input type="hidden" name="searchCriteria" id="searchCriteriaInput" th:value="${searchCriteria}"/>
+                    <div class="dropdown-toggle" id="searchCriteria">
+                        <span th:text="${searchCriteria != null ?
+                                         (searchCriteria == 'name_asc' ? 'A - Z' :
+                                          searchCriteria == 'status_now' ? 'Now Showing' :
+                                          searchCriteria == 'status_soon' ? 'Coming Soon' :
+                                          searchCriteria == 'age_low' ? 'Age limit (Low to High)' :
+                                          searchCriteria == 'normal' ? 'Normal' : 'A - Z') : 'A - Z'}">A - Z</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-menu" id="searchCriteriaDropdown">
+                        <div class="dropdown-item" data-value="normal">Normal</div>
+                        <div class="dropdown-item" data-value="name_asc">A - Z</div>
+                        <div class="dropdown-item" data-value="status_now">Now Showing</div>
+                        <div class="dropdown-item" data-value="status_soon">Coming Soon</div>
+                        <div class="dropdown-item" data-value="age_low">Age limit (Low to High)</div>
+                    </div>
+                </div>
+                <div class="search-bar">
+                    <input type="text" class="search-input" name="searchQuery" id="searchQuery"
+                           placeholder="Search..." th:value="${searchQuery}" />
+                    <button type="submit" class="search-icon"><i class="fas fa-search"></i></button>
+                </div>
+                <button id="clearButton" class="btn-clear">Clear</button>
+                <button type="button" class="btn btn-primary" onclick="window.location.href='/manage-movies/add-movie'" style="margin-left: auto;">
+                    <i class="fas fa-plus"></i> Add movie
+                </button>
+            </div>
+        </form>
+
+        <div th:if="${errorMessage}" id="errorMessageContainer" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" id="successMessage" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
+
+        <div class="table-responsive">
+            <table id="movieTable" class="table table-striped table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th><input type="checkbox" id="selectAll"></th>
+                    <th>Movie Name</th>
+                    <th>Description</th>
+                    <th>Age limit</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="film : ${films}" th:data-movie-id="${film.filmId}">
+                    <td><input type="checkbox" class="movie-checkbox" th:data-id="${film.filmId}"></td>
+                    <td th:text="${film.filmName}"></td>
+                    <td th:text="${film.filmDescription != null ? film.filmDescription : 'N/A'}"></td>
+                    <td th:text="${film.ageLimit != null ? film.ageLimit : 'N/A'}"></td>
+                    <td th:text="${film.duration != null ? film.duration + ' min' : 'N/A'}"></td>
+                    <td th:text="${film.releaseDate != null && film.releaseDate <= T(java.time.LocalDate).now() ? 'Now Showing' : 'Coming Soon'}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(films)}">
+                    <td colspan="7" class="text-center">No movie found</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <span th:text="'Showing '
+            + ${#numbers.formatInteger(((currentPage - 1) * pageSize + 1), 0)} + '-'
+            + ${#numbers.formatInteger(((currentPage * pageSize > totalItems) ? totalItems : currentPage * pageSize), 0)} + ' of ' + ${totalItems}">
+                    Showing 1-10 of 10
+            </span>
+            <div class="del-paginate-movies">
+                <button class="btn btn-danger" id="deleteSelected" disabled>Delete</button>
+                <div class="pagination-controls">
+                    <div class="page-size-container">
+                        <span class="lines-per-page-label">Lines per page:</span>
+                        <select id="pageSizeSelect">
+                            <option value="10" th:selected="${pageSize == 10}">10</option>
+                            <option value="20" th:selected="${pageSize == 20}">20</option>
+                            <option value="30" th:selected="${pageSize == 30}">30</option>
+                        </select>
+                    </div>
+                    <form method="get" th:action="@{/manage-movies}" style="display: flex;">
+                        <input type="hidden" name="page" th:value="${currentPage - 1}"/>
+                        <input type="hidden" name="size" th:value="${pageSize}"/>
+                        <button id="prevPage" th:disabled="${currentPage <= 1}"><i class="fas fa-chevron-left"></i></button>
+                    </form>
+                    <form method="get" th:action="@{/manage-movies}" style="display: flex;">
+                        <input type="hidden" name="page" th:value="${currentPage + 1}"/>
+                        <input type="hidden" name="size" th:value="${pageSize}"/>
+                        <button id="nextPage" th:disabled="${currentPage >= totalPages}"><i class="fas fa-chevron-right"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div id="deleteModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h2 class="modal-title">Warning</h2>
+        <p class="modal-message">Are you sure you want to delete the selected movie(s)? This action cannot be undone.</p>
+        <div class="modal-buttons">
+            <button class="modal-btn delete-modal-cancel" id="cancelDelete">Cancel</button>
+            <button class="modal-btn delete-modal-proceed" id="confirmDelete">Proceed</button>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2 class="modal-title">Delete Success!</h2>
+        <p class="modal-message">Success! Movie(s) has been deleted successfully.</p>
+        <div class="modal-buttons">
+            <a href="/manage-movies" class="modal-btn success-modal-list">Go to Movie List</a>
+            <a href="/admin-dashboard" class="modal-btn success-modal-dashboard">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+    const selectAll = document.getElementById("selectAll");
+    const deleteBtn = document.getElementById("deleteSelected");
+    const deleteModal = document.getElementById("deleteModal");
+    const successModal = document.getElementById("successModal");
+    const cancelDelete = document.getElementById("cancelDelete");
+    const confirmDelete = document.getElementById("confirmDelete");
+    let selectedMovieIds = [];
+
+    // Handle checkboxes for movie selection
+    function getCheckboxes() {
+        return document.querySelectorAll(".movie-checkbox");
+    }
+
+    function toggleDeleteButton() {
+        const anyChecked = [...getCheckboxes()].some(cb => cb.checked);
+        deleteBtn.disabled = !anyChecked;
+    }
+
+    function bindCheckboxEvents() {
+        getCheckboxes().forEach(cb => {
+            cb.addEventListener("change", () => {
+                const movieId = cb.getAttribute("data-id");
+
+                if (cb.checked) {
+                    if (!selectedMovieIds.includes(movieId)) {
+                        selectedMovieIds.push(movieId);
+                    }
+                } else {
+                    selectedMovieIds = selectedMovieIds.filter(id => id !== movieId);
+                }
+
+                toggleDeleteButton();
+            });
+        });
+    }
+
+    bindCheckboxEvents(); // Bind when page loads
+
+    if (selectAll) {
+        selectAll.addEventListener("change", () => {
+            const checkboxes = getCheckboxes();
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+                const movieId = cb.getAttribute("data-id");
+
+                if (selectAll.checked) {
+                    if (!selectedMovieIds.includes(movieId)) {
+                        selectedMovieIds.push(movieId);
+                    }
+                } else {
+                    selectedMovieIds = selectedMovieIds.filter(id => id !== movieId);
+                }
+            });
+            toggleDeleteButton();
+        });
+    }
+
+    // Modal functions
+    function showDeleteModal() {
+        deleteModal.classList.add("show");
+        document.body.style.overflow = 'hidden';
+
+        // Update message with number of selected movies
+        const messageElement = deleteModal.querySelector(".modal-message");
+        messageElement.textContent = `Are you sure you want to delete ${selectedMovieIds.length} selected movie(s)? This action cannot be undone.`;
+    }
+
+    function hideDeleteModal() {
+        deleteModal.classList.remove("show");
+        document.body.style.overflow = '';
+    }
+
+    function showSuccessModal() {
+        successModal.classList.add("show");
+        document.body.style.overflow = 'hidden';
+
+        // Update success message
+        const messageElement = successModal.querySelector(".modal-message");
+        messageElement.textContent = `Success! ${selectedMovieIds.length} movie(s) has been deleted successfully.`;
+    }
+
+    function hideSuccessModal() {
+        successModal.classList.remove("show");
+        document.body.style.overflow = '';
+    }
+
+    // Delete functionality
+    function performDelete() {
+        if (selectedMovieIds.length > 0) {
+            console.log("Sending delete IDs: ", selectedMovieIds);
+
+            fetch("/manage-movies/delete-movies", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector("meta[name='_csrf']").content
+                },
+                body: JSON.stringify({ ids: selectedMovieIds })
+            }).then(res => res.text().then(text => {
+                hideDeleteModal();
+                if (res.ok) {
+                    showSuccessModal();
+
+                    // Remove deleted rows from table
+                    selectedMovieIds.forEach(id => {
+                        const row = document.querySelector(`tr .movie-checkbox[data-id="${id}"]`)?.closest('tr');
+                        if (row) row.remove();
+                    });
+
+                    // Reset selection state
+                    selectedMovieIds = [];
+                    selectAll.checked = false;
+                    toggleDeleteButton();
+
+                    // Update pagination info
+                    updatePaginationInfo();
+                } else {
+                    alert("Failed to delete: " + text);
+                }
+            }))
+            .catch(err => {
+                hideDeleteModal();
+                alert("Error: " + err);
+            });
+        }
+    }
+// Get all movie table rows
+const movieRows = document.querySelectorAll('#movieTable tbody tr');
+
+// Make table rows clickable to edit
+movieRows.forEach(row => {
+  // Skip the "No movie found" row if present
+  if (!row.querySelector('td[colspan]')) {
+    row.style.cursor = 'pointer';
+    // Add click event to all cells in the row
+    row.querySelectorAll('td').forEach(cell => {
+      cell.addEventListener('click', function() {
+        const movieId = row.getAttribute('data-movie-id');
+        if (movieId) {
+          window.location.href = `/edit-movie?id=${movieId}`;
+        }
+      });
+    });
+  }
+});
+
+
+    // Update pagination info after deletion
+    function updatePaginationInfo() {
+        const paginationInfo = document.querySelector('.pagination span');
+        if (paginationInfo) {
+            const totalRows = document.querySelectorAll('.table tbody tr:not(.text-center)').length;
+            const currentText = paginationInfo.textContent;
+            const match = currentText.match(/Showing (\d+)-\d+ of \d+/);
+
+            if (match) {
+                const start = parseInt(match[1]);
+                const end = Math.min(start + totalRows - 1, totalRows);
+                paginationInfo.textContent = `Showing ${start}-${end} of ${totalRows}`;
+            }
+        }
+    }
+
+    // Filter dropdown
+    const toggle = document.getElementById("searchCriteria");
+    const dropdown = document.getElementById("searchCriteriaDropdown");
+
+    if (toggle && dropdown) {
+        toggle.addEventListener("click", () => {
+            dropdown.classList.toggle("show");
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!toggle.contains(event.target)) {
+                dropdown.classList.remove("show");
+            }
+        });
+
+        document.querySelectorAll(".dropdown-item").forEach(item => {
+            item.addEventListener("click", () => {
+                const value = item.getAttribute("data-value");
+                document.getElementById("searchCriteriaInput").value = value;
+                document.getElementById("filterForm").submit();
+            });
+        });
+    }
+
+    // Page size select event
+    const pageSizeSelect = document.getElementById("pageSizeSelect");
+    if (pageSizeSelect) {
+        pageSizeSelect.addEventListener("change", () => {
+            window.location.href = `/manage-movies?page=1&size=${pageSizeSelect.value}`;
+        });
+    }
+
+    // Delete modal event listeners
+    deleteBtn.addEventListener("click", () => {
+        if (selectedMovieIds.length > 0) {
+            showDeleteModal();
+        }
+    });
+
+    cancelDelete.addEventListener("click", hideDeleteModal);
+    confirmDelete.addEventListener("click", performDelete);
+
+    // Close modals when clicking outside
+    deleteModal.addEventListener("click", (e) => {
+        if (e.target === deleteModal) {
+            hideDeleteModal();
+        }
+    });
+
+    successModal.addEventListener("click", (e) => {
+        if (e.target === successModal) {
+            hideSuccessModal();
+        }
+    });
+
+    // Close modals with escape key
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            hideDeleteModal();
+            hideSuccessModal();
+        }
+    });
+
+    // Initialize delete button state
+    toggleDeleteButton();
+});
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all movie table rows
+        const movieRows = document.querySelectorAll('#movieTable tbody tr');
+
+        // Make table rows clickable to edit
+        movieRows.forEach(row => {
+            // Skip the "No movie found" row if present
+            if (!row.querySelector('td[colspan]')) {
+                row.style.cursor = 'pointer';
+                // Add click event to all cells in the row
+                row.querySelectorAll('td:not(:first-child)').forEach(cell => {
+                    cell.addEventListener('click', function() {
+                        const movieId = row.getAttribute('data-movie-id');
+                        if (movieId) {
+                            window.location.href = `/manage-movies/edit-movie?id=${movieId}`;
+                        }
+                    });
+                });
+            }
+        });
+
+        // Your clear button code can go here as well
+        const clearButton = document.getElementById('clearButton');
+        if (clearButton) {
+            clearButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('searchQuery').value = '';
+                document.getElementById('searchCriteriaInput').value = 'normal';
+                document.querySelector('#searchCriteria span').textContent = 'Normal';
+                document.getElementById('filterForm').submit();
+            });
+        }
+    });
+</script>
+</body>
+</html>

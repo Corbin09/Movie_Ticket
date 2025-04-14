@@ -1,200 +1,149 @@
 package Se2.MovieTicket.controllers;
-import jakarta.servlet.http.HttpSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import Se2.MovieTicket.dto.FilmDTO;
 import Se2.MovieTicket.impl.UserDetailsImpl;
-import Se2.MovieTicket.model.Film;
 import Se2.MovieTicket.model.User;
 import Se2.MovieTicket.service.FilmService;
 import Se2.MovieTicket.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.time.LocalDate;
+import java.util.*;
 
-@RestController
-@RequestMapping("/api/films")
+@Controller
+@RequestMapping("/")
 public class FilmController {
-    @Autowired
-    private FilmService filmService;
-    private static final Logger logger = LoggerFactory.getLogger(FilmController.class);
-
     @Autowired
     private UserService userService;
 
-    @GetMapping
-    public ResponseEntity<List<Film>> getAllFilms() {
-        if (!userService.hasRole("Admin") && !userService.hasRole("User ")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    private final FilmService filmService;
+
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
+
+    @GetMapping("/manage-movies")
+    public String manageMovies(
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "10") int size,
+            @RequestParam(required = false) String searchQuery,
+            @RequestParam(required = false) String searchCriteria,
+            Model model,
+            HttpServletRequest request) {
+
+        if (!userService.hasRole("ROLE_ADMIN")) {
+            return "redirect:/access-denied";
         }
-        List<Film> films = filmService.getAllFilms();
-        return films.isEmpty() ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(films, HttpStatus.OK);
-    }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Film> getFilmById(@PathVariable("id") Long id) {
-        if (!userService.hasRole("Admin") && !userService.hasRole("User ")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        addUserToModel(model, request);
+
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<FilmDTO> filmsPage;
+
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            filmsPage = filmService.searchFilms(searchQuery, pageable).map(filmService::convertToDTO);
+        } else {
+            filmsPage = filmService.getAllFilms(pageable);
         }
-        return filmService.getFilmById(id)
-                .map(film -> new ResponseEntity<>(film, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
 
-    @PostMapping
-    public ResponseEntity<Film> createFilm(@RequestBody FilmDTO filmDTO) {
-        if (!userService.hasRole("Admin")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        List<FilmDTO> films = new ArrayList<>(filmsPage.getContent());
+
+        if (searchCriteria != null) {
+            switch (searchCriteria) {
+                case "name_asc":
+                    films.sort(Comparator.comparing(FilmDTO::getFilmName, String.CASE_INSENSITIVE_ORDER));
+                    break;
+                case "age_low":
+                    films.sort(Comparator.comparing(FilmDTO::getAgeLimit, Comparator.nullsLast(Integer::compareTo)));
+                    break;
+                case "status_now":
+                    films.removeIf(f -> f.getReleaseDate() == null || f.getReleaseDate().isAfter(LocalDate.now()));
+                    break;
+                case "status_soon":
+                    films.removeIf(f -> f.getReleaseDate() == null || !f.getReleaseDate().isAfter(LocalDate.now()));
+                    break;
+                case "normal":
+                default:
+                    // No filter
+                    break;
+            }
         }
-        Film newFilm = filmService.createFilm(filmDTO);
-        return new ResponseEntity<>(newFilm, HttpStatus.CREATED);
+
+        model.addAttribute("films", films);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("totalItems", filmsPage.getTotalElements());
+        model.addAttribute("totalPages", filmsPage.getTotalPages());
+        model.addAttribute("pageSizes", Arrays.asList(5, 10, 20, 50));
+        model.addAttribute("currPage", "manage-movies");
+        model.addAttribute("searchQuery", searchQuery);
+        model.addAttribute("searchCriteria", searchCriteria);
+
+        return "manage-movies";
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Film> updateFilm(@PathVariable("id") Long id, @RequestBody FilmDTO filmDTO) {
-        if (!userService.hasRole("Admin")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    @PostMapping("/manage-movies/delete-movies")
+    @ResponseBody
+    public ResponseEntity<String> deleteSelectedMovies(@RequestBody Map<String, List<Long>> payload) {
+        List<Long> ids = payload.get("ids");
+
+        System.out.println("Received IDs for deletion: " + ids); // DEBUG LOG
+
+        try {
+            for (Long id : ids) {
+                filmService.deleteFilm(id);
+            }
+            return ResponseEntity.ok("Deleted successfully: " + ids.size() + " items");
+        } catch (Exception e) {
+            e.printStackTrace(); // DEBUG
+            return ResponseEntity.badRequest().body("Failed to delete: " + e.getMessage());
         }
-        Film updatedFilm = filmService.updateFilm(id, filmDTO);
-        return updatedFilm != null ? new ResponseEntity<>(updatedFilm, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteFilm(@PathVariable("id") Long id) {
-        if (!userService.hasRole("Admin")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    @GetMapping("/manage-movies/add-movie")
+    public String showAddMovieForm(Model model, HttpServletRequest request) {
+        model.addAttribute("film", new FilmDTO());
+        addUserToModel(model, request);
+        model.addAttribute("currPage", "manage-movies");
+        return "add-movie";
+    }
+
+    @PostMapping("/manage-movies/add-movie")
+    public String addMovie(@ModelAttribute FilmDTO filmDTO) {
+        filmService.createFilm(filmDTO);
+        return "redirect:/manage-movies";
+    }
+
+    private void addUserToModel(Model model, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        User sessionUser = (session != null) ? (User) session.getAttribute("user") : null;
+
+        if (sessionUser == null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                sessionUser = userService.getUserById(userDetails.getId()).orElse(null);
+
+                if (sessionUser != null && session != null) {
+                    session.setAttribute("user", sessionUser);
+                }
+            }
         }
-        filmService.deleteFilm(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        if (sessionUser != null) {
+            model.addAttribute("user", sessionUser);
+        }
     }
-
-    @GetMapping("/search")
-    public ResponseEntity<List<FilmDTO>> searchFilms(@RequestParam(required = false) String name) {
-        List<Film> films = filmService.searchFilms(name);
-
-        // Format ngày tháng theo "dd/MM/yyyy"
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-        // Convert danh sách Film sang FilmDTO và format ngày tháng
-        List<FilmDTO> filmDTOs = films.stream().map(film -> {
-            FilmDTO filmDTO = new FilmDTO();
-            filmDTO.setFilmId(film.getFilmId());
-            filmDTO.setFilmName(film.getFilmName());
-            filmDTO.setFilmImg(film.getFilmImg());
-            filmDTO.setFilmTrailer(film.getFilmTrailer());
-            filmDTO.setFilmDescription(film.getFilmDescription());
-            filmDTO.setReleaseDate(film.getReleaseDate());
-            filmDTO.setFormattedReleaseDate(film.getReleaseDate().format(formatter));  // Format ngày tháng
-
-            filmDTO.setDuration(film.getDuration());
-            filmDTO.setFilmType(film.getFilmType());
-            filmDTO.setCountry(film.getCountry());
-            filmDTO.setAgeLimit(film.getAgeLimit());
-
-            // Set các danh sách liên quan
-            filmDTO.setDirectorNames(film.getFilmDirectors().stream()
-                    .map(fd -> fd.getDirector().getDirectorName())
-                    .collect(Collectors.toList()));
-
-            filmDTO.setActorNames(film.getFilmActors().stream()
-                    .map(fa -> fa.getActor().getActorName())
-                    .collect(Collectors.toList()));
-
-            filmDTO.setCategoryNames(film.getFilmCategories().stream()
-                    .map(fc -> fc.getCategory().getCategoryName())
-                    .collect(Collectors.toList()));
-
-            return filmDTO;  // Trả về DTO đã convert
-        }).collect(Collectors.toList());
-
-        return filmDTOs.isEmpty() ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
-                : new ResponseEntity<>(filmDTOs, HttpStatus.OK);
-    }
-
-
-    @GetMapping("/filter")
-    public ResponseEntity<List<Film>> filterFilms(@RequestParam(required = false) String name,
-                                                  @RequestParam(required = false) Date releaseDate,
-                                                  @RequestParam(required = false) String country,
-                                                  @RequestParam(required = false) String type,
-                                                  @RequestParam(required = false) Integer age) {
-        List<Film> films = filmService.filterFilms(name, releaseDate, country, type, age);
-        return new ResponseEntity<>(films, HttpStatus.OK);
-    }
-
-//    @GetMapping("/home")
-//    public String home(
-//            @RequestParam(defaultValue = "1") int currentPageNowShowing,
-//            @RequestParam(defaultValue = "1") int currentPageComingSoon,
-//            Model model, HttpServletRequest request) {
-//
-//        logger.info("Accessing home page");
-//
-//        // Lấy user từ session nếu có
-//        HttpSession session = request.getSession(false);
-//        User sessionUser = null;
-//        if (session != null) {
-//            sessionUser = (User) session.getAttribute("user");
-//            if (sessionUser != null) {
-//                logger.info("User found in session: {}", sessionUser.getUsername());
-//                model.addAttribute("user", sessionUser);
-//            }
-//        }
-//
-//        // Nếu không có user trong session, lấy từ SecurityContext
-//        if (sessionUser == null) {
-//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
-//                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-//                Optional<User> userOptional = userService.getUserById(userDetails.getId());
-//
-//                if (userOptional.isPresent()) {
-//                    User user = userOptional.get();
-//                    model.addAttribute("user", user);
-//
-//                    // Lưu vào session để sử dụng cho các request sau
-//                    if (session != null) {
-//                        session.setAttribute("user", user);
-//                        logger.info("User saved to session from SecurityContext");
-//                    }
-//                }
-//            }
-//        }
-//
-//        // Số lượng phim hiển thị trên mỗi trang
-//        int pageSize = 4;
-//
-//        // Phân trang cho Now Showing
-//        Page<Film> nowShowingPage = filmService.getNowShowingFilms(currentPageNowShowing, pageSize);
-//        model.addAttribute("nowShowingMovies", nowShowingPage.getContent());
-//        model.addAttribute("currentPageNowShowing", currentPageNowShowing);
-//        model.addAttribute("totalPagesNowShowing", nowShowingPage.getTotalPages());
-//
-//        // Phân trang cho Coming Soon
-//        Page<Film> comingSoonPage = filmService.getComingSoonFilms(currentPageComingSoon, pageSize);
-//        model.addAttribute("comingSoonMovies", comingSoonPage.getContent());
-//        model.addAttribute("currentPageComingSoon", currentPageComingSoon);
-//        model.addAttribute("totalPagesComingSoon", comingSoonPage.getTotalPages());
-//
-//        // Lấy toàn bộ danh sách phim để hiển thị nếu cần
-//        List<Film> films = filmService.getAllFilms();
-//        logger.info("Number of films retrieved: {}", films.size());
-//        model.addAttribute("films", films);
-//
-//        return "home";
-//    }
-
-
 }

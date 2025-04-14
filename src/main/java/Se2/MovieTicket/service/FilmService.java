@@ -281,7 +281,7 @@ public class FilmService {
     }
 
 
-    private FilmDTO convertToDTO(Film film) {
+    public FilmDTO convertToDTO(Film film) {
         FilmDTO filmDTO = new FilmDTO();
         filmDTO.setFilmId(film.getFilmId());
         filmDTO.setFilmName(film.getFilmName());
