@@ -1,720 +1,1240 @@
+
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie Admin Dashboard</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.js"></script>
     <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
+    <!-- Add FontAwesome for better icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-        }
+        :root {
+     --green-900: #064e3b;
+     --green-800: #065f46;
+     --green-700: #047857;
+     --green-600: #059669;
+     --green-500: #10b981;
+     --green-400: #34d399;
+     --green-300: #6ee7b7;
+     --green-200: #a7f3d0;
+     --green-100: #d1fae5;
+     --white: #ffffff;
+     --gray-50: #f9fafb;
+     --gray-100: #f3f4f6;
+     --gray-200: #e5e7eb;
+     --gray-300: #d1d5db;
+     --gray-400: #9ca3af;
+     --gray-500: #6b7280;
+     --gray-600: #4b5563;
+     --gray-700: #374151;
+     --gray-800: #1f2937;
+     --gray-900: #111827;
+     --accent-yellow: #fbbf24;
+     --accent-red: #ef4444;
+     --accent-blue: #3b82f6;
+     --accent-purple: #8b5cf6;
+     --accent-pink: #ec4899;
+ }
 
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-        }
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+ }
 
-        .summary-cards {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            margin: 30px 0;
-            gap: 15px;
-        }
+ body {
+     font-family: 'Segoe UI', 'San Francisco', 'Helvetica Neue', sans-serif;
+     background: linear-gradient(to bottom, var(--green-900), var(--green-700));
+     color: var(--gray-800);
+     min-height: 100vh;
+     line-height: 1.5;
+     padding-bottom: 20px;
+     font-size: 0.85rem;
+ }
 
-        .card {
-            background-color: #fff;
-            padding: 25px 35px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            text-align: center;
-            flex: 1;
-            min-width: 200px;
-            max-width: 250px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
+ .dashboard-container {
+     max-width: 1200px;
+     padding-left: 310px;
+     padding-top: 79px;
+     padding-right: 15px;
+     padding-bottom: 15px;
+     margin: 0 auto;
+ }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-        }
+ h1 {
+     text-align: left;
+     color: var(--white);
+     margin: 15px 0 20px;
+     font-size: 1.5rem;
+     text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+     letter-spacing: 0.3px;
+     font-weight: 600;
+ }
 
-        .card h2 {
-            margin: 0;
-            font-size: 32px;
-            color: #2d87f0;
-            font-weight: 600;
-        }
+ /* Summary Cards */
+ .summary-cards {
+     display: grid;
+     grid-template-columns: repeat(4, 1fr);
+     gap: 15px;
+     margin: 15px 0 20px;
+ }
 
-        .card p {
-            margin: 8px 0 0;
-            font-weight: 500;
-            color: #666;
-            font-size: 1.1em;
-        }
+ .card {
+     background-color: rgba(255, 255, 255, 0.97);
+     padding: 16px 12px;
+     border-radius: 10px;
+     box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+     text-align: center;
+     transition: all 0.3s ease;
+     backdrop-filter: blur(5px);
+     position: relative;
+     overflow: hidden;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+ }
 
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            background-color: #fff;
-            padding: 15px 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
+ .card::before {
+     content: '';
+     position: absolute;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 4px;
+     background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
+ }
 
-        .filter {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+ .card:nth-child(2)::before {
+     background: linear-gradient(to right, var(--accent-purple), var(--accent-pink));
+ }
 
-        .filter label {
-            font-weight: 500;
-            color: #555;
-        }
+ .card:nth-child(3)::before {
+     background: linear-gradient(to right, var(--accent-pink), var(--accent-red));
+ }
 
-        select {
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            background-color: #f8f8f8;
-            font-size: 0.95em;
-            cursor: pointer;
-            transition: border-color 0.2s;
-        }
+ .card:nth-child(4)::before {
+     background: linear-gradient(to right, var(--accent-red), var(--accent-yellow));
+ }
 
-        select:hover, select:focus {
-            border-color: #2d87f0;
-            outline: none;
-        }
+ .card:hover {
+     transform: translateY(-3px);
+     box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+     background-color: var(--white);
+ }
 
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
-        }
+ .card-icon {
+     margin-bottom: 10px;
+     width: 40px;
+     height: 40px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     border-radius: 50%;
+     font-size: 1.2rem;
+     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+     background: var(--green-100);
+     color: var(--green-700);
+ }
 
-        @media (max-width: 1100px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+ .card:nth-child(1) .card-icon {
+     background: var(--accent-blue);
+     color: var(--white);
+ }
 
-        .chart-container {
-            background-color: #fff;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-        }
+ .card:nth-child(2) .card-icon {
+     background: var(--accent-purple);
+     color: var(--white);
+ }
 
-        .chart-container:hover {
-            transform: translateY(-3px);
-        }
+ .card:nth-child(3) .card-icon {
+     background: var(--accent-pink);
+     color: var(--white);
+ }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 0 8px rgba(0,0,0,0.02);
-        }
+ .card:nth-child(4) .card-icon {
+     background: var(--accent-yellow);
+     color: var(--gray-800);
+ }
 
-        th, td {
-            text-align: left;
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-        }
+ .card h2 {
+     margin: 0;
+     font-size: 1.3rem;
+     color: var(--gray-800);
+     font-weight: 600;
+ }
 
-        th {
-            background-color: #f5f7fa;
-            color: #444;
-            font-weight: 600;
-        }
+ .card p {
+     margin: 5px 0 0;
+     font-weight: 500;
+     color: var(--gray-500);
+     font-size: 0.8rem;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+ }
 
-        tr:hover {
-            background-color: #f9fafc;
-        }
+ /* Dashboard Header with Filters */
+ .dashboard-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     margin-bottom: 18px;
+     background-color: rgba(255, 255, 255, 0.95);
+     padding: 12px 16px;
+     border-radius: 10px;
+     box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+     flex-wrap: wrap;
+     gap: 10px;
+ }
 
-        canvas {
-            width: 100% !important;
-            height: 300px !important;
-            margin-bottom: 15px;
-        }
+ .dashboard-header h2 {
+     font-size: 1.1rem;
+     color: var(--green-700);
+     margin: 0;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+ }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #444;
-            font-size: 1.5em;
-        }
+ .dashboard-header h2 i {
+     color: var(--accent-blue);
+ }
 
-        .chart-wrapper {
-            position: relative;
-            height: 300px;
-            margin-bottom: 20px;
-        }
+ .filter {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+     background-color: var(--gray-50);
+     padding: 8px 12px;
+     border-radius: 8px;
+     border: 1px solid var(--gray-200);
+ }
 
-        .no-data {
-            text-align: center;
-            color: #999;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            margin: 15px 0;
-        }
+ .filter label {
+     font-weight: 500;
+     color: var(--gray-700);
+     font-size: 0.85rem;
+ }
 
-        .error-message {
-            text-align: center;
-            color: #e74c3c;
-            padding: 15px;
-            background-color: #fef5f5;
-            border-radius: 8px;
-            border: 1px solid #fadbd8;
-            margin: 15px 0;
-        }
+ select {
+     padding: 6px 10px;
+     border-radius: 6px;
+     border: 1px solid var(--gray-300);
+     background-color: var(--white);
+     font-size: 0.85rem;
+     cursor: pointer;
+     transition: all 0.2s ease;
+     color: var(--gray-700);
+ }
 
-        /* Rating stars styling */
-        .star-rating {
-            display: inline-flex;
-            align-items: center;
-            color: #f39c12;
-        }
+ select:hover, select:focus {
+     border-color: var(--green-500);
+     outline: none;
+     box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+ }
 
-        /* Scrollable tables for many entries */
-        .table-container {
-            max-height: 400px;
-            overflow-y: auto;
-            border-radius: 8px;
-        }
+ /* Dashboard Grid */
+ .dashboard-grid {
+     display: grid;
+     grid-template-columns: repeat(2, 1fr);
+     gap: 16px;
+     margin-bottom: 20px;
+ }
 
-        /* Custom scrollbar */
-        .table-container::-webkit-scrollbar {
-            width: 8px;
-        }
+ /* Chart Container */
+ .chart-container {
+     background-color: rgba(255, 255, 255, 0.97);
+     padding: 16px;
+     border-radius: 10px;
+     box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+     transition: all 0.3s ease;
+     backdrop-filter: blur(5px);
+ }
 
-        .table-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
+ .chart-container:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+     background-color: var(--white);
+ }
 
-        .table-container::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 10px;
-        }
+ .chart-container h2 {
+     text-align: center;
+     margin-bottom: 15px;
+     color: var(--green-700);
+     font-size: 1rem;
+     font-weight: 600;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 8px;
+ }
 
-        .table-container::-webkit-scrollbar-thumb:hover {
-            background: #a1a1a1;
-        }
+ .chart-container h2 i {
+     color: var(--accent-blue);
+     font-size: 0.9em;
+ }
+
+ /* Tables */
+ .table-container {
+     max-height: 200px;
+     overflow-y: auto;
+     border-radius: 8px;
+     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+     background-color: var(--white);
+     margin-top: 12px;
+ }
+
+ table {
+     width: 100%;
+     border-collapse: collapse;
+     font-size: 0.85rem;
+     min-width: 100%;
+     table-layout: fixed;
+ }
+
+ th, td {
+     text-align: left;
+     padding: 8px 12px;
+     border-bottom: 1px solid var(--gray-200);
+     overflow: hidden;
+     text-overflow: ellipsis;
+     white-space: nowrap;
+ }
+
+ td {
+     max-width: 120px;
+ }
+
+ th {
+     background-color: var(--gray-100);
+     color: var(--gray-700);
+     font-weight: 600;
+     position: sticky;
+     top: 0;
+     z-index: 10;
+     text-transform: uppercase;
+     font-size: 0.75rem;
+     letter-spacing: 0.5px;
+ }
+
+ tr:hover {
+     background-color: var(--green-50);
+ }
+
+ /* Chart Wrappers */
+ .chart-wrapper {
+     position: relative;
+     height: 220px;
+     margin-bottom: 12px;
+ }
+
+ .chart-wrapper text {
+     font-size: 9px !important;
+     text-overflow: ellipsis;
+     overflow: hidden;
+ }
+
+ canvas {
+     width: 100% !important;
+     height: 220px !important;
+     max-width: 100%;
+     text-rendering: optimizeLegibility !important;
+ }
+
+ /* Status Messages */
+ .no-data {
+     text-align: center;
+     color: var(--gray-500);
+     padding: 12px;
+     background-color: var(--gray-100);
+     border-radius: 8px;
+     margin: 10px 0;
+     font-size: 0.85rem;
+ }
+
+ .error-message {
+     text-align: center;
+     color: var(--accent-red);
+     padding: 10px;
+     background-color: #fee2e2;
+     border-radius: 8px;
+     border: 1px solid #fecaca;
+     margin: 10px 0;
+     font-size: 0.85rem;
+ }
+
+ /* Rating Stars */
+ .star-rating {
+     display: inline-flex;
+     align-items: center;
+     color: var(--accent-yellow);
+     font-weight: 500;
+     gap: 2px;
+ }
+
+ /* Custom Scrollbar */
+ .table-container::-webkit-scrollbar {
+     width: 5px;
+     height: 5px;
+ }
+
+ .table-container::-webkit-scrollbar-track {
+     background: var(--gray-100);
+     border-radius: 10px;
+ }
+
+ .table-container::-webkit-scrollbar-thumb {
+     background: var(--gray-300);
+     border-radius: 10px;
+ }
+
+ .table-container::-webkit-scrollbar-thumb:hover {
+     background: var(--gray-400);
+ }
+
+ /* Tooltips */
+ .chartjs-tooltip {
+     max-width: 120px !important;
+     overflow: hidden !important;
+     text-overflow: ellipsis !important;
+     white-space: nowrap !important;
+ }
+
+ /* Specific column widths for different tables */
+ #topUsersTable td:first-child {
+     max-width: 70%;
+     width: 70%;
+ }
+
+ #ratingsTable td:first-child {
+     max-width: 65%;
+     width: 65%;
+ }
+
+ #filmDetailsTable td:first-child {
+     max-width: 40%;
+     width: 40%;
+ }
+
+ /* Responsive Design */
+ @media (max-width: 1440px) {
+     .dashboard-container {
+         padding-left: 260px;
+         padding-right: 15px;
+     }
+ }
+
+ @media (max-width: 1200px) {
+     .dashboard-container {
+         padding-left: 280px;
+         padding-right: 10px;
+         padding-top: 75px;
+     }
+
+     .dashboard-grid {
+         grid-template-columns: repeat(2, 1fr);
+     }
+ }
+
+ @media (max-width: 992px) {
+     .summary-cards {
+         grid-template-columns: repeat(2, 1fr);
+     }
+
+     .dashboard-grid {
+         grid-template-columns: 1fr;
+     }
+
+     .chart-container[style*="grid-column"] {
+         grid-column: span 1 !important;
+     }
+
+     .chart-wrapper {
+         height: 200px;
+     }
+
+     canvas {
+         height: 200px !important;
+     }
+ }
+
+ @media (max-width: 768px) {
+     .dashboard-container {
+         padding: 75px 15px 15px 15px;
+     }
+
+     .dashboard-header {
+         flex-direction: column;
+         align-items: flex-start;
+         padding: 10px;
+     }
+
+     .filter {
+         width: 100%;
+     }
+
+     h1 {
+         font-size: 1.3rem;
+     }
+ }
+
+ /* Enhanced iPhone SE / Small Screen Responsiveness */
+ @media (max-width: 375px) {
+     /* Container adjustments */
+     .dashboard-container {
+         padding: 65px 8px 8px 8px;
+     }
+
+     h1 {
+         font-size: 1rem;
+         margin: 8px 0 12px;
+     }
+
+     /* Make cards display properly */
+     .summary-cards {
+         grid-template-columns: 1fr 1fr;
+         gap: 6px;
+         margin: 10px 0 15px;
+     }
+
+     .card {
+         padding: 8px 6px;
+     }
+
+     .card-icon {
+         width: 28px;
+         height: 28px;
+         font-size: 0.9rem;
+         margin-bottom: 4px;
+     }
+
+     .card h2 {
+         font-size: 0.9rem;
+     }
+
+     .card p {
+         font-size: 0.6rem;
+         letter-spacing: 0.3px;
+         margin-top: 2px;
+     }
+
+     /* Filter section adjustments */
+     .dashboard-header {
+         margin-bottom: 10px;
+         padding: 6px;
+         gap: 6px;
+     }
+
+     .dashboard-header h2 {
+         font-size: 0.85rem;
+     }
+
+     .filter {
+         padding: 5px 7px;
+     }
+
+     .filter label {
+         font-size: 0.7rem;
+     }
+
+     select {
+         font-size: 0.7rem;
+         padding: 3px 5px;
+     }
+
+     /* Chart and grid adjustments */
+     .dashboard-grid {
+         gap: 10px;
+         margin-bottom: 15px;
+     }
+
+     .chart-container {
+         padding: 8px !important;
+     }
+
+     .chart-container h2 {
+         font-size: 0.85rem;
+         margin-bottom: 6px;
+     }
+
+     .chart-wrapper {
+         height: 130px !important;
+         margin-bottom: 6px;
+     }
+
+     canvas {
+         height: 130px !important;
+     }
+
+     /* Table adjustments with ellipsis */
+     .table-container {
+         max-height: 130px;
+     }
+
+     table {
+         font-size: 0.65rem;
+     }
+
+     th, td {
+         padding: 5px 6px;
+     }
+
+     th {
+         font-size: 0.6rem;
+     }
+
+     /* Star rating adjustments */
+     .star-rating {
+         font-size: 0.65rem;
+     }
+ }
+
+ /* Extra small devices (iPhone SE in landscape or smaller phones) */
+ @media (max-width: 375px) and (max-height: 667px) {
+     .chart-wrapper {
+         height: 110px !important;
+     }
+
+     canvas {
+         height: 110px !important;
+     }
+
+     .table-container {
+         max-height: 100px;
+     }
+
+     /* Further reduce spacing */
+     .dashboard-grid {
+         gap: 8px;
+     }
+
+     /* Make the film details less tall */
+     .chart-container[style*="grid-column: span 2;"] .table-container {
+         max-height: 90px;
+     }
+ }
     </style>
 </head>
 <body>
 
-
 <div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
 
 <div class="dashboard-container">
-<h1>🎬 Movie Admin Dashboard</h1>
+    <h1>Movie Admin Dashboard</h1>
 
-<!-- Summary Cards -->
-<div class="summary-cards">
-    <div class="card">
-        <h2 th:text="${#numbers.formatDecimal(summary.totalRevenue, 0, 'COMMA', 0, 'POINT')} + '₫'" id="totalRevenue">0₫</h2>
-        <p>Tổng doanh thu</p>
-    </div>
-    <div class="card">
-        <h2 th:text="${totalUsers}" id="totalUsers">0</h2>
-        <p>Người dùng</p>
-    </div>
-    <div class="card">
-        <h2 th:text="${summary.totalFilms}" id="totalFilms">0</h2>
-        <p>Phim đang chiếu</p>
-    </div>
-    <div class="card">
-        <h2 th:text="${summary.totalTickets}" id="totalTickets">0</h2>
-        <p>Đơn đặt vé</p>
-    </div>
-</div>
-
-<!-- Filters -->
-<div class="dashboard-header">
-    <h2 style="margin: 0;">📈 Thống kê chi tiết</h2>
-    <div class="filter">
-        <label for="timeFilter">Thời gian: </label>
-        <select id="timeFilter" onchange="applyFilter()">
-            <option value="all" th:selected="${range == 'all'}">Tất cả</option>
-            <option value="week" th:selected="${range == 'week'}">Tuần này</option>
-            <option value="month" th:selected="${range == 'month'}">Tháng này</option>
-            <option value="quarter" th:selected="${range == 'quarter'}">Quý này</option>
-        </select>
-    </div>
-</div>
-
-<!-- Charts and Tables -->
-<div class="dashboard-grid">
-
-    <!-- Daily Revenue -->
-    <div class="chart-container">
-        <h2>Doanh thu phim theo ngày</h2>
-        <div class="chart-wrapper">
-            <canvas id="revenueChart"></canvas>
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+        <div class="card">
+            <div class="card-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <h2 th:text="${#numbers.formatDecimal(summary.totalRevenue, 0, 'COMMA', 0, 'POINT')} + '$'" id="totalRevenue">$0</h2>
+            <p>Total Revenue</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <h2 th:text="${totalUsers}" id="totalUsers">0</h2>
+            <p>Total Users</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">
+                <i class="fas fa-film"></i>
+            </div>
+            <h2 th:text="${summary.totalFilms}" id="totalFilms">0</h2>
+            <p>Active Movies</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">
+                <i class="fas fa-ticket-alt"></i>
+            </div>
+            <h2 th:text="${summary.totalTickets}" id="totalTickets">0</h2>
+            <p>Ticket Orders</p>
         </div>
     </div>
 
-    <!-- Top Users -->
-    <div class="chart-container">
-        <h2>Top 5 người dùng chi tiêu nhiều nhất</h2>
-        <div class="chart-wrapper">
-            <canvas id="topUsersChart"></canvas>
-        </div>
-        <div class="table-container">
-            <table id="topUsersTable">
-                <thead>
-                <tr><th>Username</th><th>Chi tiêu</th></tr>
-                </thead>
-                <tbody>
-                <tr th:each="user : ${topUsers}">
-                    <td th:text="${user.username}">Username</td>
-                    <td th:text="${#numbers.formatDecimal(user.totalSpent, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</td>
-                </tr>
-                </tbody>
-            </table>
+    <!-- Filters -->
+    <div class="dashboard-header">
+        <h2><i class="fas fa-chart-line"></i> Detailed Statistics</h2>
+        <div class="filter">
+            <label for="timeFilter">Time Period: </label>
+            <select id="timeFilter" onchange="applyFilter()">
+                <option value="all" th:selected="${range == 'all'}">All Time</option>
+                <option value="week" th:selected="${range == 'week'}">This Week</option>
+                <option value="month" th:selected="${range == 'month'}">This Month</option>
+                <option value="quarter" th:selected="${range == 'quarter'}">This Quarter</option>
+            </select>
         </div>
     </div>
 
-    <!-- Gender -->
-    <div class="chart-container">
-        <h2>Phân loại người dùng theo giới tính</h2>
-        <div class="chart-wrapper">
-            <canvas id="genderChart"></canvas>
+    <!-- Charts and Tables -->
+    <div class="dashboard-grid">
+        <!-- Daily Revenue -->
+        <div class="chart-container">
+            <h2><i class="fas fa-chart-area"></i> Daily Movie Revenue</h2>
+            <div class="chart-wrapper">
+                <canvas id="revenueChart"></canvas>
+            </div>
         </div>
-    </div>
 
-    <!-- Average Ratings -->
-    <div class="chart-container">
-        <h2>Đánh giá trung bình từng phim</h2>
-        <div class="chart-wrapper">
-            <canvas id="ratingChart"></canvas>
+        <!-- Top Users -->
+        <div class="chart-container">
+            <h2><i class="fas fa-trophy"></i> Top 5 Spending Users</h2>
+            <div class="chart-wrapper">
+                <canvas id="topUsersChart"></canvas>
+            </div>
+            <div class="table-container">
+                <table id="topUsersTable">
+                    <thead>
+                    <tr><th>Username</th><th>Total Spent</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="user : ${topUsers}">
+                        <td th:text="${user.username}">Username</td>
+                        <td th:text="${#numbers.formatDecimal(user.totalSpent, 0, 'COMMA', 0, 'POINT')} + '$'">$0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="table-container">
-            <table id="ratingsTable">
-                <thead>
-                <tr><th>Tên phim</th><th>⭐ Trung bình</th></tr>
-                </thead>
-                <tbody>
-                <tr th:each="rating : ${avgRatings}" th:if="${filmNames.get(rating.filmId) != null}">
-                    <td th:text="${filmNames.get(rating.filmId)}">Film Name</td>
-                    <td>
-                        <div class="star-rating">
-                            <span th:text="${#numbers.formatDecimal(rating.filmRate, 1, 1)}">0.0</span>
-                            <span>⭐</span>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
 
-    <!-- Film Details -->
-    <div class="chart-container" style="grid-column: span 2;">
-        <h2>Bảng chi tiết phim</h2>
-        <div class="table-container">
-            <table id="filmDetailsTable">
-                <thead>
-                <tr>
-                    <th>Tên phim</th>
-                    <th>Số vé đã bán</th>
-                    <th>Doanh thu</th>
-                    <th>Đánh giá trung bình</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="film : ${filmDetails}">
-                    <td th:text="${film.filmName}">Film Name</td>
-                    <td th:text="${film.ticketsSold}">0</td>
-                    <td th:text="${#numbers.formatDecimal(film.totalRevenue, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</td>
-                    <td>
-                        <div class="star-rating">
-                            <span th:text="${#numbers.formatDecimal(film.avgRating, 1, 1)}">0.0</span>
-                            <span>⭐</span>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+        <!-- Gender -->
+        <div class="chart-container">
+            <h2><i class="fas fa-venus-mars"></i> User Gender Distribution</h2>
+            <div class="chart-wrapper">
+                <canvas id="genderChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Average Ratings -->
+        <div class="chart-container">
+            <h2><i class="fas fa-star"></i> Average Movie Ratings</h2>
+            <div class="chart-wrapper">
+                <canvas id="ratingChart"></canvas>
+            </div>
+            <div class="table-container">
+                <table id="ratingsTable">
+                    <thead>
+                    <tr><th>Movie Title</th><th>⭐ Average</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="rating : ${avgRatings}" th:if="${filmNames.get(rating.filmId) != null}">
+                        <td th:text="${filmNames.get(rating.filmId)}">Film Name</td>
+                        <td>
+                            <div class="star-rating">
+                                <span th:text="${#numbers.formatDecimal(rating.filmRate, 1, 1)}">0.0</span>
+                                <span>⭐</span>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Film Details -->
+        <div class="chart-container" style="grid-column: span 2;">
+            <h2><i class="fas fa-list-ul"></i> Movie Details Table</h2>
+            <div class="table-container">
+                <table id="filmDetailsTable">
+                    <thead>
+                    <tr>
+                        <th>Movie Title</th>
+                        <th>Tickets Sold</th>
+                        <th>Revenue</th>
+                        <th>Avg Rating</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="film : ${filmDetails}">
+                        <td th:text="${film.filmName}">Film Name</td>
+                        <td th:text="${film.ticketsSold}">0</td>
+                        <td th:text="${#numbers.formatDecimal(film.totalRevenue, 0, 'COMMA', 0, 'POINT')} + '$'">$0</td>
+                        <td>
+                            <div class="star-rating">
+                                <span th:text="${#numbers.formatDecimal(film.avgRating, 1, 1)}">0.0</span>
+                                <span>⭐</span>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 </div>
 <script th:inline="javascript">
     // Get data from Thymeleaf
-    const revenueData = /*[[${chartData}]]*/ [];
-    const topUsers = /*[[${topUsers}]]*/ [];
-    const genderStats = /*[[${genderStats}]]*/ [];
-    const avgRatings = /*[[${avgRatings}]]*/ [];
-    const filmDetails = /*[[${filmDetails}]]*/ [];
-    const filmNames = /*[[${filmNames}]]*/ {};
+ const revenueData = /*[[${chartData}]]*/ [];
+ const topUsers = /*[[${topUsers}]]*/ [];
+ const genderStats = /*[[${genderStats}]]*/ [];
+ const avgRatings = /*[[${avgRatings}]]*/ [];
+ const filmDetails = /*[[${filmDetails}]]*/ [];
+ const filmNames = /*[[${filmNames}]]*/ {};
 
-    // Log data for debugging
-    console.log('Revenue Data:', revenueData);
-    console.log('Top Users:', topUsers);
-    console.log('Gender Stats:', genderStats);
-    console.log('Avg Ratings:', avgRatings);
-    console.log('Film Details:', filmDetails);
+ // Log data for debugging
+ console.log('Revenue Data:', revenueData);
+ console.log('Top Users:', topUsers);
+ console.log('Gender Stats:', genderStats);
+ console.log('Avg Ratings:', avgRatings);
+ console.log('Film Details:', filmDetails);
 
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeDashboard();
-    });
+ document.addEventListener('DOMContentLoaded', function() {
+     initializeDashboard();
+ });
 
-    function showLoadingError() {
-        const chartContainers = document.querySelectorAll('.chart-wrapper');
-        chartContainers.forEach(container => {
-            container.innerHTML = '<div class="error-message">Không thể tải Chart.js. Vui lòng kiểm tra kết nối mạng và tải lại trang.</div>';
-        });
-    }
+ function showLoadingError() {
+     const chartContainers = document.querySelectorAll('.chart-wrapper');
+     chartContainers.forEach(container => {
+         container.innerHTML = '<div class="error-message">Không thể tải Chart.js. Vui lòng kiểm tra kết nối mạng và tải lại trang.</div>';
+     });
+ }
 
-    // Main initialization function
-    function initializeDashboard() {
-        // Check if we have data before initializing charts
-        if (revenueData && revenueData.length) {
-            initializeRevenueChart();
-        } else {
-            console.error('No revenue data available');
-            document.querySelector('#revenueChart').closest('.chart-wrapper').innerHTML =
-                '<div class="no-data">Không có dữ liệu doanh thu</div>';
-        }
+ // Main initialization function
+ function initializeDashboard() {
+     // Check if we have data before initializing charts
+     if (revenueData && revenueData.length) {
+         initializeRevenueChart();
+     } else {
+         console.error('No revenue data available');
+         document.querySelector('#revenueChart').closest('.chart-wrapper').innerHTML =
+             '<div class="no-data">Không có dữ liệu doanh thu</div>';
+     }
 
-        if (topUsers && topUsers.length) {
-            initializeTopUsersChart();
-        } else {
-            console.error('No top users data available');
-            document.querySelector('#topUsersChart').closest('.chart-wrapper').innerHTML =
-                '<div class="no-data">Không có dữ liệu người dùng</div>';
-        }
+     if (topUsers && topUsers.length) {
+         initializeTopUsersChart();
+     } else {
+         console.error('No top users data available');
+         document.querySelector('#topUsersChart').closest('.chart-wrapper').innerHTML =
+             '<div class="no-data">Không có dữ liệu người dùng</div>';
+     }
 
-        if (genderStats && genderStats.length) {
-            initializeGenderChart();
-        } else {
-            console.error('No gender stats available');
-            document.querySelector('#genderChart').closest('.chart-wrapper').innerHTML =
-                '<div class="no-data">Không có dữ liệu giới tính</div>';
-        }
+     if (genderStats && genderStats.length) {
+         initializeGenderChart();
+     } else {
+         console.error('No gender stats available');
+         document.querySelector('#genderChart').closest('.chart-wrapper').innerHTML =
+             '<div class="no-data">Không có dữ liệu giới tính</div>';
+     }
 
-        // Map film names to ratings and filter out null film names
-        if (avgRatings && avgRatings.length) {
-            initializeRatingChart();
-        } else {
-            console.error('No rating data available');
-            document.querySelector('#ratingChart').closest('.chart-wrapper').innerHTML =
-                '<div class="no-data">Không có dữ liệu đánh giá</div>';
-        }
-    }
+     // Map film names to ratings and filter out null film names
+     if (avgRatings && avgRatings.length) {
+         initializeRatingChart();
+     } else {
+         console.error('No rating data available');
+         document.querySelector('#ratingChart').closest('.chart-wrapper').innerHTML =
+             '<div class="no-data">Không có dữ liệu đánh giá</div>';
+     }
 
-    // Revenue Chart Initialization - Fixed with proper data checking
-    function initializeRevenueChart() {
-        try {
-            // Extract unique dates and film names
-            const labels = [...new Set(revenueData.map(d => d.orderDate))].sort();
-            const films = [...new Set(revenueData.map(d => d.filmName))];
+     // Apply responsive styles after all charts have initialized
+     setTimeout(applyResponsiveStyles, 100);
+ }
 
-            console.log('Chart dates:', labels);
-            console.log('Chart films:', films);
+ // Revenue Chart Initialization - Fixed with proper data checking
+ function initializeRevenueChart() {
+     try {
+         // Extract unique dates and film names
+         const labels = [...new Set(revenueData.map(d => d.orderDate))].sort();
+         const films = [...new Set(revenueData.map(d => d.filmName))];
 
-            const colors = ['rgba(54, 162, 235, 0.7)', 'rgba(255, 99, 132, 0.7)', 'rgba(255, 206, 86, 0.7)',
-                           'rgba(75, 192, 192, 0.7)', 'rgba(153, 102, 255, 0.7)'];
+         console.log('Chart dates:', labels);
+         console.log('Chart films:', films);
 
-            const datasets = films.map((film, index) => ({
-                label: film,
-                data: labels.map(date => {
-                    const match = revenueData.find(d => d.filmName === film && d.orderDate === date);
-                    return match ? match.revenue : 0;
-                }),
-                fill: false,
-                borderColor: colors[index % colors.length],
-                backgroundColor: colors[index % colors.length],
-                borderWidth: 2,
-                tension: 0.4
-            }));
+         const colors = [
+             'rgba(16, 185, 129, 0.7)',   // Green
+             'rgba(59, 130, 246, 0.7)',   // Blue
+             'rgba(245, 158, 11, 0.7)',   // Amber
+             'rgba(236, 72, 153, 0.7)',   // Pink
+             'rgba(139, 92, 246, 0.7)'    // Purple
+         ];
 
-            const ctx = document.getElementById('revenueChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: { labels, datasets },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += formatCurrency(context.parsed.y);
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return formatCompactCurrency(value);
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        } catch (err) {
-            console.error('Failed to initialize revenue chart:', err);
-            document.querySelector('#revenueChart').closest('.chart-wrapper').innerHTML =
-                '<div class="error-message">Lỗi: Không thể khởi tạo biểu đồ doanh thu</div>';
-        }
-    }
+         const datasets = films.map((film, index) => ({
+             label: film,
+             data: labels.map(date => {
+                 const match = revenueData.find(d => d.filmName === film && d.orderDate === date);
+                 return match ? match.revenue : 0;
+             }),
+             fill: false,
+             borderColor: colors[index % colors.length],
+             backgroundColor: colors[index % colors.length],
+             borderWidth: 2,
+             tension: 0.4
+         }));
 
-    // Top Users Chart Initialization - Fixed with proper error handling
-    function initializeTopUsersChart() {
-        try {
-            const ctx = document.getElementById('topUsersChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: topUsers.map(u => u.username),
-                    datasets: [{
-                        label: 'Chi tiêu',
-                        data: topUsers.map(u => u.totalSpent),
-                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += formatCurrency(context.parsed.y);
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return formatCompactCurrency(value);
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        } catch (err) {
-            console.error('Failed to initialize top users chart:', err);
-            document.querySelector('#topUsersChart').closest('.chart-wrapper').innerHTML =
-                '<div class="error-message">Lỗi: Không thể khởi tạo biểu đồ người dùng</div>';
-        }
-    }
+         const ctx = document.getElementById('revenueChart').getContext('2d');
+         new Chart(ctx, {
+             type: 'line',
+             data: { labels, datasets },
+             options: {
+                 responsive: true,
+                 maintainAspectRatio: false,
+                 plugins: {
+                     legend: {
+                         position: 'top',
+                         labels: {
+                             padding: 15,
+                             boxWidth: 12,
+                             font: {
+                                 size: 11
+                             }
+                         }
+                     },
+                     tooltip: {
+                         backgroundColor: 'rgba(0,0,0,0.8)',
+                         padding: 10,
+                         bodyFont: {
+                             size: 12
+                         },
+                         callbacks: {
+                             label: function(context) {
+                                 let label = context.dataset.label || '';
+                                 if (label) {
+                                     label += ': ';
+                                 }
+                                 if (context.parsed.y !== null) {
+                                     label += formatCurrency(context.parsed.y);
+                                 }
+                                 return label;
+                             }
+                         }
+                     }
+                 },
+                 scales: {
+                     y: {
+                         beginAtZero: true,
+                         ticks: {
+                             font: {
+                                 size: 10
+                             },
+                             callback: function(value) {
+                                 return formatCompactCurrency(value);
+                             }
+                         }
+                     },
+                     x: {
+                         ticks: {
+                             font: {
+                                 size: 10
+                             },
+                             maxRotation: 45,
+                             minRotation: 45
+                         }
+                     }
+                 }
+             }
+         });
+     } catch (err) {
+         console.error('Failed to initialize revenue chart:', err);
+         document.querySelector('#revenueChart').closest('.chart-wrapper').innerHTML =
+             '<div class="error-message">Lỗi: Không thể khởi tạo biểu đồ doanh thu</div>';
+     }
+ }
 
-    // Gender Chart Initialization - Fixed with proper error handling
-    function initializeGenderChart() {
-        try {
-            const ctx = document.getElementById('genderChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: genderStats.map(g => g.sex),
-                    datasets: [{
-                        data: genderStats.map(g => g.total),
-                        backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56'],
-                        borderWidth: 1,
-                        hoverOffset: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                padding: 20,
-                                font: {
-                                    size: 14
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        } catch (err) {
-            console.error('Failed to initialize gender chart:', err);
-            document.querySelector('#genderChart').closest('.chart-wrapper').innerHTML =
-                '<div class="error-message">Lỗi: Không thể khởi tạo biểu đồ giới tính</div>';
-        }
-    }
+ // Top Users Chart Initialization - Fixed with proper error handling
+ function initializeTopUsersChart() {
+     try {
+         const ctx = document.getElementById('topUsersChart').getContext('2d');
+         new Chart(ctx, {
+             type: 'bar',
+             data: {
+                 labels: topUsers.map(u => u.username),
+                 datasets: [{
+                     label: 'Chi tiêu',
+                     data: topUsers.map(u => u.totalSpent),
+                     backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                     borderColor: 'rgba(16, 185, 129, 1)',
+                     borderWidth: 1
+                 }]
+             },
+             options: {
+                 responsive: true,
+                 maintainAspectRatio: false,
+                 plugins: {
+                     legend: {
+                         display: false
+                     },
+                     tooltip: {
+                         backgroundColor: 'rgba(0,0,0,0.8)',
+                         padding: 10,
+                         callbacks: {
+                             label: function(context) {
+                                 let label = 'Chi tiêu: ';
+                                 if (context.parsed.y !== null) {
+                                     label += formatCurrency(context.parsed.y);
+                                 }
+                                 return label;
+                             }
+                         }
+                     }
+                 },
+                 scales: {
+                     y: {
+                         beginAtZero: true,
+                         ticks: {
+                             font: {
+                                 size: 10
+                             },
+                             callback: function(value) {
+                                 return formatCompactCurrency(value);
+                             }
+                         }
+                     },
+                     x: {
+                         ticks: {
+                             font: {
+                                 size: 10
+                             },
+                             maxRotation: 45,
+                             minRotation: 45
+                         }
+                     }
+                 }
+             }
+         });
+     } catch (err) {
+         console.error('Failed to initialize top users chart:', err);
+         document.querySelector('#topUsersChart').closest('.chart-wrapper').innerHTML =
+             '<div class="error-message">Lỗi: Không thể khởi tạo biểu đồ người dùng</div>';
+     }
+ }
 
-    // Rating Chart Initialization - Improved with better visualization
-    function initializeRatingChart() {
-        try {
-            // Filter and process ratings data to only include entries with film names
-            const ratingData = [];
+ // Gender Chart Initialization - Fixed with proper error handling
+ function initializeGenderChart() {
+     try {
+         const ctx = document.getElementById('genderChart').getContext('2d');
+         new Chart(ctx, {
+             type: 'doughnut',
+             data: {
+                 labels: genderStats.map(g => g.sex),
+                 datasets: [{
+                     data: genderStats.map(g => g.total),
+                     backgroundColor: ['#3b82f6', '#ec4899', '#f59e0b'],
+                     borderWidth: 1,
+                     hoverOffset: 10
+                 }]
+             },
+             options: {
+                 responsive: true,
+                 maintainAspectRatio: false,
+                 plugins: {
+                     legend: {
+                         position: 'right',
+                         labels: {
+                             padding: 15,
+                             boxWidth: 15,
+                             font: {
+                                 size: 11
+                             }
+                         }
+                     },
+                     tooltip: {
+                         backgroundColor: 'rgba(0,0,0,0.8)',
+                         padding: 10,
+                         callbacks: {
+                             label: function(context) {
+                                 const label = context.label || '';
+                                 const value = context.raw || 0;
+                                 const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                 const percentage = Math.round((value / total) * 100);
+                                 return `${label}: ${value} (${percentage}%)`;
+                             }
+                         }
+                     }
+                 },
+                 cutout: '50%'
+             }
+         });
+     } catch (err) {
+         console.error('Failed to initialize gender chart:', err);
+         document.querySelector('#genderChart').closest('.chart-wrapper').innerHTML =
+             '<div class="error-message">Lỗi: Không thể khởi tạo biểu đồ giới tính</div>';
+     }
+ }
 
-            // Process avgRatings data to include film names from filmNames map
-            for (const rating of avgRatings) {
-                const filmName = filmNames[rating.filmId];
-                if (filmName && rating.filmRate > 0) {
-                    ratingData.push({
-                        filmName: filmName,
-                        rating: rating.filmRate
-                    });
-                }
-            }
+ // Rating Chart Initialization - Improved with better visualization
+ function initializeRatingChart() {
+     try {
+         // Filter and process ratings data to only include entries with film names
+         const ratingData = [];
 
-            // Sort by rating descending for better visualization
-            ratingData.sort((a, b) => b.rating - a.rating);
+         // Process avgRatings data to include film names from filmNames map
+         for (const rating of avgRatings) {
+             const filmName = filmNames[rating.filmId];
+             if (filmName && rating.filmRate > 0) {
+                 ratingData.push({
+                     filmName: filmName,
+                     rating: rating.filmRate
+                 });
+             }
+         }
 
-            // Limit to top 10 films to avoid overcrowding the chart
-            const topRatings = ratingData.slice(0, 10);
+         // Sort by rating descending for better visualization
+         ratingData.sort((a, b) => b.rating - a.rating);
 
-            // If no data after filtering, show no data message
-            if (topRatings.length === 0) {
-                document.querySelector('#ratingChart').closest('.chart-wrapper').innerHTML =
-                    '<div class="no-data">Không có dữ liệu đánh giá</div>';
-                return;
-            }
+         // Limit to top 10 films to avoid overcrowding the chart
+         const topRatings = ratingData.slice(0, 10);
 
-            const ctx = document.getElementById('ratingChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: topRatings.map(r => r.filmName),
-                    datasets: [{
-                        label: '⭐ Đánh giá TB',
-                        data: topRatings.map(r => r.rating),
-                        backgroundColor: topRatings.map(r => {
-                            // Color gradient based on rating
-                            const value = r.rating;
-                            if (value >= 4) return 'rgba(75, 192, 75, 0.7)'; // Good - green
-                            if (value >= 3) return 'rgba(255, 206, 86, 0.7)'; // Average - yellow
-                            return 'rgba(255, 99, 132, 0.7)'; // Poor - red
-                        }),
-                        borderColor: topRatings.map(r => {
-                            const value = r.rating;
-                            if (value >= 4) return 'rgba(75, 192, 75, 1)';
-                            if (value >= 3) return 'rgba(255, 206, 86, 1)';
-                            return 'rgba(255, 99, 132, 1)';
-                        }),
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    indexAxis: 'y', // Horizontal bars
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.raw.toFixed(1)} ⭐`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            max: 5,
-                            ticks: {
-                                stepSize: 1
-                            }
-                        },
-                        y: {
-                            ticks: {
-                                callback: function(value) {
-                                    const label = this.getLabelForValue(value);
-                                    // Truncate long film names
-                                    return label.length > 25 ? label.substring(0, 22) + '...' : label;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        } catch (err) {
-            console.error('Failed to initialize rating chart:', err);
-            document.querySelector('#ratingChart').closest('.chart-wrapper').innerHTML =
-                '<div class="error-message">Lỗi: Không thể khởi tạo biểu đồ đánh giá</div>';
-        }
-    }
+         // If no data after filtering, show no data message
+         if (topRatings.length === 0) {
+             document.querySelector('#ratingChart').closest('.chart-wrapper').innerHTML =
+                 '<div class="no-data">Không có dữ liệu đánh giá</div>';
+             return;
+         }
 
-    // Filter Application
-    function applyFilter() {
-        const filter = document.getElementById('timeFilter').value;
-        // Redirect to same page with filter parameter
-        window.location.href = "/admin-dashboard?range=" + filter;
-    }
+         const ctx = document.getElementById('ratingChart').getContext('2d');
+         new Chart(ctx, {
+             type: 'bar',
+             data: {
+                 labels: topRatings.map(r => r.filmName),
+                 datasets: [{
+                     label: '⭐ Đánh giá TB',
+                     data: topRatings.map(r => r.rating),
+                     backgroundColor: topRatings.map(r => {
+                         // Color gradient based on rating
+                         const value = r.rating;
+                         if (value >= 4) return 'rgba(16, 185, 129, 0.7)';  // Good - green
+                         if (value >= 3) return 'rgba(245, 158, 11, 0.7)';  // Average - amber
+                         return 'rgba(239, 68, 68, 0.7)';                   // Poor - red
+                     }),
+                     borderColor: topRatings.map(r => {
+                         const value = r.rating;
+                         if (value >= 4) return 'rgba(16, 185, 129, 1)';
+                         if (value >= 3) return 'rgba(245, 158, 11, 1)';
+                         return 'rgba(239, 68, 68, 1)';
+                     }),
+                     borderWidth: 1
+                 }]
+             },
+             options: {
+                 indexAxis: 'y', // Horizontal bars
+                 responsive: true,
+                 maintainAspectRatio: false,
+                 plugins: {
+                     legend: {
+                         display: false
+                     },
+                     tooltip: {
+                         backgroundColor: 'rgba(0,0,0,0.8)',
+                         padding: 10,
+                         callbacks: {
+                             label: function(context) {
+                                 return `${context.raw.toFixed(1)} ⭐`;
+                             }
+                         }
+                     }
+                 },
+                 scales: {
+                     x: {
+                         beginAtZero: true,
+                         max: 5,
+                         ticks: {
+                             stepSize: 1,font: {
+                                 size: 10
+                             }
+                         }
+                     },
+                     y: {
+                         ticks: {
+                             font: {
+                                 size: 10
+                             },
+                             callback: function(value) {
+                                 const label = this.getLabelForValue(value);
+                                 // Truncate long film names for better display on small screens
+                                 const maxLength = window.innerWidth < 500 ? 15 : 25;
+                                 return label.length > maxLength ? label.substring(0, maxLength - 3) + '...' : label;
+                             }
+                         }
+                     }
+                 }
+             }
+         });
+     } catch (err) {
+         console.error('Failed to initialize rating chart:', err);
+         document.querySelector('#ratingChart').closest('.chart-wrapper').innerHTML =
+             '<div class="error-message">Lỗi: Không thể khởi tạo biểu đồ đánh giá</div>';
+     }
+ }
 
-    // Utility Functions
-    function formatCurrency(value) {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(value);
-    }
+ // Filter Application
+ function applyFilter() {
+     const filter = document.getElementById('timeFilter').value;
+     // Redirect to same page with filter parameter
+     window.location.href = "/admin-dashboard?range=" + filter;
+ }
 
-    function formatCompactCurrency(value) {
-        if (value >= 1000000) {
-            return (value / 1000000).toFixed(1) + 'M₫';
-        } else if (value >= 1000) {
-            return (value / 1000).toFixed(0) + 'K₫';
-        }
-        return value + '₫';
-    }
+ // Utility Functions
+ function formatCurrency(value) {
+     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(value);
+ }
+
+ function formatCompactCurrency(value) {
+     if (value >= 1000000) {
+         return (value / 1000000).toFixed(1) + 'M₫';
+     } else if (value >= 1000) {
+         return (value / 1000).toFixed(0) + 'K₫';
+     }
+     return value + '₫';
+ }
+
+ // Function to apply inline styles based on screen width
+ function applyResponsiveStyles() {
+     const chartContainers = document.querySelectorAll('.chart-container');
+
+     if (window.innerWidth <= 375) {
+         // Apply inline styles for small screens
+         chartContainers.forEach(container => {
+             container.style.padding = '8px';
+         });
+         console.log('Applied 8px padding to', chartContainers.length, 'chart containers');
+     } else {
+         // Remove inline styles if screen is larger
+         chartContainers.forEach(container => {
+             if (container.style.padding === '8px') {
+                 container.style.padding = '';
+             }
+         });
+     }
+ }
+
+ // Handle responsive adjustments when window is resized
+ window.addEventListener('resize', function() {
+     // Apply responsive styles
+     applyResponsiveStyles();
+
+     // Adjust chart sizes if needed
+     const chartContainers = document.querySelectorAll('.chart-wrapper');
+     const isMobile = window.innerWidth <= 420;
+
+     chartContainers.forEach(container => {
+         if (isMobile) {
+             container.style.height = '250px';
+         } else {
+             container.style.height = '300px';
+         }
+     });
+
+     // Refresh charts to adapt to new container sizes
+     if (window.Chart && window.Chart.instances) {
+         Object.values(window.Chart.instances).forEach(chart => {
+             try {
+                 chart.resize();
+             } catch (e) {
+                 console.error('Error resizing chart:', e);
+             }
+         });
+     }
+ });
+
+ // This ensures styles are applied even after page navigation with filters
+ window.addEventListener('load', function() {
+     // Force responsive styles to be applied after complete page load
+     applyResponsiveStyles();
+ });
 </script>
 </body>
 </html>
