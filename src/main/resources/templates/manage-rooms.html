@@ -6,444 +6,476 @@
   <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
   <title>Room Management</title>
   <style>
-    :root {
-        --green-900: #14532d;
-        --green-700: #15803d;
-        --green-600: #16a34a;
-        --red-500: #ef4444;
-        --white: #ffffff;
-        --text-gray: #e5e7eb;
-    }
-
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
-
+    /* Global Styles */
     body {
-        font-family: 'Arial', sans-serif;
-        background: linear-gradient(to bottom, var(--green-900), var(--green-700));
-        color: var(--white);
-        min-height: 100vh;
-        line-height: 1.6;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #044a2c;
+      margin: 0;
+      padding: 0;
+      color: #333;
     }
 
+    /* Main Container */
     .container-room-management {
-        display: flex;
-        max-width: 1200px;
-        margin: 0 auto;
+      display: flex
+;
+    justify-content: center;
+    padding: 20px;
+    max-width: 100vw;
+    padding-top: 79px;
+    padding-left: 260px;
     }
 
-    /* Main Content */
     .main-content {
-        margin-left: 250px;
-        padding: 2rem;
-        width: calc(100% - 250px);
+      width: 100%;
+      max-width: 1200px;
+      padding: 20px;
+      margin-left: 0;
     }
 
+    /* Card Container */
+    .card-container {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+
+    /* Page Title */
     .content-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .add-room-btn {
-        background-color: var(--white);
-        color: var(--green-900);
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 9999px;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-        border-radius: 20px;
+    .content-header h1 {
+      color: #044a2c;
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0;
     }
 
-    /* Filter section styles */
+    /* Filter and Search Section - Updated for full width layout */
     .filter-section {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        background-color: rgba(255, 255, 255, 0.1);
-        padding: 1rem;
-        border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      width: 100%;
+      gap: 10px;
     }
 
     .filter-label {
-        margin-right: 0.5rem;
-        font-weight: 500;
+      margin-right: 10px;
+      font-weight: 500;
+      color: #333;
+      white-space: nowrap;
     }
 
     .filter-dropdown {
-        position: relative;
-        margin-right: 15px;
-        min-width: 150px;
+      position: relative;
+      width: 180px;
+      flex-shrink: 0;
     }
 
     .dropdown-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.5rem 1rem;
-        background-color: var(--white);
-        color: var(--green-900);
-        border: 1px solid var(--green-600);
-        border-radius: 0.25rem;
-        cursor: pointer;
+      background-color: #fff;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      border: 1px solid #ced4da;
+      height: 38px;
+      color: #333;
     }
 
     .dropdown-toggle i {
-        margin-left: 10px;
+      margin-left: 8px;
     }
 
     .dropdown-menu {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        z-index: 1000;
-        display: none;
-        width: 100%;
-        padding: 0.25rem 0;
-        margin-top: 0.25rem;
-        background-color: var(--white);
-        border: 1px solid var(--green-600);
-        border-radius: 0.25rem;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 1000;
+      display: none;
+      width: 100%;
+      padding: 0.25rem 0;
+      margin-top: 0.25rem;
+      background-color: #fff;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
     }
 
     .dropdown-menu.show {
-        display: block;
+      display: block;
     }
 
     .dropdown-item {
-        display: block;
-        padding: 0.5rem 1rem;
-        color: var(--green-900);
-        text-decoration: none;
-        cursor: pointer;
+      display: block;
+      padding: 8px 12px;
+      color: #333;
+      text-decoration: none;
+      cursor: pointer;
     }
 
     .dropdown-item:hover {
-        background-color: rgba(22, 163, 74, 0.1);
+      background-color: #f8f9fa;
     }
 
-    /* Search bar styles */
+    /* Search bar styles - Extended width */
     .search-bar {
-        display: flex;
-        align-items: center;
-        flex-grow: 1;
-        max-width: 400px;
-        position: relative;
+      display: flex;
+      align-items: center;
+      position: relative;
+      flex-grow: 1;
     }
 
     .search-input {
-        width: 100%;
-        padding: 0.5rem 1rem;
-        padding-right: 40px;
-        border: 1px solid var(--green-600);
-        border-radius: 0.25rem;
-        background-color: var(--white);
-        color: var(--green-900);
+      width: 100%;
+      padding: 8px 12px;
+      padding-right: 40px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 14px;
+      height: 38px;
     }
 
     .search-icon {
-        position: absolute;
-        right: 10px;
-        color: var(--green-900);
-        cursor: pointer;
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      background-color: #044a2c;
+      color: white;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
     }
 
-    /* Button styles */
+    .search-icon:hover {
+      background-color: #033821;
+    }
+
+    /* Button styles - Updated Clear button */
+    .btn {
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+      height: 38px;
+      display: flex;
+      align-items: center;
+    }
+
     .btn-secondary {
-        padding: 0.5rem 1rem;
-        background-color: var(--white);
-        color: var(--green-900);
-        border: 1px solid var(--green-600);
-        border-radius: 0.25rem;
-        cursor: pointer;
+      background-color: #f8f9fa;
+      color: #333;
+      border: 1px solid #ced4da;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 38px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-weight: 500;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .btn-secondary:hover {
-        background-color: rgba(255, 255, 255, 0.9);
+      background-color: #e2e6ea;
+    }
+    .add-room-btn {
+      background-color: #044a2c;
+      color: white;
+      border: none;
+      padding: 0 16px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      height: 38px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
-    /* Table */
+    .add-room-btn:hover {
+      background-color: #033821;
+    }
+
+    .add-room-btn i {
+      margin-right: 5px;
+    }
+
+    /* Table Styles */
+    .table-responsive {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
     .table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        background-color: var(--white);
-        border-radius: 0.5rem;
-        overflow: hidden;
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      font-size: 14px;
     }
 
-    .table thead {
-        background-color: var(--white);
-        color: #454444;
+    .table th, .table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #f1f1f1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
     }
 
-    .table th,
-    .table td {
-        color: #454444;
-        padding: 1rem;
-        text-align: left;
-        border-bottom: 1px solid var(--green-600);
+    .table th {
+      background-color: #044a2c;
+      color: white;
+      font-weight: normal;
     }
 
+    .table tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    /* Fixed striped rows */
+    .table tbody tr:nth-of-type(even) {
+      background-color: #ffffff;
+    }
+
+    .table tbody tr:nth-of-type(odd) {
+      background-color: #fafafa;
+    }
+
+    /* Checkbox Styles */
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      border: 1px solid #ced4da;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    /* Badge Styles */
     .badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.8rem;
+      padding: 4px 8px;
+      border-radius: 9999px;
+      font-size: 12px;
+      display: inline-block;
+      white-space: nowrap;
     }
 
-    .badge-red { background-color: #fee2e2; color: #7f1d1d; }
-    .badge-blue { background-color: #dbeafe; color: #1e3a8a; }
-    .badge-green { background-color: #dcfce7; color: #14532d; }
+    .badge-red {
+      background-color: #fee2e2;
+      color: #7f1d1d;
+    }
+
+    .badge-blue {
+      background-color: #dbeafe;
+      color: #1e3a8a;
+    }
+
+    .badge-green {
+      background-color: #dcfce7;
+      color: #14532d;
+    }
 
     /* Pagination */
     .pagination {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 1rem;
-        color: var(--white);
-        padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      padding: 1rem 0;
     }
 
     .pagination-controls {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
+    /* Updated pagination buttons for red color */
     .pagination-controls button {
-        background-color: var(--red-500);
-        color: var(--white);
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 0.25rem;
-        cursor: pointer;
+      background-color: #e02220;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .pagination-controls button:hover {
+      background-color: #c41e1c;
+    }
+
+    .pagination-controls button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #deleteButton {
+      background-color: #dc2626;
+    }
+
+    #deleteButton:hover {
+      background-color: #b91c1c;
     }
 
     .pagination-controls select {
-        background-color: var(--white);
-        color: var(--green-900);
-        border: 1px solid var(--green-600);
-        padding: 0.5rem;
-        border-radius: 0.25rem;
-    }
-/* Delete Modal Styles */
-  .delete-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .delete-modal-content {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    max-width: 450px;
-    width: 100%;
-    text-align: center;
-    margin: auto;
-  }
-
-  .delete-modal-icon {
-    font-size: 60px;
-    color: #DC2626;
-    margin-bottom: 10px;
-  }
-
-  .delete-modal-title {
-    color: #DC2626;
-    font-size: 24px;
-    font-weight: bold;
-  }
-
-  .delete-modal-message {
-    color: #DC2626;
-    margin-bottom: 15px;
-  }
-
-  .delete-modal-buttons {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 10px;
-  }
-
-  .delete-modal-btn {
-    padding: 10px 20px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: bold;
-    text-align: center;
-    display: inline-block;
-    width: 120px;
-    cursor: pointer;
-    border: none;
-  }
-
-  .delete-modal-cancel {
-    background-color: #DC2626;
-    color: white;
-  }
-
-  .delete-modal-cancel:hover {
-    background-color: #B91C1C;
-  }
-
-  .delete-modal-proceed {
-    background-color: #10B981;
-    color: white;
-  }
-
-  .delete-modal-proceed:hover {
-    background-color: #059669;
-  }
-    /* Responsive Design */
-    @media (max-width: 1024px) {
-        .container-room-management {
-            flex-direction: column;
-        }
-
-        .main-content {
-            width: 100%;
-            margin-left: 0;
-        }
-
-        .filter-section {
-            flex-direction: column;
-            align-items: stretch;
-        }
+      background-color: #fff;
+      border: 1px solid #ced4da;
+      padding: 8px;
+      border-radius: 4px;
+      color: #333;
     }
 
-    @media (max-width: 768px) {
-        .content-header {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 1rem;
-        }
-
-        .table {
-            font-size: 0.9rem;
-        }
-
-        .pagination {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 1rem;
-        }
+    /* Delete Modal Styles */
+    .delete-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
     }
+
+    .delete-modal-content {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+      margin: auto;
+    }
+
+    /* Success Modal */
     .success-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Poppins', sans-serif;
-}
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
 
-.success-modal-content {
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  padding: 20px;
-  max-width: 500px;
-  width: 90%;
-  text-align: center;
-  margin: auto;
-}
+    .success-modal-content {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      margin: auto;
+    }
 
-.success-modal-icon img {
-  border-radius: 30px;
-  width: 80px;
-  height: 80px;
-  margin-bottom: 15px;
-}
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .filter-section {
+        flex-direction: column;
+        align-items: flex-start;
+      }
 
-.success-modal-title {
-  color: #16a34a; /* Green-600 */
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
+      .filter-dropdown, .search-bar, .btn-secondary, .add-room-btn {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
 
-.success-modal-message {
-  color: #4b5563; /* Gray-600 */
-  margin-bottom: 20px;
-}
+      .content-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
 
-.success-modal-buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+      .content-header h1 {
+        margin-bottom: 10px;
+      }
 
-.success-modal-btn {
-  display: block;
-  width: 95%;
-  text-align: center;
-  padding: 10px;
-  font-size: 1rem;
-  font-weight: bold;
-  border-radius: 25px;
-  border: none;
-  cursor: pointer;
-  margin-bottom: 10px; text-decoration: none;
-  transition: all 0.3s ease-in-out;
-}
+      .pagination {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
 
-.success-modal-list {
-  background-color: #22c55e; /* Green-500 */
-  color: white;
-}
+      .pagination-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
 
-.success-modal-list:hover {
-  background-color: #16a34a; /* Darker Green */
-}
+      .table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+      }
+    }
 
-.success-modal-dashboard {
-  background-color: #e5e7eb; /* Gray-200 */
-  color: #374151; /* Gray-700 */
-}
+    @media (max-width: 480px) {
+      .main-content {
+        padding: 10px;
+      }
 
-.success-modal-dashboard:hover {
-  background-color: #d1d5db; /* Darker Gray */
-}
+      .card-container {
+        padding: 15px;
+      }
 
-/* Responsive Design */
-@media (max-width: 480px) {
-  .success-modal-content {
-    padding: 15px;
-  }
+      .table th, .table td {
+        padding: 8px;
+        font-size: 12px;
+        max-width: 100px;
+      }
 
-  .success-modal-title {
-    font-size: 1.3rem;
-  }
+      .badge {
+        font-size: 10px;
+        padding: 2px 6px;
+      }
 
-  .success-modal-btn {
-    font-size: 0.9rem;
-    padding: 8px;
-  }
-}
+      .pagination-controls button,
+      .pagination-controls select {
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 375px) {
+      .table th, .table td {
+        padding: 6px;
+        font-size: 11px;
+        max-width: 70px;
+      }
+
+      .badge {
+        font-size: 9px;
+        padding: 2px 4px;
+      }
+    }
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
@@ -451,98 +483,97 @@
 <div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
 <div class="container-room-management">
   <main class="main-content">
-    <div class="content-header">
-      <h1 class="text-2xl font-bold">Room Management</h1>
-      <button class="add-room-btn">
-        <i class="fas fa-plus"></i>
-        <span>Add room</span>
-      </button>
-    </div>
-
-    <!-- Filter and search section -->
-    <div class="filter-section">
-      <span class="filter-label">Search by:</span>
-      <div class="filter-dropdown">
-        <div class="dropdown-toggle" id="searchFieldToggle">
-          <span id="selectedSearchField" th:text="${currentSearchField != null ? (currentSearchField == 'roomName' ? 'Room Name' : (currentSearchField == 'cinema' ? 'Cinema' : (currentSearchField == 'seats' ? 'Seats' : (currentSearchField == 'cinemaComplex' ? 'Cinema Complex' : 'Room Name')))) : 'Room Name'}">Room Name</span>
-          <i class="fas fa-chevron-down"></i>
-        </div>
-        <div class="dropdown-menu" id="searchFieldMenu">
-          <a class="dropdown-item" data-value="roomName">Room Name</a>
-          <a class="dropdown-item" data-value="cinema">Cinema</a>
-          <a class="dropdown-item" data-value="seats">Seats</a>
-          <a class="dropdown-item" data-value="cinemaComplex">Cinema Complex</a>
-        </div>
+    <div class="card-container">
+      <div class="content-header">
+        <h1>Rooms Management</h1>
       </div>
-
-      <div class="search-bar">
-        <input type="text" class="search-input" id="searchInput" placeholder="Enter search text..." th:value="${currentSearchText}"/>
-        <div class="search-icon" id="searchIcon">
-          <i class="fas fa-search"></i>
+      <!-- Filter and search section -->
+      <div class="filter-section">
+        <span class="filter-label">Search by:</span>
+        <div class="filter-dropdown">
+          <div class="dropdown-toggle" id="searchFieldToggle">
+            <span id="selectedSearchField" th:text="${currentSearchField != null ? (currentSearchField == 'roomName' ? 'Room Name' : (currentSearchField == 'cinema' ? 'Cinema' : (currentSearchField == 'seats' ? 'Seats' : (currentSearchField == 'cinemaComplex' ? 'Cinema Complex' : 'Room Name')))) : 'Room Name'}">Room Name</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="dropdown-menu" id="searchFieldMenu">
+            <a class="dropdown-item" data-value="roomName">Room Name</a>
+            <a class="dropdown-item" data-value="cinema">Cinema</a>
+            <a class="dropdown-item" data-value="seats">Seats</a>
+            <a class="dropdown-item" data-value="cinemaComplex">Cinema Complex</a>
+          </div>
         </div>
+        <div class="search-bar">
+          <input type="text" class="search-input" id="searchInput" placeholder="Enter search text..." th:value="${currentSearchText}"/>
+          <div class="search-icon" id="searchIcon">
+            <i class="fas fa-search"></i>
+          </div>
+        </div>
+        <button id="clearButton" class="btn-secondary">Clear</button>
+        <button class="add-room-btn">
+          <i class="fas fa-plus"></i>
+          <span>Add room</span>
+        </button>
       </div>
-
-      <button id="clearButton" class="btn-secondary">Clear</button>
-    </div>
-
-    <!-- Update to the table section in your HTML -->
-    <table class="table">
-      <thead>
-      <tr>
-        <th><input type="checkbox" id="selectAllCheckbox"></th>
-        <th>Room name</th>
-        <th>Cinema</th>
-        <th>Seats</th>
-        <th>Cinema complex</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="room : ${rooms}" th:data-room-id="${room.roomId}">
-        <td><input type="checkbox" class="room-checkbox"></td>
-        <td th:text="${room.roomName}">Room Name</td>
-        <td th:text="${room.cinema.cinemaName}">Cinema Name</td>
-        <td th:text="${seatCounts != null && seatCounts.containsKey(room.roomId) ? seatCounts.get(room.roomId) : 0}">Total Seats</td>
-        <td>
-        <span th:text="${room.cinema.cinemaCluster.clusterName}"
-              th:class="${room.cinema.cinemaCluster.clusterName == 'Beta Thanh Xuan' ? 'badge badge-red' :
-                         room.cinema.cinemaCluster.clusterName == 'Vincom complex' ? 'badge badge-blue' :
-                         'badge badge-green'}">
-          Cinema Complex
+      <!-- Table section -->
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+          <tr>
+            <th><input type="checkbox" id="selectAllCheckbox"></th>
+            <th>Room name</th>
+            <th>Cinema</th>
+            <th>Seats</th>
+            <th>Cinema complex</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="room : ${rooms}" th:data-room-id="${room.roomId}">
+            <td><input type="checkbox" class="room-checkbox"></td>
+            <td th:text="${room.roomName}">Room Name</td>
+            <td th:text="${room.cinema.cinemaName}">Cinema Name</td>
+            <td th:text="${seatCounts != null && seatCounts.containsKey(room.roomId) ? seatCounts.get(room.roomId) : 0}">Total Seats</td>
+            <td>
+              <span th:text="${room.cinema.cinemaCluster.clusterName}"
+                    th:class="${room.cinema.cinemaCluster.clusterName == 'Beta Thanh Xuan' ? 'badge badge-red' :
+                              room.cinema.cinemaCluster.clusterName == 'Vincom complex' ? 'badge badge-blue' :
+                              'badge badge-green'}">
+                Cinema Complex
+              </span>
+            </td>
+          </tr>
+          <!-- No results message -->
+          <tr th:if="${#lists.isEmpty(rooms)}">
+            <td colspan="5" style="text-align: center; padding: 20px;">No rooms found</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Pagination section -->
+      <div class="pagination">
+        <span th:text="${'Showing ' + (totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0) + '-' + (currentPage * pageSize < totalItems ? currentPage * pageSize : totalItems) + ' of ' + totalItems}">
+          Showing 1-5 of 15
         </span>
-        </td>
-      </tr>
-      <!-- No results message -->
-      <tr th:if="${#lists.isEmpty(rooms)}">
-        <td colspan="5" style="text-align: center; padding: 20px;">No rooms found</td>
-      </tr>
-      </tbody>
-    </table>
-
-    <!-- Updated pagination section -->
-    <div class="pagination">
-  <span th:text="${'Showing ' + (totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0) + '-' + (currentPage * pageSize < totalItems ? currentPage * pageSize : totalItems) + ' of ' + totalItems}">
-    Showing 1-5 of 15
-  </span>
-      <div class="pagination-controls">
-        <button id="deleteButton" disabled>Delete</button>
-        <select id="pageSizeSelect">
-          <option>Lines per page</option>
-          <option value="10" th:selected="${pageSize == 10}">10</option>
-          <option value="20" th:selected="${pageSize == 20}">20</option>
-          <option value="30" th:selected="${pageSize == 30}">30</option>
-        </select>
-        <button id="prevPage" th:disabled="${currentPage <= 1}"><i class="fas fa-chevron-left"></i></button>
-        <button id="nextPage" th:disabled="${currentPage >= totalPages}"><i class="fas fa-chevron-right"></i></button>
+        <div class="pagination-controls">
+          <button id="deleteButton" disabled>Delete</button>
+          <!-- After (fixed code) -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="filter-label">Lines per page:</span>
+            <select id="pageSizeSelect">
+              <option value="10" th:selected="${pageSize == 10}">10</option>
+              <option value="20" th:selected="${pageSize == 20}">20</option>
+              <option value="30" th:selected="${pageSize == 30}">30</option>
+            </select>
+          </div>
+          <button id="prevPage" th:disabled="${currentPage <= 1}"><i class="fas fa-chevron-left"></i></button>
+          <button id="nextPage" th:disabled="${currentPage >= totalPages}"><i class="fas fa-chevron-right"></i></button>
+        </div>
       </div>
     </div>
-
     <!-- Add CSRF token meta tags for Spring Security -->
     <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
     <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
-
   </main>
 </div>
-
 <!-- JavaScript for filtering and interaction -->
 <script th:inline="javascript">
   // Toggle sidebar on mobile
@@ -576,7 +607,6 @@
   // Search field dropdown functionality
   const searchFieldToggle = document.getElementById('searchFieldToggle');
   const searchFieldMenu = document.getElementById('searchFieldMenu');
-
   if (searchFieldToggle) {
     searchFieldToggle.addEventListener('click', function(event) {
       event.stopPropagation();
@@ -593,10 +623,8 @@
       const text = this.textContent.trim();
       document.getElementById('selectedSearchField').textContent = text;
       searchFieldMenu.classList.remove('show');
-
       // Store the search field value
       currentSearchField = value;
-
       // Update search placeholder based on selected field
       const searchInput = document.getElementById('searchInput');
       if (searchInput) {
@@ -647,21 +675,17 @@
   function applySearch() {
     let url = window.location.pathname + '?';
     const searchParams = new URLSearchParams();
-
     // Add search field parameter
     searchParams.append('searchField', currentSearchField);
-
     // Add search text parameter if exists
     if (currentSearchText) {
       searchParams.append('searchText', currentSearchText);
     }
-
     // Append the search parameters to the URL
     const paramString = searchParams.toString();
     if (paramString) {
       url += paramString;
     }
-
     // Redirect
     console.log('Navigating to: ' + url);
     window.location.href = url;
@@ -682,190 +706,196 @@
   console.log('Current search field:', currentSearchField);
   console.log('Current search text:', currentSearchText);
 </script>
-
-
 <script>
   // Room Management JavaScript
+  // Initialize the pagination variables
+  let currentPage = 1;
+  let pageSize = 10; // Default page size
+  let totalItems = 0;
+  let totalPages = 0;
+  let selectedRooms = [];
 
-// Initialize the pagination variables
-let currentPage = 1;
-let pageSize = 10; // Default page size
-let totalItems = 0;
-let totalPages = 0;
-let selectedRooms = [];
+  // DOM Elements
+  const mainCheckbox = document.querySelector('thead input[type="checkbox"]');
+  const rowCheckboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+  const deleteButton = document.querySelector('.pagination-controls button:first-child');
+  const pageSizeSelect = document.getElementById('pageSizeSelect');
+  const prevPageButton = document.getElementById('prevPage');
+  const nextPageButton = document.getElementById('nextPage');
+  const roomRows = document.querySelectorAll('tbody tr');
+  const addRoomButton = document.querySelector('.add-room-btn');
+  const paginationText = document.querySelector('.pagination span');
 
-// DOM Elements
-const mainCheckbox = document.querySelector('thead input[type="checkbox"]');
-const rowCheckboxes = document.querySelectorAll('tbody input[type="checkbox"]');
-const deleteButton = document.querySelector('.pagination-controls button:first-child');
-const pageSizeSelect = document.getElementById('pageSizeSelect');
-const prevPageButton = document.getElementById('prevPage');
-const nextPageButton = document.getElementById('nextPage');
-const roomRows = document.querySelectorAll('tbody tr');
-const addRoomButton = document.querySelector('.add-room-btn');
-const paginationText = document.querySelector('.pagination span');
+  // Get the total number of items from the DOM
+  totalItems = [[${rooms.size()}]];
 
-// Get the total number of items from the DOM
-totalItems = [[${rooms.size()}]];
+  // Toggle sidebar (already in your code)
+  document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+    document.getElementById('sidebar').classList.toggle('active');
+  });
 
-// Toggle sidebar (already in your code)
-document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-  document.getElementById('sidebar').classList.toggle('active');
-});
+  // Initialize pagination
+  function initializePagination() {
+    // Get page size from URL param or use default
+    const urlParams = new URLSearchParams(window.location.search);
+    pageSize = parseInt(urlParams.get('pageSize')) || pageSize;
+    currentPage = parseInt(urlParams.get('page')) || currentPage;
 
-// Search field functionality (already in your code)
-// Keeping your existing search functionality...
-
-// Initialize pagination
-function initializePagination() {
-  // Get page size from URL param or use default
-  const urlParams = new URLSearchParams(window.location.search);
-  pageSize = parseInt(urlParams.get('pageSize')) || pageSize;
-  currentPage = parseInt(urlParams.get('page')) || currentPage;
-
-  // Set the page size select value
-  if (pageSizeSelect) {
-    for (let i = 0; i < pageSizeSelect.options.length; i++) {
-      if (pageSizeSelect.options[i].value == pageSize) {
-        pageSizeSelect.selectedIndex = i;
-        break;
+    // Set the page size select value
+    if (pageSizeSelect) {
+      for (let i = 0; i < pageSizeSelect.options.length; i++) {
+        if (pageSizeSelect.options[i].value == pageSize) {
+          pageSizeSelect.selectedIndex = i;
+          break;
+        }
       }
     }
+
+    // Calculate total pages
+    totalPages = Math.ceil(totalItems / pageSize);
+
+    // Update pagination display
+    updatePaginationDisplay();
+
+    // Show only the current page of items
+    showCurrentPageItems();
+
+    // Disable/enable pagination buttons
+    updatePaginationButtons();
   }
 
-  // Calculate total pages
-  totalPages = Math.ceil(totalItems / pageSize);
-
-  // Update pagination display
-  updatePaginationDisplay();
-
-  // Show only the current page of items
-  showCurrentPageItems();
-
-  // Disable/enable pagination buttons
-  updatePaginationButtons();
-}
-
-// Function to update the pagination info text
-function updatePaginationDisplay() {
-  if (paginationText) {
-    const start = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-    const end = Math.min(currentPage * pageSize, totalItems);
-    paginationText.textContent = `Showing ${start}-${end} of ${totalItems}`;
-  }
-}
-
-// Function to show only the current page items
-function showCurrentPageItems() {
-  // If there are no rooms or only the "No rooms found" message
-  if (roomRows.length === 0 || (roomRows.length === 1 && roomRows[0].querySelector('td[colspan="5"]'))) {
-    // Make sure the "No rooms found" row is visible
-    if (roomRows.length === 1) {
-      roomRows[0].style.display = '';
+  // Function to update the pagination info text
+  function updatePaginationDisplay() {
+    if (paginationText) {
+      const start = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+      const end = Math.min(currentPage * pageSize, totalItems);
+      paginationText.textContent = `Showing ${start}-${end} of ${totalItems}`;
     }
-    return;
   }
 
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = Math.min(startIndex + pageSize, totalItems);
-
-  roomRows.forEach((row, index) => {
-    // Skip the "No rooms found" row if it exists
-    if (row.querySelector('td[colspan="5"]')) {
-      row.style.display = totalItems === 0 ? '' : 'none';
+  // Function to show only the current page items
+  function showCurrentPageItems() {
+    // If there are no rooms or only the "No rooms found" message
+    if (roomRows.length === 0 || (roomRows.length === 1 && roomRows[0].querySelector('td[colspan="5"]'))) {
+      // Make sure the "No rooms found" row is visible
+      if (roomRows.length === 1) {
+        roomRows[0].style.display = '';
+      }
       return;
     }
 
-    if (index >= startIndex && index < endIndex) {
-      row.style.display = '';
-    } else {
-      row.style.display = 'none';
-    }
-  });
-}
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, totalItems);
+    roomRows.forEach((row, index) => {
+      // Skip the "No rooms found" row if it exists
+      if (row.querySelector('td[colspan="5"]')) {
+        row.style.display = totalItems === 0 ? '' : 'none';
+        return;
+      }
+      if (index >= startIndex && index < endIndex) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
 
-// Function to update pagination buttons state
-function updatePaginationButtons() {
+  // Function to update pagination buttons state
+  function updatePaginationButtons() {
+    if (prevPageButton) {
+      prevPageButton.disabled = currentPage <= 1;
+      prevPageButton.style.opacity = currentPage <= 1 ? '0.5' : '1';
+    }
+    if (nextPageButton) {
+      nextPageButton.disabled = currentPage >= totalPages;
+      nextPageButton.style.opacity = currentPage >= totalPages ? '0.5' : '1';
+    }
+  }
+
+  // Function to apply pagination and redirect
+  function applyPagination(newPage, newPageSize) {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    // Update pagination parameters
+    params.set('page', newPage);
+    params.set('pageSize', newPageSize || pageSize);
+    // Keep existing search parameters
+    if (currentSearchField) {
+      params.set('searchField', currentSearchField);
+    }
+    if (currentSearchText) {
+      params.set('searchText', currentSearchText);
+    }
+    // Redirect
+    url.search = params.toString();
+    window.location.href = url.toString();
+  }
+
+  // Handle page size change
+  if (pageSizeSelect) {
+    pageSizeSelect.addEventListener('change', function() {
+      if (this.value && this.value !== 'Lines per page') {
+        const newPageSize = parseInt(this.value);
+        applyPagination(1, newPageSize); // Reset to page 1 when changing page size
+      }
+    });
+  }
+
+  // Handle previous page button
   if (prevPageButton) {
-    prevPageButton.disabled = currentPage <= 1;
-    prevPageButton.style.opacity = currentPage <= 1 ? '0.5' : '1';
+    prevPageButton.addEventListener('click', function() {
+      if (currentPage > 1) {
+        applyPagination(currentPage - 1);
+      }
+    });
   }
 
+  // Handle next page button
   if (nextPageButton) {
-    nextPageButton.disabled = currentPage >= totalPages;
-    nextPageButton.style.opacity = currentPage >= totalPages ? '0.5' : '1';
-  }
-}
-
-// Function to apply pagination and redirect
-function applyPagination(newPage, newPageSize) {
-  const url = new URL(window.location.href);
-  const params = new URLSearchParams(url.search);
-
-  // Update pagination parameters
-  params.set('page', newPage);
-  params.set('pageSize', newPageSize || pageSize);
-
-  // Keep existing search parameters
-  if (currentSearchField) {
-    params.set('searchField', currentSearchField);
+    nextPageButton.addEventListener('click', function() {
+      if (currentPage < totalPages) {
+        applyPagination(currentPage + 1);
+      }
+    });
   }
 
-  if (currentSearchText) {
-    params.set('searchText', currentSearchText);
+  // Checkbox selection functionality
+  // Main checkbox to select/deselect all
+  if (mainCheckbox) {
+    mainCheckbox.addEventListener('change', function() {
+      const isChecked = this.checked;
+      // Update all row checkboxes
+      rowCheckboxes.forEach(checkbox => {
+        checkbox.checked = isChecked;
+        // Get the row associated with this checkbox
+        const row = checkbox.closest('tr');
+        if (row) {
+          // Find the room ID from a data attribute we'll add
+          const roomId = row.getAttribute('data-room-id');
+          if (isChecked && roomId) {
+            // Add to selected rooms if not already there
+            if (!selectedRooms.includes(roomId)) {
+              selectedRooms.push(roomId);
+            }
+          } else if (roomId) {
+            // Remove from selected rooms
+            selectedRooms = selectedRooms.filter(id => id !== roomId);
+          }
+        }
+      });
+      // Update delete button state
+      updateDeleteButtonState();
+    });
   }
 
-  // Redirect
-  url.search = params.toString();
-  window.location.href = url.toString();
-}
-
-// Handle page size change
-if (pageSizeSelect) {
-  pageSizeSelect.addEventListener('change', function() {
-    if (this.value && this.value !== 'Lines per page') {
-      const newPageSize = parseInt(this.value);
-      applyPagination(1, newPageSize); // Reset to page 1 when changing page size
-    }
-  });
-}
-
-// Handle previous page button
-if (prevPageButton) {
-  prevPageButton.addEventListener('click', function() {
-    if (currentPage > 1) {
-      applyPagination(currentPage - 1);
-    }
-  });
-}
-
-// Handle next page button
-if (nextPageButton) {
-  nextPageButton.addEventListener('click', function() {
-    if (currentPage < totalPages) {
-      applyPagination(currentPage + 1);
-    }
-  });
-}
-
-// Checkbox selection functionality
-// Main checkbox to select/deselect all
-if (mainCheckbox) {
-  mainCheckbox.addEventListener('change', function() {
-    const isChecked = this.checked;
-
-    // Update all row checkboxes
-    rowCheckboxes.forEach(checkbox => {
-      checkbox.checked = isChecked;
-
-      // Get the row associated with this checkbox
-      const row = checkbox.closest('tr');
+  // Individual checkbox selection
+  rowCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const row = this.closest('tr');
       if (row) {
-        // Find the room ID from a data attribute we'll add
         const roomId = row.getAttribute('data-room-id');
-
-        if (isChecked && roomId) {
-          // Add to selected rooms if not already there
+        if (this.checked && roomId) {
+          // Add to selected rooms
           if (!selectedRooms.includes(roomId)) {
             selectedRooms.push(roomId);
           }
@@ -873,216 +903,171 @@ if (mainCheckbox) {
           // Remove from selected rooms
           selectedRooms = selectedRooms.filter(id => id !== roomId);
         }
-      }
-    });
-
-    // Update delete button state
-    updateDeleteButtonState();
-  });
-}
-
-// Individual checkbox selection
-rowCheckboxes.forEach(checkbox => {
-  checkbox.addEventListener('change', function() {
-    const row = this.closest('tr');
-    if (row) {
-      const roomId = row.getAttribute('data-room-id');
-
-      if (this.checked && roomId) {
-        // Add to selected rooms
-        if (!selectedRooms.includes(roomId)) {
-          selectedRooms.push(roomId);
+        // Check if all visible checkboxes are checked
+        const visibleRows = Array.from(roomRows).filter(r => r.style.display !== 'none');
+        const visibleCheckboxes = visibleRows.map(r => r.querySelector('input[type="checkbox"]'));
+        const allChecked = visibleCheckboxes.every(cb => cb.checked);
+        // Update main checkbox
+        if (mainCheckbox) {
+          mainCheckbox.checked = allChecked;
         }
-      } else if (roomId) {
-        // Remove from selected rooms
-        selectedRooms = selectedRooms.filter(id => id !== roomId);
       }
-
-      // Check if all visible checkboxes are checked
-      const visibleRows = Array.from(roomRows).filter(r => r.style.display !== 'none');
-      const visibleCheckboxes = visibleRows.map(r => r.querySelector('input[type="checkbox"]'));
-      const allChecked = visibleCheckboxes.every(cb => cb.checked);
-
-      // Update main checkbox
-      if (mainCheckbox) {
-        mainCheckbox.checked = allChecked;
-      }
-    }
-
-    // Update delete button state
-    updateDeleteButtonState();
-  });
-});
-
-// Function to update delete button state
-function updateDeleteButtonState() {
-  if (deleteButton) {
-    if (selectedRooms.length > 0) {
-      deleteButton.disabled = false;
-      deleteButton.style.opacity = '1';
-      deleteButton.style.cursor = 'pointer';
-    } else {
-      deleteButton.disabled = true;
-      deleteButton.style.opacity = '0.5';
-      deleteButton.style.cursor = 'not-allowed';
-    }
-  }
-}
-
-// Function to show the delete modal
-function showDeleteModal() {
-  const modal = document.getElementById('deleteModal');
-  modal.style.display = 'flex';
-
-  // Update the message with the number of selected rooms
-  const messageElement = document.querySelector('.delete-modal-message');
-  messageElement.textContent = `Are you sure you want to delete ${selectedRooms.length} selected room(s)? This action cannot be undone.`;
-}
-
-// Function to hide the delete modal
-function hideDeleteModal() {
-  const modal = document.getElementById('deleteModal');
-  modal.style.display = 'none';
-}
-
-// Function to handle the delete action
-// Function to show the success modal
-function showSuccessModal() {
-  const modal = document.getElementById('successModal');
-  modal.style.display = 'flex';
-}
-
-// Function to handle the delete action
-function performDelete() {
-  if (selectedRooms.length > 0) {
-    // Create a form to submit the delete request
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/delete-rooms';
-
-    // Add CSRF token if using Spring Security
-    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
-
-    if (csrfToken) {
-      const csrfInput = document.createElement('input');
-      csrfInput.type = 'hidden';
-      csrfInput.name = '_csrf';
-      csrfInput.value = csrfToken;
-      form.appendChild(csrfInput);
-    }
-
-    // Add selected room IDs
-    selectedRooms.forEach(roomId => {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = 'roomIds';
-      input.value = roomId;
-      form.appendChild(input);
+      // Update delete button state
+      updateDeleteButtonState();
     });
+  });
 
-    // Instead of submitting the form directly, use fetch to handle the response
-    const formData = new FormData(form);
-
-    fetch('/delete-rooms', {
-      method: 'POST',
-      body: formData,
-      headers: csrfToken ? {
-        [document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content')]: csrfToken
-      } : {}
-    })
-    .then(response => {
-      if (response.ok) {
-        // Hide delete modal
-        hideDeleteModal();
-
-        // Show success modal
-        showSuccessModal();
-
-        // Update the success message to reflect the number of rooms deleted
-        const messageElement = document.querySelector('.success-modal-message');
-        messageElement.textContent = `Success! ${selectedRooms.length} room(s) has been deleted successfully.`;
-
-        // Clear the selected rooms array
-        selectedRooms = [];
-
-        // Update delete button state
-        updateDeleteButtonState();
+  // Function to update delete button state
+  function updateDeleteButtonState() {
+    if (deleteButton) {
+      if (selectedRooms.length > 0) {
+        deleteButton.disabled = false;
+        deleteButton.style.opacity = '1';
+        deleteButton.style.cursor = 'pointer';
       } else {
-        // Handle error (optional)
-        alert('Error deleting rooms. Please try again.');
+        deleteButton.disabled = true;
+        deleteButton.style.opacity = '0.5';
+        deleteButton.style.cursor = 'not-allowed';
       }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('An error occurred while deleting rooms.');
+    }
+  }
+
+  // Function to show the delete modal
+  function showDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    modal.style.display = 'flex';
+    // Update the message with the number of selected rooms
+    const messageElement = document.querySelector('.delete-modal-message');
+    messageElement.textContent = `Are you sure you want to delete ${selectedRooms.length} selected room(s)? This action cannot be undone.`;
+  }
+
+  // Function to hide the delete modal
+  function hideDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    modal.style.display = 'none';
+  }
+
+  // Function to show the success modal
+  function showSuccessModal() {
+    const modal = document.getElementById('successModal');
+    modal.style.display = 'flex';
+  }
+
+  // Function to handle the delete action
+  function performDelete() {
+    if (selectedRooms.length > 0) {
+      // Create a form to submit the delete request
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/delete-rooms';
+      // Add CSRF token if using Spring Security
+      const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+      if (csrfToken) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_csrf';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+      }
+      // Add selected room IDs
+      selectedRooms.forEach(roomId => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'roomIds';
+        input.value = roomId;
+        form.appendChild(input);
+      });
+      // Instead of submitting the form directly, use fetch to handle the response
+      const formData = new FormData(form);
+      fetch('/delete-rooms', {
+        method: 'POST',
+        body: formData,
+        headers: csrfToken ? {
+          [document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content')]: csrfToken
+        } : {}
+      })
+      .then(response => {
+        if (response.ok) {
+          // Hide delete modal
+          hideDeleteModal();
+          // Show success modal
+          showSuccessModal();
+          // Update the success message to reflect the number of rooms deleted
+          const messageElement = document.querySelector('.success-modal-message');
+          messageElement.textContent = `Success! ${selectedRooms.length} room(s) has been deleted successfully.`;
+          // Clear the selected rooms array
+          selectedRooms = [];
+          // Update delete button state
+          updateDeleteButtonState();
+        } else {
+          // Handle error (optional)
+          alert('Error deleting rooms. Please try again.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while deleting rooms.');
+      });
+    }
+  }
+
+  // Handle delete button click
+  if (deleteButton) {
+    // Initially disable delete button
+    deleteButton.disabled = true;
+    deleteButton.style.opacity = '0.5';
+    deleteButton.style.cursor = 'not-allowed';
+    deleteButton.addEventListener('click', function() {
+      if (selectedRooms.length > 0) {
+        // Show custom delete modal instead of confirm dialog
+        showDeleteModal();
+      }
     });
   }
-}
 
-// Handle delete button click
-if (deleteButton) {
-  // Initially disable delete button
-  deleteButton.disabled = true;
-  deleteButton.style.opacity = '0.5';
-  deleteButton.style.cursor = 'not-allowed';
+  // Add room button click handler
+  if (addRoomButton) {
+    addRoomButton.addEventListener('click', function() {
+      window.location.href = '/add-room';
+    });
+  }
 
-  deleteButton.addEventListener('click', function() {
-    if (selectedRooms.length > 0) {
-      // Show custom delete modal instead of confirm dialog
-      showDeleteModal();
+  // Make table rows clickable to edit
+  roomRows.forEach(row => {
+    // Skip the empty result row if present
+    if (!row.querySelector('td[colspan]')) {
+      row.style.cursor = 'pointer';
+      // Add click event to the row (excluding the checkbox cell)
+      row.querySelectorAll('td:not(:first-child)').forEach(cell => {
+        cell.addEventListener('click', function() {
+          const roomId = row.getAttribute('data-room-id');
+          if (roomId) {
+            window.location.href = `/edit-room?id=${roomId}`;
+          }
+        });
+      });
     }
   });
-}
 
-// Add room button click handler
-if (addRoomButton) {
-  addRoomButton.addEventListener('click', function() {
-    window.location.href = '/add-room';
-  });
-}
-
-// Make table rows clickable to edit
-roomRows.forEach(row => {
-  // Skip the empty result row if present
-  if (!row.querySelector('td[colspan]')) {
-    row.style.cursor = 'pointer';
-
-    // Add click event to the row (excluding the checkbox cell)
-    row.querySelectorAll('td:not(:first-child)').forEach(cell => {
-      cell.addEventListener('click', function() {
-        const roomId = row.getAttribute('data-room-id');
-        if (roomId) {
-          window.location.href = `/edit-room?id=${roomId}`;
-        }
+  // Initialize pagination on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    initializePagination();
+    updateDeleteButtonState();
+    // Add event listeners for modal buttons
+    const cancelButton = document.querySelector('.delete-modal-cancel');
+    if (cancelButton) {
+      cancelButton.addEventListener('click', hideDeleteModal);
+    }
+    const proceedButton = document.querySelector('.delete-modal-proceed');
+    if (proceedButton) {
+      proceedButton.addEventListener('click', function() {
+        performDelete();
+        // Don't hide delete modal here as we'll do that after successful deletion
       });
-    });
-  }
-});
-
-// Initialize pagination on page load
-document.addEventListener('DOMContentLoaded', function() {
-  initializePagination();
-  updateDeleteButtonState();
-
-  // Add event listeners for modal buttons
-  const cancelButton = document.querySelector('.delete-modal-cancel');
-  if (cancelButton) {
-    cancelButton.addEventListener('click', hideDeleteModal);
-  }
-
-  const proceedButton = document.querySelector('.delete-modal-proceed');
-  if (proceedButton) {c
-    proceedButton.addEventListener('click', function() {
-      performDelete();
-      // Don't hide delete modal here as we'll do that after successful deletion
-    });
-  }
-});
+    }
+  });
 </script>
-</body>
-
-
-<!-- Add this modal HTML right before the closing </body> tag -->
+<!-- Delete Modal -->
 <div id="deleteModal" class="delete-modal">
   <div class="delete-modal-content">
     <div class="delete-modal-icon">
@@ -1096,7 +1081,6 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 </div>
-
 <!-- Success Modal -->
 <div id="successModal" class="success-modal">
   <div class="success-modal-content">
@@ -1111,4 +1095,5 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 </div>
+</body>
 </html>
