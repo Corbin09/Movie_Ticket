@@ -1,71 +1,209 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="utf-8" />
-    <title>Movie Portal Login</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="description" content="Movie portal login page" />
-    <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}" />
-    <link rel="stylesheet" type="text/css" th:href="@{/css/font.css}" />
-    <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}" />
-    <link rel="stylesheet" type="text/css" th:href="@{/css/components.css}" />
-    <link rel="stylesheet" type="text/css" th:href="@{/css/Login.css}" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <!-- Updated Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Import Poppins font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(to right, #0a4322, #127b40, #0a4322);
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .login-container {
+            width: 90%;
+            max-width: 420px;
+            padding: 1.5rem;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            text-align: center;
+            color: #0a4322;
+            margin: 0 0 1rem;
+            font-weight: 600;
+            font-size: clamp(1.2rem, 5vw, 1.4rem);
+        }
+
+        label {
+            display: block;
+            margin: 0.5rem 0 0.3rem;
+            color: #333;
+            font-weight: 400;
+            font-size: clamp(0.85rem, 4vw, 0.9rem);
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.6rem;
+            margin: 0.3rem 0 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(0.85rem, 4vw, 0.9rem);
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #1DE782;
+            box-shadow: 0 0 3px rgba(29, 231, 130, 0.3);
+        }
+
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-container i {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 1rem;
+            cursor: pointer;
+            color: #777;
+            font-size: clamp(0.8rem, 4vw, 0.9rem);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.7rem;
+            background: #1DE782;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: clamp(0.9rem, 4vw, 1rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 0.3rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        button:hover {
+            background: #19c772;
+        }
+
+        .error-message,
+        .logout-message {
+            color: #ff3333;
+            text-align: center;
+            margin-bottom: 0.8rem;
+            font-size: clamp(0.8rem, 4vw, 0.9rem);
+        }
+
+        .logout-message {
+            color: #0a4322;
+        }
+
+        .register-container {
+            text-align: center;
+            margin-top: 1rem;
+            color: #333;
+            font-weight: 400;
+            font-size: clamp(0.8rem, 4vw, 0.9rem);
+        }
+
+        .register-container a {
+            color: #008300;
+            text-decoration: none;
+            margin-left: 0.3rem;
+            font-weight: 400;
+        }
+
+        .register-container a:hover {
+            color: #1DE782;
+        }
+
+        /* Media Queries for additional responsiveness */
+        @media (max-width: 600px) {
+            .login-container {
+                padding: 1rem;
+            }
+
+            h2 {
+                font-size: clamp(1.1rem, 5vw, 1.3rem);
+            }
+
+            button {
+                padding: 0.6rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            input[type="text"],
+            input[type="password"] {
+                padding: 0.5rem;
+            }
+
+            .password-container i {
+                right: 0.8rem;
+            }
+        }
+    </style>
 </head>
-
 <body>
-<div class="register">
-    <div class="column_three">
-        <div class="column_two-1">
-            <div class="column-1">
-                <header class="header-1">
-                    <img th:src="@{/images/img_ellipse_2.png}" alt="Image" class="image" />
-                </header>
-            </div>
-            <div class="columnlogintoyo container-lg">
-                <div class="columnloginyo">
-                    <div class="columnloginyo">
-                        <h1 class="logintoyo ui heading size-headinglg">Login to your account</h1>
-
-                        <!-- Login Form with Thymeleaf -->
-                        <form th:action="@{/login}" method="post" th:object="${loginForm}">
-                            <div class="column_one-1">
-                                <div class="column_one-1">
-                                    <div class="rowemil">
-                                        <p class="emil-1 ui text size-textsm">Email</p>
-                                    </div>
-                                    <label class="email-2 ui input gray_400 size-sm outline">
-                                        <input name="email" th:field="*{email}" placeholder="email@gmail.com" type="email" required />
-                                    </label>
-                                    <div th:if="${#fields.hasErrors('email')}" class="ui message error" th:errors="*{email}">Email Error</div>
-                                </div>
-                                <div class="rowemil">
-                                    <p class="emil-3 ui text size-textsm">Password</p>
-                                </div>
-                                <div class="password-1 ui input gray_400 size-sm outline">
-                                    <input name="password" th:field="*{password}" placeholder="Enter your password" type="password" required />
-                                    <img th:src="@{/images/img_eye.svg}" alt="eye" />
-                                </div>
-                                <div th:if="${#fields.hasErrors('password')}" class="ui message error" th:errors="*{password}">Password Error</div>
-                            </div>
-
-                            <button type="submit" class="create_account ui button primary size-3xl fill round">Log In</button>
-                        </form>
-
-                        <div class="rowforgetpass">
-                            <a th:href="@{/forgot-password}">Forget Password?</a>
-                            <div>
-                                <p class="register_here ui text size-textsm">
-                                    <a th:href="@{/register}">Register Here.</a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <img th:src="@{/images/img_ellipse_1.png}" alt="Image" class="image_one" />
+<div class="login-container">
+    <h2>Login to your account</h2>
+    <div th:if="${param.error}">
+        <p class="error-message">Invalid username or password</p>
+    </div>
+    <div th:if="${param.logout}">
+        <p class="logout-message">You have been logged out</p>
+    </div>
+    <form th:action="@{/login}" method="post">
+        <div>
+            <label>Username:</label>
+            <input type="text" name="username" placeholder="Enter your username" required>
         </div>
+        <div class="password-container">
+            <label>Password:</label>
+            <input type="password" name="password" placeholder="Enter your password" required id="password">
+            <i class="fas fa-eye-slash" id="togglePassword" onclick="togglePasswordVisibility()"></i>
+        </div>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit">Log in</button>
+    </form>
+    <div class="register-container">
+        Don't have an account? <a href="/register">Register Here</a>
     </div>
 </div>
+
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById("password");
+        const toggleIcon = document.getElementById("togglePassword");
+
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            toggleIcon.classList.remove("fa-eye-slash");
+            toggleIcon.classList.add("fa-eye");
+        } else {
+            passwordInput.type = "password";
+            toggleIcon.classList.remove("fa-eye");
+            toggleIcon.classList.add("fa-eye-slash");
+        }
+    }
+</script>
 </body>
 </html>

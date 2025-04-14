@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Register</title>
+  <link rel="stylesheet" th:href="@{/css/login.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+   margin: 0;
+   padding: 0;
+   box-sizing: border-box;
+ }
+
+ body {
+   background: linear-gradient(to right, #0a4322, #127b40, #0a4322);
+   color: #333;
+   min-height: 100vh;
+   padding: 20px;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: row;
+   font-family: 'Poppins', sans-serif;
+ }
+
+ .welcome-text {
+   position: fixed;
+   top: 50%;
+   left: 5%;
+   transform: translateY(-50%);
+   width: 35%;
+   max-width: 450px;
+   font-weight: 300;
+   font-style: italic;
+   font-size: clamp(24px, 5vw, 43px); /* Linh hoạt font-size */
+   line-height: 1.3;
+   background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.44) 100%);
+   -webkit-background-clip: text;
+   background-clip: text;
+   -webkit-text-fill-color: transparent;
+   text-fill-color: transparent;
+   z-index: 10;
+ }
+
+ .register-container {
+   background-color: #FFFFFF;
+   border-radius: 10px;
+   padding: clamp(20px, 5vw, 30px); /* Linh hoạt padding */
+   width: min(90%, 500px); /* Giới hạn tối đa 500px, linh hoạt theo màn hình */
+   margin-left: auto;
+   margin-right: 5%;
+   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+ }
+
+ .form-title {
+   font-size: clamp(20px, 5vw, 24px);
+   margin-bottom: 25px;
+   color: #333;
+   font-weight: 500;
+   text-align: center;
+ }
+
+ .form-group {
+   margin-bottom: 15px;
+   position: relative;
+ }
+
+ .form-group label {
+   display: block;
+   margin-bottom: 8px;
+   color: #333;
+   font-size: clamp(12px, 3vw, 14px);
+ }
+
+ .form-group input,
+ .form-group select {
+   width: 100%;
+   padding: 10px 12px;
+   border: 1px solid #ccc;
+   border-radius: 4px;
+   background-color: transparent;
+   color: #333;
+   font-size: clamp(12px, 3vw, 14px);
+ }
+
+ .form-group select {
+   appearance: none;
+   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+   background-repeat: no-repeat;
+   background-position: right 10px center;
+   background-size: 1em;
+   padding-right: 30px;
+ }
+
+ .form-group input:focus,
+ .form-group select:focus {
+   outline: none;
+   border-color: #aee09f;
+ }
+
+ .password-field {
+   position: relative;
+ }
+
+ .toggle-password {
+   position: absolute;
+   top: 50%;
+   right: 10px;
+   transform: translateY(-50%);
+   cursor: pointer;
+   color: #666;
+ }
+
+ .submit-btn {
+   width: 100%;
+   padding: 12px;
+   background-color: #127b40;
+   color: white;
+   border: none;
+   border-radius: 4px;
+   cursor: pointer;
+   font-size: clamp(14px, 4vw, 16px);
+   margin-top: 15px;
+ }
+
+ .submit-btn:hover {
+   background-color: #0a4322;
+ }
+
+ .field-error {
+   color: #f44336;
+   font-size: clamp(12px, 3vw, 14px);
+   margin-top: 5px;
+ }
+
+ .success-message {
+   color: #127b40;
+   font-size: clamp(12px, 3vw, 14px);
+   margin-top: 15px;
+   padding: 10px;
+   background-color: rgba(18, 123, 64, 0.1);
+   border-radius: 4px;
+   text-align: center;
+ }
+
+ .login-link {
+   margin-top: 15px;
+   text-align: center;
+   font-size: clamp(12px, 3vw, 14px);
+   color: #666;
+ }
+
+ .login-link a {
+   color: #127b40;
+   text-decoration: none;
+ }
+
+ .login-link a:hover {
+   text-decoration: underline;
+ }
+
+ .form-group input.error,
+ .form-group input.is-invalid {
+   border-color: #f44336;
+ }
+
+ .registration-success {
+   text-align: center;
+   padding: 20px;
+ }
+
+ .registration-success h3 {
+   color: #127b40;
+   margin-bottom: 15px;
+   font-size: clamp(18px, 4vw, 22px);
+ }
+
+ .registration-success p {
+   margin-bottom: 20px;
+   font-size: clamp(12px, 3vw, 14px);
+ }
+
+ .back-to-login-btn {
+   display: inline-block;
+   padding: 10px 20px;
+   background-color: #127b40;
+   color: white;
+   border-radius: 4px;
+   text-decoration: none;
+   font-size: clamp(12px, 3vw, 14px);
+ }
+
+ .back-to-login-btn:hover {
+   background-color: #0a4322;
+ }
+
+ /* Responsive Design */
+ @media (max-width: 1024px) {
+   body {
+     flex-direction: column;
+     padding-top: 80px;
+     padding-bottom: 20px;
+   }
+
+   .welcome-text {
+     position: relative;
+     top: 0;
+     left: 0;
+     transform: none;
+     width: 100%;
+     max-width: 600px;
+     margin: 0 auto 30px;
+     text-align: center;
+     font-size: clamp(20px, 6vw, 36px);
+   }
+
+   .register-container {
+     margin: 0 auto;
+     width: min(90%, 450px);
+   }
+ }
+
+ @media (max-width: 768px) {
+   body {
+     padding: 15px;
+   }
+
+   .welcome-text {
+     font-size: clamp(18px, 5vw, 28px);
+     margin-bottom: 20px;
+   }
+
+   .register-container {
+     padding: 20px;
+     width: 95%;
+   }
+
+   .form-title {
+     font-size: clamp(18px, 5vw, 22px);
+   }
+
+   .form-group input,
+   .form-group select {
+     padding: 8px 10px;
+   }
+
+   .submit-btn {
+     padding: 10px;
+   }
+ }
+
+ @media (max-width: 480px) {
+   .welcome-text {
+     font-size: clamp(16px, 6vw, 24px);
+   }
+
+   .register-container {
+     padding: 15px;
+   }
+
+   .form-group label,
+   .form-group input,
+   .form-group select,
+   .field-error,
+   .success-message,
+   .login-link {
+     font-size: clamp(11px, 3.5vw, 13px);
+   }
+
+   .submit-btn,
+   .back-to-login-btn {
+     font-size: clamp(12px, 4vw, 14px);
+     padding: 8px;
+   }
+
+   .form-group {
+     margin-bottom: 12px;
+   }
+ }
+  </style>
+</head>
+<body>
+<!-- Welcome Text -->
+<div class="welcome-text">
+  Welcome.<br>
+  Begin your cinematic adventure now with our ticketing platform!
+</div>
+
+<!-- Registration Success Message (shown after successful registration) -->
+<div class="register-container" th:if="${param.registered}" style="display: none;">
+  <div class="registration-success">
+    <h3>Registration Successful!</h3>
+    <p>Your account has been created successfully.</p>
+    <a th:href="@{/login}" class="back-to-login-btn">Back to Login</a>
+  </div>
+</div>
+
+<!-- Register Form -->
+<div class="register-container" th:unless="${param.registered}">
+  <h2 class="form-title">Register</h2>
+  <form id="registerForm" th:action="@{/register}" method="post" onsubmit="return validateForm()">
+
+    <!-- Username -->
+    <div class="form-group">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required>
+      <div class="field-error" id="username-error"></div>
+      <div class="field-error" th:if="${usernameError}" th:text="${usernameError}"></div>
+    </div>
+
+    <!-- Password -->
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <div class="password-field">
+        <input type="password" id="password" name="password" required>
+        <i id="togglePassword" class="fas fa-eye-slash toggle-password"></i>
+      </div>
+      <div class="field-error" id="password-error"></div>
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="form-group">
+      <label for="confirmPassword">Confirm Password:</label>
+      <div class="password-field">
+        <input type="password" id="confirmPassword" name="confirmPassword" required>
+        <i id="toggleConfirmPassword" class="fas fa-eye-slash toggle-password"></i>
+      </div>
+      <div class="field-error" id="confirmPassword-error"></div>
+    </div>
+
+    <!-- Email -->
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email">
+      <div class="field-error" id="email-error"></div>
+      <div class="field-error" th:if="${emailError}" th:text="${emailError}"></div>
+    </div>
+
+    <!-- Phone Number -->
+    <div class="form-group">
+      <label for="phoneNumber">Phone Number:</label>
+      <input type="text" id="phoneNumber" name="phoneNumber">
+      <div class="field-error" id="phoneNumber-error"></div>
+    </div>
+
+    <!-- User Image -->
+    <div class="form-group">
+      <label for="userImg">Profile Image URL:</label>
+      <input type="text" id="userImg" name="userImg" placeholder="Enter image URL">
+      <div class="field-error" id="userImg-error"></div>
+    </div>
+
+    <!-- Gender -->
+    <div class="form-group">
+      <label for="sex">Gender:</label>
+      <select id="sex" name="sex">
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <!-- Date of Birth -->
+    <div class="form-group">
+      <label for="dateOfBirth">Date of Birth:</label>
+      <input type="date" id="dateOfBirth" name="dateOfBirth">
+      <div class="field-error" id="dateOfBirth-error"></div>
+    </div>
+
+    <!-- Role (Hidden Field) -->
+    <input type="hidden" name="role" value="USER">
+
+    <!-- Status (Hidden Field) -->
+    <input type="hidden" name="status" value="ACTIVE">
+
+    <!-- Submit Button -->
+    <button type="submit" class="submit-btn">Register</button>
+
+    <!-- Login Link -->
+    <div class="login-link">
+      Already Have An Account? <a th:href="@{/login}">Log In</a>
+    </div>
+  </form>
+
+  <!-- General Error Message -->
+  <div th:if="${error}" class="success-message" style="color: #f44336;" th:text="${error}"></div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Password toggle visibility function for password field
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('togglePassword');
+
+    togglePassword.addEventListener('click', function() {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+
+      // Toggle icon classes
+      if (type === 'password') {
+        togglePassword.classList.remove('fa-eye');
+        togglePassword.classList.add('fa-eye-slash');
+      } else {
+        togglePassword.classList.remove('fa-eye-slash');
+        togglePassword.classList.add('fa-eye');
+      }
+    });
+
+    // Password toggle visibility function for confirm password field
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+
+    toggleConfirmPassword.addEventListener('click', function() {
+      const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      confirmPasswordInput.setAttribute('type', type);
+
+      // Toggle icon classes
+      if (type === 'password') {
+        toggleConfirmPassword.classList.remove('fa-eye');
+        toggleConfirmPassword.classList.add('fa-eye-slash');
+      } else {
+        toggleConfirmPassword.classList.remove('fa-eye-slash');
+        toggleConfirmPassword.classList.add('fa-eye');
+      }
+    });
+
+    // Clear error messages when input changes
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.addEventListener('input', function() {
+        const errorElement = document.getElementById(input.id + '-error');
+        if (errorElement) {
+          errorElement.textContent = '';
+        }
+        input.style.borderColor = '#ccc';
+      });
+    });
+  });
+
+  function validateForm() {
+    let isValid = true;
+
+    // Clear all previous error messages
+    const errorElements = document.querySelectorAll('.field-error');
+    errorElements.forEach(el => el.textContent = '');
+
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => input.style.borderColor = '#ccc');
+
+    // Username validation
+    const username = document.getElementById('username');
+    if (!username.value.trim()) {
+      showError(username, 'Username is required');
+      isValid = false;
+    }
+
+    // Password validation
+    const password = document.getElementById('password');
+    if (!password.value) {
+      showError(password, 'Password is required');
+      isValid = false;
+    } else if (password.value.length < 6) {
+      showError(password, 'Password must be at least 6 characters');
+      isValid = false;
+    }
+
+    // Confirm password validation
+    const confirmPassword = document.getElementById('confirmPassword');
+    if (password.value !== confirmPassword.value) {
+      showError(confirmPassword, 'Passwords do not match');
+      isValid = false;
+    }
+
+    // Email validation (if provided)
+    const email = document.getElementById('email');
+    if (email.value && !isValidEmail(email.value)) {
+      showError(email, 'Please enter a valid email address');
+      isValid = false;
+    }
+
+    // Phone number validation (if provided)
+    const phoneNumber = document.getElementById('phoneNumber');
+    if (phoneNumber.value && !isValidPhoneNumber(phoneNumber.value)) {
+      showError(phoneNumber, 'Please enter a valid phone number');
+      isValid = false;
+    }
+
+    // Image URL validation (if provided)
+    const userImg = document.getElementById('userImg');
+    if (userImg.value && !isValidURL(userImg.value)) {
+      showError(userImg, 'Please enter a valid URL');
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  function showError(input, message) {
+    input.style.borderColor = '#f44336';
+    const errorElement = document.getElementById(input.id + '-error');
+    if (errorElement) {
+      errorElement.textContent = message;
+    }
+  }
+
+  function isValidEmail(email) {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+  }
+
+  function isValidPhoneNumber(phone) {
+    const re = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+    return re.test(phone);
+  }
+
+  function isValidURL(url) {
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Show registration success container and hide register form if registration was successful
+  if (window.location.href.includes('?registered')) {
+    document.querySelector('.register-container').style.display = 'none';
+    document.querySelector('.register-container[style]').style.display = 'block';
+  }
+</script>
+</body>
+</html>

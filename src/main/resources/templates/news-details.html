@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" th:href="@{/css/newsviewreview.css}" />
+  <link rel="stylesheet" th:href="@{/css/header_user.css}" />
+  <link rel="stylesheet" th:href="@{/css/footer.css}" />
+  <title>Movie News Details</title>
+</head>
+<body>
+<!-- Header -->
+<div th:replace="fragments/header_user :: header"></div>
+<div style="height: 132px;" class="adding-margin"></div>
+<div class="container">
+  <!-- Movie News Header -->
+  <div class="movie-news-header">
+    <h1>MOVIE NEWS</h1>
+  </div>
+
+  <div class="news-details">
+    <img th:src="@{${currentNews.newsImg}}" alt="News Image" class="news-img">
+    <header th:text="${currentNews.newsHeader}"></header>
+    <div th:utext="${currentNews.newsContent}"></div>
+    <footer th:text="${currentNews.newsFooter}"></footer>
+    <!-- Manual date formatting -->
+    <div class="news-ps">
+      <span th:text="'Date: ' + ${#temporals.format(currentNews.newsTime, 'dd/MM/yyyy HH:mm:ss')}"></span>
+      <span th:text="'Write by: ' + ${currentNews.user.username}"></span>
+    </div>
+  </div>
+
+  <!-- Pagination Dots -->
+  <div class="pagination-container">
+    <div class="pagination">
+      <!-- Previous button - always shown but disabled if no previous news -->
+      <a th:href="@{/news/{id}(id=${prevNews.newsId})}"
+         class="page-item prev-page"
+         th:classappend="${prevNews == null} ? 'disabled' : ''">&laquo;</a>
+
+      <!-- Current news info -->
+      <span class="page-item active"
+            th:text="'News id: ' + ${currentNews.newsId} + ' / ' + 'Total news: ' + ${totalNews}"></span>
+
+      <!-- Next button - always shown but disabled if no next news -->
+      <a th:href="@{/news/{id}(id=${nextNews.newsId})}"
+         class="page-item next-page"
+         th:classappend="${nextNews == null} ? 'disabled' : ''">&raquo;</a>
+    </div>
+  </div>
+</div>
+<!-- Footer -->
+<div th:replace="fragments/footer :: footer"></div>
+
+</body>
+</html>

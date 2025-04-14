@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+  <title>Cinema Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/header_user.css}">
+  <!-- Quill.js CSS -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <!-- Quill.js Script -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+  <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+    body {
+        background-color: #0f1c12;
+        color: white;
+    }
+    .user-profile-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+    .user-profile-header {
+        position: relative;
+        width: 100%;
+        height: 240px;
+        background-image: url('/images/moviebanner.jpeg');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: flex-end;
+        padding: 20px;
+    }
+    .user-profile-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(15, 28, 18, 0.2), rgba(15, 28, 18, 0.8));
+    }
+    .user-profile-details {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    .user-profile-pic {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid #fff;
+        flex-shrink: 0;
+    }
+    .user-profile-pic img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .user-profile-username {
+        font-size: 2rem;
+        font-weight: 500;
+        color: #fff;
+    }
+    .user-profile-navigation {
+        display: flex;
+        flex-wrap: wrap;
+        background-color: #fff;
+        border-bottom: 1px solid #eaeaea;
+    }
+    .user-nav-btn {
+        padding: 16px 20px;
+        background: none;
+        border: none;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333;
+        cursor: pointer;
+        transition: color 0.2s;
+        flex: 1;
+        text-align: center;
+    }
+    .user-nav-btn:hover {
+        color: #23ad4c;
+    }
+    .user-nav-btn.user-nav-active {
+        color: #23ad4c;
+        border-bottom: 2px solid #23ad4c;
+    }
+    .user-profile-body {
+        min-height: 400px;
+        padding: 30px;
+        background-color: #fff;
+        color: #333;
+    }
+    /* Create Post Form Styles */
+    .user-create-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .user-form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .user-form-group label {
+        font-weight: 500;
+        color: #333;
+    }
+    .user-form-group input[type="text"],
+    .user-form-group textarea,
+    .user-form-group select {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        width: 100%;
+    }
+    .user-form-group textarea {
+        min-height: 150px;
+        resize: vertical;
+    }
+    .user-file-upload {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .user-file-preview {
+        width: 100%;
+        max-height: 200px;
+        border: 1px dashed #ccc;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .user-file-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    .user-post-btn {
+        background-color: #23ad4c;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 12px 24px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        align-self: flex-start;
+        transition: background-color 0.2s;
+    }
+    .user-post-btn:hover {
+        background-color: #1c8c3d;
+    }
+    /* Table Styles for Lists */
+    .user-data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    .user-data-table th,
+    .user-data-table td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    .user-data-table th {
+        background-color: #f8f8f8;
+        font-weight: 500;
+    }
+    .user-data-table tr:hover {
+        background-color: #f5f5f5;
+    }
+    .user-checkbox-cell {
+        width: 40px;
+        text-align: center;
+    }
+    .user-action-cell {
+        width: 100px;
+        text-align: right;
+    }
+    /* Tab Content Display */
+    .user-tab-content {
+        display: none;
+    }
+    .user-tab-content.user-tab-active {
+        display: block;
+    }
+    .user-post-written {
+        text-decoration: none;
+    }
+    /* Section Header */
+    .user-section-header {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        font-weight: normal;
+    }
+    /* Tickets Booked Styles */
+    #user-tickets-booked .user-data-table {
+        width: 100%;
+    }
+    /* Action Cell Button Styles */
+    .user-action-cell button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        color: #333;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+    .user-action-cell button:hover {
+        background-color: #f0f0f0;
+        color: #ee6b6e;
+    }
+    .user-checkbox-cell input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    .user-delete-icon {
+        cursor: pointer;
+        color: #666;
+        transition: color 0.2s;
+    }
+    .user-delete-icon:hover {
+        color: #ee6b6e;
+    }
+    .user-table-container {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .user-data-table tr:last-child td {
+        border-bottom: none;
+    }
+    .user-film-select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        background-color: white;
+        box-sizing: border-box;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .user-film-select option {
+        padding: 8px;
+    }
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: none;
+    }
+    .modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        z-index: 1001;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        display: none;
+    }
+    .modal-content {
+        text-align: center;
+    }
+    .modal-content h2 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+    .modal-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    .modal-button {
+        padding: 10px 25px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    .confirm-button {
+        background-color: #ff3b30;
+        color: white;
+    }
+    .confirm-button:hover {
+        background-color: #d9342b;
+    }
+    .cancel-button {
+        background-color: #e0e0e0;
+        color: #333;
+    }
+    .cancel-button:hover {
+        background-color: #c0c0c0;
+    }
+    .user-success-message {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    .user-success-message .message-content {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .user-success-message svg {
+        color: #2e7d32;
+    }
+    .user-success-message .redirect-text {
+        margin-left: auto;
+        font-size: 0.875rem;
+        color: #555;
+    }
+    .user-table-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 10px;
+    }
+    .user-action-btn {
+        padding: 8px 16px;
+        border-radius: 12px;
+        border: none;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .user-action-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    .user-delete-btn,
+    .user-unlike-btn {
+        background-color: #ff3b30;
+    }
+    .user-delete-btn:hover:not(:disabled),
+    .user-unlike-btn:hover:not(:disabled) {
+        background-color: #d9342b;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .user-action-notification {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #d4edda;
+        color: #155724;
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin-bottom: 16px;
+        border-left: 4px solid #28a745;
+        animation: fadeIn 0.3s ease-out;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .user-action-notification .message-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .user-action-notification svg {
+        color: #28a745;
+        flex-shrink: 0;
+    }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .user-profile-header {
+            height: 240px;
+            padding: 15px;
+        }
+        .user-profile-pic {
+            width: 100px;
+            height: 100px;
+            border: 3px solid #fff;
+        }
+        .user-profile-username {
+            font-size: 1.5rem;
+        }
+        .user-nav-btn {
+            padding: 12px 10px;
+            font-size: 0.9rem;
+        }
+        .user-profile-body {
+            padding: 20px;
+        }
+        .user-section-header {
+            font-size: 1.5rem;
+        }
+        .user-post-btn {
+            width: 100%;
+            padding: 12px;
+        }
+        .user-data-table th,
+        .user-data-table td {
+            padding: 10px 12px;
+        }
+        .user-checkbox-cell {
+            width: 30px;
+        }
+        .user-action-cell {
+            width: 80px;
+        }
+        .user-film-select {
+            font-size: 0.9rem;
+            padding: 10px;
+        }
+    }
+    @media (max-width: 480px) {
+        .user-profile-header {
+            height: 240px;
+            padding: 10px;
+        }
+        .user-profile-pic {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #fff;
+        }
+        .user-profile-username {
+            font-size: 1.2rem;
+        }
+        .user-nav-btn {
+            padding: 10px 8px;
+            font-size: 0.8rem;
+        }
+        .user-profile-body {
+            padding: 15px;
+        }
+        .user-section-header {
+            font-size: 1.2rem;
+        }
+        .user-data-table {
+            display: block;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .user-data-table th,
+        .user-data-table td {
+            padding: 8px 10px;
+            font-size: 0.9rem;
+        }
+        .user-table-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .user-action-btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .user-film-select {
+            font-size: 0.8rem;
+            padding: 8px;
+            max-width: 100%;
+        }
+    }
+  </style>
+</head>
+<body>
+<div th:replace="~{fragments/header_user :: header_user}"></div>
+<div class="adding-margin"></div>
+<div class="user-profile-wrapper">
+  <div class="user-profile-header">
+    <div class="user-profile-details">
+      <div class="user-profile-pic">
+        <img th:src="${user.userImg}" alt="Profile Avatar">
+      </div>
+      <h1 class="user-profile-username" th:text="${user.username}">Phan Thuy Ngan</h1>
+    </div>
+  </div>
+  <div class="user-profile-navigation">
+    <button class="user-nav-btn user-nav-active" data-tab="user-create-post">Create Post</button>
+    <button class="user-nav-btn" data-tab="user-posts-written">Post Written</button>
+    <button class="user-nav-btn" data-tab="user-tickets-booked">Tickets Booked</button>
+    <button class="user-nav-btn" data-tab="user-liked-movies">Liked Movies</button>
+  </div>
+  <div class="user-profile-body">
+    <!-- Create Post Tab Content -->
+    <div id="user-create-post" class="user-tab-content user-tab-active">
+      <!-- Success Message (initially hidden) -->
+      <div id="userSuccessMessage" class="user-success-message" style="display: none;">
+        <div class="message-content">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span>Your post has been created successfully!</span>
+        </div>
+        <span class="redirect-text">Redirecting to Post Written in <span id="redirectCounter">5</span>s</span>
+      </div>
+      <!-- Display flash message if exists -->
+      <div th:if="${success}" id="flashSuccessMessage" class="user-success-message">
+        <div class="message-content">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span th:text="${success}">Your post has been created successfully!</span>
+        </div>
+        <span class="redirect-text">Redirecting to Post Written in <span id="flashRedirectCounter">5</span>s</span>
+      </div>
+      <form class="user-create-form" th:action="@{/user/upload-news}" method="post" enctype="multipart/form-data" id="userPostForm">
+        <div class="user-form-group">
+          <label for="userPostTitle">Post Title</label>
+          <input type="text" id="userPostTitle" name="newsHeader" placeholder="Enter a title for your post" required>
+        </div>
+        <div class="user-form-group">
+          <label for="filmSelect">Select Film to Review</label>
+          <select id="filmSelect" name="film.filmId" class="user-film-select" required>
+            <option value="">-- Select a Film --</option>
+            <option th:each="film : ${allFilms}" th:value="${film.filmId}" th:text="${film.filmName}">Film Name</option>
+          </select>
+        </div>
+        <div class="user-form-group">
+          <label for="userPostContent">Content</label>
+          <div id="editor-container"></div>
+          <input type="hidden" id="userPostContent" name="newsContent">
+        </div>
+        <div class="user-form-group">
+          <label for="userPostFooter">Footer</label>
+          <input type="text" id="userPostFooter" name="newsFooter" placeholder="Add a footer (optional)">
+        </div>
+        <div class="user-form-group">
+          <label>Upload Image</label>
+          <div class="user-file-upload">
+            <input type="file" id="userPostImage" name="newsImgFile" accept="image/*">
+            <div class="user-file-preview" id="userImagePreview"></div>
+          </div>
+        </div>
+        <input type="hidden" name="user.userId" th:value="${user.userId}" />
+        <button type="submit" class="user-post-btn">Post</button>
+      </form>
+    </div>
+    <!-- Posts Written Tab Content -->
+    <div id="user-posts-written" class="user-tab-content">
+      <h2 class="user-section-header">Your Posts</h2>
+      <!-- Action Notification Message (initially hidden) -->
+      <div id="actionNotification" class="user-action-notification" style="display: none;">
+        <div class="message-content">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span id="actionMessage">Action completed successfully!</span>
+        </div>
+      </div>
+      <div class="user-table-container">
+        <table class="user-data-table">
+          <thead>
+          <tr>
+            <th class="user-checkbox-cell"><input type="checkbox" id="userSelectAllPosts"></th>
+            <th>Post Title</th>
+            <th>Film</th>
+            <th>Post Date</th>
+          </tr>
+          </thead>
+          <tbody id="postsTableBody">
+          <tr th:each="post : ${userPosts}" th:data-id="${post.newsId}">
+            <td class="user-checkbox-cell"><input type="checkbox" class="user-post-checkbox" th:value="${post.newsId}"></td>
+            <td>
+              <a class="user-post-written" th:href="@{/news/{id}(id=${post.newsId})}" th:text="${post.newsHeader}">Post Title</a>
+            </td>
+            <td>
+              <a class="user-post-written" th:href="@{/news/{id}(id=${post.newsId})}" th:text="${post.film != null ? post.film.filmName : 'N/A'}">Film Name</a>
+            </td>
+            <td>
+              <a class="user-post-written" th:href="@{/news/{id}(id=${post.newsId})}" th:text="${#temporals.format(post.newsTime, 'dd/MM/yyyy HH:mm:ss')}">Post Date</a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="user-table-actions">
+        <button id="deletePostsBtn" class="user-action-btn user-delete-btn" disabled>Delete Selected</button>
+      </div>
+    </div>
+    <!-- Tickets Booked Tab Content -->
+    <div id="user-tickets-booked" class="user-tab-content">
+      <h2 class="user-section-header">Your Booked Tickets</h2>
+      <div class="user-table-container">
+        <table class="user-data-table">
+          <thead>
+          <tr>
+            <th>Ticket ID</th>
+            <th>Film</th>
+            <th>Order Date</th>
+            <th>Seat</th>
+            <th>Price</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="ticket : ${userTickets}">
+            <td th:text="${ticket.ticketId}">Ticket ID</td>
+            <td th:text="${ticket.order.showtime.film.filmName}">Film Title</td>
+            <td th:text="${#dates.format(ticket.order.orderDate, 'dd-MM-yyyy')}">Order Date</td>
+            <td th:text="${ticket.seat.seatRow + ticket.seat.seatNumber}">Seat</td>
+            <td th:text="'$' + ${#numbers.formatDecimal(ticket.ticketPrice, 1, 2)}">Price</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Liked Movies Tab Content -->
+    <div id="user-liked-movies" class="user-tab-content">
+      <h2 class="user-section-header">Your Liked Movies</h2>
+      <!-- Action Notification Message (initially hidden) -->
+      <div id="likeActionNotification" class="user-action-notification" style="display: none;">
+        <div class="message-content">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span id="likeActionMessage">Action completed successfully!</span>
+        </div>
+      </div>
+      <div class="user-table-container">
+        <table class="user-data-table">
+          <thead>
+          <tr>
+            <th class="user-checkbox-cell"><input type="checkbox" id="userSelectAllLikes"></th>
+            <th>Film Title</th>
+          </tr>
+          </thead>
+          <tbody id="likesTableBody">
+          <tr th:each="film : ${likedFilms}" th:data-id="${film.filmId}">
+            <td class="user-checkbox-cell"><input type="checkbox" class="user-like-checkbox" th:value="${film.filmId}"></td>
+            <td th:text="${film.filmName}">Film Title</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="user-table-actions">
+        <button id="unlikeFilmsBtn" class="user-action-btn user-unlike-btn" disabled>Unlike Selected</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Overlay -->
+<div id="overlay" class="overlay" style="display:none;"></div>
+<!-- Confirmation Modal -->
+<div id="confirmationModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h2 id="confirmationTitle">Are you sure you want to delete?</h2>
+    <div class="modal-buttons">
+      <button id="confirmDelete" class="modal-button confirm-button">Yes</button>
+      <button id="cancelDelete" class="modal-button cancel-button">Cancel</button>
+    </div>
+  </div>
+</div>
+<!-- Footer -->
+<div th:replace="fragments/footer :: footer"></div>
+<script th:inline="javascript">
+  document.addEventListener('DOMContentLoaded', function() {
+      const tabButtons = document.querySelectorAll('.user-nav-btn');
+      const tabContents = document.querySelectorAll('.user-tab-content');
+      const deletePostsBtn = document.getElementById('deletePostsBtn');
+      const unlikeFilmsBtn = document.getElementById('unlikeFilmsBtn');
+      const overlay = document.getElementById('overlay');
+      const confirmationModal = document.getElementById('confirmationModal');
+      const confirmDeleteButton = document.getElementById('confirmDelete');
+      const cancelDeleteButton = document.getElementById('cancelDelete');
+      const confirmationTitle = document.getElementById('confirmationTitle');
+      const actionNotification = document.getElementById('actionNotification');
+      const actionMessage = document.getElementById('actionMessage');
+      const likeActionNotification = document.getElementById('likeActionNotification');
+      const likeActionMessage = document.getElementById('likeActionMessage');
+      // Variables to track current action
+      let currentAction = '';
+      let selectedIds = [];
+      // Check if there's a flash message from the server
+      const flashSuccessMessage = document.getElementById('flashSuccessMessage');
+      if (flashSuccessMessage) {
+          startRedirectCountdown('flashRedirectCounter');
+      }
+      // Function to show action notification and auto-hide after 5 seconds
+      function showActionNotification(element, message) {
+          const messageElement = element.querySelector('span');
+          if (messageElement) {
+              messageElement.textContent = message;
+          }
+          element.style.display = 'flex';
+          // Auto-hide after 5 seconds
+          setTimeout(() => {
+              element.style.display = 'none';
+          }, 5000);
+      }
+      // Function to switch tabs
+      function switchToTab(tabId) {
+          // Remove active class from all buttons and contents
+          tabButtons.forEach(btn => btn.classList.remove('user-nav-active'));
+          tabContents.forEach(content => content.classList.remove('user-tab-active'));
+          // Add active class to the target button
+          const targetButton = document.querySelector(`.user-nav-btn[data-tab="${tabId}"]`);
+          if (targetButton) {
+              targetButton.classList.add('user-nav-active');
+          }
+          // Show the corresponding content
+          const targetTab = document.getElementById(tabId);
+          if (targetTab) {
+              targetTab.classList.add('user-tab-active');
+          }
+      }
+      // Function to start the countdown and redirect
+      function startRedirectCountdown(counterId) {
+          let counter = 5;
+          const counterElement = document.getElementById(counterId);
+          const interval = setInterval(function() {
+              counter--;
+              if (counterElement) {
+                  counterElement.textContent = counter;
+              }
+              if (counter <= 0) {
+                  clearInterval(interval);
+                  switchToTab('user-posts-written');
+              }
+          }, 1000);
+      }
+      // Tab switching functionality
+      tabButtons.forEach(button => {
+          button.addEventListener('click', function() {
+              const tabId = this.getAttribute('data-tab');
+              switchToTab(tabId);
+              // Hide success message when switching back to create post tab
+              if (tabId === 'user-create-post') {
+                  const successMessage = document.getElementById('userSuccessMessage');
+                  const flashSuccessMessage = document.getElementById('flashSuccessMessage');
+                  if (successMessage) {
+                      successMessage.style.display = 'none';
+                  }
+                  if (flashSuccessMessage) {
+                      flashSuccessMessage.style.display = 'none';
+                  }
+              }
+          });
+      });
+      // Image preview functionality
+      const postImageInput = document.getElementById('userPostImage');
+      const imagePreview = document.getElementById('userImagePreview');
+      if (postImageInput && imagePreview) {
+          postImageInput.addEventListener('change', function(event) {
+              if (event.target.files.length > 0) {
+                  const file = event.target.files[0];
+                  const imageUrl = URL.createObjectURL(file);
+                  const img = document.createElement('img');
+                  img.src = imageUrl;
+                  imagePreview.innerHTML = '';
+                  imagePreview.appendChild(img);
+              }
+          });
+      }
+      // Function to update delete/unlike button state
+      function updatePostsButtonState() {
+          const checkedPosts = document.querySelectorAll('.user-post-checkbox:checked');
+          if (deletePostsBtn) {
+              deletePostsBtn.disabled = checkedPosts.length === 0;
+          }
+      }
+      function updateLikesButtonState() {
+          const checkedLikes = document.querySelectorAll('.user-like-checkbox:checked');
+          if (unlikeFilmsBtn) {
+              unlikeFilmsBtn.disabled = checkedLikes.length === 0;
+          }
+      }
+      // Handle "Select All" checkboxes
+      const selectAllPosts = document.getElementById('userSelectAllPosts');
+      if (selectAllPosts) {
+          selectAllPosts.addEventListener('change', function() {
+              const checkboxes = document.querySelectorAll('.user-post-checkbox');
+              checkboxes.forEach(checkbox => {
+                  checkbox.checked = this.checked;
+              });
+              updatePostsButtonState();
+          });
+      }
+      const selectAllLikes = document.getElementById('userSelectAllLikes');
+      if (selectAllLikes) {
+          selectAllLikes.addEventListener('change', function() {
+              const checkboxes = document.querySelectorAll('.user-like-checkbox');
+              checkboxes.forEach(checkbox => {
+                  checkbox.checked = this.checked;
+              });
+              updateLikesButtonState();
+          });
+      }
+      // Add event listeners to individual checkboxes
+      document.querySelectorAll('.user-post-checkbox').forEach(checkbox => {
+          checkbox.addEventListener('change', updatePostsButtonState);
+      });
+      document.querySelectorAll('.user-like-checkbox').forEach(checkbox => {
+          checkbox.addEventListener('change', updateLikesButtonState);
+      });
+      // Delete posts button click handler
+      if (deletePostsBtn) {
+          deletePostsBtn.addEventListener('click', function() {
+              const checkedPosts = document.querySelectorAll('.user-post-checkbox:checked');
+              if (checkedPosts.length > 0) {
+                  currentAction = 'delete-posts';
+                  selectedIds = Array.from(checkedPosts).map(cb => cb.value);
+                  console.log("Selected post IDs:", selectedIds);
+                  // Update modal content
+                  if (confirmationTitle) {
+                      confirmationTitle.textContent = 'Are you sure you want to delete selected posts?';
+                  }
+                  // Show modal
+                  if (overlay) overlay.style.display = 'block';
+                  if (confirmationModal) confirmationModal.style.display = 'block';
+              }
+          });
+      }
+      // Unlike films button click handler
+      if (unlikeFilmsBtn) {
+          unlikeFilmsBtn.addEventListener('click', function() {
+              const checkedLikes = document.querySelectorAll('.user-like-checkbox:checked');
+              if (checkedLikes.length > 0) {
+                  currentAction = 'unlike-films';
+                  selectedIds = Array.from(checkedLikes).map(cb => cb.value);
+                  console.log("Selected film IDs:", selectedIds);
+                  // Update modal content
+                  if (confirmationTitle) {
+                      confirmationTitle.textContent = 'Are you sure you want to unlike selected films?';
+                  }
+                  // Show modal
+                  if (overlay) overlay.style.display = 'block';
+                  if (confirmationModal) confirmationModal.style.display = 'block';
+              }
+          });
+      }
+      // Function to remove items from the DOM
+      function removeItemsFromDOM(ids, itemType) {
+          ids.forEach(id => {
+              if (itemType === 'posts') {
+                  const row = document.querySelector(`#postsTableBody tr[data-id="${id}"]`);
+                  if (row) row.remove();
+              } else if (itemType === 'likes') {
+                  const row = document.querySelector(`#likesTableBody tr[data-id="${id}"]`);
+                  if (row) row.remove();
+              }
+          });
+      }
+      // Handle confirmation
+      if (confirmDeleteButton) {
+          confirmDeleteButton.addEventListener('click', function() {
+              if (currentAction === 'delete-posts') {
+                  // Add proper CSRF headers from meta tags
+                  const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+                  const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
+                  const headers = {
+                      'Content-Type': 'application/json'
+                  };
+                  // Only add CSRF token if available
+                  if (csrfToken) {
+                      headers[csrfHeader] = csrfToken;
+                  }
+                  fetch(`/user/delete-news`, {
+                      method: 'DELETE',
+                      headers: headers,
+                      body: JSON.stringify({ ids: selectedIds })
+                  })
+                  .then(response => {
+                      if (!response.ok) {
+                          return response.json().then(data => {
+                              console.error('Server response:', data);
+                              throw new Error(data.error || 'Error deleting posts');
+                          }).catch(e => {
+                              // If it's not JSON, get text instead
+                              return response.text().then(text => {
+                                  throw new Error(text || 'Error deleting posts');
+                              });
+                          });
+                      }
+                      return response.text();
+                  })
+                  .then(data => {
+                      console.log("Delete response:", data);
+                      // Remove the deleted posts from the DOM
+                      removeItemsFromDOM(selectedIds, 'posts');
+                      // Reset selection and update button state
+                      if (selectAllPosts) selectAllPosts.checked = false;
+                      updatePostsButtonState();
+                      // Show success notification
+                      showActionNotification(actionNotification, 'Posts deleted successfully!');
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                      alert('Error deleting posts: ' + error.message);
+                  });
+              } else if (currentAction === 'unlike-films') {
+                  // Same improved error handling for unlike functionality
+                  const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+                  const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
+                  const headers = {
+                      'Content-Type': 'application/json'
+                  };
+                  if (csrfToken) {
+                      headers[csrfHeader] = csrfToken;
+                  }
+                  fetch(`/user/unlike-film`, {
+                      method: 'DELETE',
+                      headers: headers,
+                      body: JSON.stringify({ ids: selectedIds })
+                  })
+                  .then(response => {
+                      if (!response.ok) {
+                          return response.json().then(data => {
+                              console.error('Server response:', data);
+                              throw new Error(data.error || 'Error unliking films');
+                          }).catch(e => {
+                              return response.text().then(text => {
+                                  throw new Error(text || 'Error unliking films');
+                              });
+                          });
+                      }
+                      return response.text();
+                  })
+                  .then(data => {
+                      console.log("Unlike response:", data);
+                      // Remove the unliked films from the DOM
+                      removeItemsFromDOM(selectedIds, 'likes');
+                      // Reset selection and update button state
+                      if (selectAllLikes) selectAllLikes.checked = false;
+                      updateLikesButtonState();
+                      // Show success notification
+                      showActionNotification(likeActionNotification, 'Films unliked successfully!');
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                      alert('Error unliking films: ' + error.message);
+                  });
+              }
+              // Close modal
+              if (overlay) overlay.style.display = 'none';
+              if (confirmationModal) confirmationModal.style.display = 'none';
+          });
+      }
+      // Function to get CSRF token
+      function getCsrfToken() {
+          const token = document.querySelector('meta[name="_csrf"]');
+          return token ? token.getAttribute('content') : '';
+      }
+      // Handle cancel
+      if (cancelDeleteButton) {
+          cancelDeleteButton.addEventListener('click', function() {
+              if (overlay) overlay.style.display = 'none';
+              if (confirmationModal) confirmationModal.style.display = 'none';
+          });
+      }
+      // Close modal when clicking outside
+      if (overlay) {
+          overlay.addEventListener('click', function() {
+              overlay.style.display = 'none';
+              confirmationModal.style.display = 'none';
+          });
+      }
+      // Initialize button states
+      updatePostsButtonState();
+      updateLikesButtonState();
+  });
+</script>
+<script>
+  var quill = new Quill('#editor-container', {
+      theme: 'snow',
+      placeholder: 'Write your post content here...',
+      modules: {
+          toolbar: [
+              [{ header: [1, 2, false] }],
+              ['bold', 'italic', 'underline'],
+              [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+              ['link', 'image']
+          ]
+      }
+  });
+  // Update hidden input before submit
+  document.getElementById("userPostForm").onsubmit = function() {
+      document.getElementById("userPostContent").value = quill.root.innerHTML;
+  };
+</script>
+</body>
+</html>
