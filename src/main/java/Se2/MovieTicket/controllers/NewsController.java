@@ -4,6 +4,7 @@ import Se2.MovieTicket.dto.*;
 import Se2.MovieTicket.model.*;
 import Se2.MovieTicket.service.*;
 import Se2.MovieTicket.impl.*;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class NewsController {
             @RequestParam(defaultValue = "1") int intPage,
             Model model, HttpServletRequest request) {
         model.addAttribute("currPage", "news");
-        // Lấy user từ session hoặc SecurityContext
+        // Get user from session or SecurityContext
         HttpSession session = request.getSession(false);
         User sessionUser = (session != null) ? (User) session.getAttribute("user") : null;
 
@@ -52,18 +53,16 @@ public class NewsController {
         }
 
         if (sessionUser != null) {
-            model.addAttribute("user", sessionUser);  // Thêm user vào model để view sử dụng
+            model.addAttribute("user", sessionUser);
         }
 
-        // Lấy danh sách latest news
         News latestNews = newsService.getLatestNews();
         model.addAttribute("latestNews", latestNews);
         List<News> newsReviews = newsService.getNewsReviews();
         model.addAttribute("newsReviews", newsReviews);
-        // Format ngày tháng cho danh sách phim
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        // Lấy và convert danh sách phim Việt Nam sang FilmDTO
+        // Retrieve and convert Vietnamese movie list to FilmDTO
         Page<Film> vnFilmPage = newsService.getVietnameseMovies(vnPage - 1, 8);
         List<FilmDTO> vnMovieList = vnFilmPage.getContent().stream().map(film -> {
             FilmDTO filmDTO = new FilmDTO();
@@ -93,7 +92,7 @@ public class NewsController {
             return filmDTO;
         }).collect(Collectors.toList());
 
-        // Lấy và convert danh sách phim Quốc tế sang FilmDTO
+        // Retrieve and convert International movie list to FilmDTO
         Page<Film> intFilmPage = newsService.getInternationalMovies(intPage - 1, 8);
         List<FilmDTO> intMovieList = intFilmPage.getContent().stream().map(film -> {
             FilmDTO filmDTO = new FilmDTO();
@@ -123,7 +122,7 @@ public class NewsController {
             return filmDTO;
         }).collect(Collectors.toList());
 
-        // Thêm danh sách phim và thông tin phân trang vào model
+        // Add movie list and pagination info to the model
         model.addAttribute("vnMovies", vnMovieList);
         model.addAttribute("vnPages", vnFilmPage.getTotalPages());
         model.addAttribute("currentVnPage", vnPage);
@@ -132,7 +131,7 @@ public class NewsController {
         model.addAttribute("intPages", intFilmPage.getTotalPages());
         model.addAttribute("currentIntPage", intPage);
 
-        return "news";  // Trả về view template "news"
+        return "news";
     }
 
 
@@ -140,7 +139,7 @@ public class NewsController {
     @GetMapping("/news/{id}")
     public String getNewsDetails(@PathVariable Long id, Model model, HttpServletRequest request) {
         model.addAttribute("currPage", "news");
-        // Lấy user từ session hoặc SecurityContext
+        // Get user from session or SecurityContext
         HttpSession session = request.getSession(false);
         User sessionUser = (session != null) ? (User) session.getAttribute("user") : null;
 
@@ -157,13 +156,13 @@ public class NewsController {
         }
 
         if (sessionUser != null) {
-            model.addAttribute("user", sessionUser);  // Thêm user vào model để view sử dụng
+            model.addAttribute("user", sessionUser);
         }
 
         List<News> allNews = newsService.getAllNews();
         int totalNews = allNews.size();
 
-        // Tìm vị trí của tin tức có id trong danh sách
+        // Find the position of the news with id in the list
         int currentIndex = -1;
         for (int i = 0; i < totalNews; i++) {
             if (allNews.get(i).getNewsId().equals(id)) {
@@ -172,7 +171,7 @@ public class NewsController {
             }
         }
 
-        // Xác định các tin tức tiếp theo dựa trên vị trí
+        // Identify next news based on location
         News currentNews = allNews.get(currentIndex);
         News nextNews = allNews.get((currentIndex + 1) % totalNews);
         News prevNews = allNews.get((currentIndex - 1 + totalNews) % totalNews);

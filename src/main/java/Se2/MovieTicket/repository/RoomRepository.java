@@ -2,6 +2,7 @@ package Se2.MovieTicket.repository;
 
 import Se2.MovieTicket.model.Room;
 import Se2.MovieTicket.model.Cinema;
+
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -87,7 +88,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
                     "LOWER(cc.clusterName) LIKE LOWER(CONCAT('%', :searchText, '%'))")
     Page<Room> searchAllFieldsPaginated(@Param("searchText") String searchText, Pageable pageable);
 
-    // Efficient batch query for seat counts
     @Query("SELECT r.roomId, COUNT(s) FROM Room r LEFT JOIN r.seats s WHERE r.roomId IN :roomIds GROUP BY r.roomId")
     List<Object[]> countSeatsByRoomIds(@Param("roomIds") List<Long> roomIds);
 

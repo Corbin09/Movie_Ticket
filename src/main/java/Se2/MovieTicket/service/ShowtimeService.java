@@ -3,6 +3,7 @@ package Se2.MovieTicket.service;
 import Se2.MovieTicket.dto.ShowtimeDTO;
 import Se2.MovieTicket.model.Showtime;
 import Se2.MovieTicket.repository.ShowtimeRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -57,9 +58,8 @@ public class ShowtimeService {
     public void deleteShowtime(Long id) {
         showtimeRepository.deleteById(id);
     }
+
     public boolean hasShowtimesForFilmAndDate(Long filmId, LocalDate date) {
-        // Truy vấn cơ sở dữ liệu để kiểm tra xem có suất chiếu nào
-        // cho phim và ngày được chỉ định hay không
         Integer count = showtimeRepository.countByFilmIdAndShowDate(filmId, date);
         return count != null && count > 0;
     }
@@ -84,11 +84,11 @@ public class ShowtimeService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
     public List<Showtime> getFilteredShowtimes(Long regionId, Long cinemaId, Long showtimeId) {
-        // Trả về danh sách các showtimes đã lọc thông qua repository
         return showtimeRepository.findShowtimes(regionId, cinemaId, showtimeId);
     }
-    // Helper method to convert Showtime to ShowtimeDTO
+
     private ShowtimeDTO convertToDTO(Showtime showtime) {
         ShowtimeDTO dto = new ShowtimeDTO();
         dto.setShowtimeId(showtime.getShowtimeId());
@@ -101,10 +101,8 @@ public class ShowtimeService {
     }
 
     public List<LocalDate> getAvailableDatesForCinema(Long cinemaId) {
-        // Lấy danh sách các ngày có suất chiếu cho rạp phim đã chọn
         List<LocalDate> availableDates = showtimeRepository.findDistinctShowDatesByCinemaId(cinemaId);
 
-        // Sắp xếp danh sách ngày theo thứ tự tăng dần
         availableDates.sort(Comparator.naturalOrder());
 
         return availableDates;
@@ -118,10 +116,8 @@ public class ShowtimeService {
     }
 
     public List<ShowtimeDTO> getAllShowtimesByCinemaAndFilm(Long cinemaId, Long filmId) {
-        // Gọi repository để lấy danh sách showtime theo cinema và film
         List<Showtime> showtimes = showtimeRepository.findByCinemaIdAndFilmId(cinemaId, filmId);
 
-        // Chuyển đổi danh sách showtime sang danh sách ShowtimeDTO
         return showtimes.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -141,35 +137,19 @@ public class ShowtimeService {
                 .collect(Collectors.toList());
     }
 
-    // In ShowtimeService:
-//    public Optional<Showtime> getShowtimeWithDetails(Long showtimeId) {
-//        return showtimeRepository.findShowtimeWithDetails(showtimeId);
-//    }
-
-    // Example for ShowtimeService
     @Transactional(readOnly = true)
     public Optional<Showtime> getShowtimeWithDetails(Long showtimeId) {
         // Use a single optimized query with all necessary joins
         return showtimeRepository.findByIdWithDetails(showtimeId);
     }
 
-
-
-
     public Page<Showtime> getAllShowtimesPaginated(Pageable pageable) {
         return showtimeRepository.findAll(pageable);
     }
 
-
-//    public Optional<Showtime> getShowtimeById(Long id) {
-//        return showtimeRepository.findById(id);
-//    }
-
-
     public Optional<Showtime> getShowtimeByIdWithDetails(Long id) {
         return showtimeRepository.findByIdWithDetails(id);
     }
-
 
     public Page<Showtime> searchShowtimesPaginated(String searchTerm, Pageable pageable) {
         return showtimeRepository.findAll((Specification<Showtime>) (root, query, criteriaBuilder) -> {
@@ -177,38 +157,31 @@ public class ShowtimeService {
 
             return criteriaBuilder.or(
                     criteriaBuilder.like(criteriaBuilder.lower(root.get("film").get("filmName")), likePattern),
-                    criteriaBuilder.like(criteriaBuilder.lower(root.get("cinema").get("cinemaName")), likePattern)
-            );
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("cinema").get("cinemaName")), likePattern));
         }, pageable);
     }
-
 
     public Page<Showtime> getShowtimesByFilmPaginated(Long filmId, Pageable pageable) {
         return showtimeRepository.findByFilmFilmId(filmId, pageable);
     }
 
-
     public Page<Showtime> getShowtimesByCinemaPaginated(Long cinemaId, Pageable pageable) {
         return showtimeRepository.findByCinemaCinemaId(cinemaId, pageable);
     }
 
-
     public Page<Showtime> getShowtimesByDatePaginated(Date date, Pageable pageable) {
         return showtimeRepository.findByShowDate(date, pageable);
     }
-
 
     @Transactional
     public Showtime saveShowtime(Showtime showtime) {
         return showtimeRepository.save(showtime);
     }
 
-
     @Transactional
     public Showtime updateShowtime(Showtime showtime) {
         return showtimeRepository.save(showtime);
     }
-
 
     // In ShowtimeService.java
     @Transactional
@@ -236,16 +209,5 @@ public class ShowtimeService {
             return criteriaBuilder.like(criteriaBuilder.lower(root.get("room").get("roomName")), likePattern);
         }, pageable);
     }
-
-
-//    @Transactional
-//    public boolean deleteShowtime(Long id) {
-//        try {
-//            showtimeRepository.deleteById(id);
-//            return true;
-//        } catch (Exception e) {
-//            return false;
-//        }
-//    }
 
 }

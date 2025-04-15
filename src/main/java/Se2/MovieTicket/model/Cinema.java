@@ -16,7 +16,6 @@ import java.util.Set;
 @AllArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @ToString(exclude = {"cinemaCluster", "rooms", "showtimes", "region"})
-//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "cinemaId")
 public class Cinema {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,14 +42,15 @@ public class Cinema {
     private Set<Showtime> showtimes;
 
     @ManyToOne
-    @JoinColumn(name = "region_id") // Thêm ánh xạ đến Region
+    @JoinColumn(name = "region_id")
     @JsonBackReference
     private Region region;
-    // Add to Cinema class if not already present
+
     public Cinema(Long cinemaId, String cinemaName) {
         this.cinemaId = cinemaId;
         this.cinemaName = cinemaName;
     }
+    // Getters and setters
     public Long getCinemaId() {
         return cinemaId;
     }

@@ -1,319 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
-    <style>
-        /* Reset and base styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
-
-        body {
-            background-color: #f5f5f5;
-        }
-
-        /* Main content container */
-        .content-view {
-            background-color: #003311;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        /* Section title */
-        .section-title {
-            color: white;
-            font-size: 24px;
-            margin-bottom: 20px;
-            font-weight: 500;
-        }
-
-        /* Form container */
-        .form-container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Form groups */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            background-color: #d9f7d9;
-            border-radius: 5px;
-            font-size: 16px;
-            color: #333;
-        }
-
-        .error-message {
-            color: #ff3333;
-            font-size: 14px;
-            margin-top: 5px;
-            display: block;
-        }
-
-        /* Custom Select */
-        .custom-select {
-            position: relative;
-            width: 100%;
-        }
-
-        .select-control {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            background-color: #d9f7d9;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .selected-option {
-            color: #333;
-        }
-
-        .select-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: white;
-            border-radius: 5px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-            z-index: 10;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-        }
-
-        .custom-select.active .select-dropdown {
-            display: block;
-        }
-
-        .select-option {
-            padding: 10px 12px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .select-option:hover {
-            background-color: #f0f0f0;
-        }
-
-        /* Form actions */
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .cancel-btn {
-            background-color: #b75c00;
-            color: white;
-            padding: 10px 25px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .update-btn {
-            background-color: #00b74a;
-            color: white;
-            padding: 10px 25px;
-            border-radius: 5px;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-        }
-
-        /* Dropdown arrow icon */
-        .fa-chevron-down {
-            color: #666;
-        }
-
-            .success-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    }
-
-    .modal-content {
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        width: 400px;
-        max-width: 90%;
-        padding: 20px;
-    }
-
-    .modal-header {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-
-    .success-icon {
-        font-size: 48px;
-        color: #4caf50;
-        margin-bottom: 10px;
-    }
-
-    .modal-body {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    .modal-footer {
-        display: flex;
-        justify-content: center;
-    }
-
-    .close-modal-btn {
-        background-color: #4caf50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 10px 24px;
-        cursor: pointer;
-        font-weight: bold;
-    }
-
-    .close-modal-btn:hover {
-        background-color: #45a049;
-    }
-
-    .alert {
-        padding: 12px;
-        border-radius: 4px;
-        margin-bottom: 20px;
-    }
-
-    .alert-success {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-
-    .alert-danger {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-/* Success Overlay Styles */
-.success-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1050;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.success-overlay.show {
-    opacity: 1;
-    visibility: visible;
-}
-
-.success-container {
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.success-message-box {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    padding: 30px;
-    text-align: center;
-}
-
-.success-icon {
-    margin: 0 auto 20px;
-    display: flex;
-    justify-content: center;
-}
-
-.success-heading {
-    color: #28a745;
-    font-size: 24px;
-    margin-bottom: 15px;
-}
-
-.success-text {
-    color: #555;
-    font-size: 16px;
-    margin-bottom: 25px;
-}
-
-.success-btn {
-    display: inline-block;
-    padding: 10px 20px;
-    border-radius: 4px;
-    font-weight: 500;
-    text-decoration: none;
-    margin: 0 10px;
-    transition: background-color 0.3s ease;
-}
-
-.success-btn.primary {
-    background-color: #28a745;
-    color: white;
-}
-
-.success-btn.primary:hover {
-    background-color: #218838;
-}
-
-.success-btn.secondary {
-    background-color: #f8f9fa;
-    color: #343a40;
-    border: 1px solid #ddd;
-}
-
-.success-btn.secondary:hover {
-    background-color: #e9ecef;
-}
-    </style>
+    <link rel="stylesheet" th:href="@{/css/edit-cinema.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
+
 <body>
+
 <div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
+
 <!-- Edit Cinema View -->
 <div class="content-view" th:fragment="content">
     <!-- Success Overlay -->
@@ -321,16 +19,19 @@
         <div class="success-container">
             <div class="success-message-box">
                 <div class="success-icon">
-                    <!-- Use a local image or an inline SVG for reliability -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none"
+                         stroke="#28a745" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                         <polyline points="22 4 12 14.01 9 11.01"></polyline>
                     </svg>
                 </div>
                 <h2 class="success-heading">Update Success!</h2>
-                <p class="success-text" th:text="${successMessage ?: 'Success! Cinema has been updated successfully.'}"></p>
-                <a th:href="@{/manage-cinemas}" class="success-btn primary">Go to Cinema List</a>
-                <a th:href="@{/admin-dashboard}" class="success-btn secondary">Back to Dashboard</a>
+                <p class="success-text"
+                   th:text="${successMessage ?: 'Success! Cinema has been updated successfully.'}"></p>
+                <div class="success-actions">
+                    <a th:href="@{/manage-cinemas}" class="success-btn primary">Go to Cinema List</a>
+                    <a th:href="@{/admin-dashboard}" class="success-btn secondary">Back to Dashboard</a>
+                </div>
             </div>
         </div>
     </div>
@@ -347,47 +48,60 @@
             <div class="form-group">
                 <label for="cinemaName">Cinema name</label>
                 <input type="text" id="cinemaName" th:field="*{cinemaName}" class="form-control">
-                <span class="error-message" th:if="${#fields.hasErrors('cinemaName')}" th:errors="*{cinemaName}">This field cannot be empty.</span>
+                <span class="error-message" th:if="${#fields.hasErrors('cinemaName')}"
+                      th:errors="*{cinemaName}">This field cannot be empty.</span>
             </div>
 
             <div class="form-group">
                 <label for="selectedRegion">Cinema region</label>
                 <div class="custom-select">
                     <div class="select-control">
-                        <span class="selected-option" th:text="${cinema.region != null ? cinema.region.regionName : 'Select Region'}">Select Region</span>
+                            <span class="selected-option"
+                                  th:text="${cinema.region != null ? cinema.region.regionName : 'Select Region'}">
+                                Select Region
+                            </span>
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="select-dropdown">
-                        <div class="select-option" th:each="region : ${regions}"
-                             th:text="${region.regionName}"
+                        <div class="select-option" th:each="region : ${regions}" th:text="${region.regionName}"
                              th:data-value="${region.regionId}">North Region</div>
                     </div>
-                    <input type="hidden" name="region.regionId" th:value="${cinema.region != null ? cinema.region.regionId : ''}" id="selectedRegion" />
+                    <input type="hidden" name="region.regionId"
+                           th:value="${cinema.region != null ? cinema.region.regionId : ''}" id="selectedRegion" />
                 </div>
-                <span class="error-message" th:if="${#fields.hasErrors('region')}" th:errors="*{region}">Region must be selected.</span>
+                <span class="error-message" th:if="${#fields.hasErrors('region')}" th:errors="*{region}">
+                    Region must be selected.
+                </span>
             </div>
 
             <div class="form-group">
                 <label for="selectedComplex">Cinema complex</label>
                 <div class="custom-select">
                     <div class="select-control">
-                        <span class="selected-option" th:text="${cinema.cinemaCluster != null ? cinema.cinemaCluster.clusterName : 'Select Complex'}">Beta Complex</span>
+                            <span class="selected-option"
+                                  th:text="${cinema.cinemaCluster != null ? cinema.cinemaCluster.clusterName : 'Select Complex'}">
+                                Beta Complex
+                            </span>
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="select-dropdown">
-                        <div class="select-option" th:each="cluster : ${clusters}"
-                             th:text="${cluster.clusterName}"
+                        <div class="select-option" th:each="cluster : ${clusters}" th:text="${cluster.clusterName}"
                              th:data-value="${cluster.clusterId}">Beta Complex</div>
                     </div>
-                    <input type="hidden" name="cinemaCluster.clusterId" th:value="${cinema.cinemaCluster != null ? cinema.cinemaCluster.clusterId : ''}" id="selectedComplex" />
+                    <input type="hidden" name="cinemaCluster.clusterId"
+                           th:value="${cinema.cinemaCluster != null ? cinema.cinemaCluster.clusterId : ''}"
+                           id="selectedComplex" />
                 </div>
-                <span class="error-message" th:if="${#fields.hasErrors('cinemaCluster')}" th:errors="*{cinemaCluster}">Cinema complex must be selected.</span>
+                <span class="error-message" th:if="${#fields.hasErrors('cinemaCluster')}"
+                      th:errors="*{cinemaCluster}">Cinema complex must be selected.</span>
             </div>
 
             <div class="form-group">
                 <label for="cinemaAddress">Cinema address</label>
                 <input type="text" id="cinemaAddress" th:field="*{address}" class="form-control">
-                <span class="error-message" th:if="${#fields.hasErrors('address')}" th:errors="*{address}">This field cannot be empty.</span>
+                <span class="error-message" th:if="${#fields.hasErrors('address')}" th:errors="*{address}">
+                    This field cannot be empty.
+                </span>
             </div>
 
             <div class="form-actions">
@@ -399,8 +113,7 @@
 </div>
 
 <script th:inline="javascript">
-    document.addEventListener('DOMContentLoaded', function() {
-        // Custom select handling
+    document.addEventListener('DOMContentLoaded', function () {
         const customSelects = document.querySelectorAll('.custom-select');
 
         customSelects.forEach(select => {
@@ -410,7 +123,6 @@
             const selectedOption = select.querySelector('.selected-option');
             const hiddenInput = select.querySelector('input[type="hidden"]');
 
-            // Initialize the hidden input with the current value
             const currentText = selectedOption.textContent.trim();
             if (currentText !== 'Select Region' && currentText !== 'Select Complex') {
                 options.forEach(option => {
@@ -420,43 +132,76 @@
                 });
             }
 
-            control.addEventListener('click', function(e) {
-                // Close all other dropdowns first
+            control.addEventListener('click', function (e) {
                 customSelects.forEach(otherSelect => {
                     if (otherSelect !== select) {
                         otherSelect.classList.remove('active');
                     }
                 });
 
-                // Toggle current dropdown
                 select.classList.toggle('active');
                 e.stopPropagation();
             });
 
+            if (dropdown) {
+                dropdown.addEventListener('touchmove', function (e) {
+                    e.stopPropagation();
+                });
+            }
+
             options.forEach(option => {
-                option.addEventListener('click', function(e) {
+                option.addEventListener('click', function (e) {
                     selectedOption.textContent = option.textContent;
                     hiddenInput.value = option.getAttribute('data-value');
                     select.classList.remove('active');
                     e.stopPropagation();
                 });
+
+                option.addEventListener('touchend', function (e) {
+                    e.preventDefault();
+                    selectedOption.textContent = option.textContent;
+                    hiddenInput.value = option.getAttribute('data-value');
+                    select.classList.remove('active');
+                });
             });
         });
 
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', function() {
+        // Close dropdowns when clicking/touching outside
+        document.addEventListener('click', function () {
             customSelects.forEach(select => {
                 select.classList.remove('active');
             });
         });
 
-        // Check if success overlay should be shown
+        document.addEventListener('touchend', function (e) {
+            // Check if the click is outside any custom select
+            let clickedOnSelect = false;
+            customSelects.forEach(select => {
+                if (select.contains(e.target)) {
+                    clickedOnSelect = true;
+                }
+            });
+
+            if (!clickedOnSelect) {
+                customSelects.forEach(select => {
+                    select.classList.remove('active');
+                });
+            }
+        });
+
         const successOverlay = document.getElementById('successOverlay');
         if (successOverlay && successOverlay.classList.contains('show')) {
-            // Make sure the body doesn't scroll when overlay is shown
             document.body.style.overflow = 'hidden';
+
+            successOverlay.addEventListener('click', function (e) {
+                if (e.target === successOverlay) {
+                    successOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            });
         }
     });
 </script>
+
 </body>
 </html>

@@ -1,7 +1,6 @@
 package Se2.MovieTicket.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -81,6 +80,7 @@ public class Order {
 
     }
 
+    // Getters and setters
     public Long getOrderId() {
         return orderId;
     }

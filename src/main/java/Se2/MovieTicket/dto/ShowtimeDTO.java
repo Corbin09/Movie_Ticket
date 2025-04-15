@@ -14,7 +14,6 @@ public class ShowtimeDTO {
     private String cinemaName;
     private Double price;
 
-    // Constructor đầy đủ các thuộc tính
     public ShowtimeDTO(Long showtimeId, Date showDate, String showTime, Long filmId, String filmName,
                        Long roomId, String roomName, Long cinemaId, String cinemaName, Double price) {
         this.showtimeId = showtimeId;
@@ -29,8 +28,8 @@ public class ShowtimeDTO {
         this.price = price;
     }
     public ShowtimeDTO() {
-        // Constructor mặc định
     }
+
     // Getters và Setters
     public Long getShowtimeId() {
         return showtimeId;

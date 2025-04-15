@@ -18,7 +18,7 @@ public class ActorController {
     private ActorService actorService;
 
     @Autowired
-    private UserService userService; // Giả sử có UserService để kiểm tra quyền
+    private UserService userService;
 
     @GetMapping
     public ResponseEntity<List<Actor>> getAllActors() {
@@ -77,6 +77,4 @@ public class ActorController {
         List<Actor> actors = actorService.filterActors(name);
         return new ResponseEntity<>(actors, HttpStatus.OK);
     }
-
-
 }

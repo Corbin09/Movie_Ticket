@@ -8,6 +8,7 @@ import Se2.MovieTicket.model.UserReviewId;
 import Se2.MovieTicket.repository.FilmRepository;
 import Se2.MovieTicket.repository.UserRepository;
 import Se2.MovieTicket.repository.UserReviewRepository;
+
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,13 +21,11 @@ import java.util.Optional;
 public class UserReviewService {
     @Autowired
     private UserReviewRepository userReviewRepository;
-@Autowired
-private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-@Autowired
-private FilmRepository filmRepository;
-
-
+    @Autowired
+    private FilmRepository filmRepository;
 
     public List<UserReview> getAllUserReviews() {
         return userReviewRepository.findAll();
@@ -62,11 +61,9 @@ private FilmRepository filmRepository;
         userReviewRepository.deleteById(new UserReviewId(userId, filmId));
     }
 
-
     public List<UserReview> findReviewsByFilmId(Long filmId) {
         return userReviewRepository.findByFilmFilmId(filmId);
     }
-
 
     @Transactional
     public UserReview saveOrUpdateUserReview(Long userId, Long filmId, Integer star, String comment) {
@@ -113,14 +110,6 @@ private FilmRepository filmRepository;
 
         return userReviewRepository.save(review);
     }
-//
-//    @Transactional
-//    public void deleteUserReview(Long userId, Long filmId) {
-//        UserReviewId id = new UserReviewId(userId, filmId);
-//        userReviewRepository.deleteById(id);
-//    }
-
-
 
     public List<UserReview> getReviewsByFilmId(Long filmId) {
         return userReviewRepository.findByFilmFilmId(filmId);

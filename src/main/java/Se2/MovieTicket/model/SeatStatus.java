@@ -1,10 +1,8 @@
 package Se2.MovieTicket.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.Date;
 
 @Entity
@@ -37,6 +35,7 @@ public class SeatStatus {
     @Temporal(TemporalType.TIMESTAMP)
     private Date reservedUntil;
 
+    // Getters and setters
     public Long getSeatStatusId() {
         return seatStatusId;
     }

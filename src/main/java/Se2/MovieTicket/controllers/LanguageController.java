@@ -20,7 +20,7 @@ public class LanguageController {
         Locale locale = new Locale(lang);
         Map<String, String> translations = new HashMap<>();
 
-        // Load tất cả key-value từ file properties
+        // Load all key-value pairs from properties file
         translations.put("greeting", messageSource.getMessage("greeting", null, locale));
         translations.put("logout", messageSource.getMessage("logout", null, locale));
         translations.put("home", messageSource.getMessage("home", null, locale));

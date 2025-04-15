@@ -14,6 +14,7 @@ public class UserReviewId implements Serializable {
     private Long userId;
     private Long filmId;
 
+    // Getters and setters
     public Long getUserId() {
         return userId;
     }

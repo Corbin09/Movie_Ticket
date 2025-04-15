@@ -14,22 +14,22 @@ public class CustomErrorController implements ErrorController {
 
     @RequestMapping("/error")
     public String handleError(HttpServletRequest request, Model model) {
-        // Lấy thông tin lỗi
+        // Get error information
         Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
         Object message = request.getAttribute(RequestDispatcher.ERROR_MESSAGE);
 
-        // Thêm thông tin lỗi vào model để hiển thị trong template
+        // Add error information to the model for display in the template
         if (status != null) {
             Integer statusCode = Integer.valueOf(status.toString());
             model.addAttribute("status", statusCode);
 
-            // Xử lý các loại lỗi cụ thể
+            // Handle specific types of errors
             if (statusCode == HttpStatus.FORBIDDEN.value()) {
-                return "403"; // Trang lỗi 403 tùy chỉnh
+                return "403";
             } else if (statusCode == HttpStatus.NOT_FOUND.value()) {
-                return "404"; // Trang lỗi 404 tùy chỉnh
+                return "404";
             } else if (statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
-                return "500"; // Trang lỗi 500 tùy chỉnh
+                return "500";
             }
         }
 
@@ -39,7 +39,6 @@ public class CustomErrorController implements ErrorController {
             model.addAttribute("message", "Không có thông báo lỗi chi tiết");
         }
 
-        // Trả về template lỗi chung
         return "error";
     }
 }

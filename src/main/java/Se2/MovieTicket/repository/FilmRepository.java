@@ -18,8 +18,9 @@ import java.util.Optional;
 public interface FilmRepository extends JpaRepository<Film, Long> {
     @Query("SELECT f FROM Film f WHERE LOWER(f.filmName) LIKE LOWER(CONCAT('%', :name, '%'))")
     List<Film> searchByFilmName(@Param("name") String name);
-    // Method query để tìm kiếm theo tên phim, bỏ qua chữ hoa chữ thường
+
     Page<Film> findByFilmNameContainingIgnoreCase(String name, Pageable pageable);
+
     @Query("SELECT f FROM Film f WHERE f.releaseDate > :date")
     List<Film> findByReleaseDateAfter(@Param("date") Date date);
 
@@ -47,7 +48,6 @@ public interface FilmRepository extends JpaRepository<Film, Long> {
     @Query("SELECT f FROM Film f JOIN f.filmActors fa WHERE fa.actor.actorId = :actorId")
     List<Film> findByActorId(@Param("actorId") Long actorId);
 
-    // Existing methods
     List<Film> findByReleaseDateBeforeOrderByReleaseDateDesc(Date currentDate);
 
     List<Film> findByReleaseDateAfterOrderByReleaseDateAsc(Date currentDate);
@@ -93,9 +93,6 @@ public interface FilmRepository extends JpaRepository<Film, Long> {
             "AND s.showDate = :date")
     Page<Film> findFilmsByCinemaAndDate(@Param("cinemaId") Long cinemaId, @Param("date") Date date, Pageable pageable);
 
-    // Repository methods needed
-// These should be implemented in FilmRepository interface
-
     @Query("SELECT DISTINCT f FROM Film f JOIN f.showtimes s JOIN s.cinema c WHERE c.region.regionId = :regionId")
     Page<Film> findFilmsByRegionId(@Param("regionId") Long regionId, Pageable pageable);
 
@@ -123,16 +120,12 @@ public interface FilmRepository extends JpaRepository<Film, Long> {
     @Query("SELECT f FROM Film f WHERE f.country <> :vietnamese")
     Page<Film> findByFilmOriginNot(@Param("vietnamese") String vietnamese, Pageable pageable);
 
-    // OR use a JPQL query
     @Query("SELECT f FROM Film f WHERE f.filmId = :id")
     Optional<Film> findFilmById(@Param("id") Long id);
 
-    // In FilmRepository
     @Query("SELECT f FROM Film f JOIN UserLikeFilm ulf ON f.id = ulf.film.id WHERE ulf.user.userId = :userId")
     List<Film> findLikedFilmsByUserId(@Param("userId") Long userId);
 
-
-    // Add this to your FilmRepository interface
     @Query("SELECT DISTINCT f FROM Film f JOIN f.filmActors fa WHERE fa.actor.actorId = :actorId")
     Page<Film> findFilmsByActorId(@Param("actorId") Long actorId, Pageable pageable);
 

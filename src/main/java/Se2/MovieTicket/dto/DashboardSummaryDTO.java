@@ -13,6 +13,7 @@ public class DashboardSummaryDTO {
         this.totalUsers = totalUsers;
     }
 
+    // Getters and Setters
     public Long getTotalUsers() {
         return totalUsers;
     }
@@ -44,5 +45,4 @@ public class DashboardSummaryDTO {
     public void setTotalRevenue(Double totalRevenue) {
         this.totalRevenue = totalRevenue;
     }
-// Getters and Setters
 }

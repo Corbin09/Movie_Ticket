@@ -14,7 +14,6 @@ import java.util.Set;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @ToString(exclude = {"cinemas"})
 @EqualsAndHashCode(exclude = {"cinemas"})
-//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "clusterId")
 public class CinemaCluster {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +27,7 @@ public class CinemaCluster {
     @JsonManagedReference
     private Set<Cinema> cinemas;
 
+    // Getters and setters
     public Long getClusterId() {
         return clusterId;
     }

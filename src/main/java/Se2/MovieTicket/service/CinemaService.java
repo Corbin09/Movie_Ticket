@@ -8,16 +8,17 @@ import Se2.MovieTicket.model.CinemaCluster;
 import Se2.MovieTicket.model.Showtime;
 import Se2.MovieTicket.repository.CinemaRepository;
 import Se2.MovieTicket.repository.ShowtimeRepository;
+
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -85,44 +86,7 @@ public class CinemaService {
         }
         return null;
     }
-// In CinemaService.java class
 
-//    public List<Cinema> getCinemasWithShowtimesForFilm(Long filmId) {
-//        List<Cinema> allCinemas = cinemaRepository.findAll();
-//        List<Cinema> cinemasWithShowtimes = new ArrayList<>();
-//
-//        for (Cinema cinema : allCinemas) {
-//            // Get all showtimes for this cinema
-//            Set<Showtime> cinemaShowtimes = cinema.getShowtimes();
-//            if (cinemaShowtimes == null || cinemaShowtimes.isEmpty()) {
-//                continue;
-//            }
-//
-//            // Filter showtimes for the specific film
-//            List<Showtime> filteredShowtimes = cinemaShowtimes.stream()
-//                    .filter(showtime -> showtime.getFilm() != null &&
-//                            showtime.getFilm().getFilmId() != null &&
-//                            showtime.getFilm().getFilmId().equals(filmId))
-//                    .collect(Collectors.toList());
-//
-//            if (!filteredShowtimes.isEmpty()) {
-//                // Create a new cinema object with only relevant showtimes
-//                Cinema cinemaWithShowtimes = new Cinema();
-//                cinemaWithShowtimes.setCinemaId(cinema.getCinemaId());
-//                cinemaWithShowtimes.setCinemaName(cinema.getCinemaName());
-//                cinemaWithShowtimes.setAddress(cinema.getAddress());
-//                // Add any other necessary cinema fields
-//
-//                // Set only the filtered showtimes to avoid loading the entire collection
-//                Set<Showtime> showtimeSet = new HashSet<>(filteredShowtimes);
-//                cinemaWithShowtimes.setShowtimes(showtimeSet);
-//
-//                cinemasWithShowtimes.add(cinemaWithShowtimes);
-//            }
-//        }
-//
-//        return cinemasWithShowtimes;
-//    }
     public void deleteCinema(Long id) {
         cinemaRepository.deleteById(id);
     }
@@ -132,13 +96,11 @@ public class CinemaService {
         List<CinemaWithShowtimesDTO> result = new ArrayList<>();
 
         for (Cinema cinema : allCinemas) {
-            // Get all showtimes for this cinema
             Set<Showtime> cinemaShowtimes = cinema.getShowtimes();
             if (cinemaShowtimes == null || cinemaShowtimes.isEmpty()) {
                 continue;
             }
 
-            // Filter showtimes for the specific film
             List<Showtime> filteredShowtimes = cinemaShowtimes.stream()
                     .filter(showtime -> showtime.getFilm() != null &&
                             showtime.getFilm().getFilmId() != null &&
@@ -146,21 +108,18 @@ public class CinemaService {
                     .collect(Collectors.toList());
 
             if (!filteredShowtimes.isEmpty()) {
-                // Create a DTO instead of entity
                 CinemaWithShowtimesDTO dto = new CinemaWithShowtimesDTO();
                 dto.setCinemaId(cinema.getCinemaId());
                 dto.setCinemaName(cinema.getCinemaName());
                 dto.setAddress(cinema.getAddress());
 
-                // Convert Showtime entities to ShowtimeDTO objects
                 List<ShowtimeDTO> showtimeDTOs = filteredShowtimes.stream()
                         .map(showtime -> {
                             ShowtimeDTO showtimeDTO = new ShowtimeDTO();
                             showtimeDTO.setShowtimeId(showtime.getShowtimeId());
                             showtimeDTO.setShowDate(showtime.getShowDate());
-                            showtimeDTO.setShowTime(showtime.getShowTime());  // Note: Changed from startTime to showTime
+                            showtimeDTO.setShowTime(showtime.getShowTime());
 
-                            // Only include essential information from related entities
                             if (showtime.getFilm() != null) {
                                 showtimeDTO.setFilmId(showtime.getFilm().getFilmId());
                                 showtimeDTO.setFilmName(showtime.getFilm().getFilmName());
@@ -171,16 +130,12 @@ public class CinemaService {
                                 showtimeDTO.setRoomName(showtime.getRoom().getRoomName());
                             }
 
-                            // Include cinema ID and name as well
                             if (showtime.getCinema() != null) {
                                 showtimeDTO.setCinemaId(showtime.getCinema().getCinemaId());
                                 showtimeDTO.setCinemaName(showtime.getCinema().getCinemaName());
                             }
 
-                            // Get price if available
-                            // Note: You may need to adjust this if price is stored elsewhere
-                            Double price = 0.0; // Default value
-                            // Add logic to get the actual price if it exists somewhere
+                            Double price = 0.0;
                             showtimeDTO.setPrice(price);
 
                             return showtimeDTO;
@@ -194,9 +149,8 @@ public class CinemaService {
 
         return result;
     }
-    // Trong CinemaService
+
     public List<CinemaWithShowtimesDTO> getCinemasWithShowtimesForFilmAndDate(Long filmId, LocalDate date) {
-        // Lấy tất cả rạp có suất chiếu cho phim và ngày cụ thể
         List<Object[]> results = cinemaRepository.findCinemasWithShowtimesByFilmAndDate(filmId, date);
         Map<Long, CinemaWithShowtimesDTO> cinemaMap = new HashMap<>();
 
@@ -204,7 +158,6 @@ public class CinemaService {
             Cinema cinema = (Cinema) result[0];
             Showtime showtime = (Showtime) result[1];
 
-            // Lấy hoặc tạo mới DTO cho rạp
             CinemaWithShowtimesDTO cinemaDTO = cinemaMap.computeIfAbsent(
                     cinema.getCinemaId(),
                     id -> {
@@ -214,19 +167,15 @@ public class CinemaService {
                         dto.setAddress(cinema.getAddress());
                         dto.setShowtimes(new ArrayList<>());
                         return dto;
-                    }
-            );
+                    });
 
-            // Thêm showtime vào danh sách
             ShowtimeDTO showtimeDTO = new ShowtimeDTO();
             showtimeDTO.setShowtimeId(showtime.getShowtimeId());
             showtimeDTO.setShowTime(showtime.getShowTime());
-            // Có thể thêm các thông tin khác của showtime nếu cần
 
             cinemaDTO.getShowtimes().add(showtimeDTO);
         }
 
-        // Chuyển map thành list và trả về
         return new ArrayList<>(cinemaMap.values());
     }
 
@@ -237,21 +186,16 @@ public class CinemaService {
                 .collect(Collectors.toList());
     }
 
-    // Helper method to convert Cinema entity to CinemaDTO
     private CinemaDTO convertToCinemaDTO(Cinema cinema) {
         CinemaDTO cinemaDTO = new CinemaDTO();
         cinemaDTO.setCinemaId(cinema.getCinemaId());
         cinemaDTO.setCinemaName(cinema.getCinemaName());
         cinemaDTO.setAddress(cinema.getAddress());
 
-        // Set cinema cluster ID if available
         if (cinema.getCinemaCluster() != null) {
             cinemaDTO.setClusterId(cinema.getCinemaCluster().getClusterId());
         }
 
-        // Optionally map showtimes if needed
-        // This depends on whether you want to include showtimes in the response
-        // If you do, you'd need to convert each Showtime to ShowtimeDTO
         if (cinema.getShowtimes() != null && !cinema.getShowtimes().isEmpty()) {
             Set<ShowtimeDTO> showtimeDTOs = cinema.getShowtimes().stream()
                     .map(showtime -> {
@@ -288,7 +232,6 @@ public class CinemaService {
         return cinemaRepository.findAllBasicInfo();
     }
 
-    // Method to delete multiple cinemas by their IDs
     public int deleteCinemasByIds(List<Long> cinemaIds) {
         if (cinemaIds == null || cinemaIds.isEmpty()) {
             return 0;
@@ -300,7 +243,6 @@ public class CinemaService {
                 cinemaRepository.deleteById(id);
                 deletedCount++;
             } catch (Exception e) {
-                // Log the exception but continue with other deletions
                 System.err.println("Failed to delete cinema with ID: " + id + ". Error: " + e.getMessage());
             }
         }
@@ -308,31 +250,28 @@ public class CinemaService {
         return deletedCount;
     }
 
-    // Method to save a new cinema
     public void saveCinema(@Valid Cinema cinema) {
         cinemaRepository.save(cinema);
     }
 
-    // Method to get a cinema by ID with all its details
     public Optional<Cinema> getCinemaByIdWithDetails(Long id) {
         if (id == null) {
             return Optional.empty();
         }
 
-        // Using fetch joins to load related entities eagerly
         return Optional.ofNullable(em.createQuery(
                         "SELECT c FROM Cinema c " +
                                 "LEFT JOIN FETCH c.cinemaCluster " +
                                 "LEFT JOIN FETCH c.region " +
                                 "LEFT JOIN FETCH c.rooms " +
-                                "WHERE c.cinemaId = :id", Cinema.class)
+                                "WHERE c.cinemaId = :id",
+                        Cinema.class)
                 .setParameter("id", id)
                 .getResultStream()
                 .findFirst()
                 .orElse(null));
     }
 
-    // Method to update an existing cinema
     public void updateCinema(@Valid Cinema cinema) {
         if (cinema == null || cinema.getCinemaId() == null) {
             throw new IllegalArgumentException("Cinema or cinema ID cannot be null");
@@ -346,7 +285,6 @@ public class CinemaService {
         cinemaRepository.save(cinema);
     }
 
-    // Method to get cinemas with complex information for admin dashboard
     private List<CinemaDTO> mapCinemasWithComplexInfo(List<Cinema> cinemas) {
         return cinemas.stream().map(cinema -> {
             CinemaDTO dto = new CinemaDTO();
@@ -365,24 +303,22 @@ public class CinemaService {
         }).collect(Collectors.toList());
     }
 
-    // Helper method to determine color class for cinema clusters
     private String getColorClassForCluster(CinemaCluster cluster) {
         if (cluster == null) {
             return "bg-secondary";
         }
 
-        // Generate consistent colors based on cluster ID
-        String[] colorClasses = {"bg-primary", "bg-success", "bg-warning", "bg-danger", "bg-info"};
-        return colorClasses[(int)(cluster.getClusterId() % colorClasses.length)];
+        String[] colorClasses = { "bg-primary", "bg-success", "bg-warning", "bg-danger", "bg-info" };
+        return colorClasses[(int) (cluster.getClusterId() % colorClasses.length)];
     }
 
     public Page<Cinema> searchCinemasByNameOrAddressPaginated(String search, Pageable pageable) {
         if (search == null || search.trim().isEmpty()) {
             return cinemaRepository.findAll(pageable);
         }
-        return cinemaRepository.findByCinemaNameContainingIgnoreCaseOrAddressContainingIgnoreCase(search, search, pageable);
+        return cinemaRepository.findByCinemaNameContainingIgnoreCaseOrAddressContainingIgnoreCase(search, search,
+                pageable);
     }
-
 
     public Page<Cinema> getCinemasByComplexNamePaginated(String complex, Pageable pageable) {
         if (complex == null || complex.trim().isEmpty()) {
@@ -390,7 +326,6 @@ public class CinemaService {
         }
         return cinemaRepository.findByCinemaCluster_ClusterNameContainingIgnoreCase(complex, pageable);
     }
-
 
     public Page<Cinema> getAllCinemasPaginated(Pageable pageable) {
         return cinemaRepository.findAll(pageable);

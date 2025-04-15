@@ -1,318 +1,435 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;  /* Đổi font chữ sang Poppins */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
 }
 
 .header {
-    background-color: #000;
-    padding: 15px 0;
-    width: 100%; position: fixed; z-index: 1000;
-
+  background-color: #000;
+  padding: 15px 0;
+  width: 100%;
+  position: fixed;
+  z-index: 1000;
 }
 
 .container {
-    width: 90%;
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .header-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .logo {
-    height: 40px;
+  height: 50px;
 }
 
 .user-section {
-    display: flex;
-    align-items: center;
-    gap: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
 }
 
 .user-avatar {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    object-fit: cover;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .username {
-    color: white;
-    font-weight: 500;
+  color: white;
+  font-weight: 500;
 }
 
 .logout-btn {
-    background: linear-gradient(to right, #ff3333, #ff0066);
-    color: white;
-    border: none;
-    padding: 5px 15px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 14px;
-    text-decoration: none;
+  background: linear-gradient(to right, #ff3333, #ff0066);
+  color: white;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
 }
 
 .header-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .nav-menu {
-    display: flex;
-    list-style: none;
-    gap: 30px;
+  display: flex;
+  list-style: none;
+  gap: 30px;
+  flex-wrap: nowrap;
 }
 
 .nav-menu a {
-    color: white;
-    text-decoration: none;
-    font-size: 16px;
-    position: relative;
-    padding-bottom: 5px;
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  position: relative;
+  padding-bottom: 5px;
+  white-space: nowrap;
 }
 
-/* Gạch dưới hiển thị cho mục active */
 .nav-menu a.active::after {
-    content: "";
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background-color: white;
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: white;
 }
 
 .search-form {
-    position: relative;
+  position: relative;
+  min-width: 200px;
 }
 
 .search-input {
-    background-color: white;
-    border: none;
-    padding: 8px 35px 8px 15px;
-    border-radius: 20px;
-    width: 280px;
-    font-size: 14px;
+  background-color: white;
+  border: none;
+  padding: 8px 35px 8px 15px;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 280px;
+  font-size: 14px;
 }
 
 .search-btn {
-    position: absolute;
-    right: 14px;  /* Căn chỉnh để button nằm đúng bên phải */
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    padding: 0;
-    margin: 0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .search-icon {
-    color: #666;
-    font-size: 18px;  /* Tăng kích cỡ icon cho dễ nhìn */
-    pointer-events: none;  /* Chặn click vào icon, buộc phải click vào button */
+  color: #666;
+  font-size: 18px;
+  pointer-events: none;
 }
-.logo {
-    height: 50px;  /* Đổi chiều cao của logo thành 50px */
-}
+
 .adding-margin {
-height: 117px;
-}/* Original header styles (add your existing styles here) */
-         /* Profile Overlay Styles */
-         /* Change profile overlay positioning */
-         .profile-overlay {
-             display: none;
-             position: fixed;
-             top: 0;
-             left: 0;
-             width: 100%;
-             height: 100%;
-             background-color: rgba(0, 0, 0, 0.5);
-             z-index: 1000;
-             align-items: flex-start; /* Align at the top instead of center */
-         }
+  height: 117px;
+}
 
-         /* Position the profile containers */
-         .profile-container, .edit-profile-container {
-             position: absolute;
-             top: 70px; /* Adjust based on your header height */
-             right: 20px; /* Position from the right side */
-             margin-top: 10px;
-         }
+/* Profile Overlay Styles */
+.profile-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  align-items: flex-start;
+}
 
-         /* Change cursor for user section */
-         .user-section {
-             cursor: pointer;
-         }
+/* Position the profile containers */
+.profile-container,
+.edit-profile-container {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+  max-width: 420px;
+  top: 70px;
+  right: 20px;
+  margin-top: 10px;
+}
 
-         /* Close Button */
-         .close-profile {
-             position: absolute;
-             top: 10px;
-             right: 10px;
-             font-size: 20px;
-             color: white;
-             cursor: pointer;
-             z-index: 1010;
-         }
+/* Close Button */
+.close-profile {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+  z-index: 1010;
+}
 
-         /* Profile Header */
-         .profile-header {
-             background-color: #0f4d2e;
-             height: 100px;
-             position: relative;
-         }
+/* Profile Header */
+.profile-header {
+  background-color: #0f4d2e;
+  height: 100px;
+  position: relative;
+}
 
-         .profile-avatar {
-             width: 80px;
-             height: 80px;
-             background-color: #e9f3d9;
-             border-radius: 50%;
-             position: absolute;
-             top: 60px;
-             left: 50%;
-             transform: translateX(-50%);
-             border: 3px solid white;
-             overflow: hidden;
-             display: flex;
-             justify-content: center;
-             align-items: center;
-         }
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  background-color: #e9f3d9;
+  border-radius: 50%;
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 3px solid white;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-         .profile-avatar img {
-             width: 100%;
-             height: 100%;
-             object-fit: cover;
-         }
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
-         /* Profile Content */
-         .profile-content {
-             padding: 50px 20px 20px;
-         }
+/* Profile Content */
+.profile-content {
+  padding: 50px 20px 20px;
+}
 
-         .profile-field {
-             margin-bottom: 15px;
-         }
+.profile-field {
+  margin-bottom: 15px;
+}
 
-         .profile-field label {
-             display: block;
-             font-size: 14px;
-             font-weight: bold;
-             margin-bottom: 5px;
-             color: #333;
-         }
+.profile-field label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
 
-         .profile-field input {
-             width: 100%;
-             padding: 10px 15px;
-             border: 1px solid #ddd;
-             border-radius: 4px;
-             font-size: 16px;
-             color: #333;
-             outline: none;
-         }
+.profile-field input {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  color: #333;
+  outline: none;
+}
 
-         /* Profile Actions */
-         .profile-actions {
-             display: flex;
-             gap: 10px;
-             margin-top: 25px;
-             justify-content: center;
-         }
+/* Profile Actions */
+.profile-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+  justify-content: center;
+}
 
-         .profile-actions button {
-             padding: 12px 15px;
-             border: none;
-             border-radius: 4px;
-             cursor: pointer;
-             font-weight: bold;
-             transition: background-color 0.3s;
-             font-size: 14px;
-         }
+.profile-actions button {
+  padding: 12px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+  font-size: 14px;
+}
 
-         .edit-btn, .update-btn {
-             background-color: #0f4d2e;
-             color: white;
-             flex: 1;
-             max-width: 135px;
-         }
+.edit-btn,
+.update-btn,
+.view-btn {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  text-decoration: none;
+  background-color: #0f4d2e;
+  color: white;
+  flex: 1;
+  max-width: 135px;
+  border-radius: 4px;
+}
 
-         .edit-btn:hover, .update-btn:hover {
-             background-color: #0a3b23;
-         }
+.edit-btn:hover,
+.view-btn:hover,
+.update-btn:hover {
+  text-decoration: none;
+  background-color: #0a3b23;
+}
 
-         .view-btn, .cancel-btn {
-             background-color: #777;
-             color: white;
-             flex: 1;
-             max-width: 135px;
-         }
+.cancel-btn {
+  background-color: #777;
+  color: white;
+  flex: 1;
+  max-width: 135px;
+}
 
-         .view-btn:hover, .cancel-btn:hover {
-             background-color: #555;
-         }
+.cancel-btn:hover {
+  background-color: #555;
+}
 
-         /* Edit Profile Container */
-         .edit-profile-container {
-             width: 100%;
-             max-width: 420px;
-             background: #fff;
-             border-radius: 12px;
-             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-             overflow: hidden;
-         }
+/* Edit Profile Container */
+.edit-profile-container {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
 
-         .avatar-edit-icon {
-             position: absolute;
-             bottom: 5px;
-             right: 5px;
-             background: rgba(0, 0, 0, 0.6);
-             color: white;
-             border-radius: 50%;
-             padding: 5px;
-             cursor: pointer;
-             font-size: 10px;
-         }
+.avatar-edit-icon {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 50%;
+  padding: 5px;
+  cursor: pointer;
+  font-size: 10px;
+}
 
-         .profile-field-container {
-             position: relative;
-             width: 100%;
-         }
+.profile-field-container {
+  position: relative;
+  width: 100%;
+}
 
-         .error-message {
-             color: #d9534f;
-             font-size: 12px;
-             margin-top: 5px;
-             display: none;
-         }
+.error-message {
+  color: #d9534f;
+  font-size: 12px;
+  margin-top: 5px;
+  display: none;
+}
 
-         /* Date picker and select styles */
-         .profile-field select, .profile-field input[type="date"] {
-             width: 100%;
-             padding: 10px 15px;
-             border: 1px solid #ddd;
-             border-radius: 4px;
-             font-size: 16px;
-             color: #333;
-             outline: none;
-             background-color: white;
-         }
+.profile-field select,
+.profile-field input[type="date"] {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  color: #333;
+  outline: none;
+  background-color: white;
+}
 
-         /* Responsive Design */
-         @media (max-width: 480px) {
-             .profile-container, .edit-profile-container {
-                 max-width: 90%;
-             }
-         }
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .container {
+    width: 95%;
+  }
+}
+
+@media (max-width: 992px) {
+  .nav-menu {
+    gap: 20px;
+  }
+
+  .search-input {
+    max-width: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-bottom {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .nav-menu {
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+  }
+
+  .search-form {
+    width: 100%;
+    max-width: none;
+  }
+
+  .search-input {
+    max-width: none;
+  }
+
+  .adding-margin {
+    height: 170px;
+  }
+
+  .profile-container,
+  .edit-profile-container {
+    right: 50%;
+    transform: translateX(50%);
+    max-width: 380px;
+  }
+}
+
+@media (max-width: 576px) {
+  .header-top {
+    flex-direction: row;
+    flex-wrap: nowrap;
+  }
+
+  .logo {
+    height: 40px;
+  }
+
+  .user-section {
+    gap: 8px;
+  }
+
+  .username {
+    font-size: 14px;
+  }
+
+  .logout-btn {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+
+  .nav-menu {
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-menu a {
+    font-size: 14px;
+  }
+
+  .profile-container,
+  .edit-profile-container {
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 400px) {
+  .user-avatar {
+    width: 30px;
+    height: 30px;
+  }
+
+  .logout-btn {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+
+  .search-input {
+    padding: 6px 30px 6px 12px;
+  }
+}

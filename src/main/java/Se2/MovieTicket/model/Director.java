@@ -16,7 +16,6 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString(exclude = {"filmDirectors"})
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "directorId")
 public class Director {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +35,7 @@ public class Director {
     @JsonManagedReference
     private Set<FilmDirector> filmDirectors;
 
+    // Getters and setters
     public Long getDirectorId() {
         return directorId;
     }

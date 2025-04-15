@@ -24,12 +24,14 @@ public class FilterService {
 
     public Map<String, List<?>> filterAll(String actorName, String filmName, String cinemaName, String clusterName, String regionName, String roomName) {
         Map<String, List<?>> results = new HashMap<>();
+
         results.put("actors", actorService.filterActors(actorName));
         results.put("films", filmService.filterFilms(filmName, null, null, null, null));
         results.put("cinemas", cinemaService.filterCinemas(cinemaName, null));
         results.put("clusters", cinemaClusterService.filterCinemaClusters(clusterName));
         results.put("regions", regionService.filterRegions(regionName));
         results.put("rooms", roomService.filterRooms(roomName));
+
         return results;
     }
 }

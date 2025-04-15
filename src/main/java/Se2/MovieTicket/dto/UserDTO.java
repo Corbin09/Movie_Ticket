@@ -14,13 +14,14 @@ public class UserDTO {
     private String email;
     private String phoneNumber;
     private String sex;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")  // Định dạng đúng của input type="date"
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateOfBirth;
     private String role;
     private String resetToken;
     private Date resetTokenExpire;
     private String status;
 
+    // Getters and setters
     public Long getUserId() {
         return userId;
     }

@@ -37,6 +37,7 @@ public class Room {
     @JsonManagedReference
     private Set<Showtime> showtimes;
 
+    // Getters and setters
     public Long getRoomId() {
         return roomId;
     }
@@ -78,9 +79,6 @@ public class Room {
     }
 
     public void setCinemaId(Long cinemaId) {
-//        if (this.cinema == null) {
-//            this.cinema = new Cinema();
-//        }
         this.cinema.setCinemaId(cinemaId);
     }
 }

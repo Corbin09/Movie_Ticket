@@ -1,547 +1,47 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="_csrf" th:content="${_csrf.token}"/>
-    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <title>Cinema Management System</title>
     <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
-    <style th:inline="css">
-        /* Reset & Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        :root {
-            --primary-color: #00b074;
-            --primary-dark: #008c5b;
-            --secondary-color: #d45500;
-            --light-color: #f0f8f0;
-            --text-color: #333;
-            --border-color: #e0e0e0;
-            --error-color: #ff0033;
-            --success-color: #00b074;
-            --background-dark: #033b1e;
-            --pink-tag: #ffccd5;
-            --blue-tag: #b3e0ff;
-            --green-tag: #c6f6d5;
-        }
-
-        body {
-            background-color: var(--background-dark);
-            color: var(--text-color);
-        }
-
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 200px;
-            background-color: var(--background-dark);
-            color: white;
-            padding: 20px 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            padding: 0 20px 20px;
-            gap: 10px;
-            color: var(--primary-color);
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .logo img {
-            width: 34px;
-            height: auto;
-        }
-
-        .nav-menu ul {
-            list-style: none;
-        }
-
-        .nav-item {
-            margin-bottom: 5px;
-        }
-
-        .nav-item a {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: white;
-            text-decoration: none;
-            transition: background-color 0.3s;
-            gap: 10px;
-        }
-
-        .nav-item a i {
-            width: 20px;
-        }
-
-        .nav-item:hover a {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .nav-item.active a {
-            background-color: rgba(255, 255, 255, 0.15);
-            border-left: 4px solid var(--primary-color);
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            max-width: calc(100% - 200px);
-        }
-
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .page-title {
-            color: white;
-            font-size: 24px;
-        }
-
-        .user-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: white;
-        }
-
-        .user-info img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-        }
-
-        .logout-btn {
-            background-color: #f44336;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Content Views */
-        .content-view {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Filters */
-        .filters {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .dropdown {
-            position: relative;
-        }
-
-        .dropdown-toggle {
-            background-color: white;
-            border: 1px solid var(--border-color);
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background-color: white;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            width: 100%;
-            z-index: 10;
-            display: none;
-        }
-
-        .dropdown-menu a {
-            display: block;
-            padding: 8px 15px;
-            text-decoration: none;
-            color: var(--text-color);
-        }
-
-        .dropdown-menu a:hover {
-            background-color: var(--light-color);
-        }
-
-        .dropdown:hover .dropdown-menu {
-            display: block;
-        }
-
-        .search-box {
-            position: relative;
-            flex: 1;
-            margin: 0 15px;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 8px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-
-        .clear-btn {
-            padding: 6px 12px;
-            background-color: #f0f0f0;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            color: var(--text-color);
-            transition: background-color 0.3s;
-        }
-
-        .clear-btn:hover {
-            background-color: #e0e0e0;
-        }
-
-        /* Table */
-        .table-container {
-            overflow-x: auto;
-            margin-bottom: 20px;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .data-table th {
-            background-color: #f9f9f9;
-            font-weight: normal;
-        }
-
-        .data-table tr:hover {
-            background-color: #f5f5f5;
-        }
-
-        .tag {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-        }
-
-        .tag.active {
-            background-color: var(--green-tag);
-            color: #00664d;
-        }
-
-        .tag.inactive {
-            background-color: #f0f0f0;
-            color: #666;
-        }
-
-        /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .pagination-info {
-            color: #666;
-        }
-
-        .page-controls {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .page-size {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .page-navigation {
-            display: flex;
-            gap: 5px;
-        }
-
-        .prev-btn, .next-btn {
-            background-color: white;
-            border: 1px solid var(--border-color);
-            width: 30px;
-            height: 30px;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        .btn-action {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--primary-color);
-            margin-right: 10px;
-        }
-
-        .btn-action:hover {
-            color: var(--primary-dark);
-        }
-
-        /* Icons */
-        .icon {
-            display: inline-flex;
-            width: 20px;
-            height: 20px;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Cinema Logo SVG as default */
-        .logo svg {
-            width: 34px;
-            height: 34px;
-        }
-
-        /* User Avatar fallback */
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            overflow: hidden;
-            background-color: #f0f0f0;
-        }
-
-        .user-avatar-small {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            overflow: hidden;
-            background-color: #f0f0f0;
-        }
-
-        /* Role Select Dropdown */
-        .role-select {
-            padding: 5px 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            background-color: white;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .role-select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        /* Notification */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 1000;
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: opacity 0.3s, transform 0.3s;
-            color: white;
-        }
-
-        .notification.success {
-            background-color: var(--success-color);
-        }
-
-        .notification.error {
-            background-color: var(--error-color);
-        }
-
-        .notification.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Loading Indicator */
-        .loading-indicator {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(0, 176, 116, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary-color);
-            animation: spin 1s linear infinite;
-            margin-left: 10px;
-            vertical-align: middle;
-        }
-
-        @keyframes spin {
-            to {transform: rotate(360deg);}
-        }
-
-        /* Responsive Styles */
-        @media (max-width: 992px) {
-            .sidebar {
-                width: 70px;
-            }
-
-            .sidebar .logo span {
-                display: none;
-            }
-
-            .nav-item a span {
-                display: none;
-            }
-
-            .main-content {
-                max-width: calc(100% - 70px);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .filters {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-
-            .search-box {
-                width: 100%;
-                margin: 10px 0;
-            }
-
-            .pagination {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-
-            .page-controls {
-                width: 100%;
-                justify-content: space-between;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .app-container {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-                padding: 10px 0;
-            }
-
-            .sidebar .logo span {
-                display: block;
-            }
-
-            .nav-menu {
-                display: none;
-            }
-
-            .main-content {
-                max-width: 100%;
-            }
-
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-
-            .user-actions {
-                width: 100%;
-                justify-content: space-between;
-            }
-        }
-    </style>
-    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" th:href="@{/css/manage-users.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
 <div class="app-container">
     <div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
+
     <!-- Main Content -->
-    <div class="main-content" style="padding-top: 132px; padding-left: 300px;">
+    <div class="main-content">
         <!-- Content -->
         <div class="content-view">
+            <!-- Page Header -->
+            <div class="content-header">
+                <h1>User Management</h1>
+            </div>
+
             <!-- Filters -->
             <div class="filters">
                 <div class="filter-group">
                     <span>Filter by:</span>
                     <div class="dropdown">
                         <div class="dropdown-toggle">
-                            <span th:text="${currentSearchField != null ? searchFields.get(currentSearchField) : 'Select Field'}">Select Field</span>
+                            <span th:text="${currentSearchField != null ? searchFields.get(currentSearchField) : 'Select Field'}">
+                                    Select Field
+                            </span>
                             <i class="fa fa-chevron-down"></i>
                         </div>
                         <div class="dropdown-menu">
-                            <a th:each="field : ${searchFields}" th:href="@{/manage-users(searchField=${field.key}, searchText=${currentSearchText}, page=1, pageSize=${pageSize})}"
+                            <a th:each="field : ${searchFields}"
+                               th:href="@{/manage-users(searchField=${field.key},
+                               searchText=${currentSearchText},
+                               page=1,
+                               pageSize=${pageSize})}"
                                th:text="${field.value}">Field</a>
                         </div>
                     </div>
@@ -550,15 +50,13 @@
                     <form id="searchForm" th:action="@{/manage-users}" method="get">
                         <input type="hidden" name="searchField" th:value="${currentSearchField}">
                         <input type="hidden" name="pageSize" th:value="${pageSize}">
-                        <input type="text" name="searchText" th:value="${currentSearchText}" placeholder="Search..." />
+                        <input type="text" name="searchText" th:value="${currentSearchText}"
+                               placeholder="Search..." />
                         <button type="submit" class="search-icon">
                             <i class="fa fa-search"></i>
                         </button>
                     </form>
                 </div>
-                <a th:href="@{/manage-users}" class="clear-btn">
-                    <i class="fa fa-times"></i> Clear
-                </a>
             </div>
 
             <!-- Table -->
@@ -573,10 +71,11 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <!-- Loop through users with Thymeleaf -->
+
                     <tr th:each="user : ${users}" th:data-id="${user.userId}">
                         <td>
-                            <a th:href="@{/users/edit/{id}(id=${user.userId})}" style="text-decoration: none; color: inherit;">
+                            <a th:href="@{/users/edit/{id}(id=${user.userId})}"
+                               style="text-decoration: none; color: inherit;">
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <div class="user-avatar-small">
                                         <img th:if="${user.userImg}" th:src="${user.userImg}" alt="User Avatar">
@@ -590,17 +89,18 @@
                         <td>
                             <!-- Inline Role Selection -->
                             <select class="role-select" th:data-user-id="${user.userId}">
-                                <option value="ADMIN" th:selected="${user.role == 'ADMIN' || user.role == 'ROLE_ADMIN'}">Admin</option>
-                                <option value="USER" th:selected="${user.role == 'USER' || user.role == 'ROLE_USER'}">User</option>
+                                <option value="ADMIN"
+                                        th:selected="${user.role == 'ADMIN' || user.role == 'ROLE_ADMIN'}">Admin
+                                </option>
+                                <option value="USER"
+                                        th:selected="${user.role == 'USER' || user.role == 'ROLE_USER'}">User
+                                </option>
                             </select>
                         </td>
-
-
                     </tr>
 
-                    <!-- Fallback data if no users are provided -->
                     <tr th:if="${#lists.isEmpty(users)}">
-                        <td colspan="6" style="text-align: center;">No users found</td>
+                        <td colspan="4" style="text-align: center;">No users found</td>
                     </tr>
                     </tbody>
                 </table>
@@ -609,7 +109,15 @@
             <!-- Pagination -->
             <div class="pagination">
                 <div class="pagination-info">
-                    <span th:if="${totalItems > 0}" th:text="'Showing ' + ${(currentPage - 1) * pageSize + 1} + '-' + ${currentPage * pageSize > totalItems ? totalItems : currentPage * pageSize} + ' of ' + ${totalItems}">Showing 1-10 of 100</span>
+                    <span th:if="${totalItems > 0}"
+                          th:text="'Showing '
+                              + ${(currentPage - 1) * pageSize + 1}
+                              + '-'
+                              + ${currentPage * pageSize > totalItems ? totalItems : currentPage * pageSize}
+                              + ' of '
+                              + ${totalItems}">
+                            Showing 1-10 of 100
+                    </span>
                     <span th:if="${totalItems == 0}">No users found</span>
                 </div>
                 <div class="page-controls">
@@ -622,14 +130,20 @@
                             </div>
                             <div class="dropdown-menu">
                                 <a th:each="size : ${#numbers.sequence(5, 25, 5)}"
-                                   th:href="@{/manage-users(searchField=${currentSearchField}, searchText=${currentSearchText}, page=1, pageSize=${size})}"
+                                   th:href="@{/manage-users(searchField=${currentSearchField},
+                                   searchText=${currentSearchText},
+                                   page=1,
+                                   pageSize=${size})}"
                                    th:text="${size}">10</a>
                             </div>
                         </div>
                     </div>
                     <div class="page-navigation">
                         <a th:if="${currentPage > 1}"
-                           th:href="@{/manage-users(searchField=${currentSearchField}, searchText=${currentSearchText}, page=${currentPage - 1}, pageSize=${pageSize})}"
+                           th:href="@{/manage-users(searchField=${currentSearchField},
+                           searchText=${currentSearchText},
+                           page=${currentPage - 1},
+                           pageSize=${pageSize})}"
                            class="prev-btn">
                             <i class="fa fa-chevron-left"></i>
                         </a>
@@ -640,7 +154,10 @@
                         <span th:text="${currentPage + ' / ' + totalPages}">1 / 5</span>
 
                         <a th:if="${currentPage < totalPages}"
-                           th:href="@{/manage-users(searchField=${currentSearchField}, searchText=${currentSearchText}, page=${currentPage + 1}, pageSize=${pageSize})}"
+                           th:href="@{/manage-users(searchField=${currentSearchField},
+                           searchText=${currentSearchText},
+                           page=${currentPage + 1},
+                           pageSize=${pageSize})}"
                            class="next-btn">
                             <i class="fa fa-chevron-right"></i>
                         </a>
@@ -661,33 +178,20 @@
 </div>
 
 <script th:inline="javascript">
-    // JavaScript for the Cinema Management System
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize user avatars
+    document.addEventListener('DOMContentLoaded', function () {
         initUserAvatars();
-
-        // Initialize dropdown functionality
         initDropdowns();
-
-        // Initialize pagination functionality
-        initPagination();
-
-        // Initialize role selector
         initRoleSelector();
     });
 
     // Initialize user avatars
     function initUserAvatars() {
-        // Create SVG avatars for all user-avatar elements without images
         const avatars = document.querySelectorAll('.user-avatar:not(:has(img)), .user-avatar-small:not(:has(img))');
 
         avatars.forEach((avatar, index) => {
-            // Create an array of colors for avatars
             const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA62B', '#A78BFA', '#10B981'];
-            // Create an array of first initials for avatars
             const initials = ['CB', 'DB', 'GJ', 'PT'];
 
-            // Get user's initials from Thymeleaf if available
             const userInitials = avatar.getAttribute('data-initials') || initials[index % initials.length];
 
             // Create SVG element
@@ -713,11 +217,9 @@
             text.setAttribute('font-size', '40');
             text.textContent = userInitials;
 
-            // Add elements to SVG
             svg.appendChild(circle);
             svg.appendChild(text);
 
-            // Add SVG to avatar container
             avatar.appendChild(svg);
         });
     }
@@ -729,65 +231,25 @@
         dropdowns.forEach(dropdown => {
             const toggle = dropdown.querySelector('.dropdown-toggle');
             const menu = dropdown.querySelector('.dropdown-menu');
-            const toggleSpan = toggle.querySelector('span');
 
-            toggle.addEventListener('click', function(event) {
-                // Close all other dropdowns
-                dropdowns.forEach(d => {
-                    if (d !== dropdown) {
-                        d.querySelector('.dropdown-menu').style.display = 'none';
-                    }
-                });
-
-                // Toggle current dropdown
-                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            toggle.addEventListener('click', function (event) {
+                if (menu.classList.contains('show')) {
+                    menu.classList.remove('show');
+                } else {
+                    document.querySelectorAll('.dropdown-menu.show').forEach(m => {
+                        m.classList.remove('show');
+                    });
+                    menu.classList.add('show');
+                }
                 event.stopPropagation();
             });
-
-            // Handle menu item selection
-            const menuItems = menu.querySelectorAll('a');
-            menuItems.forEach(item => {
-                item.addEventListener('click', function(event) {
-                    toggleSpan.textContent = this.textContent;
-                    menu.style.display = 'none';
-
-                    // For page size dropdown, we use links with proper URLs
-                    // For other dropdowns, prevent default behavior
-                    if (!this.getAttribute('href') || this.getAttribute('href') === '#') {
-                        event.preventDefault();
-                    }
-
-                    event.stopPropagation();
-                });
-            });
         });
 
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', function() {
-            dropdowns.forEach(dropdown => {
-                const menu = dropdown.querySelector('.dropdown-menu');
-                menu.style.display = 'none';
+        document.addEventListener('click', function () {
+            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                menu.classList.remove('show');
             });
         });
-    }
-
-    // Initialize pagination functionality
-    function initPagination() {
-        const prevButton = document.querySelector('.prev-btn');
-        const nextButton = document.querySelector('.next-btn');
-
-        // Handle disabled state
-        if (prevButton.classList.contains('disabled')) {
-            prevButton.addEventListener('click', function(event) {
-                event.preventDefault();
-            });
-        }
-
-        if (nextButton.classList.contains('disabled')) {
-            nextButton.addEventListener('click', function(event) {
-                event.preventDefault();
-            });
-        }
     }
 
     // Initialize role selection functionality
@@ -795,16 +257,14 @@
         const roleSelects = document.querySelectorAll('.role-select');
 
         roleSelects.forEach(select => {
-            select.addEventListener('change', function() {
+            select.addEventListener('change', function () {
                 const userId = this.getAttribute('data-user-id');
                 const newRole = this.value;
 
-                // Add loading indicator
                 const loadingIndicator = document.createElement('span');
                 loadingIndicator.classList.add('loading-indicator');
                 this.parentNode.appendChild(loadingIndicator);
 
-                // Disable select while updating
                 this.disabled = true;
 
                 // Call the API to update user role
@@ -814,14 +274,12 @@
                             showNotification('success', 'Role updated successfully');
                         } else {
                             showNotification('error', response.message || 'Failed to update role');
-                            // Reset to previous value if failed
                             this.value = this.getAttribute('data-original-value');
                         }
                     })
                     .catch(error => {
                         console.error('Error updating role:', error);
                         showNotification('error', 'Failed to update role');
-                        // Reset to previous value if failed
                         this.value = this.getAttribute('data-original-value');
                     })
                     .finally(() => {
@@ -829,57 +287,51 @@
                         if (loadingIndicator) {
                             loadingIndicator.remove();
                         }
-                        // Re-enable select
                         this.disabled = false;
-                        // Store current value as original
                         this.setAttribute('data-original-value', this.value);
                     });
             });
 
-            // Store original value
             select.setAttribute('data-original-value', select.value);
         });
     }
 
     // Function to update user role via AJAX
-  // Function to update user role via AJAX
-function updateUserRole(userId, role) {
-    // Get CSRF token from meta tags or specific HTML element
-    const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') ||
-                  document.querySelector('input[name="_csrf"]')?.value;
-    const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+    function updateUserRole(userId, role) {
+        const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') ||
+            document.querySelector('input[name="_csrf"]')?.value;
+        const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
 
-    if (!token) {
-        console.error('CSRF token not found');
-        return Promise.reject('CSRF token not found');
-    }
-
-    const headers = {
-        'Content-Type': 'application/json',
-        [header]: token
-    };
-
-    // Use absolute path to ensure correct routing
-    return fetch('/users/update-role', {
-        method: 'POST',
-        headers: headers,
-        credentials: 'same-origin', // Include cookies for session authentication
-        body: JSON.stringify({
-            userId: userId,
-            role: role
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            console.error('Error status:', response.status);
-            return response.text().then(text => {
-                console.error('Error response:', text);
-                throw new Error('Network response was not ok');
-            });
+        if (!token) {
+            console.error('CSRF token not found');
+            return Promise.reject('CSRF token not found');
         }
-        return response.json();
-    });
-}
+
+        const headers = {
+            'Content-Type': 'application/json',
+            [header]: token
+        };
+
+        return fetch('/users/update-role', {
+            method: 'POST',
+            headers: headers,
+            credentials: 'same-origin',
+            body: JSON.stringify({
+                userId: userId,
+                role: role
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Error status:', response.status);
+                    return response.text().then(text => {
+                        console.error('Error response:', text);
+                        throw new Error('Network response was not ok');
+                    });
+                }
+                return response.json();
+            });
+    }
 
     // Function to show notification
     function showNotification(type, message) {
@@ -887,7 +339,6 @@ function updateUserRole(userId, role) {
         const notificationIcon = document.getElementById('notification-icon');
         const notificationMessage = document.getElementById('notification-message');
 
-        // Set type-specific classes and icon
         notification.className = 'notification';
         notification.classList.add(type);
 
@@ -897,10 +348,8 @@ function updateUserRole(userId, role) {
             notificationIcon.className = 'fas fa-exclamation-circle';
         }
 
-        // Set message
         notificationMessage.textContent = message;
 
-        // Show notification
         notification.classList.add('show');
 
         // Auto-hide after delay
@@ -908,38 +357,7 @@ function updateUserRole(userId, role) {
             notification.classList.remove('show');
         }, 3000);
     }
-
-    // Handle mobile responsive navigation
-    function initMobileNavigation() {
-        // Only execute for mobile devices
-        if (window.innerWidth <= 576) {
-            const logo = document.querySelector('.sidebar .logo');
-            const navMenu = document.querySelector('.nav-menu');
-
-            logo.addEventListener('click', function() {
-                if (navMenu.style.display === 'block') {
-                    navMenu.style.display = 'none';
-                } else {
-                    navMenu.style.display = 'block';
-                }
-            });
-
-            // Hide menu when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!event.target.closest('.sidebar')) {
-                    navMenu.style.display = 'none';
-                }
-            });
-        }
-    }
-
-    // Add event listener for window resize
-    window.addEventListener('resize', function() {
-        initMobileNavigation();
-    });
-
-    // Call mobile navigation init
-    initMobileNavigation();
 </script>
+
 </body>
 </html>

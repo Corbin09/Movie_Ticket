@@ -57,6 +57,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 import Se2.MovieTicket.model.Cinema;
+
 @Controller
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -65,12 +66,16 @@ public class AuthController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
     @Autowired
     private ShowtimeService showtimeService;
+
     @Autowired
     private UserService userService;
+
     @Autowired
     private RegionService regionService;
+
     @Autowired
     private FilmService filmService;
 
@@ -86,8 +91,8 @@ public class AuthController {
     @Autowired
     private SeatService seatService;
 
-@Autowired
-private PopcornComboService popcornComboService;
+    @Autowired
+    private PopcornComboService popcornComboService;
 
     @GetMapping("/login")
     public String loginPage(@RequestParam(value = "error", required = false) String error,
@@ -115,13 +120,14 @@ private PopcornComboService popcornComboService;
     }
 
     @PostMapping("/login")
-    public String login(LoginRequest loginRequest, Model model, HttpServletRequest request, HttpServletResponse response) {
+    public String login(LoginRequest loginRequest, Model model, HttpServletRequest request,
+                        HttpServletResponse response) {
         try {
             logger.info("Attempting to log in user: {}", loginRequest.getUsername());
 
             // Create authentication token
-            UsernamePasswordAuthenticationToken authRequest =
-                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+            UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
+                    loginRequest.getUsername(), loginRequest.getPassword());
 
             // Authenticate the user
             Authentication authentication = authenticationManager.authenticate(authRequest);
@@ -174,9 +180,8 @@ private PopcornComboService popcornComboService;
     }
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder; // Mã hóa mật khẩu
+    private BCryptPasswordEncoder passwordEncoder;
 
-    //    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     @Autowired
     private UserRepository userRepository;
 
@@ -308,7 +313,6 @@ private PopcornComboService popcornComboService;
         }
     }
 
-
     @GetMapping("/View-movie-ticket")
     public String viewMovieTicket(
             @RequestParam("id") Long filmId,
@@ -341,12 +345,12 @@ private PopcornComboService popcornComboService;
             model.addAttribute("user", sessionUser);
         }
 
-        // Xử lý date, month, year
+        // Handle date, month, year
         LocalDate selectedDate;
         YearMonth yearMonth;
         LocalDate today = LocalDate.now();
 
-        // Xử lý tham số ngày và tháng
+        // Handle day and month parameters
         if (date != null && !date.isEmpty()) {
             try {
                 selectedDate = LocalDate.parse(date);
@@ -360,7 +364,7 @@ private PopcornComboService popcornComboService;
             logger.info("No date provided, using today's date: {}", selectedDate);
         }
 
-        // Xử lý tham số tháng và năm
+        // Handle month and year parameters
         if (month != null && year != null) {
             try {
                 yearMonth = YearMonth.of(year, month);
@@ -399,7 +403,7 @@ private PopcornComboService popcornComboService;
             filmDTO.setActorNames(film.getFilmActors().stream()
                     .map(fa -> fa.getActor().getActorName())
                     .collect(Collectors.toList()));
-// Add new code: Extract Director DTOs with IDs
+            // Extract Director DTOs with IDs
             List<DirectorDTO> directors = film.getFilmDirectors().stream()
                     .map(fd -> {
                         DirectorDTO dto = new DirectorDTO();
@@ -410,7 +414,7 @@ private PopcornComboService popcornComboService;
                     .collect(Collectors.toList());
             filmDTO.setDirectors(directors);
 
-            // Add new code: Extract Actor DTOs with IDs
+            // Extract Actor DTOs with IDs
             List<ActorDTO> actors = film.getFilmActors().stream()
                     .map(fa -> {
                         ActorDTO dto = new ActorDTO();
@@ -431,13 +435,14 @@ private PopcornComboService popcornComboService;
             return "redirect:/films";
         }
 
-        // Fetch cinema/showtimes dựa trên date được chọn
-        List<CinemaWithShowtimesDTO> cinemasWithShowtimes = cinemaService.getCinemasWithShowtimesForFilmAndDate(filmId, selectedDate);
+        // Fetch cinema/showtimes based on selected date
+        List<CinemaWithShowtimesDTO> cinemasWithShowtimes = cinemaService.getCinemasWithShowtimesForFilmAndDate(filmId,
+                selectedDate);
         model.addAttribute("cinemas", cinemasWithShowtimes);
         logger.info("Loaded {} cinemas with showtimes for film ID: {} and date: {}",
                 cinemasWithShowtimes.size(), filmId, selectedDate);
 
-        // Add calendar data với tháng và năm được chọn
+        // Add calendar data with selected month and year
         model.addAttribute("currentMonth", yearMonth.getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()));
         model.addAttribute("currentYear", yearMonth.getYear());
         model.addAttribute("currentMonthNum", yearMonth.getMonthValue());
@@ -465,7 +470,7 @@ private PopcornComboService popcornComboService;
         LocalDate firstDayOfMonth = yearMonth.atDay(1);
         LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
 
-        // Lấy ngày đầu tiên của tuần từ thứ Hai
+        // Get the first day of the week starting from Monday
         LocalDate firstCalendarDate = firstDayOfMonth.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
         LocalDate date = firstCalendarDate;
@@ -477,27 +482,25 @@ private PopcornComboService popcornComboService;
                 boolean isPast = date.isBefore(today);
                 boolean isCurrentMonth = date.getMonth() == yearMonth.getMonth();
                 boolean hasShowtimes = showtimeService.hasShowtimesForFilmAndDate(filmId, date);
-                String formattedDate = date.toString();  // yyyy-MM-dd format
+                String formattedDate = date.toString();
                 String shortName = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.getDefault());
 
-                days.add(new DayDTO(String.valueOf(date.getDayOfMonth()),   // dayOfMonth (số ngày)
-                        shortName,                             // shortName (Mon, Tue...)
-                        isToday,                               // isToday
-                        isPast,                                // isPast
-                        hasShowtimes,                          // hasShowtimes
-                        formattedDate,                         // fullDate
-                        date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY,  // isWeekend
-                        date.equals(selectedDate),             // isSelected
-                        isCurrentMonth                         // isCurrentMonth (để làm mờ các ngày không thuộc tháng hiện tại)
-                ));
+                days.add(new DayDTO(String.valueOf(date.getDayOfMonth()),
+                        shortName,
+                        isToday,
+                        isPast,
+                        hasShowtimes,
+                        formattedDate,
+                        date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY,
+                        date.equals(selectedDate),
+                        isCurrentMonth));
 
-                date = date.plusDays(1);  // Chuyển sang ngày tiếp theo
+                date = date.plusDays(1);
             }
-            weeks.add(new WeekDTO(days));  // Thêm tuần với danh sách các ngày
+            weeks.add(new WeekDTO(days));
         }
         return weeks;
     }
-
 
     @GetMapping("/home")
     public String home(
@@ -538,15 +541,15 @@ private PopcornComboService popcornComboService;
             }
         }
 
-        // Format ngày tháng cho các phim
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        // Fetch paginated films for Now Showing and Coming Soon, and map to DTO with formatted date
-        int size = 8; // Số lượng phim hiển thị trên mỗi trang
+        // Fetch paginated films for Now Showing and Coming Soon, and map to DTO with
+        // formatted date
+        int size = 8; // Number of movies displayed per page
         Page<Film> nowShowingPage = filmService.getNowShowingFilms(currentPageNowShowing, size);
         Page<Film> comingSoonPage = filmService.getComingSoonFilms(currentPageComingSoon, size);
 
-        // Convert danh sách phim Now Showing thành DTO và format releaseDate
+        // Convert Now Showing movie list to DTO and format releaseDate
         List<FilmDTO> nowShowingMovies = nowShowingPage.getContent().stream().map(film -> {
             FilmDTO filmDTO = new FilmDTO();
             filmDTO.setFilmId(film.getFilmId());
@@ -570,7 +573,7 @@ private PopcornComboService popcornComboService;
             return filmDTO;
         }).collect(Collectors.toList());
 
-        // Tương tự, Convert danh sách phim Coming Soon thành DTO
+        // Convert Coming Soon movie list to DTO
         List<FilmDTO> comingSoonMovies = comingSoonPage.getContent().stream().map(film -> {
             FilmDTO filmDTO = new FilmDTO();
             filmDTO.setFilmId(film.getFilmId());
@@ -611,24 +614,23 @@ private PopcornComboService popcornComboService;
         // Add flag to indicate that we're not in search mode
         model.addAttribute("searchPerformed", false);
 
-        return "home";  // Trả về trang template home.html
+        return "home";
     }
-@Autowired
-private UserLikeFilmService userLikeFilmService;
 
+    @Autowired
+    private UserLikeFilmService userLikeFilmService;
 
     @Autowired
     private UserReviewService userReviewService;
 
+    @Autowired
+    private UserLikeFilmRepository userLikeFilmRepository;
 
-@Autowired
-private UserLikeFilmRepository userLikeFilmRepository;
+    @Autowired
+    private FilmRatingRepository filmRatingRepository;
 
-@Autowired
-private FilmRatingRepository filmRatingRepository;
-
-@Autowired
-private UserReviewRepository userReviewRepository;
+    @Autowired
+    private UserReviewRepository userReviewRepository;
 
     @GetMapping("/detail-movie")
     public String viewMovieDetail(
@@ -669,7 +671,7 @@ private UserReviewRepository userReviewRepository;
                 model.addAttribute("filmRating", filmRating);
 
                 // Calculate star display (for CSS)
-                double starDisplay = Math.round(filmRating.getFilmRate() * 2) / 2.0; // Round to nearest 0.5
+                double starDisplay = Math.round(filmRating.getFilmRate() * 2) / 2.0;
                 model.addAttribute("starDisplay", starDisplay);
             } else {
                 // Default values if no ratings exist
@@ -689,9 +691,8 @@ private UserReviewRepository userReviewRepository;
 
         return "details-movie";
     }
+
     // Save/Unsave film endpoint
-    // Save/Unsave film endpoint
-// Save/Unsave film endpoint
     @PostMapping("/detail-movie/save-film")
     public ResponseEntity<?> saveFilm(@RequestBody Map<String, Object> payload, HttpServletRequest request) {
         // Get user from session or SecurityContext
@@ -865,7 +866,7 @@ private UserReviewRepository userReviewRepository;
         filmDTO.setCountry(film.getCountry());
         filmDTO.setAgeLimit(film.getAgeLimit());
 
-        // Chuyển đổi directors thành DirectorDTO
+        // Convert directors to DirectorDTO
         filmDTO.setDirectors(film.getFilmDirectors().stream()
                 .map(fd -> {
                     DirectorDTO directorDTO = new DirectorDTO();
@@ -875,7 +876,7 @@ private UserReviewRepository userReviewRepository;
                 })
                 .collect(Collectors.toList()));
 
-        // Chuyển đổi actors thành ActorDTO
+        // Convert actors to ActorDTO
         filmDTO.setActors(film.getFilmActors().stream()
                 .map(fa -> {
                     ActorDTO actorDTO = new ActorDTO();
@@ -885,7 +886,6 @@ private UserReviewRepository userReviewRepository;
                 })
                 .collect(Collectors.toList()));
 
-        // Vẫn giữ categoryNames như cũ, hoặc bạn có thể chuyển đổi tương tự
         filmDTO.setCategoryNames(film.getFilmCategories().stream()
                 .map(fc -> fc.getCategory().getCategoryName())
                 .collect(Collectors.toList()));
@@ -914,15 +914,14 @@ private UserReviewRepository userReviewRepository;
                 .collect(Collectors.toList());
     }
 
-
     @Autowired
     private ActorService actorService;
 
-
     /**
      * Display actor details and their filmography
-     * @param id Actor ID
-     * @param model Spring Model
+     *
+     * @param id      Actor ID
+     * @param model   Spring Model
      * @param request HTTP request
      * @return Actor detail view
      */
@@ -932,14 +931,12 @@ private UserReviewRepository userReviewRepository;
             @RequestParam(defaultValue = "1") int currentPage,
             Model model,
             HttpServletRequest request) {
-        // Add user to model (similar to other methods)
         addUserToModel(model, request);
         model.addAttribute("currPage", "home");
-        // Get actor details
         Actor actor = actorService.findActorById(id);
 
         if (actor == null) {
-            return "redirect:/home"; // Or error page
+            return "redirect:/home";
         }
 
         // Convert Actor entity to ActorDTO
@@ -949,13 +946,11 @@ private UserReviewRepository userReviewRepository;
         actorDTO.setActorImg(actor.getActorImg());
         actorDTO.setActorDescription(actor.getActorDescription());
 
-        // Format for dates
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         // Set up pagination
         int size = 8; // Number of movies per page
 
-        // Assuming you'll create this method in your service
         Page<Film> actorFilmsPage = filmService.getFilmsByActorId(id, currentPage, size);
 
         // Convert to DTOs with formatted dates
@@ -970,8 +965,6 @@ private UserReviewRepository userReviewRepository;
             // Set both the original date and formatted date
             filmDTO.setReleaseDate(film.getReleaseDate());
             filmDTO.setFormattedReleaseDate(film.getReleaseDate().format(formatter));
-
-            // For consistency with your Coming Soon formatting
             filmDTO.setReleaseDateFormatted(film.getReleaseDate().format(formatter));
 
             // Get category names for the film
@@ -1007,14 +1000,12 @@ private UserReviewRepository userReviewRepository;
             @RequestParam(defaultValue = "1") int currentPage,
             Model model,
             HttpServletRequest request) {
-        // Add user to model (similar to other methods)
         addUserToModel(model, request);
 
-        // Get director details
         Director director = directorService.findDirectorById(id);
 
         if (director == null) {
-            return "redirect:/home"; // Or error page
+            return "redirect:/home";
         }
 
         // Convert Director entity to DirectorDTO
@@ -1024,13 +1015,11 @@ private UserReviewRepository userReviewRepository;
         directorDTO.setDirectorImg(director.getDirectorImg());
         directorDTO.setDirectorDescription(director.getDirectorDescription());
 
-        // Format for dates
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         // Set up pagination
         int size = 8; // Number of movies per page
 
-        // Assuming you'll create this method in your service
         Page<Film> directorFilmsPage = filmService.getFilmsByDirectorId(id, currentPage, size);
 
         // Convert to DTOs with formatted dates
@@ -1046,7 +1035,7 @@ private UserReviewRepository userReviewRepository;
             filmDTO.setReleaseDate(film.getReleaseDate());
             filmDTO.setFormattedReleaseDate(film.getReleaseDate().format(formatter));
 
-            // For consistency with your Coming Soon formatting
+            // For consistency with Coming Soon formatting
             filmDTO.setReleaseDateFormatted(film.getReleaseDate().format(formatter));
 
             // Get category names for the film
@@ -1072,8 +1061,6 @@ private UserReviewRepository userReviewRepository;
 
         return "details-director";
     }
-
-
 
     @GetMapping("/showtime")
     public String getShowtimes(
@@ -1160,7 +1147,7 @@ private UserReviewRepository userReviewRepository;
         model.addAttribute("films", films);
         Set<ShowtimeDTO> sts = new HashSet<>();
         for (FilmDTO film : films) {
-                sts.addAll(film.getShowtimes());
+            sts.addAll(film.getShowtimes());
         }
         ArrayList<ShowtimeDTO> sortedSts = new ArrayList<>();
         sortedSts.addAll(sts);
@@ -1175,14 +1162,14 @@ private UserReviewRepository userReviewRepository;
                 // Compare hours first
                 int hourDiff = Integer.valueOf(time1Parts[0]) - Integer.valueOf(time2Parts[0]);
                 if (hourDiff != 0) {
-                    return hourDiff; // If hours are different, return the difference
+                    return hourDiff;
                 }
 
                 // If hours are the same, compare minutes
                 if (time1Parts.length > 1 && time2Parts.length > 1) {
                     int minuteDiff = Integer.valueOf(time1Parts[1]) - Integer.valueOf(time2Parts[1]);
                     if (minuteDiff != 0) {
-                        return minuteDiff; // If minutes are different, return the difference
+                        return minuteDiff;
                     }
                 }
 
@@ -1196,14 +1183,15 @@ private UserReviewRepository userReviewRepository;
         });
         model.addAttribute("showtimes", sortedSts);
 
-        // Lọc danh sách showtimes dựa trên các filter được chọn
+        // Filter showtimes list based on selected filters
         if (showTime != null) {
             System.out.println("Filtering by selected showtimeId: " + showTime);
 
-            // Lọc danh sách phim dựa trên showtimeId đã chọn
+            // Filter movie list based on selected showtimeId
             List<FilmDTO> filteredFilms = films.stream()
                     .filter(film -> {
-                        boolean hasShowtime = film.getShowtimes().stream().anyMatch(st -> st.getShowTime().equals(showTime));
+                        boolean hasShowtime = film.getShowtimes().stream()
+                                .anyMatch(st -> st.getShowTime().equals(showTime));
                         System.out.println("Filtering by selected showtimeId: " + showTime);
                         System.out.println("Film: " + film.getFilmId() + " | Has Showtime: " + hasShowtime);
                         return hasShowtime;
@@ -1212,7 +1200,7 @@ private UserReviewRepository userReviewRepository;
 
             System.out.println("Total filtered films: " + filteredFilms.size());
 
-            // Áp dụng pagination cho danh sách đã lọc
+            // Apply pagination to the filtered list
             int totalItems = filteredFilms.size();
             int fromIndex = Math.min((page - 1) * size, totalItems);
             int toIndex = Math.min(fromIndex + size, totalItems);
@@ -1221,7 +1209,7 @@ private UserReviewRepository userReviewRepository;
             List<FilmDTO> paginatedFilms = filteredFilms.subList(fromIndex, toIndex);
             System.out.println("Paginated films count: " + paginatedFilms.size());
 
-            // Thêm danh sách phim đã phân trang vào model
+            // Add paginated movie list to the model
             model.addAttribute("films", paginatedFilms);
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", (int) Math.ceil((double) totalItems / size));
@@ -1231,7 +1219,8 @@ private UserReviewRepository userReviewRepository;
             System.out.println("No specific showTime selected, loading all showtimes.");
 
             for (FilmDTO film : films) {
-                List<ShowtimeDTO> allShowtimes = showtimeService.getAllShowtimesByCinemaAndFilm(cinemaId, film.getFilmId());
+                List<ShowtimeDTO> allShowtimes = showtimeService.getAllShowtimesByCinemaAndFilm(cinemaId,
+                        film.getFilmId());
                 film.setShowtimes(allShowtimes);
                 System.out.println("Film: " + film.getFilmId() + " | Total Showtimes: " + allShowtimes.size());
             }
@@ -1248,7 +1237,7 @@ private UserReviewRepository userReviewRepository;
         model.addAttribute("ageRestriction", true);
         return "showtime";
     }
-//
+
     /**
      * Handle user session and add user to model if authenticated
      */
@@ -1276,7 +1265,6 @@ private UserReviewRepository userReviewRepository;
         }
     }
 
-
     @GetMapping("/pick-seat")
     public String pickSeat(
             @RequestParam("filmId") Long filmId,
@@ -1286,7 +1274,8 @@ private UserReviewRepository userReviewRepository;
             @RequestParam(value = "selectedSeatsJson", required = false) String selectedSeatsJson,
             Model model, HttpServletRequest request) {
 
-        logger.info("Accessing pick-seat page with params: filmId={}, cinemaId={}, showtimeId={}, selectedDate={}, selectedSeatsJson={}",
+        logger.info(
+                "Accessing pick-seat page with params: filmId={}, cinemaId={}, showtimeId={}, selectedDate={}, selectedSeatsJson={}",
                 filmId, cinemaId, showtimeId, selectedDate, selectedSeatsJson);
 
         // Get user from session or SecurityContext
@@ -1344,16 +1333,15 @@ private UserReviewRepository userReviewRepository;
         List<SeatDTO> seats = seatService.getSeatsByRoomId(room.getRoomId());
         model.addAttribute("seats", seats);
 
-        // Nhóm ghế theo hàng và sắp xếp số ghế trong mỗi hàng
+        // Group seats by row and sort seat numbers within each row
         Map<String, List<SeatDTO>> seatsByRow = seats.stream()
                 .collect(Collectors.groupingBy(
                         SeatDTO::getSeatRow,
-                        TreeMap::new,  // Dùng TreeMap để đảm bảo thứ tự hàng A-Z
+                        TreeMap::new, // Use TreeMap to ensure row order A-Z
                         Collectors.collectingAndThen(Collectors.toList(), list -> {
-                            list.sort(Comparator.comparing(SeatDTO::getSeatNumber)); // Sắp xếp theo số ghế
+                            list.sort(Comparator.comparing(SeatDTO::getSeatNumber)); // Sort by seat number
                             return list;
-                        })
-                ));
+                        })));
 
         model.addAttribute("seatsByRow", seatsByRow);
 
@@ -1366,7 +1354,6 @@ private UserReviewRepository userReviewRepository;
         model.addAttribute("selectedDate", parsedDate);
         model.addAttribute("formattedDate", parsedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
-        // Thêm vào đây: Truyền selectedSeatsJson vào model nếu có
         if (selectedSeatsJson != null && !selectedSeatsJson.isEmpty()) {
             model.addAttribute("selectedSeatsJson", selectedSeatsJson);
         }
@@ -1374,20 +1361,18 @@ private UserReviewRepository userReviewRepository;
         return "pick-seat";
     }
 
-
     /**
-     * Trích xuất danh sách các hàng ghế duy nhất từ danh sách ghế
+     * Extract list of unique seat rows from the seat list
      */
     private List<String> distinctSeatRows(List<SeatDTO> seats) {
         return seats.stream()
-                .map(SeatDTO::getSeatRow)  // Lấy danh sách hàng ghế
-                .distinct()                // Loại bỏ trùng lặp
-                .sorted()                  // Sắp xếp theo thứ tự A-Z
+                .map(SeatDTO::getSeatRow)
+                .distinct()
+                .sorted()
                 .collect(Collectors.toList());
     }
 
-
-    // Helper method to convert Film to FilmDTO
+    // Convert Film to FilmDTO
     private FilmDTO convertToFilmDTO(Film film) {
         FilmDTO filmDTO = new FilmDTO();
         filmDTO.setFilmId(film.getFilmId());
@@ -1417,8 +1402,6 @@ private UserReviewRepository userReviewRepository;
         return filmDTO;
     }
 
-
-
     @GetMapping("/pick-popcorn")
     public String pickPopcorn(
             @RequestParam("filmId") Long filmId,
@@ -1429,7 +1412,8 @@ private UserReviewRepository userReviewRepository;
             @RequestParam(value = "selectedSeatsJson", required = false) String selectedSeatsJson,
             Model model, HttpServletRequest request) {
 
-        logger.info("Accessing pick-popcorn page with params: filmId={}, cinemaId={}, showtimeId={}, selectedDate={}, selectedSeatsJson={}",
+        logger.info(
+                "Accessing pick-popcorn page with params: filmId={}, cinemaId={}, showtimeId={}, selectedDate={}, selectedSeatsJson={}",
                 filmId, cinemaId, showtimeId, selectedDate, selectedSeatsJson);
 
         // Get user from session or SecurityContext
@@ -1453,7 +1437,7 @@ private UserReviewRepository userReviewRepository;
             logger.info("User found: {}", sessionUser.getUsername());
             model.addAttribute("user", sessionUser);
         }
-        // Đảm bảo selectedSeatsJson được truyền vào model
+        // Ensure selectedSeatsJson is passed into the model
         if (selectedSeatsJson != null && !selectedSeatsJson.isEmpty()) {
             model.addAttribute("selectedSeatsJson", selectedSeatsJson);
         }
@@ -1465,7 +1449,8 @@ private UserReviewRepository userReviewRepository;
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
                 List<Map<String, Object>> seatsList = objectMapper.readValue(selectedSeatsJson,
-                        new TypeReference<List<Map<String, Object>>>() {});
+                        new TypeReference<List<Map<String, Object>>>() {
+                        });
 
                 // Extract seat IDs and create SeatDTO objects
                 for (Map<String, Object> seatData : seatsList) {
@@ -1535,8 +1520,7 @@ private UserReviewRepository userReviewRepository;
         return "pick-popcorn";
     }
 
-
-    @GetMapping("/pick-payment-method")
+    @GetMapping("/pick-payment-method.css")
     public String pickPaymentMethod(
             @RequestParam("filmId") Long filmId,
             @RequestParam("cinemaId") Long cinemaId,
@@ -1548,11 +1532,14 @@ private UserReviewRepository userReviewRepository;
             @RequestParam(value = "comboSubtotal", defaultValue = "0.0") double comboSubtotal,
             Model model, HttpServletRequest request) {
 
-        logger.info("Accessing pick-payment-method page with params: filmId={}, cinemaId={}, showtimeId={}, selectedDate={}, " +
+        logger.info(
+                "Accessing pick-payment-method.css page with params: filmId={}, cinemaId={}, showtimeId={}, selectedDate={}, "
+                        +
                         "selectedSeatsJson={}, selectedCombosJson={}, ticketSubtotal={}, comboSubtotal={}",
-                filmId, cinemaId, showtimeId, selectedDate, selectedSeatsJson, selectedCombosJson, ticketSubtotal, comboSubtotal);
+                filmId, cinemaId, showtimeId, selectedDate, selectedSeatsJson, selectedCombosJson, ticketSubtotal,
+                comboSubtotal);
 
-        // Get user from session or SecurityContext (same as in pickPopcorn)
+        // Get user from session or SecurityContext
         HttpSession session = request.getSession(false);
         User sessionUser = (session != null) ? (User) session.getAttribute("user") : null;
 
@@ -1602,7 +1589,8 @@ private UserReviewRepository userReviewRepository;
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
                 List<Map<String, Object>> seatsList = objectMapper.readValue(selectedSeatsJson,
-                        new TypeReference<List<Map<String, Object>>>() {});
+                        new TypeReference<List<Map<String, Object>>>() {
+                        });
 
                 // Create SeatDTO objects
                 for (Map<String, Object> seatData : seatsList) {
@@ -1633,7 +1621,8 @@ private UserReviewRepository userReviewRepository;
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
                 selectedCombos = objectMapper.readValue(selectedCombosJson,
-                        new TypeReference<List<PopcornComboDTO>>() {});
+                        new TypeReference<List<PopcornComboDTO>>() {
+                        });
 
                 logger.info("Parsed selected combos: {}", selectedCombos);
             } catch (JsonProcessingException e) {
@@ -1673,9 +1662,8 @@ private UserReviewRepository userReviewRepository;
         model.addAttribute("selectedDate", parsedDate);
         model.addAttribute("formattedDate", parsedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
-        return "pick-payment-method";
+        return "pick-payment-method.css";
     }
-
 
     @Autowired
     private TicketService ticketService;
@@ -1686,9 +1674,8 @@ private UserReviewRepository userReviewRepository;
     @Autowired
     private SeatStatusService seatStatusService;
 
-
-@Autowired
-private OrderRepository orderRepository;
+    @Autowired
+    private OrderRepository orderRepository;
 
     @PostMapping("/create-order")
     @ResponseBody
@@ -1774,7 +1761,6 @@ private OrderRepository orderRepository;
                     Ticket ticket = new Ticket();
                     ticket.setSeat(seat);
                     ticket.setTicketPrice((double) ("Vip".equalsIgnoreCase(seatDTO.getSeatType()) ? 150000 : 100000));
-//                    ticket.setTicketPrice((double) seat.getPrice()); // Make sure to set the price
 
                     // Debug print
                     System.out.println("Creating ticket for seat: " + seat.getSeatId() + " label: " +
@@ -1790,7 +1776,8 @@ private OrderRepository orderRepository;
                     // Add seat ID to update list
                     seatIdsToUpdate.add(seat.getSeatId());
                 }
-                System.out.println("Created " + order.getTickets().size() + " tickets for " + selectedSeats.size() + " selected seats");
+                System.out.println("Created " + order.getTickets().size() + " tickets for " + selectedSeats.size()
+                        + " selected seats");
             }
 
             // Process combos in memory
@@ -1798,7 +1785,8 @@ private OrderRepository orderRepository;
                     !selectedCombosJson.equals("null") && !selectedCombosJson.equals("[]")) {
 
                 List<PopcornComboDTO> selectedCombos = parseCombosFromJson(selectedCombosJson);
-                System.out.println("Parsed " + (selectedCombos != null ? selectedCombos.size() : 0) + " combos from JSON");
+                System.out.println(
+                        "Parsed " + (selectedCombos != null ? selectedCombos.size() : 0) + " combos from JSON");
 
                 if (selectedCombos != null && !selectedCombos.isEmpty()) {
                     // Get all combos in ONE query
@@ -1826,12 +1814,14 @@ private OrderRepository orderRepository;
                         order.getPopcornOrders().add(popcornOrder);
                     }
 
-                    System.out.println("Created " + order.getPopcornOrders().size() + " popcorn orders for " + selectedCombos.size() + " selected combos");
+                    System.out.println("Created " + order.getPopcornOrders().size() + " popcorn orders for "
+                            + selectedCombos.size() + " selected combos");
                 }
             }
 
             // Save order with a single operation
-            System.out.println("Saving order with " + order.getTickets().size() + " tickets and " + order.getPopcornOrders().size() + " popcorn orders");
+            System.out.println("Saving order with " + order.getTickets().size() + " tickets and "
+                    + order.getPopcornOrders().size() + " popcorn orders");
             Order savedOrder = orderService.saveOrder(order);
             System.out.println("Order saved with ID: " + savedOrder.getOrderId());
 
@@ -1895,7 +1885,6 @@ private OrderRepository orderRepository;
         System.out.println("Finished parsing, found " + seats.size() + " valid seats");
         return seats;
     }
-
 
     private List<PopcornComboDTO> parseCombosFromJson(String selectedCombosJson) {
         List<PopcornComboDTO> combos = new ArrayList<>();
@@ -1966,7 +1955,6 @@ private OrderRepository orderRepository;
         return combos;
     }
 
-
     @GetMapping("/view-ticket/{orderId}")
     public String viewTicket(@PathVariable Long orderId, Model model, HttpServletRequest request) {
         // Add user to model (similar to the manageRooms method)
@@ -1986,7 +1974,7 @@ private OrderRepository orderRepository;
         model.addAttribute("cinema", order.getShowtime().getCinema());
         model.addAttribute("showtime", order.getShowtime());
 
-        return "view-ticket"; // This will use the view-ticket.html template
+        return "view-ticket";
     }
 
     /**
@@ -2002,7 +1990,6 @@ private OrderRepository orderRepository;
             Model model) throws IOException {
 
         // Add user to model (if needed for any processing)
-        // Note: For downloads, this might not be displayed but could be used for access control
         addUserToModel(model, request);
 
         // Default to first ticket if index not provided
@@ -2017,39 +2004,22 @@ private OrderRepository orderRepository;
 
         List<Ticket> tickets = new ArrayList<>(order.getTickets());
 
-        // Make sure the index is valid
         if (index < 0 || index >= tickets.size()) {
             index = 0;
         }
 
-
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=ticket-" + orderId + "-" + index + ".pdf");
 
-
-        // For this demo, we'll just write a placeholder text
         PrintWriter writer = response.getWriter();
         writer.println("This is a placeholder for ticket " + index + " of order " + orderId);
         writer.close();
     }
 
-
-
-
-
-
-
-
-    //----------------------------ADMIN PERMISSION------------------------------------------------------------------------------------------------
     @GetMapping("/welcome-admin")
     public String showWelcomeAdminPage(Model model, HttpServletRequest request) {
-        // Kiểm tra quyền ADMIN
-
-
-        // Thêm user vào model để Thymeleaf hiển thị trong header
         addUserToModel(model, request);
-
-        return "welcome-admin"; // Trả về file `welcome-admin.html`
+        return "welcome-admin";
     }
 
     @GetMapping("/manage-orders")
@@ -2081,11 +2051,6 @@ private OrderRepository orderRepository;
             model.addAttribute("user", sessionUser);
         }
 
-        // Check if user has admin role
-//        if (!userService.hasRole("ROLE_ADMIN")) {
-//            return "redirect:/access-denied";
-//        }
-
         // Create pageable object for database pagination
         Pageable pageable = PageRequest.of(page - 1, pageSize);
 
@@ -2093,7 +2058,6 @@ private OrderRepository orderRepository;
         Page<?> ordersPage;
 
         try {
-            // Only use search criteria if both searchCriteria and searchQuery are provided
             if (searchCriteria != null && !searchCriteria.isEmpty() && searchQuery != null && !searchQuery.isEmpty()) {
                 // Search based on selected criteria and query with pagination
                 ordersPage = orderService.searchOrdersByCriteriaPaginated(searchCriteria, searchQuery, pageable);
@@ -2130,9 +2094,7 @@ private OrderRepository orderRepository;
         return "manage-orders";
     }
 
-
-
-    @GetMapping("/manage-rooms")
+    @GetMapping("/manage-rooms.css")
     public String manageRooms(
             @RequestParam(required = false) String searchText,
             @RequestParam(required = false) String searchField,
@@ -2140,11 +2102,6 @@ private OrderRepository orderRepository;
             @RequestParam(required = false, defaultValue = "10") int pageSize,
             Model model,
             HttpServletRequest request) {
-
-        // Check if user has admin role
-//        if (!userService.hasRole("ROLE_ADMIN")) {
-//            return "redirect:/access-denied";
-//        }
 
         // Add user to model
         addUserToModel(model, request);
@@ -2172,8 +2129,7 @@ private OrderRepository orderRepository;
             Map<Long, Long> seatCounts = roomService.getSeatCountsForRooms(
                     roomsPage.getContent().stream()
                             .map(Room::getRoomId)
-                            .collect(Collectors.toList())
-            );
+                            .collect(Collectors.toList()));
 
             model.addAttribute("seatCounts", seatCounts);
             model.addAttribute("rooms", roomsPage.getContent());
@@ -2198,56 +2154,41 @@ private OrderRepository orderRepository;
         model.addAttribute("currentSearchText", searchText);
 
         // Add currPage attribute for sidebar active menu
-        model.addAttribute("currPage", "manage-rooms");
+        model.addAttribute("currPage", "manage-rooms.css");
 
-        return "manage-rooms";
+        return "manage-rooms.css";
     }
-
 
     @PostMapping("/delete-rooms")
     @Transactional
     public String deleteRooms(@RequestParam("roomIds") List<Long> roomIds,
                               RedirectAttributes redirectAttributes) {
-        // Check if user has admin role
-//        if (!userService.hasRole("ROLE_ADMIN")) {
-//            return "redirect:/access-denied";
-//        }
-
         try {
             int deletedCount = roomService.deleteRoomsByIds(roomIds);
             redirectAttributes.addFlashAttribute("successMessage",
                     deletedCount + " room(s) successfully deleted.");
 
-            // This will set the deleteSuccess variable directly in the model
             redirectAttributes.addFlashAttribute("deleteSuccess", true);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Error deleting rooms: " + e.getMessage());
         }
 
-        return "redirect:/manage-rooms";
+        return "redirect:/manage-rooms.css";
     }
-
 
     @GetMapping("/add-room")
     public String addRoomForm(Model model, HttpServletRequest request) {
-        // Check if user has admin role
-//        if (!userService.hasRole("ROLE_ADMIN")) {
-//            return "redirect:/access-denied";
-//        }
-
         // Add user to model
         addUserToModel(model, request);
 
         // Add necessary attributes for the form
         model.addAttribute("room", new Room());
         model.addAttribute("cinemas", cinemaService.getAllCinemas());
-        model.addAttribute("currPage", "manage-rooms");
+        model.addAttribute("currPage", "manage-rooms.css");
 
         return "addroom";
     }
-
-
 
     @PostMapping("/rooms/save")
     public String saveRoom(@Valid @ModelAttribute("room") Room room,
@@ -2275,15 +2216,9 @@ private OrderRepository orderRepository;
             model.addAttribute("user", sessionUser);
         }
 
-        // Check if user has admin role
-//        if (!userService.hasRole("ROLE_ADMIN")) {
-//            return "redirect:/access-denied";
-//        }
-
-        // Validate the input
         if (bindingResult.hasErrors()) {
             model.addAttribute("cinemas", cinemaService.getAllCinemas());
-            model.addAttribute("currPage", "manage-rooms");
+            model.addAttribute("currPage", "manage-rooms.css");
             return "addroom";
         }
 
@@ -2292,12 +2227,12 @@ private OrderRepository orderRepository;
             roomService.saveRoom(room);
             model.addAttribute("successMessage", "Success! Room has been added successfully.");
             model.addAttribute("cinemas", cinemaService.getAllCinemas());
-            model.addAttribute("currPage", "manage-rooms");
+            model.addAttribute("currPage", "manage-rooms.css");
             return "addroom";
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Failed to add room: " + e.getMessage());
             model.addAttribute("cinemas", cinemaService.getAllCinemas());
-            model.addAttribute("currPage", "manage-rooms");
+            model.addAttribute("currPage", "manage-rooms.css");
             return "addroom";
         }
     }
@@ -2306,11 +2241,6 @@ private OrderRepository orderRepository;
     public String showEditRoomForm(@RequestParam Long id,
                                    Model model,
                                    HttpServletRequest request) {
-        // Check if user has admin role
-//        if (!userService.hasRole("ROLE_ADMIN")) {
-//            return "redirect:/access-denied";
-//        }
-
         // Add user to model
         addUserToModel(model, request);
 
@@ -2318,18 +2248,12 @@ private OrderRepository orderRepository;
         Optional<Room> roomOptional = roomService.getRoomByIdWithDetails(id);
 
         if (roomOptional.isEmpty()) {
-            // Room not found, redirect with error message
-            return "redirect:/manage-rooms?error=Room+not+found";
+            return "redirect:/manage-rooms.css?error=Room+not+found";
         }
 
-        // Add room to the model
         model.addAttribute("room", roomOptional.get());
-
-        // Add cinemas for the dropdown (optimize by fetching only necessary fields)
         model.addAttribute("cinemas", cinemaService.getCinemasBasicInfo());
-
-        // Set current page for navigation
-        model.addAttribute("currPage", "manage-rooms");
+        model.addAttribute("currPage", "manage-rooms.css");
 
         return "editroom";
     }
@@ -2340,17 +2264,12 @@ private OrderRepository orderRepository;
                              RedirectAttributes redirectAttributes,
                              Model model,
                              HttpServletRequest request) {
-        // Check if user has admin role
-//        if (!userService.hasRole("ROLE_ADMIN")) {
-//            return "redirect:/access-denied";
-//        }
-
         // Add user to model
         addUserToModel(model, request);
 
-        // Add cinemas for the dropdown (needed if returning to the form page)
+        // Add cinemas for the dropdown
         model.addAttribute("cinemas", cinemaService.getCinemasBasicInfo());
-        model.addAttribute("currPage", "manage-rooms");
+        model.addAttribute("currPage", "manage-rooms.css");
 
         // Validate the input
         if (bindingResult.hasErrors()) {
@@ -2371,7 +2290,6 @@ private OrderRepository orderRepository;
             return "editroom";
         }
     }
-
 
     // Add this method to your controller
     private void addUserToModel(Model model, HttpServletRequest request) {
@@ -2395,12 +2313,10 @@ private OrderRepository orderRepository;
         }
     }
 
+    @Autowired
+    private CinemaClusterService cinemaClusterService;
 
-//--------------------------------MANAGE CINEMAS---------------------------------------
-@Autowired
-private CinemaClusterService cinemaClusterService;
-
-    @GetMapping("/manage-cinemas")
+    @GetMapping("/manage-cinemas.css")
     public String manageCinemas(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String complex,
@@ -2408,13 +2324,6 @@ private CinemaClusterService cinemaClusterService;
             @RequestParam(required = false, defaultValue = "10") int size,
             Model model,
             HttpServletRequest request) {
-
-        // Check if user has admin role
-//        if (!userService.hasRole("ROLE_ADMIN")) {
-//            return "redirect:/access-denied";
-//        }
-
-        // Add user to model
         addUserToModel(model, request);
 
         // Get all complexes for the dropdown filter
@@ -2462,13 +2371,10 @@ private CinemaClusterService cinemaClusterService;
         }
 
         // Add currPage attribute for sidebar active menu
-        model.addAttribute("currPage", "manage-cinemas");
+        model.addAttribute("currPage", "manage-cinemas.css");
 
-        return "manage-cinemas";
+        return "manage-cinemas.css";
     }
-
-//    private List<CinemaDTO> mapCinemasWithComplexInfo(List<Cinema> content) {
-//    }
 
     private List<CinemaDTO> mapCinemasWithComplexInfo(List<Cinema> cinemas) {
         return cinemas.stream().map(cinema -> {
@@ -2487,9 +2393,10 @@ private CinemaClusterService cinemaClusterService;
             return dto;
         }).collect(Collectors.toList());
     }
+
     private String getColorClassForCluster(CinemaCluster cluster) {
         // Implement a simple hash-based color assignment or a predefined mapping
-        String[] colors = {"blue", "green", "orange", "purple", "red"};
+        String[] colors = { "blue", "green", "orange", "purple", "red" };
         return colors[Math.abs(cluster.getClusterId().hashCode()) % colors.length];
     }
 
@@ -2497,10 +2404,6 @@ private CinemaClusterService cinemaClusterService;
     @Transactional
     public String deleteCinemas(@RequestParam("selectedIds") List<Long> cinemaIds,
                                 RedirectAttributes redirectAttributes) {
-        // Check if user has admin role
-//        if (!userService.hasRole("ROLE_ADMIN")) {
-//            return "redirect:/access-denied";
-//        }
 
         try {
             int deletedCount = cinemaService.deleteCinemasByIds(cinemaIds);
@@ -2511,16 +2414,11 @@ private CinemaClusterService cinemaClusterService;
                     "Error deleting cinemas: " + e.getMessage());
         }
 
-        return "redirect:/manage-cinemas";
+        return "redirect:/manage-cinemas.css";
     }
 
     @GetMapping("/cinemas/add")
     public String addCinemaForm(Model model, HttpServletRequest request) {
-        // Check if user has admin role
-//        if (!userService.hasRole("ROLE_ADMIN")) {
-//            return "redirect:/access-denied";
-//        }
-
         // Add user to model
         addUserToModel(model, request);
 
@@ -2528,7 +2426,7 @@ private CinemaClusterService cinemaClusterService;
         model.addAttribute("cinema", new Cinema());
         model.addAttribute("clusters", cinemaClusterService.getAllCinemaClusters());
         model.addAttribute("regions", regionService.getAllRegions());
-        model.addAttribute("currPage", "manage-cinemas");
+        model.addAttribute("currPage", "manage-cinemas.css");
 
         return "add-cinema";
     }
@@ -2538,11 +2436,6 @@ private CinemaClusterService cinemaClusterService;
                              BindingResult bindingResult,
                              Model model,
                              HttpServletRequest request) {
-        // Check if user has admin role
-//        if (!userService.hasRole("ROLE_ADMIN")) {
-//            return "redirect:/access-denied";
-//        }
-
         // Validate input fields
         if (cinema.getCinemaName() == null || cinema.getCinemaName().trim().isEmpty()) {
             bindingResult.rejectValue("cinemaName", "error.cinema", "Cinema name cannot be empty");
@@ -2567,7 +2460,7 @@ private CinemaClusterService cinemaClusterService;
             addUserToModel(model, request);
             model.addAttribute("clusters", cinemaClusterService.getAllCinemaClusters());
             model.addAttribute("regions", regionService.getAllRegions());
-            model.addAttribute("currPage", "manage-cinemas");
+            model.addAttribute("currPage", "manage-cinemas.css");
             return "add-cinema";
         }
 
@@ -2582,7 +2475,7 @@ private CinemaClusterService cinemaClusterService;
         model.addAttribute("cinema", new Cinema()); // Reset form with new cinema object
         model.addAttribute("clusters", cinemaClusterService.getAllCinemaClusters());
         model.addAttribute("regions", regionService.getAllRegions());
-        model.addAttribute("currPage", "manage-cinemas");
+        model.addAttribute("currPage", "manage-cinemas.css");
 
         return "add-cinema";
     }
@@ -2591,31 +2484,21 @@ private CinemaClusterService cinemaClusterService;
     public String showEditCinemaForm(@RequestParam Long id,
                                      Model model,
                                      HttpServletRequest request) {
-        // Check if user has admin role
-//        if (!userService.hasRole("ROLE_ADMIN")) {
-//            return "redirect:/access-denied";
-//        }
-
-        // Add user to model
         addUserToModel(model, request);
 
         // Get the cinema by ID with eager loading of necessary relations
         Optional<Cinema> cinemaOptional = cinemaService.getCinemaByIdWithDetails(id);
 
         if (cinemaOptional.isEmpty()) {
-            // Cinema not found, redirect with error message
-            return "redirect:/manage-cinemas?error=Cinema+not+found";
+            return "redirect:/manage-cinemas.css?error=Cinema+not+found";
         }
 
-        // Add cinema to the model
         model.addAttribute("cinema", cinemaOptional.get());
-
-        // Add cinema clusters and regions for the dropdown
         model.addAttribute("clusters", cinemaClusterService.getAllCinemaClusters());
         model.addAttribute("regions", regionService.getAllRegions());
 
         // Set current page for navigation
-        model.addAttribute("currPage", "manage-cinemas");
+        model.addAttribute("currPage", "manage-cinemas.css");
 
         return "edit-cinema";
     }
@@ -2627,18 +2510,13 @@ private CinemaClusterService cinemaClusterService;
                                RedirectAttributes redirectAttributes,
                                Model model,
                                HttpServletRequest request) {
-        // Đảm bảo ID của cinema khớp với PathVariable
+        // Ensure cinema ID matches the PathVariable
         cinema.setCinemaId(id);
 
-        // Check if user has admin role
-//        if (!userService.hasRole("ROLE_ADMIN")) {
-//            return "redirect:/access-denied";
-//        }
-
-        // Debug logging
         logger.debug("Cinema update requested: {}", cinema);
         logger.debug("Region ID received: {}", cinema.getRegion() != null ? cinema.getRegion().getRegionId() : "null");
-        logger.debug("Cluster ID received: {}", cinema.getCinemaCluster() != null ? cinema.getCinemaCluster().getClusterId() : "null");
+        logger.debug("Cluster ID received: {}",
+                cinema.getCinemaCluster() != null ? cinema.getCinemaCluster().getClusterId() : "null");
 
         // Get full region object by ID before validation
         if (cinema.getRegion() != null && cinema.getRegion().getRegionId() != null) {
@@ -2650,7 +2528,8 @@ private CinemaClusterService cinemaClusterService;
 
         // Get full cinema cluster object by ID before validation
         if (cinema.getCinemaCluster() != null && cinema.getCinemaCluster().getClusterId() != null) {
-            Optional<CinemaCluster> clusterOptional = cinemaClusterService.getCinemaClusterById(cinema.getCinemaCluster().getClusterId());
+            Optional<CinemaCluster> clusterOptional = cinemaClusterService
+                    .getCinemaClusterById(cinema.getCinemaCluster().getClusterId());
             if (clusterOptional.isPresent()) {
                 cinema.setCinemaCluster(clusterOptional.get());
             }
@@ -2659,15 +2538,12 @@ private CinemaClusterService cinemaClusterService;
         logger.debug("After retrieving complete objects - Cinema: {}", cinema);
         logger.debug("Binding errors: {}", bindingResult.getAllErrors());
 
-        // Add user to model
         addUserToModel(model, request);
 
-        // Add cinema clusters and regions for the dropdown (needed if returning to the form page)
         model.addAttribute("clusters", cinemaClusterService.getAllCinemaClusters());
         model.addAttribute("regions", regionService.getAllRegions());
-        model.addAttribute("currPage", "manage-cinemas");
+        model.addAttribute("currPage", "manage-cinemas.css");
 
-        // Simple validation - check required fields are not empty
         boolean hasCustomErrors = false;
 
         // Validate cinema name
@@ -2694,17 +2570,14 @@ private CinemaClusterService cinemaClusterService;
             hasCustomErrors = true;
         }
 
-        // Check if there are any errors (from @Valid annotation or custom validations)
         if (bindingResult.hasErrors() || hasCustomErrors) {
             model.addAttribute("errorMessage", "Please correct the errors in the form");
             return "edit-cinema";
         }
 
         try {
-            // Update the cinema
             cinemaService.updateCinema(cinema);
 
-            // Add success message and flag for overlay display
             model.addAttribute("successMessage", "Success! Cinema has been updated successfully.");
             model.addAttribute("showSuccessOverlay", true);
 
@@ -2716,105 +2589,93 @@ private CinemaClusterService cinemaClusterService;
         }
     }
 
+    @GetMapping("/manage-showtimes")
+    public String manageShowtimes(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String searchField,
+            @RequestParam(required = false) String cinemaId,
+            @RequestParam(required = false) String filmId,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "10") int size,
+            Model model,
+            HttpServletRequest request) {
+        addUserToModel(model, request);
 
-//-------------------------------------------------------SHOWTIMES---------------------------------------------------
-@GetMapping("/manage-showtimes")
-public String manageShowtimes(
-        @RequestParam(required = false) String search,
-        @RequestParam(required = false) String searchField,
-        @RequestParam(required = false) String cinemaId,
-        @RequestParam(required = false) String filmId,
-        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
-        @RequestParam(required = false, defaultValue = "1") int page,
-        @RequestParam(required = false, defaultValue = "10") int size,
-        Model model,
-        HttpServletRequest request) {
+        // Get all cinemas and films for the dropdown filters
+        List<Cinema> cinemas = cinemaService.getAllCinemas();
+        List<Film> films = filmService.getAllFilms();
+        model.addAttribute("cinemas", cinemas);
+        model.addAttribute("films", films);
 
-    // Check if user has admin role
-//    if (!userService.hasRole("ROLE_ADMIN")) {
-//        return "redirect:/access-denied";
-//    }
+        // Create pageable object for database pagination
+        Pageable pageable = PageRequest.of(page - 1, size);
 
-    // Add user to model
-    addUserToModel(model, request);
+        // Get showtimes with pagination
+        Page<Showtime> showtimesPage;
 
-    // Get all cinemas and films for the dropdown filters
-    List<Cinema> cinemas = cinemaService.getAllCinemas();
-    List<Film> films = filmService.getAllFilms();
-    model.addAttribute("cinemas", cinemas);
-    model.addAttribute("films", films);
-
-    // Create pageable object for database pagination
-    Pageable pageable = PageRequest.of(page - 1, size);
-
-    // Get showtimes with pagination
-    Page<Showtime> showtimesPage;
-
-    try {
-        if (search != null && !search.isEmpty()) {
-            // Search showtimes based on searchField
-            switch (searchField) {
-                case "film":
-                    showtimesPage = showtimeService.searchShowtimesByFilmNamePaginated(search, pageable);
-                    break;
-                case "cinema":
-                    showtimesPage = showtimeService.searchShowtimesByCinemaNamePaginated(search, pageable);
-                    break;
-                case "room":
-                    showtimesPage = showtimeService.searchShowtimesByRoomNamePaginated(search, pageable);
-                    break;
-                default:
-                    // "all" or any other value - search across all fields
-                    showtimesPage = showtimeService.searchShowtimesPaginated(search, pageable);
+        try {
+            if (search != null && !search.isEmpty()) {
+                // Search showtimes based on searchField
+                switch (searchField) {
+                    case "film":
+                        showtimesPage = showtimeService.searchShowtimesByFilmNamePaginated(search, pageable);
+                        break;
+                    case "cinema":
+                        showtimesPage = showtimeService.searchShowtimesByCinemaNamePaginated(search, pageable);
+                        break;
+                    case "room":
+                        showtimesPage = showtimeService.searchShowtimesByRoomNamePaginated(search, pageable);
+                        break;
+                    default:
+                        showtimesPage = showtimeService.searchShowtimesPaginated(search, pageable);
+                }
+                model.addAttribute("searchTerm", search);
+                model.addAttribute("searchField", searchField);
+            } else if (date != null) {
+                // Filter showtimes by date
+                showtimesPage = showtimeService.getShowtimesByDatePaginated(date, pageable);
+                model.addAttribute("selectedDate", new SimpleDateFormat("yyyy-MM-dd").format(date));
+                model.addAttribute("searchField", "date");
+            } else if (cinemaId != null && !cinemaId.isEmpty()) {
+                // Filter showtimes by cinema
+                showtimesPage = showtimeService.getShowtimesByCinemaPaginated(Long.parseLong(cinemaId), pageable);
+                model.addAttribute("selectedCinema", cinemaId);
+            } else if (filmId != null && !filmId.isEmpty()) {
+                // Filter showtimes by film
+                showtimesPage = showtimeService.getShowtimesByFilmPaginated(Long.parseLong(filmId), pageable);
+                model.addAttribute("selectedFilm", filmId);
+            } else {
+                // Get all showtimes with pagination
+                showtimesPage = showtimeService.getAllShowtimesPaginated(pageable);
+                model.addAttribute("searchField", "all");
             }
-            model.addAttribute("searchTerm", search);
-            model.addAttribute("searchField", searchField);
-        } else if (date != null) {
-            // Filter showtimes by date
-            showtimesPage = showtimeService.getShowtimesByDatePaginated(date, pageable);
-            model.addAttribute("selectedDate", new SimpleDateFormat("yyyy-MM-dd").format(date));
-            model.addAttribute("searchField", "date");
-        } else if (cinemaId != null && !cinemaId.isEmpty()) {
-            // Filter showtimes by cinema
-            showtimesPage = showtimeService.getShowtimesByCinemaPaginated(Long.parseLong(cinemaId), pageable);
-            model.addAttribute("selectedCinema", cinemaId);
-        } else if (filmId != null && !filmId.isEmpty()) {
-            // Filter showtimes by film
-            showtimesPage = showtimeService.getShowtimesByFilmPaginated(Long.parseLong(filmId), pageable);
-            model.addAttribute("selectedFilm", filmId);
-        } else {
-            // Get all showtimes with pagination
-            showtimesPage = showtimeService.getAllShowtimesPaginated(pageable);
-            model.addAttribute("searchField", "all");
+
+            List<ShowtimeDTO> showtimeDTOs = mapShowtimesWithDetails(showtimesPage.getContent());
+
+            model.addAttribute("showtimes", showtimeDTOs);
+
+            // Add pagination parameters
+            model.addAttribute("currentPage", page);
+            model.addAttribute("pageSize", size);
+            model.addAttribute("totalShowtimes", showtimesPage.getTotalElements());
+            model.addAttribute("totalPages", showtimesPage.getTotalPages());
+            model.addAttribute("pageSizes", Arrays.asList(5, 10, 20, 50));
+
+        } catch (Exception e) {
+            model.addAttribute("showtimes", new ArrayList<>());
+            model.addAttribute("errorMessage", "Error fetching showtimes: " + e.getMessage());
+            model.addAttribute("currentPage", 1);
+            model.addAttribute("pageSize", size);
+            model.addAttribute("totalShowtimes", 0);
+            model.addAttribute("totalPages", 0);
         }
 
-        List<ShowtimeDTO> showtimeDTOs = mapShowtimesWithDetails(showtimesPage.getContent());
+        // Add currPage attribute for sidebar active menu
+        model.addAttribute("currPage", "manage-showtimes");
 
-        model.addAttribute("showtimes", showtimeDTOs);
-
-        // Add pagination parameters
-        model.addAttribute("currentPage", page);
-        model.addAttribute("pageSize", size);
-        model.addAttribute("totalShowtimes", showtimesPage.getTotalElements());
-        model.addAttribute("totalPages", showtimesPage.getTotalPages());
-        model.addAttribute("pageSizes", Arrays.asList(5, 10, 20, 50));
-
-    } catch (Exception e) {
-        model.addAttribute("showtimes", new ArrayList<>());
-        model.addAttribute("errorMessage", "Error fetching showtimes: " + e.getMessage());
-        model.addAttribute("currentPage", 1);
-        model.addAttribute("pageSize", size);
-        model.addAttribute("totalShowtimes", 0);
-        model.addAttribute("totalPages", 0);
+        return "manage-showtime";
     }
-
-    // Add currPage attribute for sidebar active menu
-    model.addAttribute("currPage", "manage-showtimes");
-
-    return "manage-showtime";
-}
-
-// Các phương thức khác giữ nguyên
 
     private List<ShowtimeDTO> mapShowtimesWithDetails(List<Showtime> showtimes) {
         return showtimes.stream().map(showtime -> {
@@ -2845,16 +2706,11 @@ public String manageShowtimes(
         }).collect(Collectors.toList());
     }
 
-    // In ShowtimeController.java
     @PostMapping("/showtimes/delete")
     @Transactional
     public String deleteShowtimes(@RequestParam("selectedIds") List<Long> showtimeIds,
                                   RedirectAttributes redirectAttributes,
                                   @RequestParam(value = "showSuccessModal", required = false) Boolean showSuccessModal) {
-        // Check if user has admin role
-//        if (!userService.hasRole("ROLE_ADMIN")) {
-//            return "redirect:/access-denied";
-//        }
 
         try {
             int deletedCount = showtimeService.deleteShowtimesByIds(showtimeIds);
@@ -2873,12 +2729,6 @@ public String manageShowtimes(
 
     @GetMapping("/showtimes/add")
     public String addShowtimeForm(Model model, HttpServletRequest request) {
-        // Check if user has admin role
-//        if (!userService.hasRole("ROLE_ADMIN")) {
-//            return "redirect:/access-denied";
-//        }
-
-        // Add user to model
         addUserToModel(model, request);
 
         // Add necessary attributes for the form
@@ -2896,9 +2746,6 @@ public String manageShowtimes(
                                BindingResult bindingResult,
                                Model model,
                                HttpServletRequest request) {
-        // Check if user has admin role
-//
-
         // Validate input fields
         if (showtime.getFilm() == null || showtime.getFilm().getFilmId() == null) {
             bindingResult.rejectValue("film", "error.showtime", "Film must be selected");
@@ -2931,13 +2778,10 @@ public String manageShowtimes(
             return "add-showtime";
         }
 
-        // Save the showtime
         showtimeService.saveShowtime(showtime);
 
-        // Add success message to the same page to show the overlay
         model.addAttribute("successMessage", "Showtime has been added successfully.");
 
-        // Return to the same page to show the success overlay
         addUserToModel(model, request);
         model.addAttribute("showtime", new Showtime()); // Reset form with new showtime object
         model.addAttribute("films", filmService.getAllFilms());
@@ -2952,28 +2796,18 @@ public String manageShowtimes(
     public String showEditShowtimeForm(@PathVariable("id") Long id,
                                        Model model,
                                        HttpServletRequest request) {
-        // Check if user has admin role
-
-
-        // Add user to model
         addUserToModel(model, request);
 
         // Get the showtime by ID with eager loading of necessary relations
         Optional<Showtime> showtimeOptional = showtimeService.getShowtimeByIdWithDetails(id);
 
         if (showtimeOptional.isEmpty()) {
-            // Showtime not found, redirect with error message
             return "redirect:/manage-showtimes?error=Showtime+not+found";
         }
 
         Showtime showtime = showtimeOptional.get();
-        // Create a DTO or ensure entity is properly prepared for form binding
-        // This avoids the direct binding of complex objects like Film entities
 
-        // Add showtime to the model
         model.addAttribute("showtime", showtime);
-
-        // Add films, cinemas, and rooms for the dropdowns
         model.addAttribute("films", filmService.getAllFilms());
         model.addAttribute("cinemas", cinemaService.getAllCinemas());
         model.addAttribute("rooms", roomService.getAllRooms());
@@ -3062,15 +2896,10 @@ public String manageShowtimes(
             Model model,
             HttpServletRequest request) {
 
-        // Check if user has admin role
-
-        // Add user to model
         addUserToModel(model, request);
 
-        // Create pageable object for database pagination
         Pageable pageable = PageRequest.of(page - 1, pageSize);
 
-        // Get users with pagination directly from database
         Page<User> usersPage;
 
         try {
@@ -3123,11 +2952,9 @@ public String manageShowtimes(
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // Extract user ID and new role from request
             Long userId = Long.parseLong(payload.get("userId").toString());
             String newRole = payload.get("role").toString();
 
-            // Log the request for debugging
             logger.info("Role update request received - userId: {}, newRole: {}", userId, newRole);
 
             // Get current authenticated user for logging
@@ -3136,8 +2963,6 @@ public String manageShowtimes(
                     auth.getName(),
                     auth.getAuthorities().stream().map(a -> a.getAuthority()).collect(Collectors.joining(", ")));
 
-            // Validate that current user has admin privileges
-            // Chỉ kiểm tra vai trò "ADMIN" (không có tiền tố ROLE_)
             if (!userService.hasRole("ADMIN")) {
                 logger.warn("Unauthorized role update attempt by user: {}", auth.getName());
                 response.put("success", false);
@@ -3154,7 +2979,6 @@ public String manageShowtimes(
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
 
-            // Update user role
             User user = userOptional.get();
             userService.updateUserRole(user, newRole);
 
@@ -3171,23 +2995,18 @@ public String manageShowtimes(
         }
     }
 
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+        logger.info("User logging out");
 
+        session.invalidate();
 
+        Cookie cookie = new Cookie("JSESSIONID", null);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
 
-@GetMapping("/logout")
-public String logout(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
-    logger.info("User logging out");
-
-    // Xóa tất cả session attributes và hủy session hiện tại
-    session.invalidate();
-
-    // Xóa JSESSIONID cookie để tránh các vấn đề về session fixation
-    Cookie cookie = new Cookie("JSESSIONID", null);
-    cookie.setPath("/");
-    cookie.setHttpOnly(true);
-    cookie.setMaxAge(0);  // Xóa cookie ngay lập tức
-    response.addCookie(cookie);
-
-    // Chuyển hướng người dùng về trang login với thông báo logout thành công
-    return "redirect:/login?logout";
-}}
+        return "redirect:/login?logout";
+    }
+}

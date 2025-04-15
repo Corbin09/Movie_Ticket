@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,275 +8,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
     <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
-    <style>
-        :root {
-            --primary-color: #3498db;
-            --secondary-color: #2c3e50;
-            --error-color: #e74c3c;
-            --success-color: #2ecc71;
-            --light-gray: #f5f5f5;
-            --border-gray: #ddd;
-            --text-color: #333;
-        }
-
-        body {
-            font-family: 'Roboto', Arial, sans-serif;
-            background-color: #f8f9fa;
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-        }
-
-        .screen {
-            display: none;
-            padding: 20px;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        .form-container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 30px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            color: var(--secondary-color);
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--secondary-color);
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-gray);
-            border-radius: 4px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-            box-sizing: border-box;
-        }
-
-        input:focus, select:focus {
-            border-color: var(--primary-color);
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-        }
-
-        input[type="date"], input[type="time"] {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-position: right 10px center;
-            background-repeat: no-repeat;
-            cursor: pointer;
-        }
-
-        .select-wrapper {
-            position: relative;
-        }
-
-        .select-wrapper i {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--secondary-color);
-            pointer-events: none;
-        }
-
-        .error {
-            color: var(--error-color);
-            font-size: 14px;
-            margin-top: 5px;
-            display: block;
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 30px;
-        }
-
-        .cancel-btn, .submit-btn {
-            padding: 12px 24px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            text-align: center;
-            transition: all 0.3s;
-            text-decoration: none;
-        }
-
-        .cancel-btn {
-            background-color: #f1f2f6;
-            color: var(--secondary-color);
-            border: 1px solid var(--border-gray);
-        }
-
-        .submit-btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-        }
-
-        .cancel-btn:hover {
-            background-color: #dfe4ea;
-        }
-
-        .submit-btn:hover {
-            background-color: #2980b9;
-            transform: translateY(-1px);
-        }
-
-        /* Invalid field styling */
-        input.invalid, select.invalid {
-            border-color: var(--error-color);
-            background-color: rgba(231, 76, 60, 0.05);
-        }
-
-        .field-error {
-            color: var(--error-color);
-            font-size: 14px;
-            margin-top: 5px;
-            display: block;
-        }
-
-        /* Success Overlay Styling */
-        .overlay-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .overlay-box {
-            background-color: white;
-            border-radius: 8px;
-            padding: 40px;
-            width: 500px;
-            max-width: 90%;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            animation: scaleIn 0.3s ease;
-        }
-
-        .overlay-icon {
-            margin-bottom: 20px;
-        }
-
-        .overlay-icon img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-        }
-
-        .overlay-title {
-            color: var(--success-color);
-            font-size: 24px;
-            margin-bottom: 15px;
-        }
-
-        .overlay-text {
-            color: #666;
-            font-size: 16px;
-            margin-bottom: 30px;
-        }
-
-        .overlay-btn {
-            display: inline-block;
-            padding: 12px 24px;
-            margin: 0 10px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .overlay-btn-success {
-            background-color: var(--success-color);
-            color: white;
-        }
-
-        .overlay-btn-back {
-            background-color: #f5f5f5;
-            color: #333;
-        }
-
-        .overlay-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes scaleIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        /* Flatpickr Customization */
-        .flatpickr-input {
-            background-color: white;
-            cursor: pointer;
-        }
-
-        .flatpickr-calendar {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            border-radius: 6px;
-            border: none;
-        }
-
-        .flatpickr-time input:hover,
-        .flatpickr-time .flatpickr-am-pm:hover,
-        .flatpickr-time input:focus,
-        .flatpickr-time .flatpickr-am-pm:focus {
-            background: #e2f0ff;
-        }
-
-        .flatpickr-day.selected {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .time-picker-container {
-            position: relative;
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/add-showtime.css}">
 </head>
+
 <body>
 
 <div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
-<!-- Add Showtime Screen -->
+
 <section id="add-showtime-screen" class="screen active">
     <div class="form-container">
         <h2>Add Showtime</h2>
@@ -286,10 +25,9 @@
                 <div class="select-wrapper">
                     <select id="film-select" name="film.filmId" required>
                         <option value="">Select Film</option>
-                        <option th:each="film : ${films}"
-                                th:value="${film.filmId}"
-                                th:text="${film.filmName}"
-                                th:selected="${showtime.film != null && film.filmId == showtime.film.filmId}">Film Title</option>
+                        <option th:each="film : ${films}" th:value="${film.filmId}" th:text="${film.filmName}"
+                                th:selected="${showtime.film != null && film.filmId == showtime.film.filmId}">Film Title
+                        </option>
                     </select>
                     <i class="fas fa-chevron-down"></i>
                 </div>
@@ -301,10 +39,10 @@
                 <div class="select-wrapper">
                     <select id="cinema-select" name="cinema.cinemaId" required>
                         <option value="">Select Cinema</option>
-                        <option th:each="cinema : ${cinemas}"
-                                th:value="${cinema.cinemaId}"
+                        <option th:each="cinema : ${cinemas}" th:value="${cinema.cinemaId}"
                                 th:text="${cinema.cinemaName}"
-                                th:selected="${showtime.cinema != null && cinema.cinemaId == showtime.cinema.cinemaId}">Cinema Name</option>
+                                th:selected="${showtime.cinema != null && cinema.cinemaId == showtime.cinema.cinemaId}">
+                            Cinema Name</option>
                     </select>
                     <i class="fas fa-chevron-down"></i>
                 </div>
@@ -316,11 +54,10 @@
                 <div class="select-wrapper">
                     <select id="room-select" name="room.roomId" required>
                         <option value="">Select Room</option>
-                        <option th:each="room : ${rooms}"
-                                th:value="${room.roomId}"
-                                th:text="${room.roomName}"
+                        <option th:each="room : ${rooms}" th:value="${room.roomId}" th:text="${room.roomName}"
                                 th:attr="data-cinema-id=${room.cinema.cinemaId}"
-                                th:selected="${showtime.room != null && room.roomId == showtime.room.roomId}">Room Name</option>
+                                th:selected="${showtime.room != null && room.roomId == showtime.room.roomId}">Room Name
+                        </option>
                     </select>
                     <i class="fas fa-chevron-down"></i>
                 </div>
@@ -331,8 +68,8 @@
             <div class="form-group">
                 <label for="show-date-display">Show Date</label>
                 <input type="text" id="show-date-display" placeholder="Select date" required>
-                <!-- Hidden field for actual date value in the required format -->
-                <input type="hidden" id="show-date" name="showDate" th:value="${showtime.showDate != null ? #dates.format(showtime.showDate, 'MM/dd/yyyy') : ''}">
+                <input type="hidden" id="show-date" name="showDate"
+                       th:value="${showtime.showDate != null ? #dates.format(showtime.showDate, 'MM/dd/yyyy') : ''}">
                 <span class="error" th:if="${#fields.hasErrors('showDate')}" th:errors="*{showDate}"></span>
             </div>
 
@@ -342,7 +79,6 @@
                 <div class="time-picker-container">
                     <!-- Visible input for time display -->
                     <input type="text" id="show-time-display" placeholder="Select time" required>
-                    <!-- Hidden field for actual time value in the required format -->
                     <input type="hidden" id="show-time" name="showTime" th:value="${showtime.showTime}">
                     <span class="error" th:if="${#fields.hasErrors('showTime')}" th:errors="*{showTime}"></span>
                 </div>
@@ -369,10 +105,9 @@
     </div>
 </div>
 
-<!-- JavaScript for validation and dynamic room loading -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
 <script th:inline="javascript">
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Date picker with flatpickr for better format control
         const dateDisplayInput = document.getElementById('show-date-display');
         const dateHiddenInput = document.getElementById('show-date');
@@ -382,8 +117,7 @@
             dateFormat: "m/d/Y", // MM/DD/YYYY format for Java's SimpleDateFormat
             minDate: "today",
             defaultDate: dateHiddenInput.value || null,
-            onChange: function(selectedDates, dateStr) {
-                // Format date as MM/dd/yyyy for Java's SimpleDateFormat
+            onChange: function (selectedDates, dateStr) {
                 const date = selectedDates[0];
                 const month = String(date.getMonth() + 1).padStart(2, '0');
                 const day = String(date.getDate()).padStart(2, '0');
@@ -393,7 +127,6 @@
                 dateHiddenInput.value = formattedDate;
                 dateDisplayInput.classList.remove('invalid');
 
-                // Remove error message if exists
                 const errorElement = dateDisplayInput.parentNode.querySelector('.field-error');
                 if (errorElement) {
                     errorElement.remove();
@@ -401,7 +134,6 @@
             }
         });
 
-        // Set initial date value if exists
         if (dateHiddenInput.value) {
             dateDisplayInput.value = dateHiddenInput.value;
         }
@@ -418,8 +150,7 @@
             time_24hr: true,
             defaultDate: timeHiddenInput.value || null,
             minuteIncrement: 5,
-            onChange: function(selectedDates, timeStr) {
-                // Ensure the format is HH:MM:SS with leading zeros
+            onChange: function (selectedDates, timeStr) {
                 const time = selectedDates[0];
                 const hours = String(time.getHours()).padStart(2, '0');
                 const minutes = String(time.getMinutes()).padStart(2, '0');
@@ -429,7 +160,6 @@
                 timeHiddenInput.value = formattedTime;
                 timeDisplayInput.classList.remove('invalid');
 
-                // Remove error message if exists
                 const errorElement = timeDisplayInput.parentNode.querySelector('.field-error');
                 if (errorElement) {
                     errorElement.remove();
@@ -437,7 +167,6 @@
             }
         });
 
-        // Set initial time value if exists
         if (timeHiddenInput.value) {
             timeDisplayInput.value = timeHiddenInput.value;
         }
@@ -448,15 +177,13 @@
         const allRooms = Array.from(roomSelect.options).slice(1); // Skip the placeholder option
 
         // Filter rooms based on selected cinema
-        cinemaSelect.addEventListener('change', function() {
+        cinemaSelect.addEventListener('change', function () {
             const selectedCinemaId = this.value;
 
-            // Remove all options except placeholder
             while (roomSelect.options.length > 1) {
                 roomSelect.remove(1);
             }
 
-            // If no cinema selected, stop here
             if (!selectedCinemaId) {
                 return;
             }
@@ -470,10 +197,9 @@
             });
         });
 
-        // Form validation
         const form = document.getElementById('add-showtime-form');
 
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
             let isValid = true;
 
             // Check if date is selected
@@ -481,7 +207,6 @@
                 dateDisplayInput.classList.add('invalid');
                 isValid = false;
 
-                // Add error message if not exists
                 let errorSpan = dateDisplayInput.nextElementSibling;
                 if (!errorSpan || !errorSpan.classList.contains('field-error')) {
                     errorSpan = document.createElement('span');
@@ -502,7 +227,6 @@
                 timeDisplayInput.classList.add('invalid');
                 isValid = false;
 
-                // Add error message if not exists
                 let container = document.querySelector('.time-picker-container');
                 let errorSpan = container.querySelector('.field-error');
                 if (!errorSpan) {
@@ -526,7 +250,6 @@
                     select.classList.add('invalid');
                     isValid = false;
 
-                    // Add error message if not exists
                     let errorSpan = select.nextElementSibling;
                     if (!errorSpan || !errorSpan.classList.contains('field-error')) {
                         errorSpan = document.createElement('span');
@@ -549,5 +272,6 @@
         });
     });
 </script>
+
 </body>
 </html>

@@ -1,9 +1,6 @@
 package Se2.MovieTicket.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,7 +17,6 @@ import java.util.Set;
 @Setter
 @ToString(exclude = {"film", "room", "cinema", "seatStatuses", "orders"})
 @EqualsAndHashCode(exclude = {"film", "room", "cinema", "seatStatuses", "orders"})
-//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "showtimeId")
 public class Showtime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,6 +51,7 @@ public class Showtime {
     @OneToMany(mappedBy = "showtime", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Order> orders = new HashSet<>();
 
+    // Getters and setters
     public Long getShowtimeId() {
         return showtimeId;
     }
@@ -115,7 +112,6 @@ public class Showtime {
         return orders;
     }
 
-    // Important: Add this method to merge existing orders
     public void setOrders(Set<Order> orders) {
         this.orders.clear();
         if (orders != null) {
@@ -138,9 +134,6 @@ public class Showtime {
     }
 
     public void setCinemaId(Long cinemaId) {
-//        if (this.cinema == null) {
-//            this.cinema = new Cinema();
-//        }
         this.cinema.setCinemaId(cinemaId);
     }
 }

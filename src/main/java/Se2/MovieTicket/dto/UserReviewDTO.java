@@ -11,9 +11,10 @@ public class UserReviewDTO {
     private String comments;
     private Integer star;
     private Date datePosted;
-    private String username;  // Thêm trường này
-    private String userAvatar;  // Thêm trường này
+    private String username;
+    private String userAvatar;
 
+    // Getters and setters
     public Long getUserId() {
         return userId;
     }

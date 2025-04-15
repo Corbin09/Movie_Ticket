@@ -7,6 +7,7 @@ import Se2.MovieTicket.model.UserLikeFilmId;
 import Se2.MovieTicket.repository.FilmRepository;
 import Se2.MovieTicket.repository.UserLikeFilmRepository;
 import Se2.MovieTicket.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,7 +85,6 @@ public class UserLikeFilmService {
      */
     @Transactional
     public UserLikeFilm addUserLikeFilm(Long userId, Long filmId) {
-        // Check if already exists
         if (doesUserLikeFilm(userId, filmId)) {
             throw new RuntimeException("User already likes this film");
         }
@@ -125,8 +125,6 @@ public class UserLikeFilmService {
 
         return false;
     }
-
-
 
     public boolean hasUserLikedFilm(Long userId, Long filmId) {
         UserLikeFilmId id = new UserLikeFilmId(userId, filmId);
@@ -173,10 +171,8 @@ public class UserLikeFilmService {
         return userLikeFilmRepository.countByFilmFilmId(filmId);
     }
 
-
-public boolean checkUserLikedFilm(Long userId, Long filmId) {
-    UserLikeFilmId id = new UserLikeFilmId(userId, filmId);
-    return userLikeFilmRepository.existsById(id);
-}
-
+    public boolean checkUserLikedFilm(Long userId, Long filmId) {
+        UserLikeFilmId id = new UserLikeFilmId(userId, filmId);
+        return userLikeFilmRepository.existsById(id);
+    }
 }

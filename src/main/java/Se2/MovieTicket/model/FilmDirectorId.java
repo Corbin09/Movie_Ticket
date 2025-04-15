@@ -16,6 +16,7 @@ public class FilmDirectorId implements Serializable {
     private Long filmId;
     private Long directorId;
 
+    // Getters and setters
     public Long getFilmId() {
         return filmId;
     }

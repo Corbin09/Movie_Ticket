@@ -4,6 +4,7 @@ import Se2.MovieTicket.dto.SeatDTO;
 import Se2.MovieTicket.model.Seat;
 import Se2.MovieTicket.service.SeatService;
 import Se2.MovieTicket.service.UserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

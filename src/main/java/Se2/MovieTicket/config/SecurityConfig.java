@@ -3,7 +3,6 @@ package Se2.MovieTicket.config;
 import Se2.MovieTicket.repository.UserRepository;
 import Se2.MovieTicket.service.CustomUserDetailsService;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
@@ -13,7 +12,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -23,9 +21,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
 
-import java.io.IOException;
 import Se2.MovieTicket.model.User;
-import Se2.MovieTicket.service.UserService;
 import java.util.Optional;
 
 @Configuration
@@ -38,25 +34,14 @@ public class SecurityConfig {
     @Autowired
     private UserRepository userRepository;
 
-
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        // Các trang công khai
                         .requestMatchers("/", "/chart.html", "/login",  "/register", "/css/**", "/js/**").permitAll()
-
-                        // Các trang dành cho USER
-                        .requestMatchers( "/home", "/detail-actor/**", "/detail-director/**", "/news/**", "/View-movie-ticket/**", "/showtime**", "/create-order", "/view-ticket", "/detail-movie/**", "/user-dashboard", "/profile", "/pick-seat", "pick-payment-method/**", "/user-tickets/**").hasRole("USER")
-
-                        // Các trang dành cho ADMIN
-                        .requestMatchers( "showtimes/**", "/users/update-role/**",  "/manage-showtimes/**", "/manage-cinema/**", "/cinemas/save", "cinemas/edit/**",  "/cinemas/**", "/welcome-admin", "/admin-dashboard", "/reports/**", "/manage-users", "/manage-orders/**", "/manage-rooms/**", "/delete-rooms").hasRole("ADMIN")
-
-                        // Các trang chung cho cả USER và ADMIN
+                        .requestMatchers( "/home", "/detail-actor/**", "/detail-director/**", "/news/**", "/View-movie-ticket/**", "/showtime**", "/create-order", "/view-ticket", "/detail-movie/**", "/user-dashboard", "/profile", "/pick-seat", "pick-payment-method.css/**", "/user-tickets/**").hasRole("USER")
+                        .requestMatchers( "showtimes/**", "/users/update-role/**",  "/manage-showtimes/**", "/manage-cinema/**", "/cinemas/save", "cinemas/edit/**",  "/cinemas/**", "/welcome-admin", "/admin-dashboard", "/reports/**", "/manage-users", "/manage-orders/**", "/manage-rooms.css/**", "/delete-rooms").hasRole("ADMIN")
                         .requestMatchers("/account").hasAnyRole("USER", "ADMIN")
-
-                        // Các request khác cần xác thực
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -64,9 +49,9 @@ public class SecurityConfig {
                         .successHandler(authenticationSuccessHandler())
                         .permitAll()
                 )
-                // Add CSRF configuration here
+                // Add CSRF configuration
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/**") // If you have any API endpoints that need CSRF disabled
+                        .ignoringRequestMatchers("/api/**")
                 );
 
         return http.build();
@@ -78,21 +63,21 @@ public class SecurityConfig {
             String username = authentication.getName();
             System.out.println("✅ Đăng nhập thành công cho user: " + username);
 
-            // Lưu user vào session
+            // Save user to session
             HttpSession session = request.getSession();
             session.setAttribute("username", username);
 
-            // Lấy thông tin user từ UserRepository
+            // Get user information from UserRepository
             Optional<User> userOptional = userRepository.findByUsername(username);
             userOptional.ifPresent(user -> session.setAttribute("user", user));
 
-            // Điều hướng dựa trên vai trò
+            // Navigate based on role
             if (authentication.getAuthorities().stream()
                     .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
-                response.sendRedirect("/welcome-admin"); // Trang khởi đầu cho ADMIN
+                response.sendRedirect("/welcome-admin");
             } else if (authentication.getAuthorities().stream()
                     .anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"))) {
-                response.sendRedirect("/home"); // Trang khởi đầu cho USER
+                response.sendRedirect("/home");
             } else {
                 response.sendRedirect("/index");
             }

@@ -10,6 +10,7 @@ public class TicketDTO {
     private Long showtimeId;
     private Double ticketPrice;
 
+    // Getters and setters
     public Long getTicketId() {
         return ticketId;
     }

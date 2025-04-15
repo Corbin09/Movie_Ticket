@@ -14,6 +14,7 @@
 <!-- Header -->
 <div th:replace="fragments/header_user :: header"></div>
 <div style="height: 132px;" class="adding-margin"></div>
+
 <section class="latest-news">
   <h2>LATEST NEWS</h2>
   <div class="news-container">
@@ -24,8 +25,8 @@
       <h3 th:text="${news.newsFooter}"></h3>-->
       <!-- Manual date formatting -->
       <div class="news-ps">
-      <span th:text="'Date: ' + ${#temporals.format(news.newsTime, 'dd/MM/yyyy HH:mm:ss')}"></span>
-      <span th:text="'Write by: ' + ${news.user.username}"></span>
+        <span th:text="'Date: ' + ${#temporals.format(news.newsTime, 'dd/MM/yyyy HH:mm:ss')}"></span>
+        <span th:text="'Write by: ' + ${news.user.username}"></span>
       </div>
     </div>
     <div class="news-list">
@@ -34,7 +35,8 @@
           <img th:src="${review.newsImg}" alt="Review Image">
           <div class="review-metadata">
             <p th:text="${review.newsHeader}"></p>
-            <span th:text="'Date: ' + ${#temporals.format(review.newsTime, 'dd/MM/yyyy HH:mm:ss')}"></span>
+            <span
+                    th:text="'Date: ' + ${#temporals.format(review.newsTime, 'dd/MM/yyyy HH:mm:ss')}"></span>
             <span th:text="'Written by: ' + ${review.user.username}"></span>
           </div>
         </a>
@@ -48,9 +50,11 @@
   <div class="movie-grid">
     <div th:each="movie : ${vnMovies}" class="movie-card">
       <a th:href="@{'/detail-movie?id=' + ${movie.filmId}}">
-        <img th:src="${movie.filmImg}" th:alt="${movie.filmName}" class="movie-poster"/>
+        <img th:src="${movie.filmImg}" th:alt="${movie.filmName}" class="movie-poster" />
         <div class="movie-info">
-          <p th:text="${#lists.isEmpty(movie.categoryNames) ? 'N/A' : #strings.arrayJoin(movie.categoryNames, ', ')}"></p>
+          <p
+                  th:text="${#lists.isEmpty(movie.categoryNames) ? 'N/A' : #strings.arrayJoin(movie.categoryNames, ', ')}">
+          </p>
           <p th:text="${movie.formattedReleaseDate}"></p>
           <p th:text="${movie.filmName}"></p>
         </div>
@@ -59,25 +63,20 @@
   </div>
 </section>
 
+<!-- Pagination for Vietnamese movie list -->
 <div class="pagination-container" th:if="${vnPages > 0}">
   <div class="pagination">
 
-    <!-- Nút Previous - luôn hiển thị nhưng disabled nếu ở trang đầu -->
-    <a th:href="${currentVnPage > 1} ? @{'/news?vnPage=' + (${currentVnPage - 1}) + '&intPage=' + ${currentIntPage}} : '#'"
-       class="page-item prev-page"
-       th:classappend="${currentVnPage == 1} ? 'disabled' : ''">&laquo;</a>
+    <a th:if="${currentVnPage > 1}" th:href="@{'/news?vnPage=' + (${currentVnPage - 1})}"
+       class="page-item prev-page">&laquo;</a>
+    <span th:if="${currentVnPage == 1}" class="page-item prev-page disabled">&laquo;</span>
 
-    <!-- Các trang (loop) -->
-    <a th:each="page : ${#numbers.sequence(1, vnPages)}"
-       th:href="@{'/news?vnPage=' + ${page} + '&intPage=' + ${currentIntPage}}"
-       class="page-item"
-       th:classappend="${currentVnPage == page} ? 'active' : ''"
-       th:text="${page}"></a>
+    <a th:each="page : ${#numbers.sequence(1, vnPages)}" th:href="@{'/news?vnPage=' + ${page}}"
+       class="page-item" th:classappend="${currentVnPage == page} ? 'active' : ''" th:text="${page}"></a>
 
-    <!-- Nút Next - luôn hiển thị nhưng disabled nếu ở trang cuối -->
-    <a th:href="${currentVnPage < vnPages} ? @{'/news?vnPage=' + (${currentVnPage + 1}) + '&intPage=' + ${currentIntPage}} : '#'"
-       class="page-item next-page"
-       th:classappend="${currentVnPage == vnPages} ? 'disabled' : ''">&raquo;</a>
+    <a th:if="${currentVnPage < vnPages}" th:href="@{'/news?vnPage=' + (${currentVnPage + 1})}"
+       class="page-item next-page">&raquo;</a>
+    <span th:if="${currentVnPage == vnPages}" class="page-item next-page disabled">&raquo;</span>
 
   </div>
 </div>
@@ -88,9 +87,11 @@
   <div class="movie-grid">
     <div th:each="movie : ${intMovies}" class="movie-card">
       <a th:href="@{'/detail-movie?id=' + ${movie.filmId}}">
-        <img th:src="${movie.filmImg}" th:alt="${movie.filmName}" class="movie-poster"/>
+        <img th:src="${movie.filmImg}" th:alt="${movie.filmName}" class="movie-poster" />
         <div class="movie-info">
-          <p th:text="${#lists.isEmpty(movie.categoryNames) ? 'N/A' : #strings.arrayJoin(movie.categoryNames, ', ')}"></p>
+          <p
+                  th:text="${#lists.isEmpty(movie.categoryNames) ? 'N/A' : #strings.arrayJoin(movie.categoryNames, ', ')}">
+          </p>
           <p th:text="${movie.formattedReleaseDate}"></p>
           <p th:text="${movie.filmName}"></p>
         </div>
@@ -99,31 +100,23 @@
   </div>
 </section>
 
-<!-- Pagination cho danh sách phim Quốc tế -->
+<!-- Pagination for International movie list -->
 <div class="pagination-container" th:if="${intPages > 0}">
   <div class="pagination">
 
-    <!-- Nút Previous - luôn hiển thị nhưng disabled nếu ở trang đầu -->
-    <a th:href="${currentIntPage > 1} ? @{'/news?intPage=' + (${currentIntPage - 1}) + '&vnPage=' + ${currentVnPage}} : '#'"
-       class="page-item prev-page"
-       th:classappend="${currentIntPage == 1} ? 'disabled' : ''">&laquo;</a>
+    <a th:if="${currentIntPage > 1}" th:href="@{'/news?intPage=' + (${currentIntPage - 1})}"
+       class="page-item prev-page">&laquo;</a>
+    <span th:if="${currentIntPage == 1}" class="page-item prev-page disabled">&laquo;</span>
 
-    <!-- Các trang (loop) -->
-    <a th:each="page : ${#numbers.sequence(1, intPages)}"
-       th:href="@{'/news?intPage=' + ${page} + '&vnPage=' + ${currentVnPage}}"
-       class="page-item"
-       th:classappend="${currentIntPage == page} ? 'active' : ''"
-       th:text="${page}"></a>
+    <a th:each="page : ${#numbers.sequence(1, intPages)}" th:href="@{'/news?intPage=' + ${page}}"
+       class="page-item" th:classappend="${currentIntPage == page} ? 'active' : ''" th:text="${page}"></a>
 
-    <!-- Nút Next - luôn hiển thị nhưng disabled nếu ở trang cuối -->
-    <a th:href="${currentIntPage < intPages} ? @{'/news?intPage=' + (${currentIntPage + 1}) + '&vnPage=' + ${currentVnPage}} : '#'"
-       class="page-item next-page"
-       th:classappend="${currentIntPage == intPages} ? 'disabled' : ''">&raquo;</a>
+    <a th:if="${currentIntPage < intPages}" th:href="@{'/news?intPage=' + (${currentIntPage + 1})}"
+       class="page-item next-page">&raquo;</a>
+    <span th:if="${currentIntPage == intPages}" class="page-item next-page disabled">&raquo;</span>
 
   </div>
 </div>
-
-
 
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>

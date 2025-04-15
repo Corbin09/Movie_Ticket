@@ -3,6 +3,7 @@ package Se2.MovieTicket.service;
 import Se2.MovieTicket.dto.RegionDTO;
 import Se2.MovieTicket.model.Region;
 import Se2.MovieTicket.repository.RegionRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityManager;

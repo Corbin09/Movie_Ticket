@@ -1,814 +1,113 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cinemas Management System</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
-  <style>
-    /* Global Styles */
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background-color: #044a2c;
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
-
-    /* Main Container */
-    .container-orders-management {
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .main-content {
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 1200px;
-      padding: 20px;
-    }
-
-    /* Page Title */
-    .page-title {
-      color: #044a2c;
-      font-size: 24px;
-      margin-bottom: 20px;
-      font-weight: 600;
-    }
-
-    /* Search Form */
-    .search-form {
-      background-color: transparent;
-      padding: 0;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-    }
-
-    .form-control, .form-select {
-      border: 1px solid #ced4da;
-      border-radius: 4px;
-      padding: 8px 12px;
-      font-size: 14px;
-    }
-
-    .search-input {
-      flex-grow: 1;
-      padding: 8px 12px;
-      border: 1px solid #ced4da;
-      border-radius: 4px;
-      font-size: 14px;
-      background-color: #fff;
-    }
-
-    .btn {
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-
-    .btn-primary {
-      background-color: #044a2c;
-      color: white;
-      border: none;
-    }
-
-    .btn-secondary {
-      background-color: #f8f9fa;
-      color: #333;
-      border: 1px solid #ced4da;
-    }
-
-    .btn-primary:hover {
-      background-color: #033821;
-    }
-
-    .btn-secondary:hover {
-      background-color: #e2e6ea;
-    }
-
-    /* Filter Area */
-    .filter-area {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .filter-label {
-      margin-right: 10px;
-      font-weight: 500;
-    }
-
-    /* Table Styles */
-    .table-responsive {
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: #fff;
-      font-size: 14px;
-    }
-
-    .table th, .table td {
-      padding: 10px 15px;
-      text-align: left;
-      border-bottom: 1px solid #f1f1f1;
-    }
-
-    .table th {
-      background-color: #044a2c;
-      color: white;
-      font-weight: normal;
-    }
-
-    .table tr:hover {
-      background-color: #f8f9fa;
-    }
-
-    .table-striped tbody tr:nth-of-type(odd) {
-      background-color: #fafafa;
-    }
-
-    /* Checkbox Styles */
-    input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      border: 1px solid #ced4da;
-      border-radius: 3px;
-      cursor: pointer;
-    }
-
-    /* Action Buttons */
-    .btn-group {
-      display: flex;
-      gap: 5px;
-    }
-
-    .btn-info {
-      background-color: #17a2b8;
-      color: white;
-      border: none;
-      padding: 4px 8px;
-      font-size: 12px;
-      border-radius: 3px;
-    }
-
-    .btn-info:hover {
-      background-color: #138496;
-    }
-
-    /* Simplified Search Form */
-    .search-form .row {
-      display: flex;
-      align-items: center;
-      width: 100%;
-    }
-
-    .col-md-3 {
-      width: 25%;
-      padding: 0 10px;
-    }
-
-    .col-md-7 {
-      width: 58.33%;
-      padding: 0 10px;
-    }
-
-    .col-md-2 {
-      width: 16.66%;
-      padding: 0 10px;
-    }
-
-    .d-flex {
-      display: flex;
-    }
-
-    .flex-grow-1 {
-      flex-grow: 1;
-    }
-
-    .me-2 {
-      margin-right: 0.5rem;
-    }
-
-    /* Dropdown Styles */
-    .dropdown-menu {
-      display: none;
-      position: absolute;
-      background-color: #fff;
-      min-width: 160px;
-      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-      z-index: 1;
-      border-radius: 4px;
-    }
-
-    .dropdown-menu.show {
-      display: block;
-    }
-
-    .dropdown-item {
-      padding: 10px 16px;
-      text-decoration: none;
-      display: block;
-      color: #333;
-      cursor: pointer;
-    }
-
-    .dropdown-item:hover {
-      background-color: #f1f1f1;
-    }
-
-    .filter-dropdown {
-      position: relative;
-      display: inline-block;
-      margin-right: 15px;
-    }
-
-    .dropdown-toggle {
-      background-color: #fff;
-      padding: 8px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      min-width: 150px;
-      border: 1px solid #ced4da;
-    }
-
-    .dropdown-toggle i {
-      margin-left: 8px;
-    }
-
-    .search-bar {
-      display: flex;
-      align-items: center;
-      background-color: #fff;
-      border-radius: 4px;
-      padding: 0;
-      position: relative;
-      border: 1px solid #ced4da;
-      flex-grow: 1;
-    }
-
-    .search-input {
-      width: 100%;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 4px 0 0 4px;
-    }
-
-    .search-icon {
-      color: #fff;
-      padding: 8px 12px;
-      background-color: #044a2c;
-      border-radius: 0 4px 4px 0;
-      cursor: pointer;
-    }
-
-    .search-icon:hover {
-      background-color: #033821;
-    }
-
-    /* Alert Styles */
-    .alert {
-      padding: 12px 20px;
-      margin-bottom: 20px;
-      border: 1px solid transparent;
-      border-radius: 4px;
-    }
-
-    .alert-danger {
-      color: #721c24;
-      background-color: #f8d7da;
-      border-color: #f5c6cb;
-    }
-
-    .text-center {
-      text-align: center;
-    }
-
-    /* Responsive modifications */
-    @media (max-width: 768px) {
-      .row {
-        flex-direction: column;
-      }
-
-      .col-md-3, .col-md-7, .col-md-2 {
-        width: 100%;
-        margin-bottom: 10px;
-      }
-    }
-
-    /* Additional styles for the mockup */
-    .mb-4 {
-      margin-bottom: 1.5rem;
-    }
-
-    .table-dark {
-      background-color: #044a2c;
-    }
-    /* Pagination */
-  .pagination {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 1rem;
-      padding: 1rem;
-  }
-
-  .pagination-controls {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-  }
-
-  .pagination-controls button {
-      background-color: #DC2626;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 0.25rem;
-      cursor: pointer;
-  }
-
-  .pagination-controls button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-  }
-
-  .pagination-controls select {
-      background-color: white;
-      color: #064E3B;
-      border: 1px solid #059669;
-      padding: 0.5rem;
-      border-radius: 0.25rem;
-  }
-
-  /* Responsive Design */
-  @media (max-width: 1024px) {
-      .container-orders-management {
-          flex-direction: column;
-      }
-
-      .main-content {
-          width: 100%;
-          margin-left: 0;
-      }
-
-      .filter-area {
-          flex-direction: column;
-          align-items: stretch;
-      }
-  }
-
-  @media (max-width: 768px) {
-      .pagination {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 1rem;
-      }
-  }
-  </style>
+  <title>Orders Management</title>
+  <link rel="stylesheet" th:href="@{/css/manage-orders.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
+
 <body>
-
-<div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
-<div class="container-orders-management">
-  <div class="main-content">
-    <h1 class="page-title">Orders Management</h1>
-
-    <!-- Search form -->
-    <div class="filter-area">
-      <div class="filter-label">Filter:</div>
-      <div class="filter-dropdown">
-        <div class="dropdown-toggle" id="searchCriteria">
-          <span th:text="${searchCriteria != null ? (searchCriteria == 'ordercode' ? 'Order Code' :
-                            searchCriteria == 'user' ? 'User' :
-                            searchCriteria == 'movie' ? 'Movie' :
-                            searchCriteria == 'theater' ? 'Theater' :
-                            searchCriteria == 'room' ? 'Room' :
-                            searchCriteria == 'showdate' ? 'Show Date' :
-                            searchCriteria == 'ordervalue' ? 'Order Value' :
-                            searchCriteria == 'orderdate' ? 'Order Date' : 'User Name') : 'User Name'}">User Name</span>
-          <i class="fas fa-chevron-down"></i>
-        </div>
-        <div class="dropdown-menu" id="searchCriteriaDropdown">
-          <div class="dropdown-item" data-value="ordercode">Order Code</div>
-          <div class="dropdown-item" data-value="user">User</div>
-          <div class="dropdown-item" data-value="movie">Movie</div>
-          <div class="dropdown-item" data-value="theater">Theater</div>
-          <div class="dropdown-item" data-value="room">Room</div>
-          <div class="dropdown-item" data-value="showdate">Show Date</div>
-          <div class="dropdown-item" data-value="ordervalue">Order Value</div>
-          <div class="dropdown-item" data-value="orderdate">Order Date</div>
-        </div>
-      </div>
-      <div class="search-bar">
-        <input type="text" class="search-input" id="searchQuery" placeholder="Search..." th:value="${searchQuery}">
-        <span class="search-icon" id="doSearch"><i class="fas fa-search"></i></span>
-      </div>
-      <button type="button" id="clearSearch" class="btn btn-secondary" style="margin-left: 10px;">Clear</button>
-    </div>
-
-    <!-- Custom Alert Message Overlay -->
-    <div id="customAlertOverlay" class="custom-alert-overlay">
-      <div class="custom-alert-box">
-        <div class="custom-alert-header">
-          <span id="alertTitle">Notification</span>
-          <span class="close-alert">&times;</span>
-        </div>
-        <div class="custom-alert-content">
-          <p id="alertMessage"></p>
-          <button class="btn btn-primary close-alert-btn">OK</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Error message if any -->
-    <div th:if="${errorMessage}" id="errorMessageContainer" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
-
-    <!-- Orders table -->
-    <div class="table-responsive">
-      <table class="table table-striped table-hover">
-        <thead class="table-dark">
-        <tr>
-          <th>Order Code</th>
-          <th>User</th>
-          <th>Movie</th>
-          <th>Theater</th>
-          <th>Room</th>
-          <th>Show Date</th>
-          <th>Order Value</th>
-          <th>Order Date</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="order : ${orders}">
-          <td th:text="${order.orderId}"></td>
-          <td th:text="${order.user != null ? order.user.username : 'N/A'}"></td>
-          <td th:text="${order.showtime != null && order.showtime.film != null ? order.showtime.film.filmName : 'N/A'}"></td>
-          <td th:text="${order.showtime != null && order.showtime.cinema != null ? order.showtime.cinema.cinemaName : 'N/A'}"></td>
-          <td th:text="${order.showtime != null && order.showtime.room != null ? order.showtime.room.roomName : 'N/A'}"></td>
-          <td th:text="${order.showtime != null && order.showtime.showDate != null ? #dates.format(order.showtime.showDate, 'dd/MM/yyyy') : 'N/A'}"></td>
-          <td th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
-          <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy')}"></td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(orders)}">
-          <td colspan="8" class="text-center">No orders found</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Pagination controls -->
-    <div class="pagination">
-      <span th:text="${'Showing ' + (totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0) + '-' + (currentPage * pageSize < totalItems ? currentPage * pageSize : totalItems) + ' of ' + totalItems}">
-        Showing 1-10 of 20
-      </span>
-      <div class="pagination-controls">
-        <div class="page-size-container">
-          <span class="lines-per-page-label">Lines per page:</span>
-          <select id="pageSizeSelect">
-            <option value="10" th:selected="${pageSize == 10}">10</option>
-            <option value="20" th:selected="${pageSize == 20}">20</option>
-            <option value="30" th:selected="${pageSize == 30}">30</option>
-          </select>
-        </div>
-        <button id="prevPage" th:disabled="${currentPage <= 1}"><i class="fas fa-chevron-left"></i></button>
-        <button id="nextPage" th:disabled="${currentPage >= totalPages}"><i class="fas fa-chevron-right"></i></button>
-      </div>
-    </div>
+<header class="header">
+  <div class="header-logo">
+    <img src="https://storage.googleapis.com/a1aa/image/D7mJqMZzGflsKTTLJE8INfgTOpkDHXcc_aeuHX02wtU.jpg"
+         alt="Cinema logo">
+    <span class="header-logo-text">Cinemas</span>
   </div>
+  <div class="header-user">
+    <img th:src="${userAvatar}" alt="User avatar">
+    <span th:text="${userName}">Phan Thuy Ngan</span>
+    <button class="logout-btn">Log out</button>
+  </div>
+</header>
+
+<div class="container">
+  <aside class="sidebar">
+    <ul class="sidebar-menu">
+      <li class="sidebar-item">
+        <i class="fas fa-th-large"></i>
+        <span>Dashboard</span>
+      </li>
+      <li class="sidebar-item">
+        <i class="fas fa-film"></i>
+        <span>Movies</span>
+      </li>
+      <li class="sidebar-item">
+        <i class="fas fa-video"></i>
+        <span>Cinemas</span>
+      </li>
+      <li class="sidebar-item">
+        <i class="fas fa-calendar-alt"></i>
+        <span>Showtimes</span>
+      </li>
+      <li class="sidebar-item">
+        <i class="fas fa-door-open"></i>
+        <span>Rooms</span>
+      </li>
+      <li class="sidebar-item active">
+        <i class="fas fa-receipt"></i>
+        <span>Orders</span>
+      </li>
+      <li class="sidebar-item">
+        <i class="fas fa-users"></i>
+        <span>Users</span>
+      </li>
+      <li class="sidebar-item">
+        <i class="fas fa-home"></i>
+        <span>Homepage</span>
+      </li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+    <div class="content-header">
+      <h1 class="text-2xl font-bold">Orders Management</h1>
+    </div>
+
+    <div class="filter-section">
+      <select th:field="${filterType}">
+        <option value="userName">User Name</option>
+        <option value="movieTitle">Movie Title</option>
+        <option value="theater">Theater</option>
+      </select>
+      <div class="relative">
+        <input type="text" placeholder="Search..." th:field="${searchTerm}">
+      </div>
+    </div>
+
+    <table class="table">
+      <thead>
+      <tr>
+        <th><input type="checkbox"></th>
+        <th>Order Code</th>
+        <th>User</th>
+        <th>Movie</th>
+        <th>Theater</th>
+        <th>Room</th>
+        <th>Show Date</th>
+        <th>Order Value</th>
+        <th>Order Date</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="order : ${orders}">
+        <td><input type="checkbox"></td>
+        <td th:text="${order.orderId}">191108889</td>
+        <td th:text="${order.user.fullName}">Christine Brooks</td>
+        <td th:text="${order.showtime.movie.title}">Snow White</td>
+        <td th:text="${order.showtime.room.cinema.name}">Beta Thanh Xuan</td>
+        <td th:text="${order.showtime.room.roomName}">Room 1</td>
+        <td th:text="${#dates.format(order.showtime.startTime, 'dd/MM/yyyy')}">15/3/2025</td>
+        <td th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT') + ' VND'}">
+          360.000 VND</td>
+        <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy')}">15/3/2025</td>
+      </tr>
+      </tbody>
+    </table>
+  </main>
 </div>
 
-<!-- Custom CSS for alert box -->
-<style>
-  /* Custom Alert Box Styles */
-  .custom-alert-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .custom-alert-box {
-    background-color: white;
-    border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    width: 400px;
-    max-width: 90%;
-  }
-
-  .custom-alert-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-    border-radius: 4px 4px 0 0;
-  }
-
-  #alertTitle {
-    font-weight: 600;
-    font-size: 18px;
-  }
-
-  .close-alert {
-    cursor: pointer;
-    font-size: 20px;
-    font-weight: bold;
-  }
-
-  .custom-alert-content {
-    padding: 20px;
-  }
-
-  .close-alert-btn {
-    margin-top: 10px;
-    float: right;
-  }
-
-  /* Pagination Styles */
-  .page-size-container {
-    display: flex;
-    align-items: center;
-    margin-right: 15px;
-  }
-
-  .lines-per-page-label {
-    margin-right: 8px;
-    white-space: nowrap;
-  }
-
-  .pagination-controls {
-    display: flex;
-    align-items: center;
-  }
-</style>
-
-<!-- JavaScript for handling pagination -->
-<script>
-
-   // Store current page state
-   let currentPage = [[${currentPage}]];
-   let pageSize = [[${pageSize}]];
-   let totalItems = [[${totalItems}]];
-   let totalPages = [[${totalPages}]];
-   let selectedCriteria = /*[[${searchCriteria != null ? searchCriteria : ''}]]*/ '';
-   let searchQuery = /*[[${searchQuery != null ? searchQuery : ''}]]*/ '';
-
-   // Show custom alert instead of browser alert
-   function showCustomAlert(message, title = "Notification") {
-     document.getElementById('alertTitle').textContent = title;
-     document.getElementById('alertMessage').textContent = message;
-     document.getElementById('customAlertOverlay').style.display = 'flex';
-   }
-
-   // Close alert on X or OK button click
-   document.querySelectorAll('.close-alert, .close-alert-btn').forEach(function(el) {
-     el.addEventListener('click', function() {
-       document.getElementById('customAlertOverlay').style.display = 'none';
-     });
-   });
-
-   // Function to handle pagination without requiring search criteria
-   function navigateToPage(page) {
-     // Create URL with current state parameters
-     let url = window.location.pathname;
-     const params = new URLSearchParams();
-
-     // Add page and pageSize parameters
-     params.append('page', page);
-     params.append('pageSize', pageSize);
-
-     // Only add search parameters if they exist
-     if (selectedCriteria && selectedCriteria.trim() !== '') {
-       params.append('searchCriteria', selectedCriteria);
-
-       // Only add query if criteria exists
-       if (searchQuery && searchQuery.trim() !== '') {
-         params.append('searchQuery', searchQuery);
-       }
-     }
-
-     // Navigate to the page
-     window.location.href = url + '?' + params.toString();
-   }
-
-   // Function to perform search
-   function performSearch(page = 1) {
-     // Get the selected criteria
-     const selectedText = document.querySelector('#searchCriteria span').textContent;
-     let criteriaValue = '';
-
-     // Map the text to the value
-     document.querySelectorAll('.dropdown-item').forEach(function(item) {
-       if (item.textContent === selectedText) {
-         criteriaValue = item.getAttribute('data-value');
-       }
-     });
-
-     const searchQueryValue = document.getElementById('searchQuery').value;
-
-     // Validate inputs if search query is provided
-     if (searchQueryValue && searchQueryValue.trim() !== '') {
-       if (!criteriaValue) {
-         showCustomAlert('Please select a search criteria');
-         return;
-       }
-
-       // Validate date format for date fields
-       if ((criteriaValue === 'showdate' || criteriaValue === 'orderdate') && searchQueryValue) {
-         const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
-         if (!dateRegex.test(searchQueryValue)) {
-           showCustomAlert('Please enter date in DD/MM/YYYY format');
-           return;
-         }
-       }
-
-       // Validate numeric format for ordervalue
-       if (criteriaValue === 'ordervalue' && searchQueryValue) {
-         if (isNaN(searchQueryValue)) {
-           showCustomAlert('Please enter a valid number for Order Value');
-           return;
-         }
-       }
-
-       // Validate numeric format for ordercode
-       if (criteriaValue === 'ordercode' && searchQueryValue) {
-         if (isNaN(searchQueryValue)) {
-           showCustomAlert('Please enter a valid number for Order Code');
-           return;
-         }
-       }
-     }
-
-     // Update state variables
-     selectedCriteria = criteriaValue;
-     searchQuery = searchQueryValue;
-
-     // Navigate to page 1 with search parameters
-     navigateToPage(1);
-   }
-
-   // Handle page size change
-   document.getElementById('pageSizeSelect').addEventListener('change', function() {
-     pageSize = parseInt(this.value);
-     navigateToPage(1); // Reset to page 1 when changing page size
-   });
-
-   // Handle previous page button
-   document.getElementById('prevPage').addEventListener('click', function() {
-     if (currentPage > 1) {
-       navigateToPage(currentPage - 1);
-     }
-   });
-
-   // Handle next page button
-   document.getElementById('nextPage').addEventListener('click', function() {
-     if (currentPage < totalPages) {
-       navigateToPage(currentPage + 1);
-     }
-   });
-
-   // Initialize from URL and set up event listeners
-   document.addEventListener('DOMContentLoaded', function() {
-     // Initialize selectedCriteria from URL parameters if available
-     const urlParams = new URLSearchParams(window.location.search);
-     const criteriaFromURL = urlParams.get('searchCriteria');
-
-     if (criteriaFromURL) {
-       selectedCriteria = criteriaFromURL;
-
-       // Update the dropdown text based on the URL parameter
-       document.querySelectorAll('.dropdown-item').forEach(function(item) {
-         if (item.getAttribute('data-value') === criteriaFromURL) {
-           document.querySelector('#searchCriteria span').textContent = item.textContent;
-
-           // Also update the placeholder based on the selected criteria
-           updatePlaceholder(criteriaFromURL);
-         }
-       });
-     }
-
-     // Set up disabled state for pagination buttons
-     const prevPageButton = document.getElementById('prevPage');
-     const nextPageButton = document.getElementById('nextPage');
-
-     if (prevPageButton) {
-       prevPageButton.disabled = currentPage <= 1;
-       prevPageButton.style.opacity = currentPage <= 1 ? '0.5' : '1';
-     }
-
-     if (nextPageButton) {
-       nextPageButton.disabled = currentPage >= totalPages;
-       nextPageButton.style.opacity = currentPage >= totalPages ? '0.5' : '1';
-     }
-   });
-
-   // Function to update placeholder based on selected criteria
-   function updatePlaceholder(value) {
-     const searchQuery = document.getElementById('searchQuery');
-     switch(value) {
-       case 'ordercode':
-         searchQuery.placeholder = 'Enter order code number...';
-         break;
-       case 'user':
-         searchQuery.placeholder = 'Enter username...';
-         break;
-       case 'movie':
-         searchQuery.placeholder = 'Enter movie name...';
-         break;
-       case 'theater':
-         searchQuery.placeholder = 'Enter theater name...';
-         break;
-       case 'room':
-         searchQuery.placeholder = 'Enter room number...';
-         break;
-       case 'showdate':
-         searchQuery.placeholder = 'Enter date (DD/MM/YYYY)...';
-         break;
-       case 'ordervalue':
-         searchQuery.placeholder = 'Enter value (numeric only)...';
-         break;
-       case 'orderdate':
-         searchQuery.placeholder = 'Enter date (DD/MM/YYYY)...';
-         break;
-       default:
-         searchQuery.placeholder = 'Search...';
-     }
-   }
-
-   // Handle search button click
-   document.getElementById('doSearch').addEventListener('click', function() {
-     performSearch(1); // Start at page 1 when doing a new search
-   });
-
-   // Handle clear search button
-   document.getElementById('clearSearch').addEventListener('click', function() {
-     document.getElementById('searchQuery').value = '';
-     document.querySelector('#searchCriteria span').textContent = 'User Name';
-     selectedCriteria = '';
-     searchQuery = '';
-     // Navigate to base URL with only pagination parameters
-     navigateToPage(1);
-   });
-
-   // Handle dropdown toggle
-   document.querySelector('.dropdown-toggle').addEventListener('click', function() {
-     document.getElementById('searchCriteriaDropdown').classList.toggle('show');
-   });
-
-   // Handle dropdown item selection
-   document.querySelectorAll('.dropdown-item').forEach(function(item) {
-     item.addEventListener('click', function() {
-       const value = this.getAttribute('data-value');
-       const text = this.textContent;
-       document.querySelector('#searchCriteria span').textContent = text;
-       document.getElementById('searchCriteriaDropdown').classList.remove('show');
-       selectedCriteria = value;
-
-       // Update placeholder based on selected criteria
-       updatePlaceholder(value);
-     });
-   });
-
-   // Close dropdown when clicking outside
-   window.addEventListener('click', function(event) {
-     if (!event.target.matches('.dropdown-toggle') && !event.target.matches('.dropdown-toggle *')) {
-       const dropdowns = document.getElementsByClassName('dropdown-menu');
-       for (let i = 0; i < dropdowns.length; i++) {
-         const openDropdown = dropdowns[i];
-         if (openDropdown.classList.contains('show')) {
-           openDropdown.classList.remove('show');
-         }
-       }
-     }
-   });
-
-   // Handle Enter key press in search input
-   document.querySelector('.search-input').addEventListener('keyup', function(e) {
-     if (e.key === 'Enter') {
-       performSearch(1); // Start at page 1 when doing a new search
-     }
-   });
-
-</script> </body> </html>
+</body>
+</html>

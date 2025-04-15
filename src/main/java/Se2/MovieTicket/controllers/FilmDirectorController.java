@@ -1,6 +1,5 @@
 package Se2.MovieTicket.controllers;
 
-
 import Se2.MovieTicket.model.FilmDirector;
 import Se2.MovieTicket.model.FilmDirectorId;
 import Se2.MovieTicket.repository.FilmDirectorRepository;

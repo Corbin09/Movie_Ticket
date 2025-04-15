@@ -1,10 +1,8 @@
 package Se2.MovieTicket.model;
 
-import Se2.MovieTicket.repository.CategoryRepository;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,7 +18,6 @@ import java.util.stream.Collectors;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @ToString(exclude = {"filmDirectors", "filmActors", "filmCategories", "showtimes"})
 @EqualsAndHashCode(exclude = {"filmDirectors", "filmActors", "filmCategories", "showtimes", "userReviews", "news", "filmRating"})
-//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "filmId")
 public class Film {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -68,7 +65,6 @@ public class Film {
     private Set<UserReview> userReviews;
 
     @OneToOne(mappedBy = "film", fetch = FetchType.LAZY)
-//    @JsonManagedReference
     private FilmRating filmRating;
 
     @OneToMany(mappedBy = "film", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -87,7 +83,7 @@ public class Film {
     @JsonManagedReference
     private Set<UserLikeFilm> filmLikes;
 
-    // Add getter and setter
+    // Getters and setters
     public Set<UserLikeFilm> getFilmLikes() {
         return filmLikes;
     }
@@ -95,6 +91,7 @@ public class Film {
     public void setFilmLikes(Set<UserLikeFilm> filmLikes) {
         this.filmLikes = filmLikes;
     }
+
     public Long getFilmId() {
         return filmId;
     }
@@ -235,7 +232,7 @@ public class Film {
     public Optional<Object> getCategories() {
         if (this.filmCategories != null && !this.filmCategories.isEmpty()) {
             List<Category> categories = this.filmCategories.stream()
-                    .map(FilmCategory::getCategory)  // This should return a Category object
+                    .map(FilmCategory::getCategory)
                     .collect(Collectors.toList());
             return Optional.of(categories);
         }

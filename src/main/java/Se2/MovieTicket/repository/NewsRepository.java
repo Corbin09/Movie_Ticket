@@ -24,9 +24,10 @@ public interface NewsRepository extends JpaRepository<News, Long> {
     @Query("SELECT n FROM News n WHERE LOWER(n.newsContent) LIKE LOWER(CONCAT('%', :content, '%'))")
     List<News> findByNewsContentContaining(@Param("content") String content);
 
-    // Find the latest news (most recent newsTime)
+    // Find the latest news
     @Query(value = "SELECT * FROM news ORDER BY new_time DESC LIMIT 1", nativeQuery = true)
     News findLatestNews();
+
     /**
      * Find all news by a specific user ID
      *
@@ -34,7 +35,6 @@ public interface NewsRepository extends JpaRepository<News, Long> {
      * @return list of news created by the specified user
      */
     List<News> findByUserUserId(Long userId);
-
 
     // Find news related to a specific film
     @Query("SELECT n FROM News n WHERE n.film.filmId = :filmId")

@@ -12,6 +12,7 @@ public class SeatStatusDTO {
     private String seatStatus;
     private Date reservedUntil;
 
+    // Getters and setters
     public Long getSeatStatusId() {
         return seatStatusId;
     }

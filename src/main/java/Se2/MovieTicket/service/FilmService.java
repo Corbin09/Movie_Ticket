@@ -1,12 +1,12 @@
-
 package Se2.MovieTicket.service;
+
 import Se2.MovieTicket.dto.ShowtimeDTO;
 import Se2.MovieTicket.model.*;
 import Se2.MovieTicket.repository.ShowtimeRepository;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.data.domain.*;
 import Se2.MovieTicket.dto.FilmDTO;
 import Se2.MovieTicket.repository.FilmRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -14,10 +14,11 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -71,18 +72,14 @@ public class FilmService {
         if (name != null && !name.isEmpty()) {
             return filmRepository.searchByFilmName(name);
         }
-        // Add other filters as needed
         return filmRepository.findAll();
     }
 
-
-    // In FilmService
     private List<Film> cachedFilms;
     private Instant cacheTimestamp;
     private static final long CACHE_DURATION_MINUTES = 30;
 
     public List<Film> getCachedFilms() {
-        // Cache films for 30 minutes to avoid repeated database queries
         if (cachedFilms == null ||
                 cacheTimestamp == null ||
                 Duration.between(cacheTimestamp, Instant.now()).toMinutes() > CACHE_DURATION_MINUTES) {
@@ -93,7 +90,6 @@ public class FilmService {
         return cachedFilms;
     }
 
-    // Optional: Add pagination for films if the list is large
     public List<Film> getPaginatedFilms(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return filmRepository.findAll(pageable).getContent();
@@ -195,21 +191,16 @@ public class FilmService {
         return filmRepository.findByReleaseDateAfterOrderByReleaseDateAsc(currentDate, pageable);
     }
 
-    // New search method
     public Page<Film> searchFilms(String query, Pageable pageable) {
-        // Convert query to lowercase for case-insensitive search
         String searchQuery = "%" + query.toLowerCase() + "%";
         return filmRepository.findBySearchTerm(searchQuery, pageable);
     }
 
     public Page<FilmDTO> getFilmsWithShowtimesByDate(LocalDate selectedDate, Pageable pageable) {
-        // Find all films that have showtimes on the selected date
         Date date = java.sql.Date.valueOf(selectedDate);
 
-        // Get films from repository with showtimes matching the date
         Page<Film> films = filmRepository.findFilmsWithShowtimesByDate(date, pageable);
 
-        // Convert to DTOs with showtime information
         return films.map(film -> {
             FilmDTO filmDTO = convertToDTO(film);
 
@@ -242,13 +233,10 @@ public class FilmService {
     }
 
     public Page<FilmDTO> getFilmsByRegionAndDate(Long regionId, LocalDate selectedDate, Pageable pageable) {
-        // Find all films that have showtimes in the specified region on the selected date
         Date date = java.sql.Date.valueOf(selectedDate);
 
-        // Get films from repository with showtimes matching the region and date
         Page<Film> films = filmRepository.findFilmsByRegionAndDate(regionId, date, pageable);
 
-        // Convert to DTOs with relevant information
         return films.map(film -> {
             FilmDTO filmDTO = convertToDTO(film);
 
@@ -300,11 +288,10 @@ public class FilmService {
                 .map(filmActor -> filmActor.getActor().getActorName())
                 .collect(Collectors.toList()));
 
-        // Lấy danh sách thể loại phim
+        // Get the list of movie genres
         filmDTO.setCategoryNames(film.getFilmCategories().stream()
                 .map(filmCategory -> filmCategory.getCategory().getCategoryName())
                 .collect(Collectors.toList()));
-
 
         filmDTO.setAverageRating(film.getFilmRating() != null ? film.getFilmRating().getFilmRate() : null);
 
@@ -313,7 +300,7 @@ public class FilmService {
                         showtime.getFilm().getFilmId(), showtime.getFilm().getFilmName(),
                         showtime.getRoom().getRoomId(), showtime.getRoom().getRoomName(),
                         showtime.getCinema().getCinemaId(), showtime.getCinema().getCinemaName(),
-                        null)) // Null cho giá trị price nếu chưa có
+                        null))
                 .collect(Collectors.toList()));
 
         filmDTO.setNews(film.getNews());
@@ -326,15 +313,12 @@ public class FilmService {
         return films.map(this::convertToDTO);
     }
 
-
     public Page<FilmDTO> getFilmsByRegionThroughShowtimes(Long regionId, Pageable pageable) {
-        // Get all films that have showtimes in any cinema within the given region
         Page<Film> films = filmRepository.findFilmsByRegionId(regionId, pageable);
         return films.map(this::convertToDTO);
     }
 
     public Page<FilmDTO> getFilmsByCinemaThroughShowtimes(Long cinemaId, Pageable pageable) {
-        // Get all films that have showtimes in the given cinema
         Page<Film> films = filmRepository.findFilmsByCinemaId(cinemaId, pageable);
         return films.map(this::convertToDTO);
     }
@@ -375,6 +359,7 @@ public class FilmService {
         Page<Film> films = filmRepository.findFilmsByCinemaId(cinemaId, pageable);
         return films.map(this::convertToDTO);
     }
+
     public Page<FilmDTO> getFilmsByShowTime(String showTime, Long cinemaId, Long regionId, Pageable pageable) {
         return filmRepository.findFilmsByShowTime(showTime, cinemaId, regionId, pageable);
     }
@@ -382,6 +367,7 @@ public class FilmService {
     public List<Showtime> getAllShowtimesByCinemaAndFilm(Long cinemaId, Long filmId) {
         return showtimeRepository.findByCinema_CinemaIdAndFilm_FilmId(cinemaId, filmId);
     }
+
     /**
      * Get films with showtimes on a specific date in a specific cinema
      */
@@ -389,6 +375,7 @@ public class FilmService {
         Page<Film> films = filmRepository.findFilmsByCinemaAndDate(cinemaId, date, pageable);
         return films.map(this::convertToDTO);
     }
+
     public Page<Film> getFilmsByActorId(Long actorId, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         return filmRepository.findFilmsByActorId(actorId, pageable);

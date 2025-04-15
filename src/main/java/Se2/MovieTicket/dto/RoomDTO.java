@@ -8,6 +8,7 @@ public class RoomDTO {
     private String roomName;
     private Long cinemaId;
 
+    // Getters and setters
     public Long getRoomId() {
         return roomId;
     }

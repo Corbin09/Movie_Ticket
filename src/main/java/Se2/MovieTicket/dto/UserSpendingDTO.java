@@ -9,6 +9,7 @@ public class UserSpendingDTO {
         this.totalSpent = totalSpent;
     }
 
+    // Getters and setters
     public String getUsername() {
         return username;
     }
@@ -24,7 +25,5 @@ public class UserSpendingDTO {
     public void setTotalSpent(Double totalSpent) {
         this.totalSpent = totalSpent;
     }
-
-// Getters and setters
 }
 

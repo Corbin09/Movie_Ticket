@@ -30,19 +30,6 @@ public class UserLikeFilmController {
         return new ResponseEntity<>(userLikes, HttpStatus.OK);
     }
 
-//    @GetMapping("/{userId}/{filmId}")
-//    public ResponseEntity<UserLikeFilm> getUserLikeById(@PathVariable("userId") Long userId, @PathVariable("filmId") Long filmId) {
-//        if (!userService.hasRole("Admin") && !userService.hasRole("User  ")) {
-//            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-//        }
-//        UserLikeFilmId userLikeFilmId = new UserLikeFilmId();
-//        userLikeFilmId.setUserId(userId);
-//        userLikeFilmId.setFilmId(filmId);
-//        Optional<UserLikeFilm> userLikeData = userLikeFilmRepository.findById(userLikeFilmId);
-//        return userLikeData.map(userLikeFilm -> new ResponseEntity<>(userLikeFilm, HttpStatus.OK))
-//                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-//    }
-
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<UserLikeFilm>> getUserLikesByUserId(@PathVariable("userId") Long userId) {
         if (!userService.hasRole("Admin") && !userService.hasRole("User  ")) {

@@ -12,6 +12,4 @@ import java.util.List;
 public interface ActorRepository extends JpaRepository<Actor, Long> {
     @Query("SELECT a FROM Actor a WHERE a.actorName LIKE %:name%")
     List<Actor> findByActorNameContaining(@Param("name") String name);
-
-
 }
