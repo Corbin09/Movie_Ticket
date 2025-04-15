@@ -4,7 +4,6 @@ import Se2.MovieTicket.dto.UserDTO;
 import Se2.MovieTicket.impl.UserDetailsImpl;
 import Se2.MovieTicket.model.Film;
 import Se2.MovieTicket.model.User;
-import Se2.MovieTicket.model.UserLikeFilm;
 import Se2.MovieTicket.repository.UserLikeFilmRepository;
 import Se2.MovieTicket.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -15,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityManager;
@@ -29,7 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -78,7 +75,7 @@ private UserLikeFilmRepository userLikeFilmRepository;
         user.setDateOfBirth(userDTO.getDateOfBirth());
         user.setRole(userDTO.getRole() != null ? userDTO.getRole() : "USER");
         user.setStatus(userDTO.getStatus() != null ? userDTO.getStatus() : "Active");
-        user.setUserImg("/static/images/anonymous.jpg");
+        user.setUserImg("/static/images/anonymous.png");
 
         System.out.println("Saving user: " + user.toString());
 
@@ -254,7 +251,7 @@ private UserLikeFilmRepository userLikeFilmRepository;
                 user.setStatus("Active");
             }
             if (user.getUserImg() == null) {
-                user.setUserImg("/static/images/anonymous.jpg");
+                user.setUserImg("/static/images/anonymous.png");
             }
         }
 

@@ -12,41 +12,38 @@
 <body>
 <div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
 
-// views
 <div class="container-orders-management">
     <div class="main-content">
         <h1 class="page-title">Movies Management</h1>
 
-        <!-- Search form -->
-        <div class="filter-area">
-            <div class="filter-label">Filter:</div>
-            <div class="filter-dropdown">
-                <div class="dropdown-toggle" id="searchCriteria">
-                <span th:text="${searchCriteria != null ? (searchCriteria == 'moviename' ? 'Movie Name' :
-                                  searchCriteria == 'description' ? 'Description' :
-                                  searchCriteria == 'agelimit' ? 'Age limit' :
-                                  searchCriteria == 'duration' ? 'Time' :
-                                  searchCriteria == 'status' ? 'Status' : 'Movie Name') : 'Movie Name'}">Movie Name</span>
-                    <i class="fas fa-chevron-down"></i>
+        <form id="filterForm" method="get" th:action="@{/manage-movies}">
+            <div class="filter-area">
+                <div class="filter-label">Sort by:</div>
+                <div class="filter-dropdown">
+                    <input type="hidden" name="searchCriteria" id="searchCriteriaInput" th:value="${searchCriteria}"/>
+                    <div class="dropdown-toggle" id="searchCriteria">
+                        <span id="filterLabel">Normal</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-menu" id="searchCriteriaDropdown">
+                        <div class="dropdown-item" data-value="normal">Normal</div>
+                        <div class="dropdown-item" data-value="name_asc">A - Z</div>
+                        <div class="dropdown-item" data-value="status_now">Now Showing</div>
+                        <div class="dropdown-item" data-value="status_soon">Coming Soon</div>
+                        <div class="dropdown-item" data-value="age_low">Age limit (Low to High)</div>
+                    </div>
                 </div>
-                <div class="dropdown-menu" id="searchCriteriaDropdown">
-                    <div class="dropdown-item" data-value="moviename">Movie Name</div>
-                    <div class="dropdown-item" data-value="description">Description</div>
-                    <div class="dropdown-item" data-value="agelimit">Age limit</div>
-                    <div class="dropdown-item" data-value="duration">Time</div>
-                    <div class="dropdown-item" data-value="status">Status</div>
+                <div class="search-bar">
+                    <input type="text" class="search-input" name="searchQuery" id="searchQuery"
+                           placeholder="Search..." th:value="${searchQuery}" />
+                    <button type="submit" class="search-icon"><i class="fas fa-search"></i></button>
                 </div>
+                <button type="button" class="btn btn-primary" onclick="window.location.href='/manage-movies/add-movie'" style="margin-left: auto;">
+                    <i class="fas fa-plus"></i> Add movie
+                </button>
             </div>
-            <div class="search-bar">
-                <input type="text" class="search-input" id="searchQuery" placeholder="Search..." th:value="${searchQuery}">
-                <span class="search-icon" id="doSearch"><i class="fas fa-search"></i></span>
-            </div>
-            <button type="button" class="btn btn-primary" onclick="window.location.href='/manage-movies/add-movie'" style="margin-left: auto;">
-                <i class="fas fa-plus"></i> Add movie
-            </button>
-        </div>
+        </form>
 
-        <!-- Error message if any -->
         <div th:if="${errorMessage}" id="errorMessageContainer" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
 
         <div class="table-responsive">
@@ -59,6 +56,7 @@
                     <th>Age limit</th>
                     <th>Time</th>
                     <th>Status</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -69,18 +67,23 @@
                     <td th:text="${film.ageLimit != null ? film.ageLimit : 'N/A'}"></td>
                     <td th:text="${film.duration != null ? film.duration + ' min' : 'N/A'}"></td>
                     <td th:text="${film.releaseDate != null && film.releaseDate <= T(java.time.LocalDate).now() ? 'Now Showing' : 'Coming Soon'}"></td>
+                    <td>
+                        <a th:href="@{'/manage-movies/edit-movie/' + ${film.filmId}}" class="btn btn-info">Edit</a>
+                    </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(films)}">
-                    <td colspan="5" class="text-center">No movie found</td>
+                    <td colspan="7" class="text-center">No movie found</td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
         <div class="pagination">
-        <span th:text="${'Showing ' + (totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0) + '-' + (currentPage * pageSize < totalItems ? currentPage * pageSize : totalItems) + ' of ' + totalItems}">
-            Showing 1-10 of 20
-        </span>
+            <span th:text="'Showing '
+            + ${#numbers.formatInteger(((currentPage - 1) * pageSize + 1), 0)} + '-'
+            + ${#numbers.formatInteger(((currentPage * pageSize > totalItems) ? totalItems : currentPage * pageSize), 0)} + ' of ' + ${totalItems}">
+                    Showing 1-10 of 10
+            </span>
             <div class="pagination-controls">
                 <button class="btn btn-danger" id="deleteSelected" disabled>Delete</button>
                 <div class="page-size-container">
@@ -91,8 +94,16 @@
                         <option value="30" th:selected="${pageSize == 30}">30</option>
                     </select>
                 </div>
-                <button id="prevPage" th:disabled="${currentPage <= 1}"><i class="fas fa-chevron-left"></i></button>
-                <button id="nextPage" th:disabled="${currentPage >= totalPages}"><i class="fas fa-chevron-right"></i></button>
+                <form method="get" th:action="@{/manage-movies}" style="display: flex;">
+                    <input type="hidden" name="page" th:value="${currentPage - 1}"/>
+                    <input type="hidden" name="size" th:value="${pageSize}"/>
+                    <button id="prevPage" th:disabled="${currentPage <= 1}"><i class="fas fa-chevron-left"></i></button>
+                </form>
+                <form method="get" th:action="@{/manage-movies}" style="display: flex;">
+                    <input type="hidden" name="page" th:value="${currentPage + 1}"/>
+                    <input type="hidden" name="size" th:value="${pageSize}"/>
+                    <button id="nextPage" th:disabled="${currentPage >= totalPages}"><i class="fas fa-chevron-right"></i></button>
+                </form>
             </div>
         </div>
     </div>
@@ -101,48 +112,59 @@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const selectAll = document.getElementById("selectAll");
-        const checkboxes = document.querySelectorAll(".movie-checkbox");
         const deleteBtn = document.getElementById("deleteSelected");
 
+        function getCheckboxes() {
+            return document.querySelectorAll(".movie-checkbox");
+        }
+
         function toggleDeleteButton() {
-            const anyChecked = [...checkboxes].some(cb => cb.checked);
+            const anyChecked = [...getCheckboxes()].some(cb => cb.checked);
             deleteBtn.disabled = !anyChecked;
         }
 
-        checkboxes.forEach(cb => cb.addEventListener("change", toggleDeleteButton));
+        function bindCheckboxEvents() {
+            getCheckboxes().forEach(cb => cb.addEventListener("change", toggleDeleteButton));
+        }
+
+        bindCheckboxEvents(); // Gắn ngay khi trang vừa load
 
         if (selectAll) {
             selectAll.addEventListener("change", () => {
+                const checkboxes = getCheckboxes();
                 checkboxes.forEach(cb => cb.checked = selectAll.checked);
                 toggleDeleteButton();
             });
         }
 
         deleteBtn.addEventListener("click", () => {
-            const selectedIds = [...checkboxes]
+            const selectedIds = [...getCheckboxes()]
                 .filter(cb => cb.checked)
                 .map(cb => cb.getAttribute("data-id"));
 
             if (selectedIds.length > 0 && confirm("Are you sure you want to delete selected movies?")) {
-                fetch("/admin/delete-movies", {
+                console.log("Sending delete IDs: ", selectedIds);
+
+                fetch("/manage-movies/delete-movies", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRF-TOKEN": document.querySelector("meta[name='_csrf']").content
                     },
                     body: JSON.stringify({ ids: selectedIds })
-                }).then(res => {
+                }).then(res => res.text().then(text => {
                     if (res.ok) {
+                        alert(text);
                         window.location.reload();
                     } else {
-                        alert("Failed to delete.");
+                        alert("Failed to delete: " + text);
                     }
-                });
+                }))
+                .catch(err => alert("Error: " + err));
             }
         });
-    });
 
-    document.addEventListener("DOMContentLoaded", function () {
+        // filter dropdown
         const toggle = document.getElementById("searchCriteria");
         const dropdown = document.getElementById("searchCriteriaDropdown");
 
@@ -151,25 +173,65 @@
                 dropdown.classList.toggle("show");
             });
 
-            // Optional: click outside to close
             document.addEventListener("click", (event) => {
                 if (!toggle.contains(event.target)) {
                     dropdown.classList.remove("show");
                 }
             });
 
-            // Optional: capture selected value
             document.querySelectorAll(".dropdown-item").forEach(item => {
                 item.addEventListener("click", () => {
                     const value = item.getAttribute("data-value");
-                    toggle.querySelector("span").textContent = item.textContent;
-
-                    // Optional: do something with value (like submit or update hidden input)
+                    document.getElementById("filterLabel").textContent = item.textContent;
+                    fetchFilteredMovies(value);
                 });
             });
         }
+
+        function fetchFilteredMovies(criteria) {
+            fetch(`/api/filtered-movies?criteria=${criteria}&page=1&size=10`)
+                .then(response => response.json())
+                .then(data => {
+                    renderMovieTable(data.films);
+                    toggleDeleteButton();
+                })
+                .catch(err => console.error("Fetch error:", err));
+        }
+
+        function renderMovieTable(films) {
+            const tbody = document.querySelector("table tbody");
+            tbody.innerHTML = "";
+
+            if (!films || films.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center">No movie found</td></tr>`;
+                return;
+            }
+
+            films.forEach(film => {
+                const releaseDate = new Date(film.releaseDate);
+                const today = new Date();
+                const status = releaseDate <= today ? "Now Showing" : "Coming Soon";
+
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td><input type="checkbox" class="movie-checkbox" data-id="${film.filmId}"></td>
+                    <td>${film.filmName}</td>
+                    <td>${film.filmDescription || 'N/A'}</td>
+                    <td>${film.ageLimit ?? 'N/A'}</td>
+                    <td>${film.duration ? film.duration + ' min' : 'N/A'}</td>
+                    <td>${status}</td>
+                    <td><a href="/manage-movies/edit-movie/${film.filmId}" class="btn btn-info">Edit</a></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            bindCheckboxEvents(); // Gắn lại checkbox sau khi cập nhật
+        }
+
+        toggleDeleteButton(); // trạng thái ban đầu
     });
 </script>
+
 
 </body>
 </html>
@@ -563,4 +625,135 @@
           gap: 1rem;
       }
   }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #044a2c;
+        margin: 0;
+        padding: 0;
+        color: #333;
+    }
+
+    .container-orders-management {
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .main-content {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 1200px;
+        padding: 20px;
+        margin: 70px 0 0 250px;
+    }
+
+    .page-title {
+        color: #044a2c;
+        font-size: 24px;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .form-group small {
+        color: #dc2626;
+        display: block;
+        margin-top: 5px;
+        font-size: 13px;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background-color: #b7f7c2;
+        color: #044a2c;
+        border: none;
+    }
+
+    .btn-secondary {
+        background-color: #f87171;
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #a5f2b4;
+    }
+
+    .btn-secondary:hover {
+        background-color: #ef4444;
+    }
+
+    @media (max-width: 768px) {
+    .main-content {
+        margin: 20px 10px 0 10px;
+        padding: 16px;
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .table-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .btn {
+        width: 100%;
+        font-size: 14px;
+    }
+
+    .form-inline,
+    .search-bar,
+    .pagination {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .pagination li {
+        display: inline-block;
+        margin-bottom: 4px;
+    }
+}
 </style>

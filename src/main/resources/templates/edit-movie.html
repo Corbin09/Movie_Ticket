@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-    <title>Add Movie</title>
+    <title>Edit Movie</title>
     <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -14,31 +14,28 @@
 
 <div class="container-orders-management">
     <div class="main-content">
-        <h1 class="page-title">Movie Management\Add movie</h1>
+        <h1 class="page-title">Edit Movie</h1>
 
-        <form th:action="@{/manage-movies/add-movie}" th:object="${film}" method="post" enctype="multipart/form-data">
+        <form th:action="@{'/manage-movies/edit-movie/' + ${film.filmId}}" th:object="${film}" method="post" enctype="multipart/form-data">
             <div class="form-group">
                 <label>Poster</label>
                 <div style="display: flex; gap: 20px; align-items: center;">
                     <div style="width: 120px; height: 160px; background: #f1f1f1; border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative;">
-                        <i class="fas fa-image" style="font-size: 32px; color: #888;" id="placeholderIcon"></i>
-                        <input type="file" name="poster" id="posterInput" accept="image/*"
-                               style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer;" />
-                        <img id="posterPreview" style="position: absolute; max-width: 100%; max-height: 100%; object-fit: cover; border-radius: 8px; display: none;" />
+                        <img th:if="${film.filmImg}" th:src="@{${film.filmImg}}" style="max-height: 160px; border-radius: 8px; margin-top: 10px;" />
+                        <input type="file" name="poster" accept="image/*" style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer;"/>
                     </div>
                 </div>
-                <small>Must upload movie poster.</small>
+                <small>You can upload new poster to replace the old one.</small>
             </div>
-
 
             <div class="form-group">
                 <label for="filmName">Movie name</label>
-                <input type="text" th:field="*{filmName}" id="filmName" placeholder="Enter movie name" required />
+                <input type="text" th:field="*{filmName}" id="filmName" required />
             </div>
 
             <div class="form-group">
                 <label for="filmDescription">Movie description</label>
-                <textarea th:field="*{filmDescription}" id="filmDescription" placeholder="Enter movie description" required ></textarea>
+                <textarea th:field="*{filmDescription}" id="filmDescription" required></textarea>
             </div>
 
             <div class="form-group">
@@ -53,8 +50,7 @@
 
             <div class="form-group">
                 <label for="filmType">Movie Type</label>
-                <select th:field="*{filmType}" id="filmType" required >
-                    <option value="" disabled selected>Choose a movie type</option>
+                <select th:field="*{filmType}" id="filmType" required>
                     <option value="Action">Action</option>
                     <option value="Comedy">Comedy</option>
                     <option value="Drama">Drama</option>
@@ -70,7 +66,6 @@
             <div class="form-group">
                 <label for="country">Nation</label>
                 <select th:field="*{country}" id="country" required>
-                    <option value="" disabled selected>Choose a nation</option>
                     <option value="Vietnam">Vietnam</option>
                     <option value="USA">USA</option>
                     <option value="UK">United Kingdom</option>
@@ -101,50 +96,43 @@
 
             <div class="form-actions" style="margin-top: 24px; display: flex; justify-content: space-between;">
                 <a href="/manage-movies" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">Add</button>
+                <button type="submit" class="btn btn-primary">Update</button>
             </div>
-
-            <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
         </form>
-    </div>
-</div>
-
-<div id="successModal" class="success-modal" th:if="${param.success}">
-    <div class="success-modal-content">
-        <div class="success-modal-icon">
-            <img src="https://storage.googleapis.com/a1aa/image/c8vfCnEspzOX5ov3dX65vYIGGEdnELte-7GoPt4L-YI.jpg" alt="Success" />
-        </div>
-        <h2 class="success-modal-title">Success!</h2>
-        <p class="success-modal-message">Movie has been added successfully.</p>
-        <div class="success-modal-buttons">
-            <a th:href="@{/manage-movies}" class="success-modal-btn success-modal-list">Go to Movie List</a>
-            <a th:href="@{/admin-dashboard}" class="success-modal-btn success-modal-dashboard">Back to Dashboard</a>
-        </div>
     </div>
 </div>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        const input = document.getElementById("posterInput");
-        const preview = document.getElementById("posterPreview");
+        const posterInput = document.querySelector('input[name="poster"]');
 
-        input.addEventListener("change", () => {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    preview.src = e.target.result;
-                    preview.style.display = "block";
-                };
-                reader.readAsDataURL(file);
-            } else {
-                preview.src = "";
-                preview.style.display = "none";
-            }
-        });
+        if (posterInput) {
+            posterInput.addEventListener("change", (event) => {
+                const file = event.target.files[0];
+                const container = posterInput.parentElement;
+
+                // Remove old image if exists
+                const existingImg = container.querySelector("img");
+                if (existingImg) container.removeChild(existingImg);
+
+                // Create preview
+                if (file && file.type.startsWith("image/")) {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        const img = document.createElement("img");
+                        img.src = e.target.result;
+                        img.style.width = "100%";
+                        img.style.height = "100%";
+                        img.style.objectFit = "cover";
+                        img.style.borderRadius = "8px";
+                        container.insertBefore(img, posterInput);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
     });
 </script>
-
 
 </body>
 </html>
