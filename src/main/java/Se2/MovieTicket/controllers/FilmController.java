@@ -7,6 +7,7 @@ import Se2.MovieTicket.service.FilmService;
 import Se2.MovieTicket.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -98,7 +99,7 @@ public class FilmController {
     public ResponseEntity<String> deleteSelectedMovies(@RequestBody Map<String, List<Long>> payload) {
         List<Long> ids = payload.get("ids");
 
-        System.out.println("Received IDs for deletion: " + ids);
+        System.out.println("Received IDs for deletion: " + ids); // DEBUG LOG
 
         try {
             for (Long id : ids) {
@@ -106,7 +107,7 @@ public class FilmController {
             }
             return ResponseEntity.ok("Deleted successfully: " + ids.size() + " items");
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // DEBUG
             return ResponseEntity.badRequest().body("Failed to delete: " + e.getMessage());
         }
     }

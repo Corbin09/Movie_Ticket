@@ -3,7 +3,7 @@ package Se2.MovieTicket.dto;
 import java.util.List;
 
 public class WeekDTO {
-    private List<DayDTO> days;
+    private List<DayDTO> days;  // Danh sách các ngày trong tuần
 
     public WeekDTO(List<DayDTO> days) {
         this.days = days;

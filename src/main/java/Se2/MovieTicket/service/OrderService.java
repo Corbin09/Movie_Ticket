@@ -4,7 +4,6 @@ import Se2.MovieTicket.dto.OrderDTO;
 import Se2.MovieTicket.model.*;
 import Se2.MovieTicket.repository.OrderRepository;
 import Se2.MovieTicket.repository.SeatStatusRepository;
-
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.hibernate.FlushMode;
@@ -12,11 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.hibernate.FlushMode;
 import org.hibernate.Session;
+//import javax.persistence.EntityManager;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -61,6 +63,7 @@ public class OrderService {
         return orderRepository.findAll(pageable);
     }
 
+
     public Page<Order> searchOrdersByCriteriaPaginated(String criteria, String query, Pageable pageable) {
         if (query == null || query.trim().isEmpty()) {
             return getAllOrdersPaginated(pageable);
@@ -85,6 +88,7 @@ public class OrderService {
             case "room":
                 return orderRepository.findByShowtimeRoomRoomNameContainingIgnoreCase(query, pageable);
             case "showdate":
+                // Parse date from DD/MM/YYYY format
                 try {
                     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
                     Date date = formatter.parse(query);
@@ -100,6 +104,7 @@ public class OrderService {
                     return Page.empty(pageable);
                 }
             case "orderdate":
+                // Parse date from DD/MM/YYYY format
                 try {
                     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
                     Date date = formatter.parse(query);
@@ -112,9 +117,11 @@ public class OrderService {
         }
     }
 
+
     public List<Order> searchOrdersByCriteria(String criteria, String query) {
         List<Order> allOrders = orderRepository.findAllWithDetails();
 
+        // If query is empty, return all orders when a criteria is selected
         if (query == null || query.isEmpty()) {
             return allOrders;
         }
@@ -151,8 +158,7 @@ public class OrderService {
                     if (order.getShowtime() != null &&
                             order.getShowtime().getCinema() != null &&
                             order.getShowtime().getCinema().getCinemaName() != null &&
-                            order.getShowtime().getCinema().getCinemaName().toLowerCase()
-                                    .contains(query.toLowerCase())) {
+                            order.getShowtime().getCinema().getCinemaName().toLowerCase().contains(query.toLowerCase())) {
                         filteredOrders.add(order);
                     }
                 }
@@ -171,7 +177,7 @@ public class OrderService {
                 break;
 
             case "showdate":
-                // Filter by show date
+                // Filter by show date (needs date validation)
                 try {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
                     Date searchDate = dateFormat.parse(query);
@@ -193,12 +199,13 @@ public class OrderService {
                         }
                     }
                 } catch (ParseException e) {
+                    // If date parsing fails, return an empty list
                     return new ArrayList<>();
                 }
                 break;
 
             case "ordervalue":
-                // Filter by order value
+                // Filter by order value (needs numeric validation)
                 try {
                     Double searchValue = Double.parseDouble(query);
 
@@ -209,12 +216,13 @@ public class OrderService {
                         }
                     }
                 } catch (NumberFormatException e) {
+                    // If number parsing fails, return an empty list
                     return new ArrayList<>();
                 }
                 break;
 
             case "orderdate":
-                // Filter by order date
+                // Filter by order date (needs date validation)
                 try {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
                     Date searchDate = dateFormat.parse(query);
@@ -234,6 +242,7 @@ public class OrderService {
                         }
                     }
                 } catch (ParseException e) {
+                    // If date parsing fails, return an empty list
                     return new ArrayList<>();
                 }
                 break;
@@ -250,6 +259,7 @@ public class OrderService {
                         }
                     }
                 } catch (NumberFormatException e) {
+                    // If we can't parse as a number, try searching order ID as a string
                     for (Order order : allOrders) {
                         if (order.getOrderId() != null &&
                                 order.getOrderId().toString().contains(query)) {
@@ -260,6 +270,7 @@ public class OrderService {
                 break;
 
             default:
+                // If no valid criteria is provided, return all orders
                 return allOrders;
         }
 
@@ -286,24 +297,31 @@ public class OrderService {
         return orderRepository.findByUser(user);
     }
 
+
     /**
      * Save an order to the database
      *
      * @param order the order to save
      * @return the saved order with updated ID
      */
+//    public Order saveOrder(Order order) {
+//        return orderRepository.save(order);
+//    }
 
     @Transactional
     public Order saveOrder(Order order) {
+        // Pre-calculate the total price if needed
         if (order.getTotalPrice() == null || order.getTotalPrice() == 0) {
             order.calculateTotal();
         }
 
+        // Disable session-level flush to prevent intermediate flushes
         Session session = entityManager.unwrap(Session.class);
         FlushMode originalFlushMode = session.getHibernateFlushMode();
         session.setHibernateFlushMode(FlushMode.MANUAL);
 
         try {
+            // Set bidirectional relationships
             if (order.getTickets() != null) {
                 for (Ticket ticket : order.getTickets()) {
                     ticket.setOrder(order);
@@ -316,12 +334,15 @@ public class OrderService {
                 }
             }
 
+            // Save the order with a single operation
             Order savedOrder = orderRepository.save(order);
 
+            // Force a flush to execute all SQL at once
             session.flush();
 
             return savedOrder;
         } finally {
+            // Restore original flush mode
             session.setHibernateFlushMode(originalFlushMode);
         }
     }
@@ -329,4 +350,7 @@ public class OrderService {
     public Order findById(Long orderId) {
         return orderRepository.findById(orderId).orElse(null);
     }
+//    public Optional<Order> getOrderById(Long orderId) {
+//        return orderRepository.findById(orderId);
+//    }
 }

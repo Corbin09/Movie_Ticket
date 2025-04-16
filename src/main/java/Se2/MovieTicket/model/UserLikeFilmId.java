@@ -9,14 +9,16 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor  // Giữ để JPA có thể khởi tạo object
+@AllArgsConstructor // Đã có, không cần định nghĩa lại constructor tay
 @Embeddable
 public class UserLikeFilmId implements Serializable {
     private Long userId;
     private Long filmId;
 
-    // Getters and setters
+
+// Không cần viết lại constructor nữa vì @AllArgsConstructor đã làm điều đó
+
     public Long getUserId() {
         return userId;
     }

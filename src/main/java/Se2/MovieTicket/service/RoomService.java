@@ -6,17 +6,17 @@ import Se2.MovieTicket.model.Room;
 import Se2.MovieTicket.repository.RoomRepository;
 import Se2.MovieTicket.repository.SeatRepository;
 import Se2.MovieTicket.repository.SeatStatusRepository;
-
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -83,10 +83,12 @@ public class RoomService {
                     : roomRepository.findAll();
         }
 
+        // Get base list of rooms (either all or filtered)
         List<Room> baseRooms = filterBy != null && !filterBy.trim().isEmpty()
                 ? filterRooms(filterBy)
                 : roomRepository.findAll();
 
+        // Try to search by roomId if search is a number
         try {
             Long roomId = Long.parseLong(search);
             Optional<Room> roomOpt = roomRepository.findById(roomId);
@@ -94,6 +96,7 @@ public class RoomService {
                 return List.of(roomOpt.get());
             }
         } catch (NumberFormatException e) {
+            // Not a number, continue with other search methods
         }
 
         String searchLower = search.toLowerCase();
@@ -133,7 +136,8 @@ public class RoomService {
                                             showtime.getFilm().getFilmName().toLowerCase().contains(searchLower)) ||
                                             // Check showtime's date/time
                                             (showtime.getShowTime() != null &&
-                                                    showtime.getShowTime().toString().toLowerCase().contains(searchLower)))) {
+                                                    showtime.getShowTime().toString().toLowerCase().contains(searchLower))
+                            )) {
                         return true;
                     }
 
@@ -148,11 +152,9 @@ public class RoomService {
         }
         return roomRepository.findByCinemaCinemaId(cinemaId);
     }
-
     public Long countSeatsByRoomId(Long roomId) {
         return roomRepository.countSeatsByRoomId(roomId);
     }
-
     public List<Room> searchRoomsByField(String searchField, String searchText) {
         try {
             switch (searchField) {
@@ -172,10 +174,11 @@ public class RoomService {
                     try {
                         // Parse seat count if it's a number
                         Long seatCount = Long.parseLong(searchText);
-
+                        // Get all rooms
                         List<Room> allRooms = roomRepository.findAll();
                         List<Room> matchingRooms = new ArrayList<>();
 
+                        // For each room, check if its seat count matches the search criteria
                         for (Room room : allRooms) {
                             Long roomSeatCount = roomRepository.countSeatsByRoomId(room.getRoomId());
                             if (roomSeatCount.equals(seatCount)) {
@@ -184,13 +187,17 @@ public class RoomService {
                         }
                         return matchingRooms;
                     } catch (NumberFormatException ignored) {
+                        // If not a number, search by seat row
                         return roomRepository.findBySeatRow(searchText);
                     }
 
                 default:
+                    // If the search field is not recognized, search all fields
                     return roomRepository.searchAllFields(searchText);
             }
         } catch (Exception e) {
+            // Log the exception
+            // Return empty list or throw an exception based on your error handling strategy
             return Collections.emptyList();
         }
     }
@@ -212,6 +219,7 @@ public class RoomService {
      */
     public Room saveRoom(Room room) throws Exception {
         try {
+            // Validation can be added here if needed
             if (room.getRoomName() == null || room.getRoomName().trim().isEmpty()) {
                 throw new Exception("Room name cannot be empty");
             }
@@ -220,22 +228,30 @@ public class RoomService {
                 throw new Exception("Cinema must be selected");
             }
 
+            // Check if a room with the same name already exists in the same cinema
             Room existingRoom = roomRepository.findByRoomNameAndCinemaCinemaId(
                     room.getRoomName(),
-                    room.getCinema().getCinemaId());
+                    room.getCinema().getCinemaId()
+            );
 
             if (existingRoom != null) {
                 throw new Exception("A room with this name already exists in the selected cinema");
             }
 
+            // Save the room to the database
             return roomRepository.save(room);
         } catch (Exception e) {
+            // You can log the exception here if needed
+            // logger.error("Error saving room: " + e.getMessage(), e);
+
+            // Re-throw the exception to be handled by the controller
             throw new Exception("Failed to save room: " + e.getMessage(), e);
         }
     }
 
     public Room saveRoomWhenEdit(Room room) throws Exception {
         try {
+            // Validation can be added here if needed
             if (room.getRoomName() == null || room.getRoomName().trim().isEmpty()) {
                 throw new Exception("Room name cannot be empty");
             }
@@ -244,12 +260,18 @@ public class RoomService {
                 throw new Exception("Cinema must be selected");
             }
 
+            // Save the room to the database
             return roomRepository.save(room);
         } catch (Exception e) {
+            // You can log the exception here if needed
+            // logger.error("Error saving room: " + e.getMessage(), e);
+
+            // Re-throw the exception to be handled by the controller
             throw new Exception("Failed to save room: " + e.getMessage(), e);
         }
     }
 
+    // Get all rooms with pagination directly from database
     public Page<Room> getAllRoomsPaginated(Pageable pageable) {
         return roomRepository.findAll(pageable);
     }
@@ -323,9 +345,12 @@ public class RoomService {
 
         Room existingRoom = existingRoomOpt.get();
 
+        // Only update the fields that can change to avoid unnecessary updates
         existingRoom.setRoomName(room.getRoomName());
 
+        // Only update cinema if it actually changed
         if (!existingRoom.getCinema().getCinemaId().equals(room.getCinema().getCinemaId())) {
+            // Get cinema reference without loading all of its data
             Cinema cinema = em.getReference(Cinema.class, room.getCinema().getCinemaId());
             existingRoom.setCinema(cinema);
         }

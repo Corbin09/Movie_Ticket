@@ -10,7 +10,6 @@ public class SeatDTO {
     private Integer seatNumber;
     private String seatType;
 
-    // Getters and setters
     public Long getSeatId() {
         return seatId;
     }

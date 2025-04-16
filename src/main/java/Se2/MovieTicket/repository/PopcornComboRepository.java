@@ -21,6 +21,7 @@ public interface PopcornComboRepository extends JpaRepository<PopcornCombo, Long
     @Query("SELECT p FROM PopcornCombo p WHERE p.comboPrice <= :maxPrice")
     List<PopcornCombo> findByComboPriceLessThanEqual(@Param("maxPrice") Double maxPrice);
 
+    // PopcornComboRepository.java
     @Query("SELECT p FROM PopcornCombo p WHERE p.comboId IN :comboIds")
     @QueryHints({@QueryHint(name = "org.hibernate.cacheable", value = "true")})
     List<PopcornCombo> findAllByIds(@Param("comboIds") List<Long> comboIds);

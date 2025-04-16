@@ -4,9 +4,9 @@ import Se2.MovieTicket.dto.UserDTO;
 import Se2.MovieTicket.impl.UserDetailsImpl;
 import Se2.MovieTicket.model.Film;
 import Se2.MovieTicket.model.User;
+import Se2.MovieTicket.model.UserLikeFilm;
 import Se2.MovieTicket.repository.UserLikeFilmRepository;
 import Se2.MovieTicket.repository.UserRepository;
-
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityManager;
@@ -28,18 +29,21 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+//    @Autowired
+//    private BCryptPasswordEncoder passwordEncoder;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     private EntityManager em;
-    @Autowired
-    private UserLikeFilmRepository userLikeFilmRepository;
+@Autowired
+private UserLikeFilmRepository userLikeFilmRepository;
 
     public List<User> filterUsers(String username) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -63,10 +67,11 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+
     public User createUser(UserDTO userDTO) {
         User user = new User();
         user.setUsername(userDTO.getUsername());
-        user.setPassword(userDTO.getPassword());
+        user.setPassword(userDTO.getPassword()); // Bỏ mã hóa vì đã được mã hóa trước đó
         user.setEmail(userDTO.getEmail());
         user.setPhoneNumber(userDTO.getPhoneNumber());
         user.setSex(userDTO.getSex());
@@ -83,19 +88,33 @@ public class UserService {
         return savedUser;
     }
 
-    public void deleteUser(Long id) {
+
+    public void deleteUser (Long id) {
         userRepository.deleteById(id);
     }
+
+//    public boolean hasRole(String role) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        if (authentication == null) {
+//            return false;
+//        }
+//
+//        return authentication.getAuthorities().stream()
+//                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(role));
+//    }
+
 
     public Collection<? extends GrantedAuthority> getAuthorities(Long userId) {
         Optional<User> currentUser = userRepository.findById(userId);
         if (currentUser.isPresent()) {
             return Collections.singletonList(new SimpleGrantedAuthority(currentUser.get().getRole()));
         } else {
-            return Collections.emptyList();
+            return Collections.emptyList(); // Or handle the case when the user is not found
         }
     }
 
+
+    // Phương thức truy vấn hiệu quả cho việc lấy thông tin người dùng hiện tại
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -114,6 +133,7 @@ public class UserService {
         }
 
         if (username != null) {
+            // Tối ưu truy vấn bằng cách chỉ lấy thông tin cần thiết
             return userRepository.findByUsername(username).orElse(null);
         }
 
@@ -124,12 +144,12 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    // Update user information with optimal performance
+    // Cập nhật thông tin người dùng với hiệu suất tối ưu
     @Transactional
     public User updateUser(Long id, UserDTO userDTO) {
         return userRepository.findById(id)
                 .map(user -> {
-                    // Update only the provided fields
+                    // Chỉ cập nhật các trường được cung cấp
                     if (userDTO.getUsername() != null) {
                         user.setUsername(userDTO.getUsername());
                     }
@@ -146,7 +166,7 @@ public class UserService {
                         user.setEmail(userDTO.getEmail());
                     }
 
-                    // Fields can be null
+                    // Các trường có thể null
                     user.setPhoneNumber(userDTO.getPhoneNumber());
                     user.setSex(userDTO.getSex());
                     user.setDateOfBirth(userDTO.getDateOfBirth());
@@ -164,6 +184,7 @@ public class UserService {
                 .orElse(null);
     }
 
+    // Phương thức mới - chỉ cập nhật hình ảnh
     @Transactional
     public void updateUserImage(Long userId, String imageUrl) {
         userRepository.findById(userId).ifPresent(user -> {
@@ -186,10 +207,12 @@ public class UserService {
     }
 
     public Page<User> searchUsersByFieldPaginated(String searchField, String searchText, Pageable pageable) {
+        // If no search text is provided, return all users paginated
         if (searchText == null || searchText.trim().isEmpty()) {
             return userRepository.findAll(pageable);
         }
 
+        // Use the appropriate repository method based on the search field
         switch (searchField) {
             case "username":
                 return userRepository.findByUsernameContainingIgnoreCase(searchText, pageable);
@@ -200,24 +223,30 @@ public class UserService {
             case "role":
                 return userRepository.findByRoleIgnoreCase(searchText, pageable);
             default:
+                // Default to username search if field is not recognized
                 return userRepository.findByUsernameContainingIgnoreCase(searchText, pageable);
         }
     }
 
     public Page<User> getAllUsersPaginated(Pageable pageable) {
+        // This method simply delegates to the repository's findAll with pagination
         return userRepository.findAll(pageable);
     }
 
     public void saveUser(User user) {
+        // First check if this is updating an existing user
         if (user.getUserId() != null) {
+            // Check if password needs to be encoded (if it doesn't look like it's already encoded)
             if (user.getPassword() != null && !user.getPassword().startsWith("$2a$")) {
                 user.setPassword(passwordEncoder.encode(user.getPassword()));
             }
         } else {
+            // For new users, always encode the password
             if (user.getPassword() != null) {
                 user.setPassword(passwordEncoder.encode(user.getPassword()));
             }
 
+            // Set default values for new users if not provided
             if (user.getRole() == null) {
                 user.setRole("USER");
             }
@@ -229,6 +258,7 @@ public class UserService {
             }
         }
 
+        // Save or update the user
         userRepository.save(user);
     }
 
@@ -238,15 +268,21 @@ public class UserService {
             throw new IllegalArgumentException("User and role must not be null or empty");
         }
 
+        // Check if the user exists in the database
         User existingUser = userRepository.findById(user.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + user.getUserId()));
 
+        // Normalize role format to remove ROLE_ prefix if present
         String normalizedRole = newRole.startsWith("ROLE_") ? newRole.substring(5) : newRole;
 
+
+        // Update the role
         existingUser.setRole(normalizedRole);
 
+        // Save the updated user
         userRepository.save(existingUser);
 
+        // If the user is currently authenticated, update their authorities in the security context
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getName().equals(existingUser.getUsername())) {
             // Create updated authentication with new role
@@ -254,6 +290,7 @@ public class UserService {
             Authentication newAuth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
                     userDetails, authentication.getCredentials(), userDetails.getAuthorities());
 
+            // Update the security context
             SecurityContextHolder.getContext().setAuthentication(newAuth);
         }
     }
@@ -265,10 +302,12 @@ public class UserService {
             return false;
         }
 
+        // Remove ROLE_ prefix if present in the parameter
         String normalizedRole = roleName.startsWith("ROLE_") ? roleName.substring(5) : roleName;
 
         return authentication.getAuthorities().stream()
                 .map(authority -> {
+                    // Remove ROLE_ prefix from authorities if present
                     String auth = authority.getAuthority();
                     return auth.startsWith("ROLE_") ? auth.substring(5) : auth;
                 })

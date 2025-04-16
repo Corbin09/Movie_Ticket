@@ -1,6 +1,7 @@
 package Se2.MovieTicket.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,7 +31,6 @@ public class Ticket {
     @Column(name = "ticket_price")
     private Double ticketPrice;
 
-    // Getters and setters
     public Long getTicketId() {
         return ticketId;
     }

@@ -1,4 +1,4 @@
-//package Se2.MovieTicket.controllers;
+package Se2.MovieTicket.controllers;//package Se2.MovieTicket.controllers;
 //
 ////import Se2.MovieTicket.dto.FilmRatingDTO;
 //import Se2.MovieTicket.model.*;

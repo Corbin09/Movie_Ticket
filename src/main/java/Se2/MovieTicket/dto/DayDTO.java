@@ -11,14 +11,13 @@ public class DayDTO {
     private boolean isSelected;
     private boolean isCurrentMonth;
 
-    // Constructors
-    // Constructor for displaying the week header (Mon, Tue, Wed, ...)
+    // Constructor cho hiển thị header tuần (Mon, Tue, Wed, ...)
     public DayDTO(String shortName, boolean isWeekend) {
         this.shortName = shortName;
         this.isWeekend = isWeekend;
     }
 
-    // Full constructor for calendar days
+    // Constructor đầy đủ cho các ngày trong lịch
     public DayDTO(
             String dayOfMonth,
             String shortName,
@@ -40,6 +39,7 @@ public class DayDTO {
         this.isCurrentMonth = isCurrentMonth;
     }
 
+    // Constructor tương thích ngược với code cũ
     public DayDTO(
             String dayOfMonth,
             String shortName,

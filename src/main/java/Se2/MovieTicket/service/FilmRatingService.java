@@ -7,7 +7,6 @@ import Se2.MovieTicket.model.UserReview;
 import Se2.MovieTicket.repository.FilmRatingRepository;
 import Se2.MovieTicket.repository.FilmRepository;
 import Se2.MovieTicket.repository.UserReviewRepository;
-
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,14 +17,20 @@ import java.util.Optional;
 
 @Service
 public class FilmRatingService {
-    @Autowired
-    private UserReviewRepository userReviewRepository;
+@Autowired
+private UserReviewRepository userReviewRepository;
 
-    @Autowired
-    private FilmRatingRepository filmRatingRepository;
+@Autowired
+private FilmRatingRepository filmRatingRepository;
 
-    @Autowired
-    private FilmRepository filmRepository;
+@Autowired
+private FilmRepository filmRepository;
+
+
+
+
+
+
     private final List<FilmRatingDTO> filmRatings = new ArrayList<>();
 
     public Optional<FilmRatingDTO> getFilmRatingByFilmId(Long filmId) {
@@ -58,6 +63,7 @@ public class FilmRatingService {
     @Transactional
     public void updateFilmRating(Long filmId) {
 
+        // Get all reviews for this film
         List<UserReview> reviews = userReviewRepository.findByFilmFilmId(filmId);
 
         // Calculate totals
@@ -106,8 +112,10 @@ public class FilmRatingService {
     public void updateFilmRating(Long filmId, Integer newStarValue) {
         FilmRating rating = filmRatingRepository.findById(filmId).orElse(null);
         if (rating != null) {
+            // Increment sum of ratings
             rating.setSumRate(rating.getSumRate() + 1);
 
+            // Add new star value to sum of stars
             rating.setSumStar(rating.getSumStar() + newStarValue);
 
             // Recalculate average rating

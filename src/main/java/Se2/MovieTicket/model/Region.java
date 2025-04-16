@@ -1,5 +1,6 @@
 package Se2.MovieTicket.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -28,7 +29,6 @@ public class Region {
     @JsonManagedReference
     private Set<Cinema> cinemas;
 
-    // Getters and setters
     public Long getRegionId() {
         return regionId;
     }

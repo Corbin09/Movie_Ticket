@@ -17,6 +17,8 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Trả về danh sách quyền của người dùng
+        // Giả sử rằng role của người dùng là một chuỗi, bạn có thể tạo một GrantedAuthority từ role
         return Collections.singletonList(() -> "ROLE_" + user.getRole().toUpperCase());
     }
 
@@ -32,29 +34,35 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
+        // Giả sử bạn có một thuộc tính `accountExpiryDate` trong User để kiểm tra
         return user.getResetTokenExpire() == null || user.getResetTokenExpire().after(new Date());
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return user.getStatus().equals("ACTIVE");
+        // Giả sử bạn có một thuộc tính `locked` trong User để kiểm tra
+        return user.getStatus().equals("ACTIVE"); // Trả về true nếu tài khoản không bị khóa
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
+        // Giả sử bạn có một thuộc tính `credentialsExpiryDate` trong User để kiểm tra
         return user.getResetTokenExpire() == null || user.getResetTokenExpire().after(new Date());
     }
 
     @Override
     public boolean isEnabled() {
-        return user.getStatus().equals("ACTIVE");
+        // Trả về trạng thái của người dùng
+        return user.getStatus().equals("ACTIVE"); // Trả về true nếu người dùng đang hoạt động
     }
 
+    // Phương thức để lấy đối tượng User
     public User getUser () {
         return user;
     }
 
+    // Phương thức để lấy ID của người dùng
     public Long getId() {
-        return user.getUserId();
+        return user.getUserId(); // Trả về ID của người dùng
     }
 }

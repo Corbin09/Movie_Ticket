@@ -1,5 +1,6 @@
 package Se2.MovieTicket.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,7 +35,6 @@ public class PopcornCombo {
     @JsonManagedReference
     private Set<PopcornOrder> popcornOrders;
 
-    // Getters and setters
     public Long getComboId() {
         return comboId;
     }

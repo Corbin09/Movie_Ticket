@@ -1,5 +1,6 @@
 package Se2.MovieTicket.dto;
 
+import Se2.MovieTicket.model.Showtime;
 import lombok.Data;
 
 import java.util.Set;
@@ -10,8 +11,8 @@ public class CinemaDTO {
     private String cinemaName;
     private String address;
     private Long clusterId;
-    private String complexName;
-    private String complexColor;
+    private String complexName;     // Added field
+    private String complexColor;    // Added field
     private Set<ShowtimeDTO> showtimes;
 
     public Long getCinemaId() {
@@ -62,6 +63,7 @@ public class CinemaDTO {
         this.complexColor = complexColor;
     }
 
+    // Add getter and setter for showtimes
     public Set<ShowtimeDTO> getShowtimes() {
         return showtimes;
     }

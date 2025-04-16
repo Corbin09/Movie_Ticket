@@ -6,7 +6,6 @@ import Se2.MovieTicket.dto.WeekDTO;
 import Se2.MovieTicket.service.CinemaService;
 import Se2.MovieTicket.service.FilmService;
 import Se2.MovieTicket.service.ShowtimeService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,7 @@ public class MovieTicketApiController {
     private final FilmService filmService;
     private final CinemaService cinemaService;
     private final ShowtimeService showtimeService;
+
     private static final Logger logger = LoggerFactory.getLogger(MovieTicketApiController.class);
 
     @Autowired
@@ -149,6 +149,7 @@ public class MovieTicketApiController {
         logger.info("Showtime ID: {}", showtimeId);
         logger.info("Selected Date: {}", selectedDate);
 
-        return "booking-page";
+        // Xử lý logic booking tiếp theo
+        return "booking-page";  // Trả về template Thymeleaf tương ứng
     }
 }

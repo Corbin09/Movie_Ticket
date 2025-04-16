@@ -3,7 +3,6 @@ package Se2.MovieTicket.service;
 import Se2.MovieTicket.dto.CategoryDTO;
 import Se2.MovieTicket.model.Category;
 import Se2.MovieTicket.repository.CategoryRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityManager;

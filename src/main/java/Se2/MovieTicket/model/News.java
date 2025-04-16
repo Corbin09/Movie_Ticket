@@ -1,12 +1,14 @@
 package Se2.MovieTicket.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "news")
@@ -45,7 +47,6 @@ public class News {
     @Column(name = "new_footer")
     private String newsFooter;
 
-    // Getters and setters
     public Long getNewsId() {
         return newsId;
     }
@@ -109,4 +110,6 @@ public class News {
     public void setNewsFooter(String newsFooter) {
         this.newsFooter = newsFooter;
     }
+
+
 }

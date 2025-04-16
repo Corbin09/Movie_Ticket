@@ -20,6 +20,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(localeConfig.localeChangeInterceptor());
     }
 
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        registry.addResourceHandler("/images/**")
+//                .addResourceLocations("file:/src/main/resources/static/images/news");
+//    }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/favicon.ico")

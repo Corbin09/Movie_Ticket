@@ -15,7 +15,6 @@ public class FilmCategoryId implements Serializable {
     private Long filmId;
     private Long categoryId;
 
-    // Getters and setters
     public Long getCategoryId() {
         return categoryId;
     }

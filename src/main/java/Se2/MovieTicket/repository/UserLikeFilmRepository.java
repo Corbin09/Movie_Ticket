@@ -4,7 +4,6 @@ import Se2.MovieTicket.model.Film;
 import Se2.MovieTicket.model.User;
 import Se2.MovieTicket.model.UserLikeFilm;
 import Se2.MovieTicket.model.UserLikeFilmId;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -8,13 +8,14 @@ import Se2.MovieTicket.service.FilmService;
 import Se2.MovieTicket.service.NewsService;
 import Se2.MovieTicket.service.TicketService;
 import Se2.MovieTicket.service.UserService;
-
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
-
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -22,16 +23,20 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/user")
@@ -45,15 +50,15 @@ public class UserController {
 
     @Autowired
     private TicketService ticketService;
-    @Autowired
-    private FilmService filmService;
+@Autowired
+private FilmService filmService;
 
-    @Autowired
-    private FilmRepository filmRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+@Autowired
+private FilmRepository filmRepository;
 
+@Autowired
+private UserRepository userRepository;
     @GetMapping("/detail-profile")
     public String viewProfile(HttpSession session, Model model) {
         User currentUser = userService.getCurrentUser();
@@ -64,11 +69,19 @@ public class UserController {
         // Save user to session
         session.setAttribute("loggedInUser", currentUser);
 
+        // Get user posts
         List<News> userPosts = newsService.findNewsByUser(currentUser);
+
+        // Get tickets directly with a single query
         List<Ticket> userTickets = ticketService.getTicketsByUserDirectly(currentUser.getUserId());
+
+        // Get all films
         List<Film> allFilms = filmService.getAllFilms();
+
+        // IMPORTANT: Get liked films directly from database instead of from user object
         List<Film> likedFilms = filmService.getLikedFilmsByUserId(currentUser.getUserId());
 
+        // Add everything to model
         model.addAttribute("userPosts", userPosts);
         model.addAttribute("userTickets", userTickets);
         model.addAttribute("allFilms", allFilms);
@@ -105,6 +118,7 @@ public class UserController {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "User not found"));
             }
 
+            // Validate input fields
             Map<String, String> errors = new HashMap<>();
 
             // Validate username
@@ -127,6 +141,7 @@ public class UserController {
                 errors.put("phoneNumber", "Please enter a valid phone number (at least 10 digits)");
             }
 
+            // Return validation errors if any
             if (!errors.isEmpty()) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", false);
@@ -134,10 +149,12 @@ public class UserController {
                 return ResponseEntity.badRequest().body(response);
             }
 
+            // Process image if uploaded
             String imageUrl = currentUser.getUserImg();
 
             if (userImg != null && !userImg.isEmpty()) {
                 try {
+                    // Use a path relative to the application's working directory
                     String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/images/users";
                     String fileName = UUID.randomUUID() + "_" + userImg.getOriginalFilename();
                     Path uploadPath = Paths.get(uploadDir);
@@ -164,6 +181,7 @@ public class UserController {
                 }
             }
 
+            // Convert dateOfBirth from String to Date if needed
             Date parsedDate = null;
             if (dateOfBirth != null && !dateOfBirth.isEmpty()) {
                 try {
@@ -172,7 +190,8 @@ public class UserController {
                 } catch (ParseException e) {
                     return ResponseEntity.badRequest().body(Map.of(
                             "success", false,
-                            "message", "Invalid date format"));
+                            "message", "Invalid date format"
+                    ));
                 }
             }
 
@@ -182,7 +201,7 @@ public class UserController {
             userDTO.setEmail(email);
             userDTO.setPhoneNumber(phoneNumber);
             userDTO.setSex(sex);
-            userDTO.setDateOfBirth(parsedDate);
+            userDTO.setDateOfBirth(parsedDate); // Using the parsed Date object
             userDTO.setUserImg(imageUrl);
             userDTO.setRole(currentUser.getRole());
             userDTO.setStatus(currentUser.getStatus());
@@ -193,6 +212,7 @@ public class UserController {
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", true);
 
+                // Chỉ trả về thông tin cần thiết của user
                 Map<String, Object> userResponse = new HashMap<>();
                 userResponse.put("userId", updatedUser.getUserId());
                 userResponse.put("username", updatedUser.getUsername());
@@ -205,16 +225,17 @@ public class UserController {
                 response.put("user", userResponse);
                 return ResponseEntity.ok(response);
             } else {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("success", false, "message", "Failed to update profile"));
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Failed to update profile"));
             }
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
-                    "message", "Server error: " + e.getMessage()));
+                    "message", "Server error: " + e.getMessage()
+            ));
         }
     }
+
 
     @PostMapping("/upload-news")
     public String uploadNews(@RequestParam("newsHeader") String newsHeader,
@@ -226,24 +247,28 @@ public class UserController {
                              HttpSession session,
                              RedirectAttributes redirectAttributes) {
 
-        User currentUser = userService.getCurrentUser();
-        if (currentUser == null) {
+        User currentUser  = userService.getCurrentUser ();
+        if (currentUser  == null) {
             return "redirect:/login";
         }
 
+        // Create a complete News object
         News news = new News();
-
         news.setNewsHeader(newsHeader);
         news.setNewsContent(newsContent);
         news.setNewsFooter(newsFooter);
-        news.setNewsTime(LocalDateTime.now());
 
+        // Set the current time using LocalDateTime
+        news.setNewsTime(LocalDateTime.now()); // Change this line
+
+        // IMPORTANT: Load actual Film entity from repository
         Film film = filmRepository.findById(filmId)
                 .orElseThrow(() -> new EntityNotFoundException("Film not found with ID: " + filmId));
-
         news.setFilm(film);
-        news.setUser(currentUser);
+        // Set user properly - use currentUser  directly
+        news.setUser (currentUser );
 
+        // Handle image upload if exists
         if (newsImgFile != null && !newsImgFile.isEmpty()) {
             try {
                 // Save file and get path
@@ -256,6 +281,7 @@ public class UserController {
                 }
                 Path filePath = uploadPath.resolve(uniqueFileName);
                 Files.copy(newsImgFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                // Set news image path
                 news.setNewsImg("/images/news/" + uniqueFileName);
             } catch (IOException e) {
                 redirectAttributes.addFlashAttribute("error", "Failed to upload image: " + e.getMessage());
@@ -263,23 +289,25 @@ public class UserController {
             }
         }
 
+        // Save news with all attributes
         try {
             newsService.saveNews(news);
             // Add success message to be displayed
             redirectAttributes.addFlashAttribute("success", "Your post has been created successfully!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Failed to create post: " + e.getMessage());
-            e.printStackTrace();
+            e.printStackTrace(); // Add this to see the full error in logs
         }
 
         return "redirect:/user/detail-profile";
     }
 
+
     @DeleteMapping("/delete-news")
     @ResponseBody
     public ResponseEntity<?> deleteNews(@RequestBody Map<String, List<Long>> requestBody) {
         List<Long> ids = requestBody.get("ids");
-        System.out.println("Received IDs: " + ids);
+        System.out.println("Received IDs: " + ids); // Debug log
 
         if (ids == null || ids.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No ids provided");
@@ -300,6 +328,7 @@ public class UserController {
         return ResponseEntity.ok("Deleted successfully");
     }
 
+    // Fixed DeleteMapping for unliking films
     @DeleteMapping("/unlike-film")
     @ResponseBody
     public ResponseEntity<?> unlikeFilm(@RequestBody Map<String, List<Long>> requestBody) {
@@ -321,20 +350,34 @@ public class UserController {
         return ResponseEntity.ok("Unliked successfully");
     }
 
+    // Helper method to save uploaded images
     private String saveImage(MultipartFile file) throws IOException {
         // Define the directory where images will be stored
         String uploadDir = "src/main/resources/static/images/news/";
 
+        // Create the directory if it doesn't exist
         File dir = new File(uploadDir);
         if (!dir.exists()) {
             dir.mkdirs();
         }
 
+        // Generate a unique filename
         String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+
+        // Save the file
         Path filePath = Paths.get(uploadDir + fileName);
         Files.write(filePath, file.getBytes());
 
+        // Return the path that will be stored in the database
         return "/images/news/" + fileName;
     }
+
+
+
+
+
+
+
+
 
 }

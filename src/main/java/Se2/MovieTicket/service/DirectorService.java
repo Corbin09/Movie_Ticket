@@ -3,14 +3,15 @@ package Se2.MovieTicket.service;
 import Se2.MovieTicket.dto.DirectorDTO;
 import Se2.MovieTicket.model.Director;
 import Se2.MovieTicket.repository.DirectorRepository;
-
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 
 import java.util.ArrayList;
 import java.util.List;

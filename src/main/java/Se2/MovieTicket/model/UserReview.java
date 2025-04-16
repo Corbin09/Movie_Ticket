@@ -1,6 +1,7 @@
 package Se2.MovieTicket.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,7 +40,6 @@ public class UserReview {
     @Temporal(TemporalType.TIMESTAMP)
     private Date datePosted;
 
-    // Getters and setters
     public UserReviewId getId() {
         return id;
     }

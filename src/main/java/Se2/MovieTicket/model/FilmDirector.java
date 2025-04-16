@@ -1,6 +1,9 @@
 package Se2.MovieTicket.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,7 +33,6 @@ public class FilmDirector {
     @JsonBackReference
     private Director director;
 
-    // Getters and setters
     public FilmDirectorId getId() {
         return id;
     }

@@ -6,7 +6,6 @@ import Se2.MovieTicket.model.Film;
 import Se2.MovieTicket.model.User;
 import Se2.MovieTicket.service.FilmService;
 import Se2.MovieTicket.service.UserService;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +39,10 @@ public class SearchController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             Model model, HttpServletRequest request) {
 
+        // Format date
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+        // Try to get user from session first
         HttpSession session = request.getSession(false);
         User sessionUser = null;
         if (session != null) {
@@ -51,6 +52,7 @@ public class SearchController {
             }
         }
 
+        // If user not found in session, check SecurityContext
         if (sessionUser == null) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
@@ -61,6 +63,7 @@ public class SearchController {
                     User user = userOptional.get();
                     model.addAttribute("user", user);
 
+                    // Save user to session for later use
                     if (session != null) {
                         session.setAttribute("user", user);
                     }
@@ -68,7 +71,7 @@ public class SearchController {
             }
         }
 
-        model.addAttribute("currPage", "home");
+        model.addAttribute("currPage", "home"); // Keep the home menu item active
 
         // Set up pagination for search results
         int pageSize = 8; // Number of films per page
@@ -115,6 +118,6 @@ public class SearchController {
         model.addAttribute("currentPageSearch", page);
         model.addAttribute("totalPagesSearch", searchResultsPage.getTotalPages());
 
-        return "home";
+        return "home"; // Reuse the home template
     }
 }

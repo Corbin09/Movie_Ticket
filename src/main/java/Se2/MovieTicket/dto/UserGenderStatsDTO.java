@@ -9,7 +9,6 @@ public class UserGenderStatsDTO {
         this.total = total;
     }
 
-    // Getters and setters
     public String getSex() {
         return sex;
     }
@@ -25,4 +24,5 @@ public class UserGenderStatsDTO {
     public void setTotal(Long total) {
         this.total = total;
     }
+// Getters and setters
 }

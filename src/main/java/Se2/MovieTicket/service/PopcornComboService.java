@@ -3,7 +3,6 @@ package Se2.MovieTicket.service;
 import Se2.MovieTicket.dto.PopcornComboDTO;
 import Se2.MovieTicket.model.PopcornCombo;
 import Se2.MovieTicket.repository.PopcornComboRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +14,7 @@ import java.util.Optional;
 public class PopcornComboService {
     @Autowired
     private PopcornComboRepository popcornComboRepository;
+
 
     public PopcornCombo createPopcornCombo(PopcornComboDTO popcornComboDTO) {
         PopcornCombo popcornCombo = new PopcornCombo();
@@ -38,18 +38,30 @@ public class PopcornComboService {
         return popcornComboRepository.findAll();
     }
 
+
     public Optional<PopcornCombo> getPopcornComboById(Long comboId) {
         return popcornComboRepository.findById(comboId);
     }
+
 
     public PopcornCombo savePopcornCombo(PopcornCombo popcornCombo) {
         return popcornComboRepository.save(popcornCombo);
     }
 
+//    public PopcornCombo getComboById(Long comboId) {
+//        return popcornComboRepository.findById(comboId).orElse(null);
+//    }
+
     public PopcornCombo getComboById(Long id) {
         return popcornComboRepository.findById(id).orElse(null);
     }
 
+    // New method to get multiple combos at once
+//    public List<PopcornCombo> getCombosByIds(List<Long> comboIds) {
+//        return popcornComboRepository.findAllById(comboIds);
+//    }
+
+    // PopcornComboService.java
     public List<PopcornCombo> getCombosByIds(List<Long> comboIds) {
         if (comboIds.isEmpty()) {
             return new ArrayList<>();

@@ -3,7 +3,6 @@ package Se2.MovieTicket.service;
 import Se2.MovieTicket.dto.ActorDTO;
 import Se2.MovieTicket.model.Actor;
 import Se2.MovieTicket.repository.ActorRepository;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -23,7 +22,6 @@ public class ActorService {
 
     @Autowired
     private EntityManager em;
-
     public List<Actor> getAllActors() {
         return actorRepository.findAll();
     }
@@ -48,7 +46,7 @@ public class ActorService {
         } else if (name != null && !name.isEmpty()) {
             return actorRepository.findByActorNameContaining(name);
         }
-        return actorRepository.findAll();
+        return actorRepository.findAll(); // Trả về tất cả nếu không có điều kiện nào
     }
 
     public Optional<Actor> getActorById(Long id) {
@@ -78,6 +76,7 @@ public class ActorService {
     public void deleteActor(Long id) {
         actorRepository.deleteById(id);
     }
+
 
     public Actor findActorById(Long id) {
         if (id == null) {
