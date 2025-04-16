@@ -5,9 +5,11 @@ import Se2.MovieTicket.model.Film;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -139,4 +141,33 @@ public interface FilmRepository extends JpaRepository<Film, Long> {
     @Query("SELECT DISTINCT f FROM Film f JOIN f.filmDirectors fd WHERE fd.director.directorId = :directorId")
     Page<Film> findByDirectorIdPage(@Param("directorId") Long directorId, Pageable pageable);
 
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM actor_film WHERE film_id = :filmId", nativeQuery = true)
+    void deleteAllActorsByFilmId(@Param("filmId") Long filmId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "INSERT INTO actor_film (film_id, actor_id) VALUES (:filmId, :actorId)", nativeQuery = true)
+    void addActorToFilm(@Param("filmId") Long filmId, @Param("actorId") Long actorId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM category_film WHERE film_id = :filmId", nativeQuery = true)
+    void deleteAllCategoriesByFilmId(@Param("filmId") Long filmId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "INSERT INTO category_film (film_id, category_id) VALUES (:filmId, :categoryId)", nativeQuery = true)
+    void addCategoryToFilm(@Param("filmId") Long filmId, @Param("categoryId") Long categoryId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM director_film WHERE film_id = :filmId", nativeQuery = true)
+    void deleteAllDirectorsByFilmId(@Param("filmId") Long filmId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "INSERT INTO director_film (film_id, director_id) VALUES (:filmId, :directorId)", nativeQuery = true)
+    void addDirectorToFilm(@Param("filmId") Long filmId, @Param("directorId") Long directorId);
 }

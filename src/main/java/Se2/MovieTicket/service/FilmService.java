@@ -13,6 +13,9 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +23,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -137,9 +137,16 @@ public class FilmService {
     }
 
     public void deleteFilm(Long id) {
-        filmRepository.deleteById(id);
-    }
+        System.out.println("Trying to delete ID: " + id);
+        Optional<Film> filmOpt = filmRepository.findById(id);
+        if (filmOpt.isPresent()) {
+            filmRepository.deleteById(id);
+            System.out.println("Deleted film with ID: " + id);
+        } else {
+            System.out.println("Film ID not found: " + id);
+        }
 
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(FilmService.class);
 
@@ -280,6 +287,46 @@ public class FilmService {
         });
     }
 
+    public Page<FilmDTO> filteredFilms(String criteria, Pageable pageable) {
+        List<Film> allFilms = filmRepository.findAll(); // lấy toàn bộ phim
+        List<Film> filtered;
+
+        switch (criteria) {
+            case "status_now":
+                filtered = allFilms.stream()
+                        .filter(film -> film.getReleaseDate() != null && !film.getReleaseDate().isAfter(LocalDate.now()))
+                        .toList();
+                break;
+            case "status_soon":
+                filtered = allFilms.stream()
+                        .filter(film -> film.getReleaseDate() != null && film.getReleaseDate().isAfter(LocalDate.now()))
+                        .toList();
+                break;
+            case "name_asc":
+                filtered = allFilms.stream()
+                        .sorted(Comparator.comparing(Film::getFilmName, Comparator.nullsLast(String::compareToIgnoreCase)))
+                        .toList();
+                break;
+            case "age_low":
+                filtered = allFilms.stream()
+                        .sorted(Comparator.comparing(Film::getAgeLimit, Comparator.nullsLast(Integer::compareTo)))
+                        .toList();
+                break;
+            case "normal":
+            default:
+                filtered = allFilms;
+                break;
+        }
+
+        // Phân trang thủ công
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), filtered.size());
+        List<FilmDTO> filmDTOs = filtered.subList(start, end).stream().map(this::convertToDTO).toList();
+
+        return new PageImpl<>(filmDTOs, pageable, filtered.size());
+    }
+
+
 
     public FilmDTO convertToDTO(Film film) {
         FilmDTO filmDTO = new FilmDTO();
@@ -406,5 +453,53 @@ public class FilmService {
 
         return filmRepository.findById(filmId)
                 .orElseThrow(() -> new EntityNotFoundException("Film not found with ID: " + filmId));
+    }
+
+    public FilmDTO getFilmDTOById(Long id) {
+        return filmRepository.findById(id)
+                .map(this::convertToDTO)
+                .orElseThrow(() -> new RuntimeException("Film not found with ID: " + id));
+    }
+
+    // In FilmService
+    public void updateFilmActors(Long filmId, Set<Actor> actors) {
+        // Use your repository to handle this relationship update
+        // This would depend on your exact repository methods
+        filmRepository.deleteAllActorsByFilmId(filmId);
+        for (Actor actor : actors) {
+            filmRepository.addActorToFilm(filmId, actor.getActorId());
+        }
+    }
+
+
+    public Film saveFilm(FilmDTO filmDTO) {
+        Film film;
+        if (filmDTO.getFilmId() != null) {
+            // Update existing film
+            film = filmRepository.findById(filmDTO.getFilmId())
+                    .orElseThrow(() -> new EntityNotFoundException("Film not found with ID: " + filmDTO.getFilmId()));
+        } else {
+            // Create new film
+            film = new Film();
+        }
+
+        // Set film properties from DTO
+        film.setFilmName(filmDTO.getFilmName());
+        film.setFilmImg(filmDTO.getFilmImg());
+        film.setFilmTrailer(filmDTO.getFilmTrailer());
+        film.setReleaseDate(filmDTO.getReleaseDate());
+        film.setFilmDescription(filmDTO.getFilmDescription());
+        film.setAgeLimit(filmDTO.getAgeLimit());
+        film.setDuration(filmDTO.getDuration());
+        film.setFilmType(filmDTO.getFilmType());
+        film.setCountry(filmDTO.getCountry());
+
+        // Save the film first to ensure it has an ID
+        Film savedFilm = filmRepository.save(film);
+
+        // Handle relationships if provided in DTO
+        // This assumes you have proper methods to handle these relationships
+
+        return savedFilm;
     }
 }

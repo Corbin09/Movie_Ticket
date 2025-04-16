@@ -612,7 +612,7 @@
     </style>
 </head>
 <body>
-<!--<div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>-->
+<div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
 
 <div class="container-orders-management">
     <div class="main-content">
@@ -887,7 +887,9 @@ movieRows.forEach(row => {
       cell.addEventListener('click', function() {
         const movieId = row.getAttribute('data-movie-id');
         if (movieId) {
-          window.location.href = `/edit-movie?id=${movieId}`;
+          window.location.href = `/manage-movies/edit-movie/${movieId}`;
+
+
         }
       });
     });
@@ -984,22 +986,6 @@ movieRows.forEach(row => {
         // Get all movie table rows
         const movieRows = document.querySelectorAll('#movieTable tbody tr');
 
-        // Make table rows clickable to edit
-        movieRows.forEach(row => {
-            // Skip the "No movie found" row if present
-            if (!row.querySelector('td[colspan]')) {
-                row.style.cursor = 'pointer';
-                // Add click event to all cells in the row
-                row.querySelectorAll('td:not(:first-child)').forEach(cell => {
-                    cell.addEventListener('click', function() {
-                        const movieId = row.getAttribute('data-movie-id');
-                        if (movieId) {
-                            window.location.href = `/manage-movies/edit-movie?id=${movieId}`;
-                        }
-                    });
-                });
-            }
-        });
 
         // Your clear button code can go here as well
         const clearButton = document.getElementById('clearButton');

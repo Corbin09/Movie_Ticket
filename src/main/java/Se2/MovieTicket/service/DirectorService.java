@@ -78,4 +78,19 @@ public class DirectorService {
     public Director findDirectorById(Long id) {
         return directorRepository.findById(id).orElse(null);
     }
+
+    public Director findByName(String directorName) {
+        if (directorName == null || directorName.isEmpty()) {
+            return null;
+        }
+        List<Director> directors = directorRepository.findByDirectorName(directorName);
+        return directors.isEmpty() ? null : directors.get(0); // Trả về director đầu tiên hoặc null
+    }
+
+    public Director saveDirector(Director newDirector) {
+        if (newDirector == null) {
+            return null;
+        }
+        return directorRepository.save(newDirector);
+    }
 }

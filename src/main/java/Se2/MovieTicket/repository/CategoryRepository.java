@@ -7,9 +7,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
     @Query("SELECT c FROM Category c WHERE c.categoryName LIKE %:name%")
     List<Category> findByCategoryNameContaining(@Param("name") String name);
+
+    List<Category> findByCategoryName(String categoryName);
 }
