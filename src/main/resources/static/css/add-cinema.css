@@ -1,13 +1,30 @@
+/* Base styles */
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
+:root {
+  --primary-color: #044a2c;
+  --primary-hover: #033821;
+  --secondary-color: #333;
+  --error-color: #dc2626;
+  --success-color: #52c41a;
+  --light-gray: #f8f9fa;
+  --border-gray: #ced4da;
+  --text-color: #333;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Poppins', sans-serif;
   background-color: #044a2c;
   margin: 0;
   padding: 0;
-  color: #333;
+  color: var(--text-color);
+  overflow-x: hidden;
 }
 
 /* Main content container */
@@ -18,57 +35,71 @@ body {
   padding-top: 79px;
   padding-left: 260px;
   transition: padding 0.3s ease;
+  position: relative;
 }
 
 /* Section title */
 .section-title {
-  color: white;
+  color: #074730;
   font-size: 24px;
   margin-bottom: 20px;
   font-weight: 600;
+  transition: font-size 0.3s ease;
+  color: #074730;
 }
 
 /* Form container */
 .form-container {
-  background-color: #fff;
-  border-radius: 8px;
+  max-width: 90%;
+  margin: 40px auto;
   padding: 30px;
+  padding-top: 40px;
+  background-color: white;
+  border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  max-width: 1200px;
-  margin: 0 auto;
+  transition: all 0.3s ease;
+  width: 100%;
 }
 
-/* Form elements */
 .form-group {
   margin-bottom: 20px;
+  width: 100%;
 }
 
-label {
+.form-group label {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: #333;
+  color: var(--secondary-color);
 }
 
 .form-control {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ced4da;
+  padding: 8px 12px;
+  border: 1px solid var(--border-gray);
   border-radius: 4px;
   font-size: 14px;
-  color: #333;
+  color: var(--text-color);
   background-color: #fff;
   height: 38px;
-  box-sizing: border-box;
+  transition: border-color 0.3s;
+  -webkit-appearance: none;
 }
 
 .form-control:focus {
-  border-color: #044a2c;
+  border-color: var(--primary-color);
   outline: none;
   box-shadow: 0 0 0 2px rgba(4, 74, 44, 0.2);
 }
 
-/* Custom dropdown */
+.error-message {
+  color: var(--error-color);
+  font-size: 14px;
+  margin-top: 5px;
+  display: block;
+}
+
+/* Custom Select Styling */
 .custom-select {
   position: relative;
   width: 100%;
@@ -78,13 +109,32 @@ label {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
+  padding: 8px 12px;
   background-color: #fff;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--border-gray);
   border-radius: 4px;
   cursor: pointer;
   height: 38px;
   font-size: 14px;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.3s;
+}
+
+.select-control:hover {
+  border-color: #b1b1b1;
+}
+
+.custom-select.active .select-control {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(4, 74, 44, 0.2);
+}
+
+.selected-option {
+  color: var(--text-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
 }
 
 .select-dropdown {
@@ -99,7 +149,7 @@ label {
   max-height: 200px;
   overflow-y: auto;
   display: none;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--border-gray);
   margin-top: 4px;
 }
 
@@ -118,19 +168,25 @@ label {
   background-color: #f8f9fa;
 }
 
+.select-option:active {
+  background-color: #e9ecef;
+}
+
 /* Form actions */
 .form-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 15px;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 30px;
+  transition: flex-direction 0.3s ease, gap 0.3s ease;
+  flex-wrap: wrap;
 }
 
 .cancel-btn {
-  background-color: #f8f9fa;
-  color: #333;
-  padding: 0 16px;
-  border: 1px solid #ced4da;
+  background-color: #f87171;
+  color: white;
+  border: none;
+  padding: 8px 16px;
   border-radius: 4px;
   text-decoration: none;
   font-weight: 500;
@@ -141,18 +197,20 @@ label {
   justify-content: center;
   height: 38px;
   font-size: 14px;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
+  min-width: 100px;
 }
 
 .cancel-btn:hover {
-  background-color: #e2e6ea;
+  background-color: #ef4444;
+  transform: translateY(-2px);
 }
 
 .add-action-btn {
-  background-color: #044a2c;
-  color: white;
-  padding: 0 16px;
+  background-color: #b7f7c2;
+  color: #044a2c;
   border: none;
+  padding: 8px 16px;
   border-radius: 4px;
   font-weight: 500;
   cursor: pointer;
@@ -161,19 +219,13 @@ label {
   justify-content: center;
   height: 38px;
   font-size: 14px;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
+  min-width: 100px;
 }
 
 .add-action-btn:hover {
-  background-color: #033821;
-}
-
-/* Error message */
-.error-message {
-  color: #dc2626;
-  font-size: 14px;
-  margin-top: 5px;
-  display: block;
+  background-color: #a5f2b4;
+  transform: translateY(-2px);
 }
 
 /* Success overlay */
@@ -187,7 +239,7 @@ label {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1100;
+  z-index: 9999;
   visibility: hidden;
   opacity: 0;
   transition: visibility 0s, opacity 0.3s;
@@ -227,7 +279,7 @@ label {
   font-size: 24px;
   font-weight: 600;
   margin-bottom: 15px;
-  color: #333;
+  color: var(--success-color);
 }
 
 .overlay-text {
@@ -235,6 +287,13 @@ label {
   color: #666;
   margin-bottom: 25px;
   line-height: 1.5;
+}
+
+.overlay-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 .overlay-btn {
@@ -249,12 +308,12 @@ label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 100px;
-  margin: 0 5px;
+  min-width: 140px;
 }
 
 .overlay-btn:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .overlay-btn:active {
@@ -262,7 +321,7 @@ label {
 }
 
 .overlay-btn-success {
-  background-color: #52c41a;
+  background-color: var(--success-color);
   color: white;
 }
 
@@ -279,21 +338,16 @@ label {
   background-color: #e0e0e0;
 }
 
-/* Responsive Design */
-@media (max-width: 1366px) {
+/* Responsive styles */
+@media screen and (max-width: 1400px) {
   .content-view {
     padding-left: 240px;
   }
 }
 
-@media (max-width: 1024px) {
+@media screen and (max-width: 1200px) {
   .content-view {
     padding-left: 220px;
-    padding-top: 60px;
-  }
-
-  .section-title {
-    font-size: 22px;
   }
 
   .form-container {
@@ -301,34 +355,56 @@ label {
   }
 }
 
-@media (max-width: 900px) {
+@media screen and (max-width: 1024px) {
   .content-view {
-    padding-left: 20px;
+    padding-left: 200px;
     padding-top: 70px;
+  }
+
+  .section-title {
+    font-size: 22px;
+    color: #074730;
+  }
+
+  .form-container {
+    padding: 20px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .content-view {
+    padding-left: 0;
+    padding-top: 80px;
+  }
+
+  .section-title {
+    padding-left: 10px;
+    margin-top: 10px;
+    color: #074730;
+  }
+
+  .form-container {
+    margin: 20px auto;
   }
 
   .content-view.sidebar-open {
     padding-left: 220px;
-  }
-
-  .section-title {
-    font-size: 20px;
+    padding-top: 80px;
   }
 }
 
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
   .content-view {
     padding: 15px;
-    padding-top: 60px;
-  }
-
-  .content-view.sidebar-open {
-    padding-left: 15px;
+    padding-top: 85px;
   }
 
   .section-title {
     font-size: 20px;
     margin-bottom: 15px;
+    padding-left: 5px;
+    margin-top: 5px;
+    color: #074730;
     text-align: center;
   }
 
@@ -336,120 +412,132 @@ label {
     padding: 20px;
   }
 
-  .form-control,
-  .select-control {
-    padding: 8px 10px;
-    font-size: 14px;
-  }
-
   .form-actions {
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
     gap: 10px;
-    margin-top: 25px;
   }
 
   .cancel-btn,
   .add-action-btn {
-    flex: 1;
-    font-size: 14px;
+    width: 100%;
   }
 
-  .overlay-btn {
-    margin-bottom: 10px;
-  }
-
-  .overlay-box {
-    padding: 20px;
+  .content-view.sidebar-open {
+    padding-left: 15px;
+    padding-top: 75px;
   }
 }
 
-@media (max-width: 480px) {
+@media screen and (max-width: 576px) {
   .content-view {
     padding: 10px;
-    padding-top: 55px;
+    padding-top: 75px;
   }
 
   .section-title {
     font-size: 18px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    text-align: center;
+    margin-top: 10px;
+    color: #074730;
   }
 
   .form-container {
     padding: 15px;
+    margin: 15px auto;
+    border-radius: 6px;
   }
 
   .form-group {
     margin-bottom: 15px;
   }
 
-  label {
+  .form-group label {
+    margin-bottom: 6px;
     font-size: 14px;
-    margin-bottom: 5px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .content-view {
+    padding: 8px;
+    padding-top: 70px;
+    margin-top: 5px;
+  }
+
+  .form-container {
+    padding: 12px;
+    margin: 10px auto;
+  }
+
+  .overlay-box {
+    padding: 20px 15px;
+  }
+
+  .overlay-btn {
+    min-width: 120px;
+    padding: 8px 15px;
+    font-size: 14px;
   }
 
   .form-control,
   .select-control {
-    padding: 8px;
-    font-size: 14px;
     height: 36px;
-  }
-
-  .error-message {
-    font-size: 12px;
-  }
-
-  .form-actions {
-    flex-direction: column;
-  }
-
-  .cancel-btn,
-  .add-action-btn {
-    width: 100%;
-    margin-bottom: 5px;
-  }
-
-  .overlay-title {
-    font-size: 20px;
-  }
-
-  .overlay-text {
-    font-size: 14px;
-  }
-
-  .overlay-btn {
-    width: 100%;
-    margin: 5px 0;
+    font-size: 13px;
+    padding: 6px 10px;
   }
 }
 
-@media (max-width: 375px) {
+@media screen and (max-width: 375px) {
+  .content-view {
+    padding: 5px;
+    padding-top: 65px;
+    margin-top: 8px;
+  }
+
   .section-title {
     font-size: 16px;
   }
 
   .form-container {
-    padding: 12px;
+    padding: 10px;
   }
 
   .overlay-title {
     font-size: 18px;
   }
 
-  .overlay-icon img {
-    max-width: 60px;
+  .overlay-text {
+    font-size: 13px;
   }
 }
 
-@media screen and (max-height: 500px) {
+@media screen and (max-height: 600px) {
   .overlay-container {
     align-items: flex-start;
     overflow-y: auto;
-    padding: 20px 0;
+    padding: 10px 0;
   }
 
   .overlay-box {
-    margin: 0 auto;
+    margin: 10px auto;
+  }
+}
+
+@media screen and (max-width: 900px) and (orientation: landscape) {
+  .content-view {
+    padding-top: 70px;
+    margin-top: 5px;
+  }
+
+  .form-actions {
+    flex-direction: row;
+  }
+
+  .cancel-btn,
+  .add-action-btn {
+    width: auto;
+    min-width: 120px;
   }
 }
 
@@ -462,6 +550,7 @@ label {
   .form-container {
     box-shadow: none;
     padding: 0;
+    max-width: 100%;
   }
 
   .form-actions,
@@ -469,136 +558,9 @@ label {
   .add-action-btn {
     display: none;
   }
-}
-
-.content-view {
-  width: 100%;
-  min-height: 100vh;
-  padding: 20px;
-  padding-top: 79px;
-  padding-left: 260px;
-  transition: padding 0.3s ease;
-  position: relative;
-}
-
-@media (max-width: 1366px) {
-  .content-view {
-    padding-left: 240px;
-  }
-}
-
-@media (max-width: 1024px) {
-  .content-view {
-    padding-left: 220px;
-    padding-top: 70px;
-  }
 
   .section-title {
-    font-size: 22px;
-    margin-top: 10px;
-  }
-}
-
-@media (max-width: 900px) {
-  .content-view {
-    padding-left: 20px;
-    padding-top: 80px;
-  }
-
-  .content-view.sidebar-open {
-    padding-left: 220px;
-    padding-top: 80px;
-  }
-
-  .section-title {
-    font-size: 20px;
-    margin-top: 10px;
-  }
-}
-
-@media (max-width: 768px) {
-  .content-view {
-    padding: 15px;
-    padding-top: 75px;
-  }
-
-  .content-view.sidebar-open {
-    padding-left: 15px;
-    padding-top: 75px;
-  }
-
-  .section-title {
-    font-size: 20px;
+    color: #074730;
     margin-bottom: 15px;
-    text-align: center;
-    margin-top: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .content-view {
-    padding: 10px;
-    padding-top: 65px;
-  }
-
-  .section-title {
-    font-size: 18px;
-    margin-bottom: 10px;
-    margin-top: 10px;
-  }
-}
-
-@media (max-width: 375px) {
-  .content-view {
-    padding: 10px;
-    padding-top: 60px;
-  }
-
-  .section-title {
-    font-size: 16px;
-    margin-top: 10px;
-  }
-}
-
-@media (max-width: 900px) and (orientation: landscape) {
-  .content-view {
-    padding-top: 70px;
-  }
-
-  .form-actions {
-    flex-direction: row !important;
-  }
-
-  .cancel-btn,
-  .add-action-btn {
-    width: auto !important;
-    flex: 0 0 auto !important;
-    min-width: 120px;
-  }
-}
-
-@media screen and (max-height: 500px) {
-  .overlay-container {
-    align-items: flex-start;
-    overflow-y: auto;
-    padding: 20px 0;
-  }
-
-  .overlay-box {
-    margin: 0 auto;
-  }
-
-  .content-view {
-    padding-top: 70px;
-  }
-}
-
-@media screen and (max-height: 400px) {
-  .content-view {
-    padding-top: 60px;
-  }
-
-  body {
-    padding-bottom: 15px;
   }
 }

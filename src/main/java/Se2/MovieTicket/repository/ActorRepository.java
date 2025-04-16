@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ActorRepository extends JpaRepository<Actor, Long> {
@@ -14,4 +15,5 @@ public interface ActorRepository extends JpaRepository<Actor, Long> {
     List<Actor> findByActorNameContaining(@Param("name") String name);
 
 
+    List<Actor> findByActorName(String actorName);
 }

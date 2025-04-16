@@ -1,5 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Poppins', sans-serif;
   background-color: #044a2c;
   margin: 0;
   padding: 0;
@@ -18,19 +19,19 @@ body {
   padding-top: 79px;
   padding-left: 260px;
   width: 100%;
-  max-width: calc(100% - 200px);
   transition: padding 0.3s ease;
 }
 
 /* Card Container */
 .content-view {
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin-top: 20px;
-  margin-left: 40px;
-  transition: margin 0.3s ease, padding 0.3s ease;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-top: 20px;
+      margin-left: 30px;
+      width: 95%;
+      transition: margin 0.3sease, padding 0.3sease;
 }
 
 /* Page Title */
@@ -343,7 +344,26 @@ body {
 .next-btn:hover {
   background-color: #c41e1c;
 }
+.btn-secondary {
+    background-color: #f8f9fa;
+    color: #333;
+    border: 1px solid #ced4da;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
 
+.btn-secondary:hover {
+    background-color: #e2e6ea;
+}
 .prev-btn.disabled,
 .next-btn.disabled {
   opacity: 0.5;
@@ -691,4 +711,61 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding: 1rem 0;
+}
+
+.pagination-info {
+    color: #6B7280;
+}
+
+.page-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.page-size {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+}
+
+.page-size span {
+    margin-right: 8px;
+    color: #6B7280;
+}
+
+.page-navigation {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.prev-btn, .next-btn {
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.prev-btn:hover, .next-btn:hover {
+    background-color: #033821;
+}
+
+.prev-btn.disabled, .next-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }

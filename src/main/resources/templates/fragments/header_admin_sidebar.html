@@ -163,176 +163,427 @@
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
   <script>
-    // JavaScript: Sidebar toggle
+    // Fast Loading Profile & Sidebar Management
     document.addEventListener('DOMContentLoaded', function() {
-      const sidebar = document.getElementById('sidebar');
-      const sidebarToggle = document.getElementById('sidebar-toggle');
-      const sidebarOverlay = document.getElementById('sidebar-overlay');
-      const body = document.body;
+      // Critical path - immediately initialize sidebar
+      initSidebar();
 
-      // Toggle sidebar on button click
-      if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
-          sidebar.classList.toggle('active');
-          sidebarOverlay.classList.toggle('active');
-          body.classList.toggle('sidebar-open');
-        });
+      // Initialize profile components only if needed
+      if (document.querySelector('.user-section')) {
+        // Optimize initial style injection
+        injectStyles();
+
+        // Use delayed loading techniques based on browser capabilities
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(initProfileManagement, { timeout: 500 });
+        } else {
+          // Fallback for browsers without requestIdleCallback
+          setTimeout(initProfileManagement, 100);
+        }
       }
-
-      // Close sidebar when clicking overlay
-      if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', function() {
-          sidebar.classList.remove('active');
-          sidebarOverlay.classList.remove('active');
-          body.classList.remove('sidebar-open');
-        });
-      }
-
-      // Initialize profile management
-      initProfileManagement();
     });
 
-    // Profile Management
+    // Apply critical CSS immediately to avoid layout shifts
+    function injectStyles() {
+      const criticalCSS = `
+        #profile-overlay {
+          display: none;
+          opacity: 0;
+          transition: opacity 0.15s ease-out;
+        }
+        #view-profile-container, #edit-profile-container {
+          display: none !important;
+          opacity: 0;
+          transition: opacity 0.15s ease-out;
+        }
+        #profile-overlay.visible {
+          opacity: 1;
+          display: flex !important;
+        }
+        #view-profile-container.visible {
+          opacity: 1;
+          display: block !important;
+        }
+        #edit-profile-container.visible {
+          opacity: 1;
+          display: block !important;
+        }
+        .loading-spinner {
+          display: inline-block;
+          width: 1em;
+          height: 1em;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-radius: 50%;
+          border-top-color: white;
+          animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `;
+
+      const style = document.createElement('style');
+      style.textContent = criticalCSS;
+      document.head.appendChild(style);
+    }
+
+    // Lightweight sidebar initialization
+    function initSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const toggle = document.getElementById('sidebar-toggle');
+      const overlay = document.getElementById('sidebar-overlay');
+
+      if (!sidebar || !toggle) return;
+
+      // Use event delegation to minimize handlers
+      toggle.addEventListener('click', toggleSidebar);
+
+      if (overlay) {
+        overlay.addEventListener('click', closeSidebar);
+      }
+
+      function toggleSidebar() {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        document.body.classList.toggle('sidebar-open');
+      }
+
+      function closeSidebar() {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.classList.remove('sidebar-open');
+      }
+    }
+
+    // Efficient debounce with minimal overhead
+    function debounce(fn, delay) {
+      let timer = null;
+      return function(...args) {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          fn.apply(this, args);
+          timer = null;
+        }, delay);
+      };
+    }
+
+    // Main profile management - lazily loaded
     function initProfileManagement() {
-      console.log('Initializing profile management');
+      // Guard against multiple initializations
+      if (window.profileInitialized) return;
+      window.profileInitialized = true;
 
-      // Cache DOM elements
-      const userSection = document.querySelector('.user-section');
-      const profileOverlay = document.getElementById('profile-overlay');
-      const viewProfileContainer = document.getElementById('view-profile-container');
-      const editProfileContainer = document.getElementById('edit-profile-container');
-      const showEditProfile = document.getElementById('show-edit-profile');
-      const cancelEdit = document.getElementById('cancel-edit');
-      const updateProfile = document.getElementById('update-profile');
-      const profileForm = document.getElementById('profile-form');
-      const closeViewProfile = document.getElementById('close-view-profile');
-      const closeEditProfile = document.getElementById('close-edit-profile');
-      const avatarInput = document.getElementById('avatar-input');
-
-      // Ensure overlay is hidden initially
-      if (profileOverlay) {
-        profileOverlay.style.display = 'none';
+      // Make sure edit container is hidden at initialization time
+      const editContainer = document.getElementById('edit-profile-container');
+      if (editContainer) {
+        editContainer.style.display = 'none';
       }
 
-      // Profile overlay functions
-      function toggleProfileOverlay() {
-        if (profileOverlay) {
-          if (profileOverlay.style.display === 'flex') {
-            hideProfileOverlay();
-          } else {
+      // Cache DOM elements - single-pass optimization
+      const el = cacheElements();
+      if (!el.profileOverlay || !el.viewContainer) return;
+
+      // Set up event handlers using delegation where possible
+      setupEventListeners(el);
+
+      // Configure global avatar preview function
+      window.previewAvatar = debounce(function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // File validation
+        if (file.size > 5 * 1024 * 1024) {
+          showNotification('Image file size should not exceed 5MB', false);
+          event.target.value = '';
+          return;
+        }
+
+        // Efficient preview using URL.createObjectURL instead of FileReader when possible
+        if (window.URL && window.URL.createObjectURL) {
+          const avatarImg = document.getElementById('avatar-img');
+          if (avatarImg) {
+            const objectUrl = URL.createObjectURL(file);
+            avatarImg.src = objectUrl;
+            // Clean up the URL object after image loads
+            avatarImg.onload = () => URL.revokeObjectURL(objectUrl);
+          }
+        } else {
+          // Fallback to FileReader for older browsers
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const avatarImg = document.getElementById('avatar-img');
+            if (avatarImg) avatarImg.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      }, 200);
+
+      // Cache DOM elements in a single efficient pass
+      function cacheElements() {
+        return {
+          userSection: document.querySelector('.user-section'),
+          profileOverlay: document.getElementById('profile-overlay'),
+          viewContainer: document.getElementById('view-profile-container'),
+          editContainer: document.getElementById('edit-profile-container'),
+          showEditBtn: document.getElementById('show-edit-profile'),
+          cancelEditBtn: document.getElementById('cancel-edit'),
+          updateBtn: document.getElementById('update-profile'),
+          profileForm: document.getElementById('profile-form'),
+          closeViewBtn: document.getElementById('close-view-profile'),
+          closeEditBtn: document.getElementById('close-edit-profile'),
+          avatarInput: document.getElementById('avatar-input'),
+          notification: document.getElementById('update-notification'),
+          csrfToken: document.querySelector('input[name="_csrf"]'),
+          headerUsername: document.querySelector('.username'),
+          avatars: document.querySelectorAll('.user-avatar, #view-profile-avatar, #avatar-img'),
+          view: {
+            username: document.getElementById('view-username'),
+            email: document.getElementById('view-email'),
+            phone: document.getElementById('view-phone'),
+            sex: document.getElementById('view-sex'),
+            dob: document.getElementById('view-date-of-birth')
+          },
+          edit: {
+            username: document.getElementById('edit-username'),
+            email: document.getElementById('edit-email'),
+            phone: document.getElementById('edit-phone'),
+            sex: document.getElementById('edit-sex'),
+            dob: document.getElementById('edit-date-of-birth')
+          },
+          errors: {
+            username: document.getElementById('username-error'),
+            email: document.getElementById('email-error'),
+            phone: document.getElementById('phone-error')
+          }
+        };
+      }
+
+      // Set up event listeners with efficient delegation
+      function setupEventListeners(el) {
+        // User section click - show profile overlay
+        if (el.userSection) {
+          el.userSection.addEventListener('click', function(e) {
+            if (e.target.classList.contains('logout-btn') || e.target.closest('.logout-btn')) {
+              return; // Skip logout button clicks
+            }
             showProfileOverlay();
-          }
+          });
+        }
+
+        // Close buttons
+        if (el.closeViewBtn) el.closeViewBtn.addEventListener('click', hideProfileOverlay);
+        if (el.closeEditBtn) el.closeEditBtn.addEventListener('click', hideProfileOverlay);
+
+        // Click on overlay to close
+        if (el.profileOverlay) {
+          el.profileOverlay.addEventListener('click', function(e) {
+            if (e.target === el.profileOverlay) hideProfileOverlay();
+          });
+        }
+
+        // Edit profile button
+        if (el.showEditBtn) {
+          el.showEditBtn.addEventListener('click', function() {
+            clearAllErrors();
+            if (el.notification) el.notification.style.display = 'none';
+            showEditProfile();
+          });
+        }
+
+        // Cancel edit button
+        if (el.cancelEditBtn) {
+          el.cancelEditBtn.addEventListener('click', function() {
+            resetEditForm();
+            showViewProfile();
+          });
+        }
+
+        // Update profile button
+        if (el.updateBtn) {
+          el.updateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            updateUserProfile();
+          });
+        }
+
+        // Form keypress handling for enter key
+        if (el.profileForm) {
+          el.profileForm.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+              e.preventDefault();
+              el.updateBtn && el.updateBtn.click();
+            }
+          });
         }
       }
 
+      // Display UI functions
       function showProfileOverlay() {
-        if (profileOverlay) {
-          profileOverlay.style.display = 'flex';
-          document.body.classList.add('overlay-active');
+        el.profileOverlay.classList.add('visible');
+        document.body.classList.add('overlay-active');
 
-          // Default to showing view profile first
-          if (viewProfileContainer && editProfileContainer) {
-            viewProfileContainer.style.display = 'block';
-            editProfileContainer.style.display = 'none';
-          }
-        }
+        // Ensure edit container is hidden first
+        el.editContainer.classList.remove('visible');
+        el.editContainer.style.display = 'none';
+
+        // Then show view container
+        el.viewContainer.style.display = 'block';
+        setTimeout(() => {
+          el.viewContainer.classList.add('visible');
+        }, 10);
       }
 
       function hideProfileOverlay() {
-        if (profileOverlay) {
-          profileOverlay.style.display = 'none';
-          document.body.classList.remove('overlay-active');
-          resetUpdateButton();
-        }
+        el.profileOverlay.classList.remove('visible');
+        document.body.classList.remove('overlay-active');
+
+        // Reset UI after transition completes
+        setTimeout(() => {
+          if (!el.profileOverlay.classList.contains('visible')) {
+            resetState();
+          }
+        }, 150);
       }
 
-      // Reset update button state
+      function resetState() {
+        // First remove visible classes
+        el.viewContainer.classList.remove('visible');
+        el.editContainer.classList.remove('visible');
+
+        // Then explicitly set display to none
+        el.viewContainer.style.display = 'none';
+        el.editContainer.style.display = 'none';
+
+        resetUpdateButton();
+        clearAllErrors();
+        if (el.notification) el.notification.style.display = 'none';
+      }
+
+      function showEditProfile() {
+        // First hide view container completely
+        el.viewContainer.classList.remove('visible');
+
+        // Wait for animation to complete before hiding completely
+        setTimeout(() => {
+          el.viewContainer.style.display = 'none';
+
+          // Then show edit container
+          el.editContainer.style.display = 'block';
+
+          // Force reflow
+          el.editContainer.offsetHeight;
+
+          // Add visible class to trigger animation
+          requestAnimationFrame(() => {
+            el.editContainer.classList.add('visible');
+          });
+        }, 150);
+      }
+
+      function showViewProfile() {
+        // First hide edit container completely
+        el.editContainer.classList.remove('visible');
+
+        // Wait for animation to complete before hiding completely
+        setTimeout(() => {
+          el.editContainer.style.display = 'none';
+
+          // Then show view container
+          el.viewContainer.style.display = 'block';
+
+          // Force reflow
+          el.viewContainer.offsetHeight;
+
+          // Add visible class to trigger animation
+          requestAnimationFrame(() => {
+            el.viewContainer.classList.add('visible');
+          });
+        }, 150);
+      }
+
       function resetUpdateButton() {
-        if (updateProfile) {
-          updateProfile.innerHTML = 'Update Profile';
-          updateProfile.disabled = false;
+        if (el.updateBtn) {
+          el.updateBtn.innerHTML = 'Update Profile';
+          el.updateBtn.disabled = false;
         }
       }
 
-      // Form validation
+      // Error handling functions
       function clearAllErrors() {
-        const errorElements = document.querySelectorAll('.error-message');
-        errorElements.forEach(element => {
-          element.textContent = '';
-          element.style.display = 'none';
+        Object.values(el.errors).forEach(error => {
+          if (error) {
+            error.textContent = '';
+            error.style.display = 'none';
+          }
         });
       }
 
-      function showError(elementId, message) {
-        const errorElement = document.getElementById(elementId);
-        if (errorElement) {
-          errorElement.textContent = message;
-          errorElement.style.display = 'block';
+      function showError(field, message) {
+        const error = el.errors[field];
+        if (error) {
+          error.textContent = message;
+          error.style.display = 'block';
         }
       }
 
       function showNotification(message, isSuccess) {
-        const notification = document.getElementById('update-notification');
-        if (notification) {
-          notification.textContent = message;
-          notification.className = 'notification ' + (isSuccess ? 'success' : 'error');
-          notification.style.display = 'block';
+        if (!el.notification) return;
 
-          // Auto-hide success notifications after 3 seconds
-          if (isSuccess) {
-            setTimeout(() => {
-              notification.style.display = 'none';
-            }, 3000);
-          }
+        el.notification.textContent = message;
+        el.notification.className = 'notification ' + (isSuccess ? 'success' : 'error');
+        el.notification.style.display = 'block';
+
+        if (isSuccess) {
+          setTimeout(() => {
+            el.notification.style.display = 'none';
+          }, 3000);
         }
       }
 
-      function validateProfileForm() {
+      // Form validation
+      function validateForm() {
         let isValid = true;
         clearAllErrors();
 
-        // Validate username
-        const username = document.getElementById('edit-username');
-        if (username) {
-          const usernameValue = username.value.trim();
-          if (!usernameValue) {
-            showError('username-error', 'Username is required');
+        // Username validation
+        if (el.edit.username) {
+          const value = el.edit.username.value.trim();
+          if (!value) {
+            showError('username', 'Username is required');
             isValid = false;
-          } else if (usernameValue.length < 3) {
-            showError('username-error', 'Username must be at least 3 characters');
+          } else if (value.length < 3) {
+            showError('username', 'Username must be at least 3 characters');
             isValid = false;
           }
         }
 
-        // Validate email
-        const email = document.getElementById('edit-email');
-        if (email) {
-          const emailValue = email.value.trim();
+        // Email validation - simple but effective regex
+        if (el.edit.email) {
+          const value = el.edit.email.value.trim();
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailValue) {
-            showError('email-error', 'Email is required');
+          if (!value) {
+            showError('email', 'Email is required');
             isValid = false;
-          } else if (!emailRegex.test(emailValue)) {
-            showError('email-error', 'Please enter a valid email address');
+          } else if (!emailRegex.test(value)) {
+            showError('email', 'Please enter a valid email address');
             isValid = false;
           }
         }
 
-        // Validate phone number
-        const phone = document.getElementById('edit-phone');
-        if (phone) {
-          const phoneValue = phone.value.trim();
+        // Phone validation - simple digits check
+        if (el.edit.phone) {
+          const value = el.edit.phone.value.trim();
           const phoneRegex = /^\d{10,}$/;
-          if (phoneValue && !phoneRegex.test(phoneValue)) {
-            showError('phone-error', 'Please enter a valid phone number (at least 10 digits)');
+          if (value && !phoneRegex.test(value)) {
+            showError('phone', 'Please enter a valid phone number (at least 10 digits)');
             isValid = false;
           }
         }
 
-        // Validate avatar file if one is selected
-        if (avatarInput && avatarInput.files.length > 0) {
-          const file = avatarInput.files[0];
-          if (file.size > 5 * 1024 * 1024) {
+        // Avatar file size validation
+        if (el.avatarInput && el.avatarInput.files.length > 0) {
+          const file = el.avatarInput.files[0];
+          if (file.size > 5 * 1024 * 1024) { // 5MB
             showNotification('Image file size should not exceed 5MB', false);
             isValid = false;
           }
@@ -341,88 +592,72 @@
         return isValid;
       }
 
+      // Update user profile - AJAX submission
       function updateUserProfile() {
-        // Hide previous notifications
-        const notification = document.getElementById('update-notification');
-        if (notification) {
-          notification.style.display = 'none';
+        if (el.notification) el.notification.style.display = 'none';
+
+        if (!validateForm()) return;
+
+        // Update button state
+        if (el.updateBtn) {
+          el.updateBtn.innerHTML = '<span class="loading-spinner"></span> Updating...';
+          el.updateBtn.disabled = true;
         }
 
-        if (!validateProfileForm()) {
-          return;
-        }
-
-        // Show loading state on button
-        if (updateProfile) {
-          updateProfile.innerHTML = '<span class="loading-spinner"></span> Updating...';
-          updateProfile.disabled = true;
-        }
-
-        // Prepare form data
+        // Build form data efficiently
         const formData = new FormData();
 
-        // Add form fields
-        const username = document.getElementById('edit-username');
-        if (username) {
-          formData.append('username', username.value.trim());
+        // Add form fields - only include if they exist
+        const fields = {
+          'username': el.edit.username,
+          'email': el.edit.email,
+          'phoneNumber': el.edit.phone,
+          'sex': el.edit.sex,
+          'dateOfBirth': el.edit.dob
+        };
+
+        // Add fields efficiently
+        Object.entries(fields).forEach(([key, element]) => {
+          if (element && (key !== 'phoneNumber' || element.value.trim())) {
+            formData.append(key, element.value.trim());
+          }
+        });
+
+        // Add avatar if selected
+        if (el.avatarInput && el.avatarInput.files.length > 0) {
+          formData.append('userImg', el.avatarInput.files[0]);
         }
 
-        const email = document.getElementById('edit-email');
-        if (email) {
-          formData.append('email', email.value.trim());
+        // Add CSRF token
+        if (el.csrfToken) {
+          formData.append('_csrf', el.csrfToken.value);
         }
 
-        const phone = document.getElementById('edit-phone');
-        if (phone && phone.value.trim()) {
-          formData.append('phoneNumber', phone.value.trim());
-        }
-
-        const sex = document.getElementById('edit-sex');
-        if (sex) {
-          formData.append('sex', sex.value);
-        }
-
-        const dob = document.getElementById('edit-date-of-birth');
-        if (dob && dob.value) {
-          formData.append('dateOfBirth', dob.value);
-        }
-
-        // Add avatar file if selected
-        if (avatarInput && avatarInput.files.length > 0) {
-          formData.append('userImg', avatarInput.files[0]);
-        }
-
-        // Add CSRF token if available
-        const csrfToken = document.querySelector('input[name="_csrf"]');
-        if (csrfToken) {
-          formData.append('_csrf', csrfToken.value);
-        }
-
-        console.log('Submitting profile update...');
-
-        // Set timeout for long requests (20 seconds)
+        // Set timeout for long requests
         const timeoutId = setTimeout(() => {
           resetUpdateButton();
           showNotification('Request timed out. The server might be processing your image or unavailable.', false);
         }, 20000);
 
+        // Use modern fetch with AbortController for better performance
+        const controller = window.AbortController ? new AbortController() : null;
+        const signal = controller ? controller.signal : null;
+
         // Send AJAX request
         fetch('/user/update-profile', {
           method: 'POST',
           body: formData,
-          credentials: 'same-origin'
+          credentials: 'same-origin',
+          signal
         })
         .then(response => {
           clearTimeout(timeoutId);
-          console.log('Server response status:', response.status);
 
           if (!response.ok) {
             return response.text().then(text => {
-              console.log('Error response text:', text);
               try {
                 return JSON.parse(text);
               } catch (e) {
-                console.error('Failed to parse error response:', e);
                 if (response.status === 403) {
                   throw new Error('Access denied. You may need to log in again.');
                 } else {
@@ -433,25 +668,20 @@
           }
 
           return response.text().then(text => {
-            console.log('Success response text:', text);
             try {
               return JSON.parse(text);
             } catch (e) {
-              console.error('Failed to parse success response:', e);
               throw new Error('Invalid response format');
             }
           });
         })
         .then(data => {
-          console.log('Parsed response data:', data);
-
           // Handle server validation errors
           if (data.success === false) {
             if (data.errors) {
               // Show field-specific errors
-              Object.keys(data.errors).forEach(field => {
-                const errorField = field + '-error';
-                showError(errorField, data.errors[field]);
+              Object.entries(data.errors).forEach(([field, message]) => {
+                showError(field, message);
               });
               throw new Error('Please fix the errors above');
             } else {
@@ -462,246 +692,118 @@
           // Success case
           resetUpdateButton();
           showNotification('Profile updated successfully!', true);
-
-          // Update view profile with new data
           updateViewProfile();
 
-          // Update header username if it was changed
-          const headerUsername = document.querySelector('.username');
-          const editUsernameInput = document.getElementById('edit-username');
-          if (headerUsername && editUsernameInput) {
-            headerUsername.textContent = editUsernameInput.value;
+          // Update header username
+          if (el.headerUsername && el.edit.username) {
+            el.headerUsername.textContent = el.edit.username.value;
           }
 
-          // Update avatars if returned in response
+          // Update avatars efficiently
           if (data.user && data.user.userImg) {
-            const avatarUrl = data.user.userImg;
-            // Update all avatar instances
-            const avatars = document.querySelectorAll('.user-avatar, #view-profile-avatar, #avatar-img');
-            avatars.forEach(avatar => {
-              avatar.src = avatarUrl;
-            });
+            const avatarUrl = data.user.userImg + '?t=' + Date.now();
+
+            // Preload image once
+            const img = new Image();
+            img.onload = function() {
+              el.avatars.forEach(avatar => {
+                avatar.src = avatarUrl;
+              });
+            };
+            img.src = avatarUrl;
           }
 
-          // Switch back to view profile after success
-          setTimeout(() => {
-            if (editProfileContainer && viewProfileContainer) {
-              editProfileContainer.style.display = 'none';
-              viewProfileContainer.style.display = 'block';
-            }
-          }, 2000);
+          // Switch back to view profile after delay
+          setTimeout(showViewProfile, 1500);
         })
         .catch(error => {
-          console.error('Profile update error:', error);
           clearTimeout(timeoutId);
           resetUpdateButton();
           showNotification(error.message || 'Failed to update profile. Please try again.', false);
         });
+
+        // Clean up AbortController after 20s if needed
+        setTimeout(() => {
+          if (controller) {
+            try {
+              controller.abort();
+            } catch (e) {
+              // Ignore errors
+            }
+          }
+        }, 20000);
       }
 
       // Update view profile from edit form
       function updateViewProfile() {
-        // Update username
-        const viewUsername = document.getElementById('view-username');
-        const editUsername = document.getElementById('edit-username');
-        if (viewUsername && editUsername) {
-          viewUsername.value = editUsername.value;
-        }
+        // Map edit fields to view fields
+        const fieldPairs = [
+          { edit: el.edit.username, view: el.view.username },
+          { edit: el.edit.email, view: el.view.email },
+          { edit: el.edit.phone, view: el.view.phone },
+          { edit: el.edit.sex, view: el.view.sex }
+        ];
 
-        // Update email
-        const viewEmail = document.getElementById('view-email');
-        const editEmail = document.getElementById('edit-email');
-        if (viewEmail && editEmail) {
-          viewEmail.value = editEmail.value;
-        }
+        // Update each field efficiently
+        fieldPairs.forEach(pair => {
+          if (pair.edit && pair.view) {
+            pair.view.value = pair.edit.value;
+          }
+        });
 
-        // Update phone
-        const viewPhone = document.getElementById('view-phone');
-        const editPhone = document.getElementById('edit-phone');
-        if (viewPhone && editPhone) {
-          viewPhone.value = editPhone.value;
-        }
-
-        // Update sex
-        const viewSex = document.getElementById('view-sex');
-        const editSex = document.getElementById('edit-sex');
-        if (viewSex && editSex) {
-          viewSex.value = editSex.value;
-        }
-
-        // Update date of birth with formatting
-        const editDate = document.getElementById('edit-date-of-birth');
-        const viewDob = document.getElementById('view-date-of-birth');
-        if (editDate && viewDob && editDate.value) {
-          const parts = editDate.value.split('-');
+        // Format date properly
+        if (el.edit.dob && el.view.dob && el.edit.dob.value) {
+          const parts = el.edit.dob.value.split('-');
           if (parts.length === 3) {
-            const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-            viewDob.value = formattedDate;
+            el.view.dob.value = `${parts[2]}/${parts[1]}/${parts[0]}`;
           }
         }
       }
 
-      // Reset edit form from view form
+      // Reset edit form from view data
       function resetEditForm() {
-        const viewUsername = document.getElementById('view-username');
-        const editUsername = document.getElementById('edit-username');
-        if (viewUsername && editUsername) {
-          editUsername.value = viewUsername.value;
-        }
+        // Map view fields to edit fields (reverse of updateViewProfile)
+        const fieldPairs = [
+          { view: el.view.username, edit: el.edit.username },
+          { view: el.view.email, edit: el.edit.email },
+          { view: el.view.phone, edit: el.edit.phone }
+        ];
 
-        const viewEmail = document.getElementById('view-email');
-        const editEmail = document.getElementById('edit-email');
-        if (viewEmail && editEmail) {
-          editEmail.value = viewEmail.value;
-        }
+        // Update each field efficiently
+        fieldPairs.forEach(pair => {
+          if (pair.view && pair.edit) {
+            pair.edit.value = pair.view.value;
+          }
+        });
 
-        const viewPhone = document.getElementById('view-phone');
-        const editPhone = document.getElementById('edit-phone');
-        if (viewPhone && editPhone) {
-          editPhone.value = viewPhone.value;
-        }
-
-        const viewSex = document.getElementById('view-sex');
-        const editSex = document.getElementById('edit-sex');
-        if (viewSex && editSex) {
-          // Use selectedIndex to match the option
-          for (let i = 0; i < editSex.options.length; i++) {
-            if (editSex.options[i].value === viewSex.value) {
-              editSex.selectedIndex = i;
+        // Handle select dropdown for sex
+        if (el.view.sex && el.edit.sex) {
+          const sexValue = el.view.sex.value;
+          for (let i = 0; i < el.edit.sex.options.length; i++) {
+            if (el.edit.sex.options[i].value === sexValue) {
+              el.edit.sex.selectedIndex = i;
               break;
             }
           }
         }
 
-        // Convert dd/MM/yyyy to yyyy-MM-dd for date input
-        const viewDob = document.getElementById('view-date-of-birth');
-        const editDob = document.getElementById('edit-date-of-birth');
-        if (viewDob && editDob && viewDob.value) {
-          const parts = viewDob.value.split('/');
+        // Convert date format (dd/mm/yyyy to yyyy-mm-dd)
+        if (el.view.dob && el.edit.dob && el.view.dob.value) {
+          const parts = el.view.dob.value.split('/');
           if (parts.length === 3) {
-            const formattedDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-            editDob.value = formattedDate;
+            el.edit.dob.value = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
           }
         }
 
-        // Reset avatar file input
-        if (avatarInput) {
-          avatarInput.value = '';
+        // Reset file input
+        if (el.avatarInput) {
+          el.avatarInput.value = '';
         }
 
-        // Clear errors and notifications
         clearAllErrors();
-        const notification = document.getElementById('update-notification');
-        if (notification) {
-          notification.style.display = 'none';
+        if (el.notification) {
+          el.notification.style.display = 'none';
         }
-      }
-
-      // Profile avatar preview
-      window.previewAvatar = function(event) {
-        const file = event.target.files[0];
-        if (file) {
-          // Check file size (max 5MB)
-          if (file.size > 5 * 1024 * 1024) {
-            showNotification('Image file size should not exceed 5MB', false);
-            event.target.value = '';
-            return;
-          }
-
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            const avatarImg = document.getElementById('avatar-img');
-            if (avatarImg) {
-              avatarImg.src = e.target.result;
-            }
-          };
-          reader.readAsDataURL(file);
-        }
-      };
-
-      // Initialize event listeners
-      if (userSection) {
-        userSection.addEventListener('click', function(e) {
-          // If clicked on logout button, don't show profile
-          if (e.target.classList.contains('logout-btn') || e.target.closest('.logout-btn')) {
-            return;
-          }
-          toggleProfileOverlay();
-        });
-      }
-
-      // Close view profile overlay handler
-      if (closeViewProfile) {
-        closeViewProfile.addEventListener('click', function() {
-          hideProfileOverlay();
-        });
-      }
-
-      // Close edit profile overlay handler
-      if (closeEditProfile) {
-        closeEditProfile.addEventListener('click', function() {
-          hideProfileOverlay();
-        });
-      }
-
-      // Close overlay when clicking on background
-      if (profileOverlay) {
-        profileOverlay.addEventListener('click', function(e) {
-          if (e.target === profileOverlay) {
-            hideProfileOverlay();
-          }
-        });
-      }
-
-      // Show edit profile view
-      if (showEditProfile) {
-        showEditProfile.addEventListener('click', function() {
-          if (viewProfileContainer && editProfileContainer) {
-            viewProfileContainer.style.display = 'none';
-            editProfileContainer.style.display = 'block';
-            clearAllErrors();
-
-            // Reset notification
-            const notification = document.getElementById('update-notification');
-            if (notification) {
-              notification.style.display = 'none';
-            }
-          }
-        });
-      }
-
-      // Cancel edit and return to view profile
-      if (cancelEdit) {
-        cancelEdit.addEventListener('click', function() {
-          if (editProfileContainer && viewProfileContainer) {
-            editProfileContainer.style.display = 'none';
-            viewProfileContainer.style.display = 'block';
-            resetEditForm();
-          }
-        });
-      }
-
-      // Update profile button handler
-      if (updateProfile) {
-        updateProfile.addEventListener('click', function(e) {
-          e.preventDefault();
-          updateUserProfile();
-        });
-      }
-
-      // Handle pressing Enter key in form fields
-      if (profileForm) {
-        profileForm.addEventListener('keypress', function(e) {
-          if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-            e.preventDefault();
-            updateProfile && updateProfile.click();
-          }
-        });
-      }
-
-      // Setup avatar file input handler
-      if (avatarInput) {
-        avatarInput.addEventListener('change', window.previewAvatar);
       }
     }
   </script>

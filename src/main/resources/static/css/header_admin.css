@@ -10,7 +10,7 @@
     padding: 10px 0;  /* Giảm padding để tránh chiếm nhiều không gian */
     width: 100%;
     position: fixed;
-    z-index: 1000;
+    z-index: 900;
 }
 
 .container {

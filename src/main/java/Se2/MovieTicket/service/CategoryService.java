@@ -64,7 +64,24 @@ public class CategoryService {
         return null;
     }
 
+    public Category findByName(String categoryName) {
+        if (categoryName == null || categoryName.isEmpty()) {
+            return null;
+        }
+        List<Category> categories = categoryRepository.findByCategoryName(categoryName);
+        return categories.isEmpty() ? null : categories.get(0); // Trả về category đầu tiên hoặc null
+    }
+
+    public Category saveCategory(Category newCategory) {
+        if (newCategory == null) {
+            return null;
+        }
+        return categoryRepository.save(newCategory);
+    }
+
     public void deleteCategory(Long id) {
-        categoryRepository.deleteById(id);
+        if (id != null) {
+            categoryRepository.deleteById(id);
+        }
     }
 }

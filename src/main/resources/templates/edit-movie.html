@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Movie</title>
+    <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+body {
+  font-family: 'Poppins', sans-serif;
+            background-color: #044a2c;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container-orders-management {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .main-content {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            margin: 70px 0 0 250px;
+        }
+
+        .page-title {
+            color: #044a2c;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group small {
+            color: #6c757d;
+            display: block;
+            margin-top: 5px;
+            font-size: 13px;
+        }
+
+        .error-message {
+            color: #dc2626;
+            display: block;
+            margin-top: 5px;
+            font-size: 13px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: #b7f7c2;
+            color: #044a2c;
+            border: none;
+        }
+
+        .btn-secondary {
+            background-color: #f87171;
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #a5f2b4;
+        }
+
+        .btn-secondary:hover {
+            background-color: #ef4444;
+        }
+
+        .success-modal {
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .success-modal-content {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .success-modal-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto;
+            background-color: #dcfce7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-modal-icon i {
+            color: #16a34a;
+            font-size: 30px;
+        }
+
+        .success-modal-title {
+            font-size: 24px;
+            color: #16a34a;
+            margin: 20px 0 10px;
+        }
+
+        .success-modal-message {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .success-modal-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .success-modal-btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .success-modal-list {
+            background-color: #16a34a;
+        }
+
+        .success-modal-dashboard {
+            background-color: #2563eb;
+        }
+
+        .tag-input-container {
+            position: relative;
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .tag {
+            background-color: #e2e8f0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tag button {
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 0;
+            font-size: 14px;
+        }
+
+        .poster-preview {
+            width: 120px;
+            height: 160px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            background-color: #f1f1f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .poster-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+
+        .poster-preview .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .poster-preview:hover .overlay {
+            opacity: 1;
+        }
+
+        .poster-preview .overlay i {
+            color: white;
+            font-size: 24px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group input {
+            flex: 1;
+        }
+
+        .input-group .add-btn {
+            padding: 10px;
+            background: #b7f7c2;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+.form-actions a {text-decoration: none;     text-align: center;}
+        .alert {
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border-radius: 4px;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-danger {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin: 75px 10px 0 10px;
+                padding: 16px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .container-orders-management {
+                padding: 10px;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                font-size: 16px;
+                padding: 12px;
+            }
+
+            .page-title {
+                font-size: 20px;
+                text-align: center;
+            }
+
+            .success-modal-buttons {
+                flex-direction: column;
+            }
+
+            .success-modal-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
+
+<div class="container-orders-management">
+    <div class="main-content">
+        <h1 class="page-title">Edit Movie</h1>
+
+
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <form th:action="@{'/manage-movies/edit-movie/' + ${film.filmId}}" th:object="${film}" method="post" enctype="multipart/form-data" id="editMovieForm" novalidate>
+            <input type="hidden" th:field="*{filmId}" />
+            <input type="hidden" th:field="*{filmImg}" id="currentFilmImg" />
+            <input type="hidden" th:field="*{filmTrailer}" id="currentFilmTrailer" />
+
+            <!-- Movie Poster -->
+            <div class="form-group">
+                <label>Movie Poster</label>
+                <div style="display: flex; gap: 20px; align-items: center;">
+                    <div class="poster-preview">
+                        <img th:if="${film.filmImg}" th:src="@{${film.filmImg}}" alt="Movie Poster" />
+                        <div class="overlay">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <input type="file" name="posterFile" accept="image/*" style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer;" onchange="previewPoster(this)"/>
+                    </div>
+                </div>
+                <small>Click on the image to upload a new poster.</small>
+                <div class="error-message" id="posterError"></div>
+            </div>
+
+            <!-- Movie Name -->
+            <div class="form-group">
+                <label for="filmName">Movie Name</label>
+                <input type="text" th:field="*{filmName}" id="filmName" class="form-control" />
+                <div class="error-message" id="filmNameError"></div>
+            </div>
+
+            <!-- Trailer URL -->
+            <div class="form-group">
+                <label for="trailerUrl">Trailer URL (YouTube)</label>
+                <input type="url" name="trailerUrl" id="trailerUrl" th:value="${film.filmTrailer}" class="form-control" placeholder="YouTube URL" required />
+
+                <div class="error-message" id="trailerUrlError"></div>
+            </div>
+
+            <!-- Film Type -->
+            <div class="form-group">
+                <label for="filmType">Film Status</label>
+                <select th:field="*{filmType}" id="filmType" class="form-control">
+                    <option value="Now Showing">Now Showing</option>
+                    <option value="Coming Soon">Coming Soon</option>
+                </select>
+                <div class="error-message" id="filmTypeError"></div>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label for="filmDescription">Movie Description</label>
+                <textarea th:field="*{filmDescription}" id="filmDescription" class="form-control" rows="5"></textarea>
+                <div class="error-message" id="filmDescriptionError"></div>
+            </div>
+
+            <!-- Release Date -->
+            <div class="form-group">
+                <label for="releaseDate">Release Date</label>
+                <input type="date" id="releaseDate" name="releaseDate" class="form-control"
+                       th:value="${film.releaseDate}" />
+                <div class="error-message" id="releaseDateError"></div>
+            </div>
+
+            <!-- Duration -->
+            <div class="form-group">
+                <label for="duration">Duration (minutes)</label>
+                <input type="number" th:field="*{duration}" id="duration" class="form-control" placeholder="e.g. 120" min="1" />
+                <div class="error-message" id="durationError"></div>
+            </div>
+
+            <!-- Film Categories -->
+            <div class="form-group">
+                <label for="categorySelector">Movie Categories</label>
+                <select id="categorySelector" class="form-control">
+                    <option value="">Select Category</option>
+                    <option th:each="category : ${allCategories}"
+                            th:value="${category.categoryName}"
+                            th:text="${category.categoryName}">
+                    </option>
+                </select>
+                <div id="selectedCategories" class="tag-list">
+                    <div th:each="category : ${film.categoryNames}" class="tag">
+                        <span th:text="${category}"></span>
+                        <button type="button" onclick="removeCategory(this)"><i class="fas fa-times"></i></button>
+                        <input type="hidden" name="categoryNames" th:value="${category}" />
+                    </div>
+                </div>
+                <div class="error-message" id="categoryNamesError"></div>
+            </div>
+
+            <!-- Country -->
+            <div class="form-group">
+                <label for="country">Country</label>
+                <select th:field="*{country}" id="country" class="form-control">
+                    <option th:each="country : ${allCountries}"
+                            th:value="${country}"
+                            th:text="${country}"
+                            th:selected="${country == film.country}">
+                    </option>
+                </select>
+                <div class="error-message" id="countryError"></div>
+            </div>
+
+            <!-- Age Limit -->
+            <div class="form-group">
+                <label for="ageLimit">Age Limit</label>
+                <input type="number" th:field="*{ageLimit}" id="ageLimit" class="form-control" placeholder="e.g. 13" min="0" />
+                <div class="error-message" id="ageLimitError"></div>
+            </div>
+
+            <!-- Directors -->
+            <div class="form-group">
+                <label for="directorSelector">Directors</label>
+                <select id="directorSelector" class="form-control">
+                    <option value="">Select Director</option>
+                    <option th:each="director : ${allDirectors}"
+                            th:value="${director.directorName}"
+                            th:text="${director.directorName}">
+                    </option>
+                </select>
+                <div id="directorsList" class="tag-list">
+                    <div th:each="director : ${film.directorNames}" class="tag">
+                        <span th:text="${director}"></span>
+                        <button type="button" onclick="removeDirector(this)"><i class="fas fa-times"></i></button>
+                        <input type="hidden" name="directorNames" th:value="${director}" />
+                    </div>
+                </div>
+                <div class="error-message" id="directorNamesError"></div>
+            </div>
+
+            <!-- Actors -->
+            <div class="form-group">
+                <label for="actorSelector">Actors</label>
+                <select id="actorSelector" class="form-control">
+                    <option value="">Select Actor</option>
+                    <option th:each="actor : ${allActors}"
+                            th:value="${actor.actorName}"
+                            th:text="${actor.actorName}">
+                    </option>
+                </select>
+                <div id="actorsList" class="tag-list">
+                    <div th:each="actor : ${film.actorNames}" class="tag">
+                        <span th:text="${actor}"></span>
+                        <button type="button" onclick="removeActor(this)"><i class="fas fa-times"></i></button>
+                        <input type="hidden" name="actorNames" th:value="${actor}" />
+                    </div>
+                </div>
+                <div class="error-message" id="actorNamesError"></div>
+            </div>
+
+            <div class="form-actions">
+                <a href="/manage-movies" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Update Movie</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="success-modal" style="display: none;">
+    <div class="success-modal-content">
+        <div class="success-modal-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <h2 class="success-modal-title">Update Success!</h2>
+        <p class="success-modal-message">The movie has been updated successfully.</p>
+        <div class="success-modal-buttons">
+            <a href="/manage-movies" class="success-modal-btn success-modal-list">Go to Cinema List</a>
+            <a href="/admin-dashboard" class="success-modal-btn success-modal-dashboard">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+
+        // Set up form validation
+        setupFormValidation();
+
+        // Show success modal if success parameter exists
+        const successParam = new URLSearchParams(window.location.search).get('success');
+        if (successParam === 'true') {
+            document.getElementById('successModal').style.display = 'flex';
+        }
+
+        // Set up category, director, and actor selectors
+        setupSelectors();
+
+        // Set up trailer URL field
+        setupTrailerUrl();
+    });
+
+
+
+    // Set up form validation
+    function setupFormValidation() {
+        const form = document.getElementById('editMovieForm');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission to validate first
+
+            // Clear previous errors
+            clearAllErrors();
+
+            // Validate all fields
+            let isValid = validateAllFields();
+
+            // If valid, submit the form
+            if (isValid) {
+                this.submit();
+            }
+        });
+    }
+
+    // Clear all error messages
+    function clearAllErrors() {
+        const errorElements = document.querySelectorAll('.error-message');
+        errorElements.forEach(element => {
+            element.textContent = '';
+        });
+    }
+
+    // Validate all form fields
+    function validateAllFields() {
+        let isValid = true;
+
+        // Film Name validation
+        const filmName = document.getElementById('filmName').value.trim();
+        if (!filmName) {
+            document.getElementById('filmNameError').textContent = 'Movie name is required';
+            isValid = false;
+        }
+
+        // Trailer URL validation
+    const trailerUrl = document.getElementById('trailerUrl').value.trim();
+    if (!trailerUrl) {
+        document.getElementById('trailerUrlError').textContent = 'YouTube trailer URL is required';
+        isValid = false;
+    } else if (!isValidUrl(trailerUrl)) {
+        document.getElementById('trailerUrlError').textContent = 'Please enter a valid YouTube URL';
+        isValid = false;
+    }
+
+        // Film Type validation
+        const filmType = document.getElementById('filmType').value;
+        if (!filmType) {
+            document.getElementById('filmTypeError').textContent = 'Film status is required';
+            isValid = false;
+        }
+
+        // Description validation
+        const filmDescription = document.getElementById('filmDescription').value.trim();
+        if (!filmDescription) {
+            document.getElementById('filmDescriptionError').textContent = 'Movie description is required';
+            isValid = false;
+        }
+
+        // Release Date validation
+        const releaseDate = document.getElementById('releaseDate').value;
+        if (!releaseDate) {
+            document.getElementById('releaseDateError').textContent = 'Release date is required';
+            isValid = false;
+        }
+
+        // Duration validation
+        const duration = document.getElementById('duration').value;
+        if (!duration || duration < 1) {
+            document.getElementById('durationError').textContent = 'Valid duration is required (minimum 1 minute)';
+            isValid = false;
+        }
+
+        // Category validation
+        const categoryInputs = document.querySelectorAll('input[name="categoryNames"]');
+        if (categoryInputs.length === 0) {
+            document.getElementById('categoryNamesError').textContent = 'At least one category is required';
+            isValid = false;
+        }
+
+        // Country validation
+        const country = document.getElementById('country').value;
+        if (!country) {
+            document.getElementById('countryError').textContent = 'Country is required';
+            isValid = false;
+        }
+
+        // Age Limit validation
+        const ageLimit = document.getElementById('ageLimit').value;
+        if (!ageLimit || ageLimit < 0) {
+            document.getElementById('ageLimitError').textContent = 'Valid age limit is required';
+            isValid = false;
+        }
+
+        // Director validation
+        const directorInputs = document.querySelectorAll('input[name="directorNames"]');
+        if (directorInputs.length === 0) {
+            document.getElementById('directorNamesError').textContent = 'At least one director is required';
+            isValid = false;
+        }
+
+        // Actor validation
+        const actorInputs = document.querySelectorAll('input[name="actorNames"]');
+        if (actorInputs.length === 0) {
+            document.getElementById('actorNamesError').textContent = 'At least one actor is required';
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    // Set up selectors for category, director, and actor
+    function setupSelectors() {
+        // Set up category selector
+        const categorySelector = document.getElementById('categorySelector');
+        if (categorySelector) {
+            categorySelector.addEventListener('change', function() {
+                if (this.value) {
+                    addCategory(this.value);
+                    this.value = ''; // Reset selection
+                    // Clear any error message
+                    document.getElementById('categoryNamesError').textContent = '';
+                }
+            });
+        }
+
+        // Set up director selector
+        const directorSelector = document.getElementById('directorSelector');
+        if (directorSelector) {
+            directorSelector.addEventListener('change', function() {
+                if (this.value) {
+                    addDirector(this.value);
+                    this.value = ''; // Reset selection
+                    // Clear any error message
+                    document.getElementById('directorNamesError').textContent = '';
+                }
+            });
+        }
+
+        // Set up actor selector
+        const actorSelector = document.getElementById('actorSelector');
+        if (actorSelector) {
+            actorSelector.addEventListener('change', function() {
+                if (this.value) {
+                    addActor(this.value);
+                    this.value = ''; // Reset selection
+                    // Clear any error message
+                    document.getElementById('actorNamesError').textContent = '';
+                }
+            });
+        }
+    }
+
+    // Set up trailer URL field
+    function setupTrailerUrl() {
+        const trailerUrlInput = document.getElementById('trailerUrl');
+        const currentTrailerInput = document.getElementById('currentFilmTrailer');
+        if (trailerUrlInput && currentTrailerInput) {
+            trailerUrlInput.value = currentTrailerInput.value || '';
+
+            // Add input validation
+            trailerUrlInput.addEventListener('blur', function() {
+                const value = this.value.trim();
+                if (value && !isValidUrl(value)) {
+                    document.getElementById('trailerUrlError').textContent = 'Please enter a valid URL';
+                } else {
+                    document.getElementById('trailerUrlError').textContent = '';
+                }
+            });
+        }
+    }
+
+    // Preview poster image
+    function previewPoster(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgElement = input.parentElement.querySelector('img');
+                if (imgElement) {
+                    imgElement.src = e.target.result;
+                } else {
+                    const newImg = document.createElement('img');
+                    newImg.src = e.target.result;
+                    newImg.style.maxWidth = '100%';
+                    newImg.style.maxHeight = '100%';
+                    input.parentElement.insertBefore(newImg, input);
+                }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // URL validation
+function isValidUrl(url) {
+    // Basic URL validation
+    try {
+        new URL(url);
+    } catch (e) {
+        return false;
+    }
+
+    // YouTube URL validation - checks common YouTube URL patterns
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)[a-zA-Z0-9_-]{11}(?:\S+)?$/;
+    return youtubeRegex.test(url);
+}
+
+    // Category management
+function addCategory(categoryName) {
+    const selectedCategories = document.getElementById('selectedCategories');
+
+    // Check if category already exists
+    const existingCategories = selectedCategories.querySelectorAll('input[name="categoryNames"]');
+    for (let i = 0; i < existingCategories.length; i++) {
+        if (existingCategories[i].value === categoryName) {
+            return; // Category already added
+        }
+    }
+
+    const tag = document.createElement('div');
+    tag.className = 'tag';
+    tag.innerHTML = `
+        <span>${categoryName}</span>
+        <button type="button" onclick="removeCategory(this)"><i class="fas fa-times"></i></button>
+        <input type="hidden" name="categoryNames" value="${categoryName}" />
+    `;
+    selectedCategories.appendChild(tag);
+
+    // Clear any error message
+    document.getElementById('categoryNamesError').textContent = '';
+}
+
+    function removeCategory(button) {
+        const tag = button.parentElement;
+        tag.remove();
+
+        // Check if error should be shown after removal
+        const categoryInputs = document.querySelectorAll('input[name="categoryNames"]');
+        if (categoryInputs.length === 0) {
+            document.getElementById('categoryNamesError').textContent = 'At least one category is required';
+        }
+    }
+
+   // Director management
+function addDirector(directorName) {
+    const directorsList = document.getElementById('directorsList');
+
+    // Check if director already exists
+    const existingDirectors = directorsList.querySelectorAll('input[name="directorNames"]');
+    for (let i = 0; i < existingDirectors.length; i++) {
+        if (existingDirectors[i].value === directorName) {
+            return; // Director already added
+        }
+    }
+
+    const tag = document.createElement('div');
+    tag.className = 'tag';
+    tag.innerHTML = `
+        <span>${directorName}</span>
+        <button type="button" onclick="removeDirector(this)"><i class="fas fa-times"></i></button>
+        <input type="hidden" name="directorNames" value="${directorName}" />
+    `;
+    directorsList.appendChild(tag);
+
+    // Clear any error message
+    document.getElementById('directorNamesError').textContent = '';
+}
+
+    function removeDirector(button) {
+    const tag = button.parentElement;
+    tag.remove();
+
+    // Check if error should be shown after removal
+    const directorInputs = document.querySelectorAll('input[name="directorNames"]');
+    if (directorInputs.length === 0) {
+        document.getElementById('directorNamesError').textContent = 'At least one director is required';
+    }
+}
+
+   // Actor management
+function addActor(actorName) {
+    const actorsList = document.getElementById('actorsList');
+
+    // Check if actor already exists
+    const existingActors = actorsList.querySelectorAll('input[name="actorNames"]');
+    for (let i = 0; i < existingActors.length; i++) {
+        if (existingActors[i].value === actorName) {
+            return; // Actor already added
+        }
+    }
+
+    const tag = document.createElement('div');
+    tag.className = 'tag';
+    tag.innerHTML = `
+        <span>${actorName}</span>
+        <button type="button" onclick="removeActor(this)"><i class="fas fa-times"></i></button>
+        <input type="hidden" name="actorNames" value="${actorName}" />
+    `;
+    actorsList.appendChild(tag);
+
+    // Clear any error message
+    document.getElementById('actorNamesError').textContent = '';
+}
+
+   function removeActor(button) {
+    const tag = button.parentElement;
+    tag.remove();
+
+    // Check if error should be shown after removal
+    const actorInputs = document.querySelectorAll('input[name="actorNames"]');
+    if (actorInputs.length === 0) {
+        document.getElementById('actorNamesError').textContent = 'At least one actor is required';
+    }
+}
+</script>
+</body>
+</html>

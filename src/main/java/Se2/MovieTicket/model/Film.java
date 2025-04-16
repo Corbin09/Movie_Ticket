@@ -241,4 +241,72 @@ public class Film {
         }
         return Optional.empty();
     }
+
+    public void setCategories(Set<Category> categories) {
+        if (categories == null) {
+            return;
+        }
+
+        // Tạo mới một tập hợp FilmCategory nếu chưa có
+        if (this.filmCategories == null) {
+            this.filmCategories = Set.of();
+        }
+
+        // Xóa các liên kết hiện có
+        this.filmCategories.clear();
+
+        // Tạo các liên kết mới
+        for (Category category : categories) {
+            FilmCategory filmCategory = new FilmCategory();
+            filmCategory.setFilm(this);
+            filmCategory.setCategory(category);
+            this.filmCategories.add(filmCategory);
+        }
+    }
+
+    public void setDirectors(Set<Director> directors) {
+        if (directors == null) {
+            return;
+        }
+
+        // Tạo mới một tập hợp FilmDirector nếu chưa có
+        if (this.filmDirectors == null) {
+            this.filmDirectors = Set.of();
+        }
+
+        // Xóa các liên kết hiện có
+        this.filmDirectors.clear();
+
+        // Tạo các liên kết mới
+        for (Director director : directors) {
+            FilmDirector filmDirector = new FilmDirector();
+            filmDirector.setFilm(this);
+            filmDirector.setDirector(director);
+            this.filmDirectors.add(filmDirector);
+        }
+    }
+
+    public void setActors(Set<Actor> actors) {
+        if (actors == null) {
+            return;
+        }
+
+        // Tạo mới một tập hợp FilmActor nếu chưa có
+        if (this.filmActors == null) {
+            this.filmActors = Set.of();
+        }
+
+        // Xóa các liên kết hiện có
+        this.filmActors.clear();
+
+        // Tạo các liên kết mới
+        for (Actor actor : actors) {
+            FilmActor filmActor = new FilmActor();
+            filmActor.setFilm(this);
+            filmActor.setActor(actor);
+            this.filmActors.add(filmActor);
+        }
+    }
+
+
 }

@@ -4,7 +4,7 @@
 <head>
     <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
     <link rel="stylesheet" th:href="@{/css/edit-cinema.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 
@@ -36,12 +36,13 @@
         </div>
     </div>
 
-    <h2 class="section-title">Cinema Management\Edit Cinema</h2>
+
 
     <!-- Alert for error message -->
     <div class="alert alert-danger" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
 
     <div class="form-container">
+        <h2 class="section-title">Edit Cinema</h2>
         <form th:action="@{/cinemas/update/{id}(id=${cinema.cinemaId})}" th:object="${cinema}" method="post">
             <input type="hidden" th:field="*{cinemaId}" />
 

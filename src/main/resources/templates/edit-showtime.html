@@ -1,27 +1,24 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Showtime</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
+
     <link rel="stylesheet" th:href="@{/css/edit-showtime.css}">
 </head>
-
 <body>
 
 <div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
-
 <!-- Edit Showtime Screen -->
 <section id="edit-showtime-screen" class="screen active">
     <div class="form-container">
         <h2>Edit Showtime</h2>
 
-        <form id="edit-showtime-form" th:action="@{/showtimes/update/{id}(id=${showtime.showtimeId})}"
-              th:object="${showtime}" method="post">
+        <form id="edit-showtime-form" th:action="@{/showtimes/update/{id}(id=${showtime.showtimeId})}" th:object="${showtime}" method="post">
             <!-- Hidden field for showtimeId -->
             <input type="hidden" th:field="*{showtimeId}">
 
@@ -30,11 +27,11 @@
                 <div class="select-wrapper">
                     <select id="film-select" th:field="*{film.filmId}" required>
                         <option value="">Select Film</option>
-                        <option th:each="film : ${films}" th:value="${film.filmId}" th:text="${film.filmName}"
-                                th:selected="${showtime.film != null && film.filmId == showtime.film.filmId}">Film Title
-                        </option>
+                        <option th:each="film : ${films}"
+                                th:value="${film.filmId}"
+                                th:text="${film.filmName}"
+                                th:selected="${showtime.film != null && film.filmId == showtime.film.filmId}">Film Title</option>
                     </select>
-                    <i class="fas fa-chevron-down"></i>
                 </div>
 
                 <span class="error" th:if="${#fields.hasErrors('film.filmId')}" th:errors="*{film.filmId}"></span>
@@ -45,16 +42,14 @@
                 <div class="select-wrapper">
                     <select id="cinema-select" th:field="*{cinema.cinemaId}" required>
                         <option value="">Select Cinema</option>
-                        <option th:each="cinema : ${cinemas}" th:value="${cinema.cinemaId}"
+                        <option th:each="cinema : ${cinemas}"
+                                th:value="${cinema.cinemaId}"
                                 th:text="${cinema.cinemaName}"
-                                th:selected="${showtime.cinema != null && cinema.cinemaId == showtime.cinema.cinemaId}">
-                            Cinema Name</option>
+                                th:selected="${showtime.cinema != null && cinema.cinemaId == showtime.cinema.cinemaId}">Cinema Name</option>
                     </select>
-                    <i class="fas fa-chevron-down"></i>
                 </div>
 
-                <span class="error" th:if="${#fields.hasErrors('cinema.cinemaId')}"
-                      th:errors="*{cinema.cinemaId}"></span>
+                <span class="error" th:if="${#fields.hasErrors('cinema.cinemaId')}" th:errors="*{cinema.cinemaId}"></span>
             </div>
 
             <div class="form-group">
@@ -62,21 +57,22 @@
                 <div class="select-wrapper">
                     <select id="room-select" th:field="*{room.roomId}" required>
                         <option value="">Select Room</option>
-                        <option th:each="room : ${rooms}" th:value="${room.roomId}" th:text="${room.roomName}"
+                        <option th:each="room : ${rooms}"
+                                th:value="${room.roomId}"
+                                th:text="${room.roomName}"
                                 th:attr="data-cinema-id=${room.cinema.cinemaId}"
-                                th:selected="${showtime.room != null && room.roomId == showtime.room.roomId}">Room Name
-                        </option>
+                                th:selected="${showtime.room != null && room.roomId == showtime.room.roomId}">Room Name</option>
                     </select>
-                    <i class="fas fa-chevron-down"></i>
                 </div>
                 <span class="error" th:if="${#fields.hasErrors('room.roomId')}" th:errors="*{room.roomId}"></span>
             </div>
 
+            <!-- Date picker using flatpickr for better format control -->
             <div class="form-group">
                 <label for="show-date-display">Show Date</label>
                 <input type="text" id="show-date-display" placeholder="Select date" required>
-                <input type="hidden" id="show-date" name="showDate"
-                       th:value="${showtime.showDate != null ? #dates.format(showtime.showDate, 'MM/dd/yyyy') : ''}">
+                <!-- Hidden field for actual date value in the required format -->
+                <input type="hidden" id="show-date" name="showDate" th:value="${showtime.showDate != null ? #dates.format(showtime.showDate, 'MM/dd/yyyy') : ''}">
                 <span class="error" th:if="${#fields.hasErrors('showDate')}" th:errors="*{showDate}"></span>
             </div>
 
@@ -84,26 +80,32 @@
             <div class="form-group">
                 <label for="show-time-display">Show Time</label>
                 <div class="time-picker-container">
+                    <!-- Visible input for time display -->
                     <input type="text" id="show-time-display" placeholder="Select time" required>
+                    <!-- Hidden field for actual time value in the required format -->
                     <input type="hidden" id="show-time" name="showTime" th:value="${showtime.showTime}">
                     <span class="error" th:if="${#fields.hasErrors('showTime')}" th:errors="*{showTime}"></span>
                 </div>
             </div>
 
             <div class="form-actions">
-                <a th:href="@{/manage-showtimes}" class="cancel-btn">Cancel</a>
-                <button type="submit" class="submit-btn">Update Showtime</button>
+                <a th:href="@{/manage-showtimes}" class="btn cancel-btn">Cancel</a>
+                <button type="submit" class="btn submit-btn">Update Showtime</button>
             </div>
         </form>
     </div>
 </section>
 
 <!-- Success Overlay -->
-<div th:if="${successMessage}" class="overlay-container" id="successOverlay">
+<div th:if="${successMessage}" class="overlay-container show" id="successOverlay">
     <div class="overlay-box">
-        <div class="overlay-icon">
-            <img src="/api/placeholder/80/80" alt="Success">
-        </div>
+        <<div class="overlay-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none"
+             stroke="#28a745" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+    </div>
         <h2 class="overlay-title">Update Success!</h2>
         <p class="overlay-text" th:text="${successMessage}">Showtime has been updated successfully.</p>
         <div class="overlay-actions">
@@ -113,14 +115,16 @@
     </div>
 </div>
 
-<!-- Error Message Alert -->
+<!-- Error Message Alert (if needed) -->
 <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
     <p th:text="${errorMessage}">Error message</p>
 </div>
 
+<!-- JavaScript for validation and dynamic room loading -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
 <script th:inline="javascript">
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
+        // Date picker with flatpickr for better format control
         const dateDisplayInput = document.getElementById('show-date-display');
         const dateHiddenInput = document.getElementById('show-date');
 
@@ -129,7 +133,8 @@
             dateFormat: "m/d/Y", // MM/DD/YYYY format for Java's SimpleDateFormat
             minDate: "today",
             defaultDate: dateHiddenInput.value || null,
-            onChange: function (selectedDates, dateStr) {
+            onChange: function(selectedDates, dateStr) {
+                // Format date as MM/dd/yyyy for Java's SimpleDateFormat
                 const date = selectedDates[0];
                 const month = String(date.getMonth() + 1).padStart(2, '0');
                 const day = String(date.getDate()).padStart(2, '0');
@@ -139,6 +144,7 @@
                 dateHiddenInput.value = formattedDate;
                 dateDisplayInput.classList.remove('invalid');
 
+                // Remove error message if exists
                 const errorElement = dateDisplayInput.parentNode.querySelector('.field-error');
                 if (errorElement) {
                     errorElement.remove();
@@ -146,6 +152,7 @@
             }
         });
 
+        // Set initial date value if exists
         if (dateHiddenInput.value) {
             dateDisplayInput.value = dateHiddenInput.value;
         }
@@ -162,7 +169,8 @@
             time_24hr: true,
             defaultDate: timeHiddenInput.value ? `2000-01-01 ${timeHiddenInput.value}` : null,
             minuteIncrement: 5,
-            onChange: function (selectedDates, timeStr) {
+            onChange: function(selectedDates, timeStr) {
+                // Ensure the format is HH:MM:SS with leading zeros
                 const time = selectedDates[0];
                 const hours = String(time.getHours()).padStart(2, '0');
                 const minutes = String(time.getMinutes()).padStart(2, '0');
@@ -172,6 +180,7 @@
                 timeHiddenInput.value = formattedTime;
                 timeDisplayInput.classList.remove('invalid');
 
+                // Remove error message if exists
                 const errorElement = timeDisplayInput.parentNode.querySelector('.field-error');
                 if (errorElement) {
                     errorElement.remove();
@@ -192,17 +201,20 @@
         const currentRoomId = roomSelect.getAttribute('data-current-room-id');
 
         // Filter rooms based on selected cinema
-        cinemaSelect.addEventListener('change', function () {
+        cinemaSelect.addEventListener('change', function() {
             const selectedCinemaId = this.value;
 
+            // Remove all options except placeholder
             while (roomSelect.options.length > 1) {
                 roomSelect.remove(1);
             }
 
+            // If no cinema selected, stop here
             if (!selectedCinemaId) {
                 return;
             }
 
+            // Add rooms that belong to the selected cinema
             allRooms.forEach(roomOption => {
                 const cinemaBelongsTo = roomOption.getAttribute('data-cinema-id');
                 if (cinemaBelongsTo === selectedCinemaId) {
@@ -211,10 +223,12 @@
             });
         });
 
+        // Trigger cinema change to load correct rooms on page load
         if (cinemaSelect.value) {
             const event = new Event('change');
             cinemaSelect.dispatchEvent(event);
 
+            // Select the current room if exists
             if (currentRoomId) {
                 for (let i = 0; i < roomSelect.options.length; i++) {
                     if (roomSelect.options[i].value == currentRoomId) {
@@ -234,6 +248,7 @@
                 dateDisplayInput.classList.add('invalid');
                 isValid = false;
 
+                // Add error message if not exists
                 let errorSpan = dateDisplayInput.nextElementSibling;
                 if (!errorSpan || !errorSpan.classList.contains('field-error')) {
                     errorSpan = document.createElement('span');
@@ -254,6 +269,7 @@
                 timeDisplayInput.classList.add('invalid');
                 isValid = false;
 
+                // Add error message if not exists
                 let container = document.querySelector('.time-picker-container');
                 let errorSpan = container.querySelector('.field-error');
                 if (!errorSpan) {
@@ -278,6 +294,7 @@
                     select.classList.add('invalid');
                     isValid = false;
 
+                    // Add error message if not exists
                     let errorSpan = select.nextElementSibling;
                     if (!errorSpan || !errorSpan.classList.contains('field-error')) {
                         errorSpan = document.createElement('span');
@@ -299,88 +316,108 @@
 
         // Form submission with AJAX
         const form = document.getElementById('edit-showtime-form');
-        form.addEventListener('submit', function (e) {
+        form.addEventListener('submit', function(e) {
             e.preventDefault(); // Prevent default form submission
 
+            // Validate the form
             const isValid = validateForm();
 
             if (!isValid) {
                 return;
             }
 
+            // Create form data
             const formData = new FormData(form);
 
+            // Show loading state
             const submitBtn = form.querySelector('.submit-btn');
             const originalBtnText = submitBtn.textContent;
             submitBtn.textContent = 'Updating...';
             submitBtn.disabled = true;
 
+            // AJAX request
             fetch(form.action, {
                 method: 'POST',
                 body: formData
             })
-                .then(response => {
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        return response.json();
-                    } else {
-                        window.location.reload();
-                        return null;
-                    }
-                })
-                .then(data => {
-                    if (!data) return;
+            .then(response => {
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                } else {
+                    // If not JSON, it's likely an HTML redirect response
+                    // In that case, we'll just reload the page
+                    window.location.reload();
+                    return null;
+                }
+            })
+            .then(data => {
+                // If there's no data (non-JSON response), we've already triggered a reload
+                if (!data) return;
 
-                    submitBtn.textContent = originalBtnText;
-                    submitBtn.disabled = false;
+                // Reset button state
+                submitBtn.textContent = originalBtnText;
+                submitBtn.disabled = false;
 
-                    if (data.success) {
-                        const successOverlay = document.createElement('div');
-                        successOverlay.className = 'overlay-container';
-                        successOverlay.id = 'successOverlay';
-                        successOverlay.innerHTML = `
-                    <div class="overlay-box">
-                        <div class="overlay-icon">
-                            <img src="/api/placeholder/80/80" alt="Success">
+                if (data.success) {
+                    // Show success overlay without page reload
+                    const successOverlay = document.createElement('div');
+                    successOverlay.className = 'overlay-container show';
+                    successOverlay.id = 'successOverlay';
+                    successOverlay.innerHTML = `
+                        <div class="overlay-box">
+                            <div class="overlay-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none"
+                     stroke="#28a745" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+                            <h2 class="overlay-title">Update Success!</h2>
+                            <p class="overlay-text">${data.message}</p>
+                            <div class="overlay-actions">
+                                <a href="/manage-showtimes" class="overlay-btn overlay-btn-success">Go to Showtimes List</a>
+                                <a href="/admin-dashboard" class="overlay-btn overlay-btn-back">Back to Dashboard</a>
+                            </div>
                         </div>
-                        <h2 class="overlay-title">Update Success!</h2>
-                        <p class="overlay-text">${data.message}</p>
-                        <div class="overlay-actions">
-                            <a href="/manage-showtimes" class="overlay-btn overlay-btn-success">Go to Showtimes List</a>
-                            <a href="/admin-dashboard" class="overlay-btn overlay-btn-back">Back to Dashboard</a>
-                        </div>
-                    </div>
-                `;
-                        document.body.appendChild(successOverlay);
+                    `;
+                    document.body.appendChild(successOverlay);
 
-                        successOverlay.addEventListener('click', function (e) {
-                            if (e.target === successOverlay) {
-                                successOverlay.remove();
-                            }
-                        });
-                    } else {
-                        let errorMessage = data.message || 'Error updating showtime';
-
-                        if (data.errors && data.errors.length > 0) {
-                            errorMessage += ': ' + data.errors.join(', ');
+                    // Allow clicking outside to close
+                    successOverlay.addEventListener('click', function(e) {
+                        if (e.target === successOverlay) {
+                            successOverlay.remove();
                         }
+                    });
+                } else {
+                    // Show error message
+                    let errorMessage = data.message || 'Error updating showtime';
 
-                        alert(errorMessage);
+                    // If there are field errors, display them
+                    if (data.errors && data.errors.length > 0) {
+                        errorMessage += ': ' + data.errors.join(', ');
                     }
-                })
-                .catch(error => {
-                    submitBtn.textContent = originalBtnText;
-                    submitBtn.disabled = false;
 
-                    console.error('Error:', error);
-                    alert('An error occurred while updating the showtime');
-                });
+                    alert(errorMessage);
+                }
+            })
+            .catch(error => {
+                // Reset button state
+                submitBtn.textContent = originalBtnText;
+                submitBtn.disabled = false;
+
+                console.error('Error:', error);
+                alert('An error occurred while updating the showtime');
+            });
         });
 
         // Handle existing success overlay close if it exists
         const successOverlay = document.getElementById('successOverlay');
         if (successOverlay) {
-            successOverlay.addEventListener('click', function (e) {
+            // Allow clicking outside to close
+            successOverlay.addEventListener('click', function(e) {
+                // Only close if clicking on the background, not the content
                 if (e.target === successOverlay) {
                     successOverlay.style.display = 'none';
                 }
@@ -388,6 +425,5 @@
         }
     });
 </script>
-
 </body>
 </html>

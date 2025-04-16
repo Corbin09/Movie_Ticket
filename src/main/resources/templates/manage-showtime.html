@@ -1,69 +1,714 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
-    <link rel="stylesheet" th:href="@{/css/manage-showtime.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>Showtime Management</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        body {
+          font-family: 'Poppins', sans-serif;
+          background-color: #044a2c;
+          margin: 0;
+          padding: 0;
+          color: #333;
+        }
+
+        /* Main Container */
+        .container-showtime-management {
+          display: flex;
+          justify-content: center;
+          padding: 20px;
+          max-width: 100vw;
+          padding-top: 79px;
+          padding-left: 260px;
+        }
+
+        .main-content {
+          width: 100%;
+          max-width: 1200px;
+          padding: 20px;
+          margin-left: 0;
+          background-color: #fff;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Content Header */
+        .content-header {
+          margin-bottom: 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .content-header h1 {
+          color: #044a2c;
+          font-size: 24px;
+          font-weight: 600;
+          margin: 0;
+        }
+
+        /* Alert Messages */
+        .alert {
+          padding: 12px 15px;
+          margin-bottom: 20px;
+          border-radius: 4px;
+          font-weight: 500;
+        }
+
+        .alert-success {
+          background-color: #dcfce7;
+          color: #14532d;
+          border: 1px solid #bbf7d0;
+        }
+
+        .alert-danger {
+          background-color: #fee2e2;
+          color: #7f1d1d;
+          border: 1px solid #fecaca;
+        }
+
+        /* Filter and Search Section */
+        .filter-section {
+          display: flex;
+          align-items: center;
+          margin-bottom: 20px;
+          width: 100%;
+          gap: 10px;
+        }
+
+        .filter-label {
+          margin-right: 10px;
+          font-weight: 500;
+          color: #333;
+          white-space: nowrap;
+        }
+
+        .filter-dropdown {
+          position: relative;
+          width: 180px;
+          flex-shrink: 0;
+        }
+
+        .dropdown-toggle {
+          background-color: #fff;
+          padding: 8px 12px;
+          border-radius: 4px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+          border: 1px solid #ced4da;
+          height: 38px;
+          color: #333;
+        }
+
+        .dropdown-toggle i {
+          margin-left: 8px;
+        }
+
+        .dropdown-menu {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          z-index: 1000;
+          display: none;
+          width: 100%;
+          padding: 0.25rem 0;
+          margin-top: 0.25rem;
+          background-color: #fff;
+          border: 1px solid #ced4da;
+          border-radius: 4px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        .dropdown-menu.show {
+          display: block;
+        }
+
+        .dropdown-item {
+          display: block;
+          padding: 8px 12px;
+          color: #333;
+          text-decoration: none;
+          cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+          background-color: #f8f9fa;
+        }
+
+        /* Search Bar */
+        .search-bar {
+          display: flex;
+          align-items: center;
+          position: relative;
+          flex-grow: 1;
+        }
+
+        .search-input {
+          width: 100%;
+          padding: 8px 12px;
+          padding-right: 40px;
+          border: 1px solid #ced4da;
+          border-radius: 4px;
+          font-size: 14px;
+          height: 38px;
+        }
+
+        .search-icon {
+          position: absolute;
+          right: 0;
+          top: 0;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 38px;
+          background-color: #044a2c;
+          color: white;
+          border-radius: 0 4px 4px 0;
+          cursor: pointer;
+        }
+
+        .search-icon:hover {
+          background-color: #033821;
+        }
+
+        /* Button Styles */
+        .btn-secondary {
+          background-color: #f8f9fa;
+          color: #333;
+          border: 1px solid #ced4da;
+          padding: 0 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 38px;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+          font-weight: 500;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+
+        .btn-secondary:hover {
+          background-color: #e2e6ea;
+        }
+
+        .add-showtime-btn {
+          background-color: #044a2c;
+          color: white;
+          border: none;
+          padding: 0 16px;
+          border-radius: 4px;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          cursor: pointer;
+          transition: background-color 0.3s;
+          height: 38px;
+          white-space: nowrap;
+          flex-shrink: 0;
+          text-decoration: none;
+        }
+
+        .add-showtime-btn:hover {
+          background-color: #033821;
+        }
+
+        .add-showtime-btn i {
+          margin-right: 5px;
+        }
+
+        .delete-selected-btn {
+          background-color: #dc2626;
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 4px;
+          cursor: pointer;
+          margin-top: 16px;
+          margin-bottom: 16px;
+          transition: background-color 0.3s;
+          font-weight: 500;
+        }
+
+        .delete-selected-btn:hover {
+          background-color: #b91c1c;
+        }
+
+        .delete-selected-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        /* Table Styles */
+        .table {
+          width: 100%;
+          border-collapse: collapse;
+          background-color: #fff;
+          font-size: 14px;
+          margin-bottom: 20px;
+        }
+
+        .table th, .table td {
+          padding: 12px 15px;
+          text-align: left;
+          border-bottom: 1px solid #f1f1f1;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 150px;
+        }
+
+        .table th {
+          background-color: #044a2c;
+          color: white;
+          font-weight: normal;
+        }
+
+        .table tbody tr:nth-of-type(even) {
+          background-color: #ffffff;
+        }
+
+        .table tbody tr:nth-of-type(odd) {
+          background-color: #fafafa;
+        }
+
+        .table tr:hover {
+          background-color: #f8f9fa;
+        }
+
+        /* Checkbox Styles */
+        input[type="checkbox"] {
+          width: 16px;
+          height: 16px;
+          border: 1px solid #ced4da;
+          border-radius: 3px;
+          cursor: pointer;
+        }
+
+        /* Pagination */
+        .pagination {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 1rem;
+          padding: 1rem 0;
+        }
+
+        .pagination-controls {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .pagination-controls button {
+          background-color: #e02220;
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+
+        .pagination-controls button:hover {
+          background-color: #c41e1c;
+        }
+
+        .pagination-controls button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .pagination-controls select {
+          background-color: #fff;
+          border: 1px solid #ced4da;
+          padding: 8px;
+          border-radius: 4px;
+          color: #333;
+        }
+
+ /* Delete Modal */
+.delete-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.delete-modal-content {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  max-width: 450px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  margin: 0 auto;
+}
+
+.delete-modal-icon {
+  font-size: 60px;
+  color: #DC2626;
+  margin-bottom: 10px;
+}
+
+.delete-modal-title {
+  color: #DC2626;
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 0;
+}
+
+.delete-modal-message {
+  color: #6B7280;
+  margin-bottom: 20px;
+}
+
+.delete-modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.delete-modal-btn {
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  text-align: center;
+  display: inline-block;
+  min-width: 120px;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+.delete-modal-cancel {
+  background-color: #DC2626;
+  color: white;
+}
+
+.delete-modal-cancel:hover {
+  background-color: #B91C1C;
+}
+
+.delete-modal-proceed {
+  background-color: #10B981;
+  color: white;
+}
+
+.delete-modal-proceed:hover {
+  background-color: #059669;
+}
+
+/* Success Modal */
+.success-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.success-modal-content {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  margin: 0 auto;
+}
+
+.success-modal-icon img {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 15px;
+  border-radius: 50%;
+}
+
+.success-modal-title {
+  color: #16a34a;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.success-modal-message {
+  color: #4b5563;
+  margin-bottom: 20px;
+}
+
+.success-modal-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.success-modal-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.success-modal-list {
+  background-color: #22c55e;
+  color: white;
+}
+
+.success-modal-list:hover {
+  background-color: #16a34a;
+}
+
+.success-modal-dashboard {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.success-modal-dashboard:hover {
+  background-color: #d1d5db;
+}
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+          /* Tablet */
+          .container-showtime-management {
+            padding-left: 0; /* Remove sidebar padding */
+          }
+          .main-content {
+            padding: 15px;
+          }
+          .filter-section {
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+          }
+          .filter-label {
+            margin-right: 0;
+            margin-bottom: 5px;
+          }
+          .filter-dropdown,
+          .search-bar,
+          .btn-secondary,
+          .add-showtime-btn {
+            width: 100%;
+            max-width: 300px; /* Limit width for better centering */
+            margin: 5px 0;
+          }
+          .content-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+          }
+          .content-header h1 {
+            font-size: 22px;
+          }
+          .add-showtime-btn {
+            align-self: flex-start;
+          }
+          .table {
+            min-width: 600px; /* Ensure table scrolls on tablet */
+          }
+          .table-responsive {
+            overflow-x: auto;
+          }
+          .pagination {
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+          }
+          .pagination-controls {
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+          }
+          .pagination-controls div {
+            margin: 5px 0;
+          }
+        }
+
+        @media (max-width: 768px) {
+          /* Mobile */
+          .container-showtime-management {
+            padding: 10px;
+            padding-top: 60px; /* Adjust for smaller header */
+          }
+          .main-content {
+            padding: 10px;
+          }
+          .content-header h1 {
+            font-size: 20px;
+          }
+          .filter-dropdown,
+          .search-bar,
+          .btn-secondary,
+          .add-showtime-btn {
+            max-width: 100%;
+          }
+          .table th,
+          .table td {
+            padding: 8px;
+            font-size: 12px;
+            max-width: 100px;
+          }
+          .pagination-controls button,
+          .pagination-controls select {
+            padding: 5px 10px;
+            font-size: 12px;
+          }
+          .delete-modal-buttons {
+            flex-direction: column;
+            gap: 10px;
+          }
+          .delete-modal-btn {
+            width: 100%;
+          }
+        }
+
+        @media (max-width: 480px) {
+          /* Small Mobile */
+          .main-content {
+            padding: 5px;
+          }
+          .content-header h1 {
+            font-size: 18px;
+          }
+          .filter-section {
+            gap: 5px;
+          }
+          .filter-label {
+            font-size: 14px;
+          }
+          .table th,
+          .table td {
+            padding: 6px;
+            font-size: 11px;
+            max-width: 70px;
+          }
+          .pagination-controls button,
+          .pagination-controls select {
+            padding: 5px 8px;
+            font-size: 11px;
+          }
+        }
+        /* CSS để xếp delete button và pagination trên cùng một hàng */
+.pagination-controls-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin: 10px 0;
+}
+
+/* Style cho delete button */
+.delete-selected-btn {
+    margin-right: 20px; position: absolute;
+    right: 320px;
+    margin-bottom: 0;
+}
+
+/* Đảm bảo form pagination có đủ space */
+#pagination-form {
+    flex-grow: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Điều chỉnh spacing trong pagination */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+    </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
-
 <body>
 <div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
 <div class="container-showtime-management">
     <main class="main-content">
-        <!-- Card container to match the template -->
-        <div class="card-container">
-            <!-- Title moved to match example structure -->
-            <div class="content-header">
-                <h1>Showtime Management</h1>
+        <div class="content-header">
+            <h1>Showtime Management</h1>
+
+        </div>
+
+        <!-- Alert messages -->
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <!-- Filter and search section -->
+        <div class="filter-section">
+            <span class="filter-label">Search by:</span>
+            <div class="filter-dropdown">
+                <div class="dropdown-toggle" id="searchFieldToggle">
+                    <span id="selectedSearchField">All Fields</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="dropdown-menu" id="searchFieldMenu">
+                    <a class="dropdown-item" data-value="all">All Fields</a>
+                    <a class="dropdown-item" data-value="film">Film</a>
+                    <a class="dropdown-item" data-value="cinema">Cinema</a>
+                    <a class="dropdown-item" data-value="room">Room</a>
+                    <a class="dropdown-item" data-value="date">Date</a>
+                </div>
             </div>
 
-            <!-- Alert messages -->
-            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
-
-            <!-- Filter and search section -->
-            <div class="filter-section">
-                <span class="filter-label">Search by:</span>
-                <div class="filter-dropdown">
-                    <div class="dropdown-toggle" id="searchFieldToggle">
-                        <span id="selectedSearchField">All Fields</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="dropdown-menu" id="searchFieldMenu">
-                        <a class="dropdown-item" data-value="all">All Fields</a>
-                        <a class="dropdown-item" data-value="film">Film</a>
-                        <a class="dropdown-item" data-value="cinema">Cinema</a>
-                        <a class="dropdown-item" data-value="room">Room</a>
-                        <a class="dropdown-item" data-value="date">Date</a>
-                    </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search..." th:value="${searchTerm}" />
+                <div class="search-icon" id="searchButton">
+                    <i class="fas fa-search"></i>
                 </div>
-
-                <div class="search-bar">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search..."
-                           th:value="${searchTerm}" />
-                    <div class="search-icon" id="searchButton">
-                        <i class="fas fa-search"></i>
-                    </div>
-                </div>
-
-                <input type="date" id="dateInput" class="search-input" style="display:none;"
-                       th:value="${selectedDate}" />
-
-                <button id="clearButton" class="btn-secondary">Clear</button>
-
-                <a th:href="@{/showtimes/add}" class="add-showtime-btn">
-                    <i class="fas fa-plus"></i>
-                    <span>Add Showtime</span>
-                </a>
             </div>
 
-            <!-- Form for table and delete functionality -->
+            <input type="date" id="dateInput" class="search-input" style="display:none;" th:value="${selectedDate}" />
+
+            <button id="clearButton" class="btn-secondary">Clear</button>
+            <a th:href="@{/showtimes/add}" class="add-showtime-btn">
+                <i class="fas fa-plus"></i>
+                <span>Add Showtime</span>
+            </a>
+        </div>
+
+        <!-- Table section with delete button outside the form -->
+        <div class="table-responsive">
             <form th:action="@{/showtimes/delete}" method="post" id="showtimes-form">
-                <!-- Table section -->
                 <table class="table">
                     <thead>
                     <tr>
@@ -77,10 +722,8 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr style="cursor:pointer;" th:each="showtime : ${showtimes}"
-                        th:id="'showtime-' + ${showtime.showtimeId}">
-                        <td><input type="checkbox" class="row-checkbox" name="selectedIds"
-                                   th:value="${showtime.showtimeId}"></td>
+                    <tr style="cursor:pointer;" th:each="showtime : ${showtimes}" th:id="'showtime-' + ${showtime.showtimeId}">
+                        <td><input type="checkbox" class="row-checkbox" name="selectedIds" th:value="${showtime.showtimeId}"></td>
                         <td th:text="${showtime.showtimeId}">1</td>
                         <td th:text="${showtime.filmName}">Film Name</td>
                         <td th:text="${showtime.cinemaName}">Cinema Name</td>
@@ -88,7 +731,7 @@
                         <td th:text="${showtime.showTime}">15:45</td>
                         <td th:text="${#dates.format(showtime.showDate, 'dd/MM/yyyy')}">15/03/2025</td>
                     </tr>
-                    <!-- Message when no showtimes available -->
+                    <!-- No results message -->
                     <tr th:if="${#lists.isEmpty(showtimes)}">
                         <td colspan="7" style="text-align: center; padding: 20px;">No showtimes available</td>
                     </tr>
@@ -101,67 +744,59 @@
                 <input type="hidden" name="page" id="currentPageHidden" th:value="${currentPage}">
                 <input type="hidden" name="date" id="dateHidden" th:value="${selectedDate}">
             </form>
+        </div>
 
-            <!-- Pagination and delete buttons in a flex container -->
-            <div class="del-paginate-cinema">
-                <button type="button" id="deleteButton" class="delete-selected-btn">Delete Selected</button>
+        <!-- Tạo một container div bao quanh cả delete button và pagination form -->
+        <div class="pagination-controls-container">
+            <!-- Delete button vẫn giữ nguyên bên ngoài form -->
+            <button type="button" id="deleteButton" class="delete-selected-btn" disabled>Delete Selected</button>
 
-                <!-- Separate form for pagination -->
-                <form id="pagination-form" th:action="@{/manage-showtimes}" method="get">
-                    <!-- Hidden fields for pagination -->
-                    <input type="hidden" name="search" th:value="${searchTerm}">
-                    <input type="hidden" name="searchField" th:value="${searchField}">
-                    <input type="hidden" name="date" th:value="${selectedDate}">
-                    <input type="hidden" name="page" id="pageHidden" th:value="${currentPage}">
-                    <input type="hidden" name="size" th:value="${pageSize}">
+            <!-- Form pagination vẫn giữ nguyên logic -->
+            <form id="pagination-form" th:action="@{/manage-showtimes}" method="get">
+                <!-- Hidden fields for pagination (giữ nguyên) -->
+                <input type="hidden" name="search" th:value="${searchTerm}">
+                <input type="hidden" name="searchField" th:value="${searchField}">
+                <input type="hidden" name="date" th:value="${selectedDate}">
+                <input type="hidden" name="page" id="pageHidden" th:value="${currentPage}">
+                <input type="hidden" name="size" th:value="${pageSize}">
 
-                    <div class="pagination" th:if="${totalPages > 0}">
-                            <span class="pagination-info"
-                                  th:text="${'Showing '
-                                  + ((currentPage-1) * pageSize + 1)
-                                  + '-'
-                                  + (currentPage == totalPages ? totalShowtimes : currentPage * pageSize)
-                                  + ' of '
-                                  + totalShowtimes}">
-                                Showing 1-10 of 20
-                            </span>
-                        <div class="pagination-controls">
-                            <div class="page-size">
-                                <span>Lines per page:</span>
-                                <select id="pageSizeSelect" name="size" onchange="this.form.submit()">
-                                    <option th:each="s : ${pageSizes}" th:value="${s}" th:text="${s}"
-                                            th:selected="${s == pageSize}">10</option>
-                                </select>
-                            </div>
-                            <div class="page-navigation">
-                                <button id="prevPage" type="button" th:disabled="${currentPage <= 1}"
-                                        onclick="changePage(currentPage - 1)" class="prev-btn">
-                                    <i class="fas fa-chevron-left"></i>
-                                </button>
-                                <button id="nextPage" type="button" th:disabled="${currentPage >= totalPages}"
-                                        onclick="changePage(currentPage + 1)" class="next-btn">
-                                    <i class="fas fa-chevron-right"></i>
-                                </button>
-                            </div>
-                        </div>
+                <!-- Pagination section (giữ nguyên) -->
+                <div class="pagination" th:if="${totalPages > 0}">
+            <span th:text="${'Showing ' + ((currentPage-1) * pageSize + 1) + '-' + (currentPage == totalPages ? totalShowtimes : currentPage * pageSize) + ' of ' + totalShowtimes}">
+              Showing 1-10 of 20
+            </span>
+                    <div class="pagination-controls">
+                        <span class="filter-label">Lines per page:</span>
+                        <select id="pageSizeSelect" name="size" onchange="this.form.submit()">
+                            <option th:each="s : ${pageSizes}" th:value="${s}" th:text="${s}"
+                                    th:selected="${s == pageSize}">10</option>
+                        </select>
+                        <button id="prevPage" type="button" th:disabled="${currentPage <= 1}"
+                                onclick="changePage(currentPage - 1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button id="nextPage" type="button" th:disabled="${currentPage >= totalPages}"
+                                onclick="changePage(currentPage + 1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </main>
 </div>
 
-<!-- Delete confirmation modal -->
+<!-- Delete Modal -->
 <div id="deleteModal" class="delete-modal">
     <div class="delete-modal-content">
         <div class="delete-modal-icon">
-            <i class="fas fa-exclamation-triangle"></i>
+            <i class="fas fa-exclamation-circle"></i>
         </div>
-        <h3 class="delete-modal-title">Confirm Delete</h3>
-        <p class="delete-modal-message">Are you sure you want to delete the selected showtime(s)?</p>
+        <h2 class="delete-modal-title">Warning</h2>
+        <p class="delete-modal-message">This action cannot be undone. Do you really want to proceed?</p>
         <div class="delete-modal-buttons">
             <button id="cancelDelete" class="delete-modal-btn delete-modal-cancel">Cancel</button>
-            <button id="confirmDelete" class="delete-modal-btn delete-modal-proceed">Delete</button>
+            <button id="confirmDelete" class="delete-modal-btn delete-modal-proceed">Proceed</button>
         </div>
     </div>
 </div>
@@ -170,12 +805,13 @@
 <div id="successModal" class="success-modal">
     <div class="success-modal-content">
         <div class="success-modal-icon">
-            <img src="/api/placeholder/80/80" alt="Success" />
+            <img src="https://storage.googleapis.com/a1aa/image/c8vfCnEspzOX5ov3dX65vYIGGEdnELte-7GoPt4L-YI.jpg"
+                 alt="Success" />
         </div>
         <h2 class="success-modal-title">Delete Success!</h2>
-        <p class="success-modal-message">Success! Showtime(s) has been deleted successfully.</p>
+        <p class="success-modal-message">Success! Room has been deleted successfully.</p>
         <div class="success-modal-buttons">
-            <a th:href="@{/manage-showtimes}" class="success-modal-btn success-modal-list">Go to Showtimes List</a>
+            <a th:href="@{/manage-showtimes}" class="success-modal-btn success-modal-list">Go to Showtime List</a>
             <a th:href="@{/admin-dashboard}" class="success-modal-btn success-modal-dashboard">Back to Dashboard</a>
         </div>
     </div>
@@ -213,212 +849,228 @@
     const paginationForm = document.getElementById('pagination-form');
 
     // Event Listeners
-    document.addEventListener('DOMContentLoaded', function () {
-        // Initialize the search field dropdown with the current value
-        if (searchField) {
-            // Set the initial display text
-            switch (searchField) {
-                case 'film':
-                    selectedSearchField.textContent = 'Film';
-                    break;
-                case 'cinema':
-                    selectedSearchField.textContent = 'Cinema';
-                    break;
-                case 'room':
-                    selectedSearchField.textContent = 'Room';
-                    break;
-                case 'date':
-                    selectedSearchField.textContent = 'Date';
-                    searchInput.style.display = 'none';
-                    dateInput.style.display = 'block';
-                    break;
-                default:
-                    selectedSearchField.textContent = 'All Fields';
-            }
-            searchFieldHidden.value = searchField;
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize the search field dropdown with the current value
+      if (searchField) {
+        // Set the initial display text
+        switch (searchField) {
+          case 'film':
+            selectedSearchField.textContent = 'Film';
+            break;
+          case 'cinema':
+            selectedSearchField.textContent = 'Cinema';
+            break;
+          case 'room':
+            selectedSearchField.textContent = 'Room';
+            break;
+          case 'date':
+            selectedSearchField.textContent = 'Date';
+            searchInput.style.display = 'none';
+            dateInput.style.display = 'block';
+            break;
+          default:
+            selectedSearchField.textContent = 'All Fields';
         }
+        searchFieldHidden.value = searchField;
+      }
 
-        // Check if deletion was successful and show success modal
-        if (deleteSuccess === true) {
-            showSuccessModal();
+      // Check if deletion was successful and show success modal
+      if(deleteSuccess === true) {
+        showSuccessModal();
+      }
+
+      // Success from URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      if(urlParams.get('deleteSuccess') === 'true') {
+        showSuccessModal();
+      }
+
+      // Dropdown toggle
+      searchFieldToggle.addEventListener('click', function() {
+        searchFieldMenu.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(event) {
+        if (!event.target.closest('.filter-dropdown')) {
+          searchFieldMenu.classList.remove('show');
         }
+      });
 
-        // Success from URL parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('deleteSuccess') === 'true') {
-            showSuccessModal();
+      // Search field selection
+      const dropdownItems = searchFieldMenu.querySelectorAll('.dropdown-item');
+      dropdownItems.forEach(item => {
+        item.addEventListener('click', function() {
+          const value = this.getAttribute('data-value');
+          selectedSearchField.textContent = this.textContent;
+          searchFieldHidden.value = value;
+          searchFieldMenu.classList.remove('show');
+
+          // Show date input if date search is selected
+          if (value === 'date') {
+            searchInput.style.display = 'none';
+            dateInput.style.display = 'block';
+          } else {
+            searchInput.style.display = 'block';
+            dateInput.style.display = 'none';
+          }
+        });
+      });
+
+      // Search button
+      searchButton.addEventListener('click', function() {
+        performSearch();
+      });
+
+      // Enter key in search input
+      searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          performSearch();
         }
+      });
 
-        // Dropdown toggle
-        searchFieldToggle.addEventListener('click', function () {
-            searchFieldMenu.classList.toggle('show');
-        });
+      // Date input change
+      dateInput.addEventListener('change', function() {
+        dateHidden.value = this.value;
+        performSearch();
+      });
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function (event) {
-            if (!event.target.closest('.filter-dropdown')) {
-                searchFieldMenu.classList.remove('show');
-            }
-        });
+      // Clear button
+      clearButton.addEventListener('click', function() {
+        window.location.href = [[@{/manage-showtimes}]];
+      });
 
-        // Search field selection
-        const dropdownItems = searchFieldMenu.querySelectorAll('.dropdown-item');
-        dropdownItems.forEach(item => {
-            item.addEventListener('click', function () {
-                const value = this.getAttribute('data-value');
-                selectedSearchField.textContent = this.textContent;
-                searchFieldHidden.value = value;
-                searchFieldMenu.classList.remove('show');
-
-                if (value === 'date') {
-                    searchInput.style.display = 'none';
-                    dateInput.style.display = 'block';
-                } else {
-                    searchInput.style.display = 'block';
-                    dateInput.style.display = 'none';
-                }
-            });
-        });
-
-        searchButton.addEventListener('click', function () {
-            performSearch();
-        });
-
-        searchInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-
-        dateInput.addEventListener('change', function () {
-            dateHidden.value = this.value;
-            performSearch();
-        });
-
-        clearButton.addEventListener('click', function () {
-            window.location.href = [[@{/ manage - showtimes}]];
-    });
-
-    // Select all checkboxes
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function () {
-            rowCheckboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
-            });
-            updateDeleteButtonState();
+      // Select all checkboxes
+      if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+          rowCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+          });
+          updateDeleteButtonState();
         });
 
         // Individual checkbox change
         rowCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function () {
-                const allChecked = [...rowCheckboxes].every(c => c.checked);
-                const someChecked = [...rowCheckboxes].some(c => c.checked);
+          checkbox.addEventListener('change', function() {
+            const allChecked = [...rowCheckboxes].every(c => c.checked);
+            const someChecked = [...rowCheckboxes].some(c => c.checked);
 
-                selectAllCheckbox.checked = allChecked;
-                selectAllCheckbox.indeterminate = !allChecked && someChecked;
+            selectAllCheckbox.checked = allChecked;
+            selectAllCheckbox.indeterminate = !allChecked && someChecked;
 
-                updateDeleteButtonState();
-            });
+            updateDeleteButtonState();
+          });
         });
-    }
+      }
 
-    // Delete button click
-    if (deleteButton) {
-        deleteButton.addEventListener('click', function (e) {
-            e.preventDefault();
-            deleteModal.style.display = 'flex';
-        });
-    }
 
-    // Delete modal - Cancel button
-    cancelDelete.addEventListener('click', function () {
-        deleteModal.style.display = 'none';
-    });
+          // Delete button click
+          if (deleteButton) {
+              deleteButton.addEventListener('click', function(e) {
+                  e.preventDefault();
+                  deleteModal.style.display = 'flex';
+              });
+          }
 
-    // Delete modal - Confirm button
-    confirmDelete.addEventListener('click', function () {
-        const form = showtimesForm;
-        const originalAction = form.action;
-        form.action = originalAction + (originalAction.includes('?') ? '&' : '?') + 'showSuccessModal=true';
-        form.submit();
-    });
+          // Delete modal - Cancel button
+          cancelDelete.addEventListener('click', function() {
+              deleteModal.style.display = 'none';
+          });
 
-    deleteModal.addEventListener('click', function (e) {
-        if (e.target === this) {
-            deleteModal.style.display = 'none';
-        }
-    });
+          // Delete modal - Confirm button
+          confirmDelete.addEventListener('click', function() {
+              // Modify form submission to include success parameter
+              const form = showtimesForm;
+              const originalAction = form.action;
+              form.action = originalAction + (originalAction.includes('?') ? '&' : '?') + 'showSuccessModal=true';
+              form.submit();
+          });
 
-    successModal.addEventListener('click', function (e) {
-        if (e.target === this) {
-            successModal.style.display = 'none';
-        }
-    });
+          // Close modal on outside click
+          deleteModal.addEventListener('click', function(e) {
+              if (e.target === this) {
+                  deleteModal.style.display = 'none';
+              }
+          });
 
-    updateDeleteButtonState();
+          // Close success modal on outside click
+          successModal.addEventListener('click', function(e) {
+              if (e.target === this) {
+                  successModal.style.display = 'none';
+              }
+          });
 
-    document.querySelectorAll('tbody tr[id^="showtime-"]').forEach(row => {
-        row.addEventListener('click', function (e) {
-            if (e.target.type !== 'checkbox' && !e.target.closest('input[type="checkbox"]')) {
-                const showtimeId = this.id.replace('showtime-', '');
-                window.location.href = "/showtimes/edit/" + showtimeId;
-            }
-        });
-    });
-});
+          // Update delete button state on page load
+          updateDeleteButtonState();
 
-    // Utility functions
-    function performSearch() {
-        const searchValue = searchInput.value.trim();
-        const dateValue = dateInput.value;
-        const searchFieldValue = searchFieldHidden.value;
+          // Row click handler for editing (moved from second script)
+          document.querySelectorAll('tbody tr[id^="showtime-"]').forEach(row => {
+      row.addEventListener('click', function(e) {
+          // Don't trigger if clicking on checkbox
+          if(e.target.type !== 'checkbox' && !e.target.closest('input[type="checkbox"]')) {
+              const showtimeId = this.id.replace('showtime-', '');
+              window.location.href = "/showtimes/edit/" + showtimeId;
+          }
+      });
+  });
+      });
 
-        const form = paginationForm;
+      // Utility functions
+      function performSearch() {
+          const searchValue = searchInput.value.trim();
+          const dateValue = dateInput.value;
+          const searchFieldValue = searchFieldHidden.value;
 
-        form.innerHTML = '';
+          // Reset form and add the proper search parameters
+          const form = paginationForm;
 
-        if (searchFieldValue === 'date' && dateValue) {
-            addHiddenInput(form, 'date', dateValue);
-            addHiddenInput(form, 'searchField', 'date');
-        } else if (searchValue) {
-            addHiddenInput(form, 'search', searchValue);
-            addHiddenInput(form, 'searchField', searchFieldValue);
-        }
+          // Clear previous parameters
+          form.innerHTML = '';
 
-        addHiddenInput(form, 'page', '1'); // Reset to first page on new search
-        addHiddenInput(form, 'size', pageSize);
+          // Add the appropriate parameters based on search type
+          if (searchFieldValue === 'date' && dateValue) {
+              addHiddenInput(form, 'date', dateValue);
+              addHiddenInput(form, 'searchField', 'date');
+          } else if (searchValue) {
+              addHiddenInput(form, 'search', searchValue);
+              addHiddenInput(form, 'searchField', searchFieldValue);
+          }
 
-        form.action = [[@{/ manage - showtimes}]];
-    form.submit();
-}
+          // Always include page and size
+          addHiddenInput(form, 'page', '1'); // Reset to first page on new search
+          addHiddenInput(form, 'size', pageSize);
 
-    function addHiddenInput(form, name, value) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
-    }
+          form.action = [[@{/manage-showtimes}]];
+          form.submit();
+      }
 
-    function updateDeleteButtonState() {
-        const someChecked = [...rowCheckboxes].some(c => c.checked);
-        if (deleteButton) {
-            deleteButton.disabled = !someChecked;
-        }
-    }
+      function addHiddenInput(form, name, value) {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = name;
+          input.value = value;
+          form.appendChild(input);
+      }
 
-    function changePage(page) {
-        pageHidden.value = page;
-        paginationForm.submit();
-    }
+      function updateDeleteButtonState() {
+          const someChecked = [...rowCheckboxes].some(c => c.checked);
+          if (deleteButton) {
+              deleteButton.disabled = !someChecked;
+          }
+      }
 
-    function showSuccessModal() {
-        successModal.style.display = 'flex';
-        setTimeout(() => {
-            successModal.style.display = 'none';
-        }, 5000);
-    }
+      function changePage(page) {
+          pageHidden.value = page;
+          paginationForm.submit();
+      }
+
+      function showSuccessModal() {
+          successModal.style.display = 'flex';
+          // Auto-hide after 5 seconds
+          setTimeout(() => {
+              successModal.style.display = 'none';
+          }, 5000);
+      }
 </script>
-
 </body>
 </html>

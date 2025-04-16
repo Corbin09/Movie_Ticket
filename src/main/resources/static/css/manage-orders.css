@@ -13,8 +13,9 @@
   padding: 0;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 body {
-  font-family: 'Arial', sans-serif;
+  font-family: 'Poppins', sans-serif;
   background: linear-gradient(to bottom, var(--green-900), var(--green-700));
   color: var(--white);
   min-height: 100vh;

@@ -7,11 +7,13 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Movie Management</title>
     <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Global Styles */
-        body {
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+body {
+  font-family: 'Poppins', sans-serif;
           background-color: #044a2c;
           margin: 0;
           padding: 0;
@@ -612,7 +614,7 @@
     </style>
 </head>
 <body>
-<!--<div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>-->
+<div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
 
 <div class="container-orders-management">
     <div class="main-content">
@@ -659,7 +661,6 @@
             <table id="movieTable" class="table table-striped table-hover">
                 <thead class="table-dark">
                 <tr>
-                    <th><input type="checkbox" id="selectAll"></th>
                     <th>Movie Name</th>
                     <th>Description</th>
                     <th>Age limit</th>
@@ -669,7 +670,6 @@
                 </thead>
                 <tbody>
                 <tr th:each="film : ${films}" th:data-movie-id="${film.filmId}">
-                    <td><input type="checkbox" class="movie-checkbox" th:data-id="${film.filmId}"></td>
                     <td th:text="${film.filmName}"></td>
                     <td th:text="${film.filmDescription != null ? film.filmDescription : 'N/A'}"></td>
                     <td th:text="${film.ageLimit != null ? film.ageLimit : 'N/A'}"></td>
@@ -690,7 +690,6 @@
                     Showing 1-10 of 10
             </span>
             <div class="del-paginate-movies">
-                <button class="btn btn-danger" id="deleteSelected" disabled>Delete</button>
                 <div class="pagination-controls">
                     <div class="page-size-container">
                         <span class="lines-per-page-label">Lines per page:</span>
@@ -716,292 +715,62 @@
     </div>
 </div>
 
-<!-- Delete Modal -->
-<div id="deleteModal" class="modal-overlay">
-    <div class="modal-content">
-        <div class="modal-icon">
-            <i class="fas fa-exclamation-circle"></i>
-        </div>
-        <h2 class="modal-title">Warning</h2>
-        <p class="modal-message">Are you sure you want to delete the selected movie(s)? This action cannot be undone.</p>
-        <div class="modal-buttons">
-            <button class="modal-btn delete-modal-cancel" id="cancelDelete">Cancel</button>
-            <button class="modal-btn delete-modal-proceed" id="confirmDelete">Proceed</button>
-        </div>
-    </div>
-</div>
-
-<!-- Success Modal -->
-<div id="successModal" class="modal-overlay">
-    <div class="modal-content">
-        <div class="modal-icon">
-            <i class="fas fa-check-circle"></i>
-        </div>
-        <h2 class="modal-title">Delete Success!</h2>
-        <p class="modal-message">Success! Movie(s) has been deleted successfully.</p>
-        <div class="modal-buttons">
-            <a href="/manage-movies" class="modal-btn success-modal-list">Go to Movie List</a>
-            <a href="/admin-dashboard" class="modal-btn success-modal-dashboard">Back to Dashboard</a>
-        </div>
-    </div>
-</div>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-    const selectAll = document.getElementById("selectAll");
-    const deleteBtn = document.getElementById("deleteSelected");
-    const deleteModal = document.getElementById("deleteModal");
-    const successModal = document.getElementById("successModal");
-    const cancelDelete = document.getElementById("cancelDelete");
-    const confirmDelete = document.getElementById("confirmDelete");
-    let selectedMovieIds = [];
-
-    // Handle checkboxes for movie selection
-    function getCheckboxes() {
-        return document.querySelectorAll(".movie-checkbox");
-    }
-
-    function toggleDeleteButton() {
-        const anyChecked = [...getCheckboxes()].some(cb => cb.checked);
-        deleteBtn.disabled = !anyChecked;
-    }
-
-    function bindCheckboxEvents() {
-        getCheckboxes().forEach(cb => {
-            cb.addEventListener("change", () => {
-                const movieId = cb.getAttribute("data-id");
-
-                if (cb.checked) {
-                    if (!selectedMovieIds.includes(movieId)) {
-                        selectedMovieIds.push(movieId);
-                    }
-                } else {
-                    selectedMovieIds = selectedMovieIds.filter(id => id !== movieId);
-                }
-
-                toggleDeleteButton();
-            });
-        });
-    }
-
-    bindCheckboxEvents(); // Bind when page loads
-
-    if (selectAll) {
-        selectAll.addEventListener("change", () => {
-            const checkboxes = getCheckboxes();
-            checkboxes.forEach(cb => {
-                cb.checked = selectAll.checked;
-                const movieId = cb.getAttribute("data-id");
-
-                if (selectAll.checked) {
-                    if (!selectedMovieIds.includes(movieId)) {
-                        selectedMovieIds.push(movieId);
-                    }
-                } else {
-                    selectedMovieIds = selectedMovieIds.filter(id => id !== movieId);
-                }
-            });
-            toggleDeleteButton();
-        });
-    }
-
-    // Modal functions
-    function showDeleteModal() {
-        deleteModal.classList.add("show");
-        document.body.style.overflow = 'hidden';
-
-        // Update message with number of selected movies
-        const messageElement = deleteModal.querySelector(".modal-message");
-        messageElement.textContent = `Are you sure you want to delete ${selectedMovieIds.length} selected movie(s)? This action cannot be undone.`;
-    }
-
-    function hideDeleteModal() {
-        deleteModal.classList.remove("show");
-        document.body.style.overflow = '';
-    }
-
-    function showSuccessModal() {
-        successModal.classList.add("show");
-        document.body.style.overflow = 'hidden';
-
-        // Update success message
-        const messageElement = successModal.querySelector(".modal-message");
-        messageElement.textContent = `Success! ${selectedMovieIds.length} movie(s) has been deleted successfully.`;
-    }
-
-    function hideSuccessModal() {
-        successModal.classList.remove("show");
-        document.body.style.overflow = '';
-    }
-
-    // Delete functionality
-    function performDelete() {
-        if (selectedMovieIds.length > 0) {
-            console.log("Sending delete IDs: ", selectedMovieIds);
-
-            fetch("/manage-movies/delete-movies", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector("meta[name='_csrf']").content
-                },
-                body: JSON.stringify({ ids: selectedMovieIds })
-            }).then(res => res.text().then(text => {
-                hideDeleteModal();
-                if (res.ok) {
-                    showSuccessModal();
-
-                    // Remove deleted rows from table
-                    selectedMovieIds.forEach(id => {
-                        const row = document.querySelector(`tr .movie-checkbox[data-id="${id}"]`)?.closest('tr');
-                        if (row) row.remove();
-                    });
-
-                    // Reset selection state
-                    selectedMovieIds = [];
-                    selectAll.checked = false;
-                    toggleDeleteButton();
-
-                    // Update pagination info
-                    updatePaginationInfo();
-                } else {
-                    alert("Failed to delete: " + text);
-                }
-            }))
-            .catch(err => {
-                hideDeleteModal();
-                alert("Error: " + err);
-            });
-        }
-    }
-// Get all movie table rows
-const movieRows = document.querySelectorAll('#movieTable tbody tr');
-
-// Make table rows clickable to edit
-movieRows.forEach(row => {
-  // Skip the "No movie found" row if present
-  if (!row.querySelector('td[colspan]')) {
-    row.style.cursor = 'pointer';
-    // Add click event to all cells in the row
-    row.querySelectorAll('td').forEach(cell => {
-      cell.addEventListener('click', function() {
-        const movieId = row.getAttribute('data-movie-id');
-        if (movieId) {
-          window.location.href = `/edit-movie?id=${movieId}`;
-        }
-      });
-    });
-  }
-});
-
-
-    // Update pagination info after deletion
-    function updatePaginationInfo() {
-        const paginationInfo = document.querySelector('.pagination span');
-        if (paginationInfo) {
-            const totalRows = document.querySelectorAll('.table tbody tr:not(.text-center)').length;
-            const currentText = paginationInfo.textContent;
-            const match = currentText.match(/Showing (\d+)-\d+ of \d+/);
-
-            if (match) {
-                const start = parseInt(match[1]);
-                const end = Math.min(start + totalRows - 1, totalRows);
-                paginationInfo.textContent = `Showing ${start}-${end} of ${totalRows}`;
-            }
-        }
-    }
-
-    // Filter dropdown
-    const toggle = document.getElementById("searchCriteria");
-    const dropdown = document.getElementById("searchCriteriaDropdown");
-
-    if (toggle && dropdown) {
-        toggle.addEventListener("click", () => {
-            dropdown.classList.toggle("show");
-        });
-
-        document.addEventListener("click", (event) => {
-            if (!toggle.contains(event.target)) {
-                dropdown.classList.remove("show");
-            }
-        });
-
-        document.querySelectorAll(".dropdown-item").forEach(item => {
-            item.addEventListener("click", () => {
-                const value = item.getAttribute("data-value");
-                document.getElementById("searchCriteriaInput").value = value;
-                document.getElementById("filterForm").submit();
-            });
-        });
-    }
-
-    // Page size select event
-    const pageSizeSelect = document.getElementById("pageSizeSelect");
-    if (pageSizeSelect) {
-        pageSizeSelect.addEventListener("change", () => {
-            window.location.href = `/manage-movies?page=1&size=${pageSizeSelect.value}`;
-        });
-    }
-
-    // Delete modal event listeners
-    deleteBtn.addEventListener("click", () => {
-        if (selectedMovieIds.length > 0) {
-            showDeleteModal();
-        }
-    });
-
-    cancelDelete.addEventListener("click", hideDeleteModal);
-    confirmDelete.addEventListener("click", performDelete);
-
-    // Close modals when clicking outside
-    deleteModal.addEventListener("click", (e) => {
-        if (e.target === deleteModal) {
-            hideDeleteModal();
-        }
-    });
-
-    successModal.addEventListener("click", (e) => {
-        if (e.target === successModal) {
-            hideSuccessModal();
-        }
-    });
-
-    // Close modals with escape key
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-            hideDeleteModal();
-            hideSuccessModal();
-        }
-    });
-
-    // Initialize delete button state
-    toggleDeleteButton();
-});
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
         // Get all movie table rows
         const movieRows = document.querySelectorAll('#movieTable tbody tr');
 
-        // Make table rows clickable to edit
+        // Make table rows clickable to edit, except the checkbox column
         movieRows.forEach(row => {
             // Skip the "No movie found" row if present
             if (!row.querySelector('td[colspan]')) {
                 row.style.cursor = 'pointer';
-                // Add click event to all cells in the row
+                // Add click event to all cells EXCEPT the first one (checkbox column)
                 row.querySelectorAll('td:not(:first-child)').forEach(cell => {
                     cell.addEventListener('click', function() {
                         const movieId = row.getAttribute('data-movie-id');
                         if (movieId) {
-                            window.location.href = `/manage-movies/edit-movie?id=${movieId}`;
+                            window.location.href = `/manage-movies/edit-movie/${movieId}`;
                         }
                     });
                 });
             }
         });
 
-        // Your clear button code can go here as well
+        // Filter dropdown
+        const toggle = document.getElementById("searchCriteria");
+        const dropdown = document.getElementById("searchCriteriaDropdown");
+
+        if (toggle && dropdown) {
+            toggle.addEventListener("click", () => {
+                dropdown.classList.toggle("show");
+            });
+
+            document.addEventListener("click", (event) => {
+                if (!toggle.contains(event.target)) {
+                    dropdown.classList.remove("show");
+                }
+            });
+
+            document.querySelectorAll(".dropdown-item").forEach(item => {
+                item.addEventListener("click", () => {
+                    const value = item.getAttribute("data-value");
+                    document.getElementById("searchCriteriaInput").value = value;
+                    document.getElementById("filterForm").submit();
+                });
+            });
+        }
+
+        // Page size select event
+        const pageSizeSelect = document.getElementById("pageSizeSelect");
+        if (pageSizeSelect) {
+            pageSizeSelect.addEventListener("change", () => {
+                window.location.href = `/manage-movies?page=1&size=${pageSizeSelect.value}`;
+            });
+        }
+
+        // Clear button functionality
         const clearButton = document.getElementById('clearButton');
         if (clearButton) {
             clearButton.addEventListener('click', function(e) {

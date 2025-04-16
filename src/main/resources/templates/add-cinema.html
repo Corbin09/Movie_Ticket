@@ -6,13 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
     <link rel="stylesheet" th:href="@{/css/add-cinema.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
 <div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
 <!-- Add Cinema View -->
 <div class="content-view" th:fragment="content" id="contentView">
-    <h2 class="section-title">Cinema Management / Add Cinema</h2>
+
 
     <!-- Success Overlay -->
     <div th:if="${successMessage}" class="overlay-container show" id="successOverlay">
@@ -31,6 +32,7 @@
     </div>
 
     <div class="form-container">
+        <h2 class="section-title">Add Cinema</h2>
         <form th:action="@{/cinemas/save}" th:object="${cinema}" method="post">
             <div class="form-group">
                 <label for="cinemaName">Cinema name</label>
@@ -46,7 +48,6 @@
                             <span class="selected-option"
                                   th:text="${cinema.region != null ? cinema.region.regionName : 'Select Region'}">Select
                                 Region</span>
-                        <i class="fas fa-chevron-down">▼</i>
                     </div>
                     <div class="select-dropdown">
                         <div class="select-option" th:each="region : ${regions}" th:text="${region.regionName}"
@@ -65,7 +66,6 @@
                             <span class="selected-option"
                                   th:text="${cinema.cinemaCluster != null ? cinema.cinemaCluster.clusterName : 'Select Complex'}">Select
                                 Complex</span>
-                        <i class="fas fa-chevron-down">▼</i>
                     </div>
                     <div class="select-dropdown">
                         <div class="select-option" th:each="cluster : ${clusters}" th:text="${cluster.clusterName}"

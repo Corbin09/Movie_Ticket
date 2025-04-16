@@ -1,5 +1,6 @@
 package Se2.MovieTicket.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,8 +13,12 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Embeddable
 public class FilmActorId implements Serializable {
+    @Column(name = "film_id")
     private Long filmId;
+
+    @Column(name = "actor_id")
     private Long actorId;
+
 
     public Long getFilmId() {
         return filmId;

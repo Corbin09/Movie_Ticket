@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Room</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
     <link rel="stylesheet" th:href="@{/css/editroom.css}">
 </head>
@@ -15,7 +15,7 @@
 <div th:replace="~{fragments/header_admin_sidebar :: header_sidebar}"></div>
 
 <div class="container-edit-room">
-    <h2>Edit Room</h2>
+
 
     <div class="debug-info" th:if="${param.debug}">
         <p>showSuccessOverlay: <span th:text="${showSuccessOverlay}">false</span></p>
@@ -28,6 +28,7 @@
         <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
 
         <form id="editRoomForm" th:action="@{/edit-room}" th:object="${room}" method="post">
+            <h2>Edit Room</h2>
             <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
             <input type="hidden" th:field="*{roomId}" />
 

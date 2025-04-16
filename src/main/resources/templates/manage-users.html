@@ -9,7 +9,7 @@
     <title>Cinema Management System</title>
     <link rel="stylesheet" th:href="@{/css/header_sidebar.css}">
     <link rel="stylesheet" th:href="@{/css/manage-users.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
@@ -57,6 +57,7 @@
                         </button>
                     </form>
                 </div>
+                <button id="clearButton" class="btn-secondary">Clear</button>
             </div>
 
             <!-- Table -->
@@ -151,7 +152,7 @@
                             <i class="fa fa-chevron-left"></i>
                         </a>
 
-                        <span th:text="${currentPage + ' / ' + totalPages}">1 / 5</span>
+
 
                         <a th:if="${currentPage < totalPages}"
                            th:href="@{/manage-users(searchField=${currentSearchField},
@@ -251,7 +252,13 @@
             });
         });
     }
-
+// Handle clear button click
+const clearButton = document.getElementById('clearButton');
+if (clearButton) {
+    clearButton.addEventListener('click', function() {
+        window.location.href = window.location.pathname;
+    });
+}
     // Initialize role selection functionality
     function initRoleSelector() {
         const roleSelects = document.querySelectorAll('.role-select');

@@ -45,10 +45,10 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         // Các trang công khai
-                        .requestMatchers("/", "/chart.html", "/login",  "/register", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/", "/chart.html", "/logout", "/login",  "/register", "/css/**", "/js/**").permitAll()
 
                         // Các trang dành cho USER
-                        .requestMatchers( "/home", "/detail-actor/**", "/detail-director/**", "/news/**", "/View-movie-ticket/**", "/showtime**", "/create-order", "/view-ticket", "/detail-movie/**", "/user-dashboard", "/profile", "/pick-seat", "pick-payment-method/**", "/user-tickets/**").hasRole("USER")
+                        .requestMatchers( "/home", "/detail-actor/**", "/detail-director/**", "/news/**", "/View-movie-ticket/**", "/showtime/**", "/create-order", "/view-ticket", "/detail-movie/**", "/profile", "/pick-seat", "pick-payment-method/**", "/user-tickets/**").hasRole("USER")
 
                         // Các trang dành cho ADMIN
                         .requestMatchers( "showtimes/**", "/users/update-role/**",  "/manage-showtimes/**", "/manage-cinema/**", "/cinemas/save", "cinemas/edit/**",  "/cinemas/**", "/welcome-admin", "/admin-dashboard", "/reports/**", "/manage-users", "/manage-orders/**", "/manage-rooms/**", "/delete-rooms").hasRole("ADMIN")
@@ -76,7 +76,6 @@ public class SecurityConfig {
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
         return (request, response, authentication) -> {
             String username = authentication.getName();
-            System.out.println("✅ Đăng nhập thành công cho user: " + username);
 
             // Lưu user vào session
             HttpSession session = request.getSession();
@@ -89,12 +88,9 @@ public class SecurityConfig {
             // Điều hướng dựa trên vai trò
             if (authentication.getAuthorities().stream()
                     .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
-                response.sendRedirect("/welcome-admin"); // Trang khởi đầu cho ADMIN
-            } else if (authentication.getAuthorities().stream()
-                    .anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"))) {
-                response.sendRedirect("/home"); // Trang khởi đầu cho USER
+                response.sendRedirect("/welcome-admin");
             } else {
-                response.sendRedirect("/index");
+                response.sendRedirect("/home");
             }
         };
     }

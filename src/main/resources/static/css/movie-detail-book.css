@@ -16,9 +16,9 @@
   padding: 0;
   box-sizing: border-box;
 }
-
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Poppins', sans-serif;
   color: var(--text-color);
   background: linear-gradient(180deg,
       rgb(1.47, 14.86, 4.89) 0%,

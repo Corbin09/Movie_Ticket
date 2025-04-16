@@ -1,80 +1,137 @@
 package Se2.MovieTicket.controllers;
 
 import Se2.MovieTicket.dto.DirectorDTO;
+import Se2.MovieTicket.dto.FilmDTO;
+import Se2.MovieTicket.impl.UserDetailsImpl;
 import Se2.MovieTicket.model.Director;
+import Se2.MovieTicket.model.Film;
+import Se2.MovieTicket.model.User;
+import Se2.MovieTicket.service.ActorService;
 import Se2.MovieTicket.service.DirectorService;
+import Se2.MovieTicket.service.FilmService;
 import Se2.MovieTicket.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@RestController
-@RequestMapping("/api/directors")
+@Controller
+@RequestMapping("/")
 public class DirectorController {
     @Autowired
-    private DirectorService directorService;
+    private FilmService filmService;
 
     @Autowired
     private UserService userService;
 
-    @GetMapping
-    public ResponseEntity<List<Director>> getAllDirectors() {
-        if (!userService.hasRole("Admin") && !userService.hasRole("User ")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
+
+    @Autowired
+    private DirectorService directorService;
+
+    @GetMapping("/detail-director")
+    public String detailDirector(
+            @RequestParam("id") Long id,
+            @RequestParam(defaultValue = "1") int currentPage,
+            Model model,
+            HttpServletRequest request) {
+        // Add user to model (similar to other methods)
+        addUserToModel(model, request);
+
+        // Get director details
+        Director director = directorService.findDirectorById(id);
+
+        if (director == null) {
+            return "redirect:/home"; // Or error page
         }
-        List<Director> directors = directorService.getAllDirectors();
-        return directors.isEmpty() ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(directors, HttpStatus.OK);
-    }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Director> getDirectorById(@PathVariable("id") Long id) {
-        if (!userService.hasRole("Admin") && !userService.hasRole("User ")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        // Convert Director entity to DirectorDTO
+        DirectorDTO directorDTO = new DirectorDTO();
+        directorDTO.setDirectorId(director.getDirectorId());
+        directorDTO.setDirectorName(director.getDirectorName());
+        directorDTO.setDirectorImg(director.getDirectorImg());
+        directorDTO.setDirectorDescription(director.getDirectorDescription());
+
+        // Format for dates
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        // Set up pagination
+        int size = 8; // Number of movies per page
+
+        // Assuming you'll create this method in your service
+        Page<Film> directorFilmsPage = filmService.getFilmsByDirectorId(id, currentPage, size);
+
+        // Convert to DTOs with formatted dates
+        List<FilmDTO> directorMovies = directorFilmsPage.getContent().stream().map(film -> {
+            FilmDTO filmDTO = new FilmDTO();
+            filmDTO.setFilmId(film.getFilmId());
+            filmDTO.setFilmName(film.getFilmName());
+            filmDTO.setFilmImg(film.getFilmImg());
+            filmDTO.setFilmTrailer(film.getFilmTrailer());
+            filmDTO.setFilmDescription(film.getFilmDescription());
+
+            // Set both the original date and formatted date
+            filmDTO.setReleaseDate(film.getReleaseDate());
+            filmDTO.setFormattedReleaseDate(film.getReleaseDate().format(formatter));
+
+            // For consistency with your Coming Soon formatting
+            filmDTO.setReleaseDateFormatted(film.getReleaseDate().format(formatter));
+
+            // Get category names for the film
+            List<String> categoryNames = filmService.getCategoryNamesByFilmId(film.getFilmId());
+            filmDTO.setCategoryNames(categoryNames);
+
+            filmDTO.setDuration(film.getDuration());
+            filmDTO.setFilmType(film.getFilmType());
+            filmDTO.setCountry(film.getCountry());
+            filmDTO.setAgeLimit(film.getAgeLimit());
+
+            return filmDTO;
+        }).collect(Collectors.toList());
+
+        // Add data to model
+        model.addAttribute("director", directorDTO);
+        model.addAttribute("movies", directorMovies);
+        model.addAttribute("movieSectionTitle", "Movies Directed by " + director.getDirectorName());
+
+        // Add pagination attributes
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPages", directorFilmsPage.getTotalPages());
+
+        return "details-director";
+    }
+    // Add this method to your controller
+    private void addUserToModel(Model model, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        User sessionUser = (session != null) ? (User) session.getAttribute("user") : null;
+
+        if (sessionUser == null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl) {
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                sessionUser = userService.getUserById(userDetails.getId()).orElse(null);
+
+                if (sessionUser != null && session != null) {
+                    session.setAttribute("user", sessionUser);
+                }
+            }
         }
-        return directorService.getDirectorById(id)
-                .map(director -> new ResponseEntity<>(director, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
 
-    @PostMapping
-    public ResponseEntity<Director> createDirector(@RequestBody DirectorDTO directorDTO) {
-        if (!userService.hasRole("Admin")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        if (sessionUser != null) {
+            model.addAttribute("user", sessionUser);
         }
-        Director newDirector = directorService.createDirector(directorDTO);
-        return new ResponseEntity<>(newDirector, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Director> updateDirector(@PathVariable("id") Long id, @RequestBody DirectorDTO directorDTO) {
-        if (!userService.hasRole("Admin")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-        Director updatedDirector = directorService.updateDirector(id, directorDTO);
-        return updatedDirector != null ? new ResponseEntity<>(updatedDirector, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteDirector(@PathVariable("id") Long id) {
-        if (!userService.hasRole("Admin")) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-        directorService.deleteDirector(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<List<Director>> searchDirectors(@RequestParam(required = false) String name) {
-        List<Director> directors = directorService.searchDirectors(name);
-        return directors.isEmpty() ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(directors, HttpStatus.OK);
-    }
-
-    @GetMapping("/filter")
-    public ResponseEntity<List<Director>> filterDirectors(@RequestParam(required = false) String name) {
-        List<Director> directors = directorService.filterDirectors(name);
-        return new ResponseEntity<>(directors, HttpStatus.OK);
-    }
 }

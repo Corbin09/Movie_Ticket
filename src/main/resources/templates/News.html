@@ -67,19 +67,26 @@
 <div class="pagination-container" th:if="${vnPages > 0}">
   <div class="pagination">
 
-    <a th:if="${currentVnPage > 1}" th:href="@{'/news?vnPage=' + (${currentVnPage - 1})}"
-       class="page-item prev-page">&laquo;</a>
-    <span th:if="${currentVnPage == 1}" class="page-item prev-page disabled">&laquo;</span>
+    <!-- Nút Previous - luôn hiển thị nhưng disabled nếu ở trang đầu -->
+    <a th:href="${currentVnPage > 1} ? @{'/news?vnPage=' + (${currentVnPage - 1}) + '&intPage=' + ${currentIntPage}} : '#'"
+       class="page-item prev-page"
+       th:classappend="${currentVnPage == 1} ? 'disabled' : ''">&laquo;</a>
 
-    <a th:each="page : ${#numbers.sequence(1, vnPages)}" th:href="@{'/news?vnPage=' + ${page}}"
-       class="page-item" th:classappend="${currentVnPage == page} ? 'active' : ''" th:text="${page}"></a>
+    <!-- Các trang (loop) -->
+    <a th:each="page : ${#numbers.sequence(1, vnPages)}"
+       th:href="@{'/news?vnPage=' + ${page} + '&intPage=' + ${currentIntPage}}"
+       class="page-item"
+       th:classappend="${currentVnPage == page} ? 'active' : ''"
+       th:text="${page}"></a>
 
-    <a th:if="${currentVnPage < vnPages}" th:href="@{'/news?vnPage=' + (${currentVnPage + 1})}"
-       class="page-item next-page">&raquo;</a>
-    <span th:if="${currentVnPage == vnPages}" class="page-item next-page disabled">&raquo;</span>
+    <!-- Nút Next - luôn hiển thị nhưng disabled nếu ở trang cuối -->
+    <a th:href="${currentVnPage < vnPages} ? @{'/news?vnPage=' + (${currentVnPage + 1}) + '&intPage=' + ${currentIntPage}} : '#'"
+       class="page-item next-page"
+       th:classappend="${currentVnPage == vnPages} ? 'disabled' : ''">&raquo;</a>
 
   </div>
 </div>
+
 
 
 <section class="movie-section">
@@ -100,23 +107,30 @@
   </div>
 </section>
 
-<!-- Pagination for International movie list -->
+<!-- Pagination cho danh sách phim Quốc tế -->
 <div class="pagination-container" th:if="${intPages > 0}">
   <div class="pagination">
 
-    <a th:if="${currentIntPage > 1}" th:href="@{'/news?intPage=' + (${currentIntPage - 1})}"
-       class="page-item prev-page">&laquo;</a>
-    <span th:if="${currentIntPage == 1}" class="page-item prev-page disabled">&laquo;</span>
+    <!-- Nút Previous - luôn hiển thị nhưng disabled nếu ở trang đầu -->
+    <a th:href="${currentIntPage > 1} ? @{'/news?intPage=' + (${currentIntPage - 1}) + '&vnPage=' + ${currentVnPage}} : '#'"
+       class="page-item prev-page"
+       th:classappend="${currentIntPage == 1} ? 'disabled' : ''">&laquo;</a>
 
-    <a th:each="page : ${#numbers.sequence(1, intPages)}" th:href="@{'/news?intPage=' + ${page}}"
-       class="page-item" th:classappend="${currentIntPage == page} ? 'active' : ''" th:text="${page}"></a>
+    <!-- Các trang (loop) -->
+    <a th:each="page : ${#numbers.sequence(1, intPages)}"
+       th:href="@{'/news?intPage=' + ${page} + '&vnPage=' + ${currentVnPage}}"
+       class="page-item"
+       th:classappend="${currentIntPage == page} ? 'active' : ''"
+       th:text="${page}"></a>
 
-    <a th:if="${currentIntPage < intPages}" th:href="@{'/news?intPage=' + (${currentIntPage + 1})}"
-       class="page-item next-page">&raquo;</a>
-    <span th:if="${currentIntPage == intPages}" class="page-item next-page disabled">&raquo;</span>
+    <!-- Nút Next - luôn hiển thị nhưng disabled nếu ở trang cuối -->
+    <a th:href="${currentIntPage < intPages} ? @{'/news?intPage=' + (${currentIntPage + 1}) + '&vnPage=' + ${currentVnPage}} : '#'"
+       class="page-item next-page"
+       th:classappend="${currentIntPage == intPages} ? 'disabled' : ''">&raquo;</a>
 
   </div>
 </div>
+
 
 <!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>

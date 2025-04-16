@@ -12,427 +12,1069 @@
     <link rel="stylesheet" th:href="@{/css/header_user.css}">
     <style>
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(to right, #052e16, #0f172a);
-            color: white;
-        }
-
-        .container-details-movie {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            padding-top: 150px;
-        }
-
-        /* Main Content */
-        .movie-detail-container {
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            display: flex;
-        }
-
-        .movie-poster {
-            width: 120px;
-            border-radius: 5px;
-            margin-right: 20px;
-            flex-shrink: 0;
-        }
-
-        .movie-poster img {
-            width: 100%;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .movie-info {
-            flex-grow: 1;
-        }
-
-        .movie-title {
-            margin-bottom: 10px;
-        }
-
-        .movie-title h1 {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .movie-subtitle {
-            font-size: 14px;
-            color: #aaa;
-            margin-bottom: 15px;
-        }
-
-        .movie-rating {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .rating-label {
-            margin-right: 10px;
-            font-size: 14px;
-        }
-
-        .stars {
-            color: gold;
-            margin-right: 0.5rem;
-            font-size: 14px;
-        }
-
-        .movie-meta {
-            display: grid;
-            grid-template-columns: auto auto;
-            gap: 8px;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-
-        .movie-meta-item {
-            display: flex;
-        }
-
-        .meta-label {
-            color: #aaa;
-            margin-right: 5px;
-            min-width: 60px;
-        }
-
-        .meta-value {
-            color: white;
-        }
-
-        .movie-description {
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 15px;
-        }
-
-        .movie-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .btn {
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 14px;
-            cursor: pointer;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn i {
-            margin-right: 5px;
-        }
-
-        .btn-primary {
-            background-color: #12b981;
-            color: white;
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid #12b981;
-            color: #12b981;
-        }
-
-        .heart-filled {
-            color: #ff69b4;
-        }
-
-        /* Trailer section */
-        .trailer-section {
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            margin-bottom: 15px;
-        }
-
-        .trailer-container {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 ratio */
-            height: 0;
-            overflow: hidden;
-        }
-
-        .trailer-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 8px;
-        }
-
-        /* Rating section */
-        .ratings-section {
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            padding: 20px;
-        }
-
-        .rating-overview {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .rating-big {
-            font-size: 28px;
-            font-weight: bold;
-            margin-right: 5px;
-        }
-
-        .rating-scale {
-            color: #aaa;
-            font-size: 14px;
-        }
-
-        .user-review {
-            padding: 15px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-
-        .reviewer-info {
-            display: flex;
-            align-items: center;
-        }
-
-        .user-avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-
-        .reviewer-name {
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .review-date {
-            color: #aaa;
-            font-size: 12px;
-        }
-
-        .review-content {
-            font-size: 14px;
-            line-height: 1.4;
-            margin-top: 5px;
-        }
-
-        /* Review form */
-        .review-form {
-            padding: 15px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        .form-title {
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
-        .star-rating {
-            direction: rtl; /* Right to left to reverse the flow */
-            display: flex;
-        }
-
-        .star-rating input {
-            display: none;
-        }
-
-        .star-rating label {
-            cursor: pointer;
-            font-size: 18px;
-            color: #ddd;
-            margin-right: 5px;
-        }
-
-        .star-rating label:hover,
-        .star-rating label:hover ~ label,
-        .star-rating input:checked ~ label {
-            color: gold;
-        }
-
-        .comment-input {
-            width: 100%;
-            height: 80px;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            margin-bottom: 15px;
-            resize: none;
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .cancel-btn {
-            background-color: transparent;
-            color: #aaa;
-            border: none;
-            padding: 8px 12px;
-            cursor: pointer;
-        }
-
-        .submit-btn {
-            background-color: #12b981;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .user-has-reviewed {
-            margin-bottom: 10px;
-            font-size: 14px;
-            color: #12b981;
-        }
-
-        /* Custom notification system */
-        .notification-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-
-        .notification-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .notification-box {
-            background: linear-gradient(135deg, #1e3a8a, #0f172a);
-            border-radius: 10px;
-            padding: 25px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            transform: translateY(-20px);
-            transition: transform 0.3s;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .notification-overlay.active .notification-box {
-            transform: translateY(0);
-        }
-
-        .notification-title {
-            font-size: 18px;
-            margin-bottom: 15px;
-            color: white;
-            font-weight: bold;
-        }
-
-        .notification-message {
-            font-size: 14px;
-            margin-bottom: 20px;
-            color: #e2e8f0;
-            line-height: 1.5;
-        }
-
-        .notification-icon {
-            font-size: 32px;
-            margin-bottom: 15px;
-        }
-
-        .notification-icon.success {
-            color: #10b981;
-        }
-
-        .notification-icon.error {
-            color: #ef4444;
-        }
-
-        .notification-icon.info {
-            color: #3b82f6;
-        }
-
-        .notification-icon.warning {
-            color: #f59e0b;
-        }
-
-        .notification-btn {
-            background-color: #12b981;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .notification-btn:hover {
-            background-color: #0ea371;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .movie-detail-container {
-                flex-direction: column;
-            }
-
-            .movie-poster {
-                width: 100%;
-                max-width: 200px;
-                margin-bottom: 15px;
-                margin-right: 0;
-            }
-
-            .movie-meta {
-                grid-template-columns: 1fr;
-            }
-
-            .movie-actions {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-        }
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0a3d0a, #000000);
+    color: #ffffff;
+    min-height: 100vh;
+    line-height: 1.6;
+    font-size: 16px;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.container-details-movie {
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 30px 20px;
+    padding-top: 150px;
+}
+
+/* Main Content */
+.movie-detail-container {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    display: flex;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.movie-detail-container:hover {
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+    transform: translateY(-3px);
+}
+
+.movie-poster {
+    width: 220px;
+    border-radius: 10px;
+    margin-right: 40px;
+    flex-shrink: 0;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.movie-poster:hover {
+    transform: scale(1.03);
+}
+
+.movie-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: transform 0.5s ease;
+}
+
+.movie-poster img:hover {
+    transform: scale(1.05);
+}
+
+.movie-info {
+    flex-grow: 1;
+}
+
+.movie-title {
+    margin-bottom: 15px;
+}
+
+.movie-title h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #ffffff;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 10px;
+}
+
+.movie-subtitle {
+    font-size: 16px;
+    color: #e0e0e0;
+    margin-bottom: 20px;
+}
+
+.movie-rating {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.rating-label {
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+.stars {
+    color: gold;
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+.movie-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.movie-meta-item {
+    display: flex;
+}
+
+.meta-label {
+    color: #bbbbbb;
+    margin-right: 10px;
+    min-width: 80px;
+    font-weight: 500;
+}
+
+.meta-value {
+    color: #ffffff;
+}
+
+.movie-description {
+    font-size: 16px;
+    line-height: 1.8;
+    margin-bottom: 20px;
+    color: #e0e0e0;
+    text-align: justify;
+}
+
+.movie-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.btn {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn i {
+    margin-right: 8px;
+}
+
+.btn-primary {
+    background-color: #4caf50;
+    color: white;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 1px solid #4caf50;
+    color: #4caf50;
+}
+
+.heart-filled {
+    color: #ff69b4;
+}
+
+/* Trailer section */
+.trailer-section {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.trailer-section:hover {
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+    transform: translateY(-3px);
+}
+
+.section-title {
+    font-size: 24px;
+    margin-bottom: 25px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    font-weight: 600;
+}
+
+.trailer-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 ratio */
+    height: 0;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.trailer-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+}
+
+/* Rating section */
+.ratings-section {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.ratings-section:hover {
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+    transform: translateY(-3px);
+}
+
+.rating-overview {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.rating-big {
+    font-size: 32px;
+    font-weight: bold;
+    margin-right: 10px;
+    color: #4caf50;
+}
+
+.rating-scale {
+    color: #bbbbbb;
+    font-size: 16px;
+}
+
+.user-review {
+    padding: 20px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.user-review:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateX(5px);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.reviewer-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: 2px solid #4caf50;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.reviewer-name {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.review-date {
+    color: #bbbbbb;
+    font-size: 14px;
+}
+
+.review-content {
+    font-size: 16px;
+    line-height: 1.8;
+    margin-top: 10px;
+    color: #e0e0e0;
+}
+
+/* Review form */
+.review-form {
+    padding: 25px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    margin-top: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.form-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #ffffff;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    font-weight: 600;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 10px;
+}
+
+.star-rating {
+    direction: rtl; /* Right to left to reverse the flow */
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    cursor: pointer;
+    font-size: 24px;
+    color: #444;
+    margin-right: 8px;
+    transition: color 0.3s ease;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input:checked ~ label {
+    color: gold;
+}
+
+.comment-input {
+    width: 100%;
+    height: 120px;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
+    margin-bottom: 20px;
+    resize: none;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.comment-input:focus {
+    outline: none;
+    border-color: #4caf50;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+.cancel-btn {
+    background-color: transparent;
+    color: #bbbbbb;
+    border: 1px solid #bbbbbb;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+    color: #ffffff;
+    border-color: #ffffff;
+    transform: translateY(-3px);
+}
+
+.submit-btn {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #3d8b40;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.user-has-reviewed {
+    margin-bottom: 15px;
+    font-size: 16px;
+    color: #4caf50;
+}
+
+/* Custom notification system */
+.notification-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.notification-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.notification-box {
+    background: linear-gradient(135deg, #0a3d0a, #000000);
+    border-radius: 15px;
+    padding: 30px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    transform: translateY(-20px);
+    transition: transform 0.3s;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.notification-overlay.active .notification-box {
+    transform: translateY(0);
+}
+
+.notification-title {
+    font-size: 22px;
+    margin-bottom: 15px;
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.notification-message {
+    font-size: 16px;
+    margin-bottom: 25px;
+    color: #e0e0e0;
+    line-height: 1.8;
+}
+
+.notification-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.notification-icon.success {
+    color: #4caf50;
+}
+
+.notification-icon.error {
+    color: #ef4444;
+}
+
+.notification-icon.info {
+    color: #3b82f6;
+}
+
+.notification-icon.warning {
+    color: #f59e0b;
+}
+
+.notification-btn {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.notification-btn:hover {
+    background-color: #3d8b40;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Animation for elements */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.movie-detail-container,
+.trailer-section,
+.ratings-section {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.trailer-section {
+    animation-delay: 0.2s;
+}
+
+.ratings-section {
+    animation-delay: 0.4s;
+}
+
+/* Enhanced Responsive Styles */
+/* Extra large devices (large desktops) */
+@media (max-width: 1400px) {
+    .container-details-movie {
+        max-width: 1140px;
+    }
+}
+
+/* Large devices (desktops) */
+@media (max-width: 1200px) {
+    .container-details-movie {
+        max-width: 960px;
+        padding: 25px 15px;
+        padding-top: 130px;
+    }
+
+    .movie-poster {
+        width: 200px;
+        margin-right: 30px;
+    }
+
+    .movie-title h1 {
+        font-size: 24px;
+    }
+
+    .section-title {
+        font-size: 22px;
+    }
+}
+
+/* Medium devices (tablets) */
+@media (max-width: 992px) {
+    .container-details-movie {
+        max-width: 720px;
+        padding: 20px 15px;
+        padding-top: 120px;
+    }
+
+    .movie-detail-container,
+    .trailer-section,
+    .ratings-section {
+        padding: 25px;
+    }
+
+    .movie-poster {
+        width: 180px;
+        margin-right: 25px;
+    }
+
+    .movie-title h1 {
+        font-size: 22px;
+    }
+
+    .movie-subtitle {
+        font-size: 15px;
+    }
+
+    .movie-meta {
+        gap: 12px;
+        font-size: 15px;
+    }
+
+    .movie-description {
+        font-size: 15px;
+    }
+
+    .meta-label {
+        min-width: 70px;
+    }
+
+    .section-title {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-title {
+        font-size: 18px;
+    }
+
+    .star-rating label {
+        font-size: 22px;
+    }
+
+    .comment-input {
+        height: 100px;
+    }
+}
+
+/* Small devices (landscape phones) */
+@media (max-width: 768px) {
+    .container-details-movie {
+        padding-top: 100px;
+    }
+
+    .movie-detail-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .movie-poster {
+        width: 50%;
+        max-width: 200px;
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+
+    .movie-title h1 {
+        font-size: 20px;
+        text-align: center;
+    }
+
+    .movie-subtitle {
+        text-align: center;
+    }
+
+    .movie-meta {
+        grid-template-columns: 1fr;
+        max-width: 85%;
+        margin: 0 auto 20px;
+    }
+
+    .movie-meta-item {
+        justify-content: space-between;
+    }
+
+    .meta-label {
+        min-width: auto;
+    }
+
+    .movie-description {
+        font-size: 14px;
+        text-align: left;
+    }
+
+    .movie-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 10px 15px;
+        font-size: 14px;
+        min-width: 120px;
+    }
+
+    .trailer-section,
+    .ratings-section {
+        padding: 20px;
+    }
+
+    .section-title {
+        font-size: 18px;
+        text-align: center;
+    }
+
+    .review-form {
+        padding: 20px;
+    }
+
+    .form-title {
+        text-align: center;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .cancel-btn,
+    .submit-btn {
+        width: 100%;
+    }
+
+    .user-review {
+        padding: 15px 0;
+    }
+
+    .review-header {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .reviewer-name,
+    .review-date {
+        font-size: 14px;
+    }
+
+    .review-content {
+        font-size: 14px;
+    }
+
+    .notification-box {
+        width: 90%;
+        padding: 25px;
+    }
+
+    .notification-title {
+        font-size: 20px;
+    }
+
+    .notification-message {
+        font-size: 14px;
+    }
+
+    .notification-btn {
+        width: 100%;
+    }
+}
+
+/* Extra small devices (phones) */
+@media (max-width: 576px) {
+    .container-details-movie {
+        padding-top: 80px;
+        padding: 15px 12px;
+        padding-top: 80px;
+    }
+
+    .movie-detail-container,
+    .trailer-section,
+    .ratings-section {
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .movie-poster {
+        width: 65%;
+        max-width: 180px;
+    }
+
+    .movie-title h1 {
+        font-size: 18px;
+        padding-bottom: 8px;
+    }
+
+    .movie-subtitle {
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    .movie-meta {
+        gap: 8px;
+        font-size: 14px;
+        max-width: 100%;
+    }
+
+    .movie-description {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .section-title {
+        font-size: 16px;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+    }
+
+    .review-form {
+        padding: 15px;
+        margin-top: 20px;
+    }
+
+    .form-title {
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+
+    .comment-input {
+        padding: 10px;
+        height: 80px;
+        font-size: 14px;
+    }
+
+    .star-rating label {
+        font-size: 20px;
+    }
+
+    .cancel-btn,
+    .submit-btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    .notification-box {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .notification-icon {
+        font-size: 36px;
+    }
+
+    .notification-title {
+        font-size: 18px;
+    }
+
+    .notification-message {
+        margin-bottom: 20px;
+    }
+
+    .notification-btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+}
+
+/* Very small devices (small phones) */
+@media (max-width: 480px) {
+    .container-details-movie {
+        padding: 12px 10px;
+        padding-top: 70px;
+    }
+
+    .movie-poster {
+        width: 75%;
+        max-width: 150px;
+    }
+
+    .movie-meta-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 5px;
+    }
+
+    .meta-label {
+        margin-right: 0;
+        color: #aaa;
+    }
+
+    .meta-value {
+        font-weight: 500;
+    }
+
+    .movie-actions {
+        margin-top: 15px;
+    }
+
+    .btn {
+        font-size: 13px;
+        padding: 8px 12px;
+    }
+
+    .form-actions {
+        margin-top: 15px;
+    }
+
+    .star-rating {
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+
+    .user-review {
+        padding: 12px 0;
+    }
+
+    .user-avatar {
+        width: 28px;
+        height: 28px;
+    }
+
+    .reviewer-name {
+        font-size: 13px;
+    }
+
+    .review-date {
+        font-size: 12px;
+    }
+
+    .review-content {
+        font-size: 13px;
+    }
+
+    .notification-box {
+        padding: 15px;
+    }
+
+    .notification-icon {
+        font-size: 32px;
+        margin-bottom: 15px;
+    }
+
+    .notification-title {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .notification-message {
+        font-size: 13px;
+        margin-bottom: 15px;
+    }
+
+    .notification-btn {
+        font-size: 13px;
+        padding: 8px 12px;
+    }
+}
+
+/* For ultra-small devices */
+@media (max-width: 380px) {
+    .container-details-movie {
+        padding: 10px 8px;
+        padding-top: 60px;
+    }
+
+    .movie-detail-container,
+    .trailer-section,
+    .ratings-section {
+        padding: 12px;
+    }
+
+    .movie-poster {
+        width: 80%;
+        max-width: 130px;
+    }
+
+    .movie-title h1 {
+        font-size: 16px;
+    }
+
+    .movie-subtitle {
+        font-size: 13px;
+    }
+
+    .movie-meta,
+    .movie-description {
+        font-size: 13px;
+    }
+
+    .section-title {
+        font-size: 15px;
+    }
+
+    .star-rating label {
+        font-size: 18px;
+    }
+
+    .comment-input {
+        height: 70px;
+        font-size: 13px;
+    }
+
+    .cancel-btn,
+    .submit-btn {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+
+    .review-content {
+        font-size: 12px;
+    }
+
+    .form-title {
+        font-size: 15px;
+    }
+
+    .notification-box {
+        width: 98%;
+    }
+}
+
+/* For the smallest devices */
+@media (max-width: 320px) {
+    .container-details-movie {
+        padding: 8px 5px;
+        padding-top: 50px;
+    }
+
+    .movie-detail-container,
+    .trailer-section,
+    .ratings-section {
+        padding: 10px;
+    }
+
+    .movie-poster {
+        width: 90%;
+        max-width: 120px;
+    }
+
+    .movie-title h1 {
+        font-size: 15px;
+    }
+
+    .movie-subtitle,
+    .movie-meta,
+    .movie-description {
+        font-size: 12px;
+    }
+
+    .btn {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    .section-title {
+        font-size: 14px;
+    }
+
+    .form-title {
+        font-size: 14px;
+    }
+
+    .comment-input {
+        height: 60px;
+        font-size: 12px;
+    }
+
+    .reviewer-name {
+        font-size: 12px;
+    }
+
+    .review-date {
+        font-size: 11px;
+    }
+
+    .review-content {
+        font-size: 12px;
+    }
+
+    .notification-icon {
+        font-size: 28px;
+    }
+
+    .notification-title {
+        font-size: 14px;
+    }
+
+    .notification-message {
+        font-size: 12px;
+    }
+
+    .notification-btn {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+}
     </style>
 </head>
 <body>
@@ -589,7 +1231,9 @@
 
                 <div class="comment-container">
                     <label for="comment-input">Your Review:</label>
-                    <textarea id="comment-input" name="comment" class="comment-input" placeholder="Write your review..." th:text="${userReview != null ? userReview.comments : ''}"></textarea>
+                    <textarea id="comment-input" name="comment" style="
+    margin-top: 10px;
+" class="comment-input" placeholder="Write your review..." th:text="${userReview != null ? userReview.comments : ''}"></textarea>
                 </div>
 
                 <div class="form-actions">

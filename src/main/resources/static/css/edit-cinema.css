@@ -1,15 +1,29 @@
+/* Base styles */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+:root {
+  --primary-color: #044a2c;
+  --primary-hover: #033821;
+  --secondary-color: #333;
+  --error-color: #dc2626;
+  --success-color: #52c41a;
+  --light-gray: #f8f9fa;
+  --border-gray: #ced4da;
+  --text-color: #333;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Poppins', sans-serif;
   background-color: #044a2c;
   margin: 0;
   padding: 0;
-  color: #333;
+  color: var(--text-color);
   overflow-x: hidden;
 }
 
@@ -31,15 +45,17 @@ body {
   margin-bottom: 20px;
   font-weight: 600;
   transition: font-size 0.3s ease;
+    color: #074730;
 }
 
 .form-container {
-  background-color: #fff;
-  border-radius: 8px;
+  max-width: 90%;
+  margin: 40px auto;
   padding: 30px;
+  padding-top: 40px;
+  background-color: white;
+  border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  max-width: 1200px;
-  margin: 0 auto;
   transition: all 0.3s ease;
   width: 100%;
 }
@@ -53,34 +69,36 @@ body {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: #333;
+  color: var(--secondary-color);
 }
 
 .form-control {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ced4da;
+  padding: 8px 12px;
+  border: 1px solid var(--border-gray);
   border-radius: 4px;
   font-size: 14px;
-  color: #333;
+  color: var(--text-color);
   background-color: #fff;
   height: 38px;
+  transition: border-color 0.3s;
   -webkit-appearance: none;
 }
 
 .form-control:focus {
-  border-color: #044a2c;
+  border-color: var(--primary-color);
   outline: none;
   box-shadow: 0 0 0 2px rgba(4, 74, 44, 0.2);
 }
 
 .error-message {
-  color: #dc2626;
+  color: var(--error-color);
   font-size: 14px;
   margin-top: 5px;
   display: block;
 }
 
+/* Custom Select Styling */
 .custom-select {
   position: relative;
   width: 100%;
@@ -90,18 +108,28 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
+  padding: 8px 12px;
   background-color: #fff;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--border-gray);
   border-radius: 4px;
   cursor: pointer;
   height: 38px;
   font-size: 14px;
   -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.3s;
+}
+
+.select-control:hover {
+  border-color: #b1b1b1;
+}
+
+.custom-select.active .select-control {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(4, 74, 44, 0.2);
 }
 
 .selected-option {
-  color: #333;
+  color: var(--text-color);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -120,7 +148,7 @@ body {
   max-height: 200px;
   overflow-y: auto;
   display: none;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--border-gray);
   margin-top: 4px;
 }
 
@@ -143,20 +171,21 @@ body {
   background-color: #e9ecef;
 }
 
+/* Form actions */
 .form-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 15px;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 30px;
   transition: flex-direction 0.3s ease, gap 0.3s ease;
   flex-wrap: wrap;
 }
 
 .cancel-btn {
-  background-color: #f8f9fa;
-  color: #333;
-  padding: 0 16px;
-  border: 1px solid #ced4da;
+  background-color: #f87171;
+  color: white;
+  border: none;
+  padding: 8px 16px;
   border-radius: 4px;
   text-decoration: none;
   font-weight: 500;
@@ -167,19 +196,20 @@ body {
   justify-content: center;
   height: 38px;
   font-size: 14px;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
   min-width: 100px;
 }
 
 .cancel-btn:hover {
-  background-color: #e2e6ea;
+  background-color: #ef4444;
+  transform: translateY(-2px);
 }
 
 .update-btn {
-  background-color: #044a2c;
-  color: white;
-  padding: 0 16px;
+  background-color: #b7f7c2;
+  color: #044a2c;
   border: none;
+  padding: 8px 16px;
   border-radius: 4px;
   font-weight: 500;
   cursor: pointer;
@@ -188,14 +218,16 @@ body {
   justify-content: center;
   height: 38px;
   font-size: 14px;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
   min-width: 100px;
 }
 
 .update-btn:hover {
-  background-color: #033821;
+  background-color: #a5f2b4;
+  transform: translateY(-2px);
 }
 
+/* Success overlay */
 .success-overlay {
   position: fixed;
   top: 0;
@@ -206,7 +238,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
   visibility: hidden;
   opacity: 0;
   transition: visibility 0s, opacity 0.3s;
@@ -217,16 +249,24 @@ body {
   opacity: 1;
 }
 
+.success-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
 .success-message-box {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   width: 90%;
-  max-width: 450px;
-  padding: 30px;
+  max-width: 500px;
+  padding: 40px;
   text-align: center;
   transform: translateY(-20px);
-  transition: transform 0.3s, padding 0.3s ease;
+  transition: transform 0.3s;
 }
 
 .success-overlay.show .success-message-box {
@@ -238,17 +278,16 @@ body {
 }
 
 .success-icon svg {
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   max-width: 100%;
 }
 
 .success-heading {
+  color: var(--success-color);
   font-size: 24px;
   font-weight: 600;
   margin-bottom: 15px;
-  color: #333;
-  transition: font-size 0.3s ease;
 }
 
 .success-text {
@@ -256,7 +295,13 @@ body {
   color: #666;
   margin-bottom: 25px;
   line-height: 1.5;
-  transition: font-size 0.3s ease;
+}
+
+.success-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 .success-btn {
@@ -271,12 +316,12 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 100px;
-  margin: 0 10px 10px;
+  min-width: 140px;
 }
 
 .success-btn:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .success-btn:active {
@@ -284,7 +329,7 @@ body {
 }
 
 .success-btn.primary {
-  background-color: #52c41a;
+  background-color: var(--success-color);
   color: white;
 }
 
@@ -301,21 +346,16 @@ body {
   background-color: #e0e0e0;
 }
 
+/* Alerts */
 .alert {
   padding: 12px 15px;
   border-radius: 4px;
   margin-bottom: 20px;
   font-size: 14px;
   width: 100%;
-  max-width: 1200px;
+  max-width: 90%;
   margin-left: auto;
   margin-right: auto;
-}
-
-.alert-success {
-  background-color: #dcfce7;
-  color: #14532d;
-  border: 1px solid #c3e6cb;
 }
 
 .alert-danger {
@@ -324,36 +364,7 @@ body {
   border: 1px solid #f5c6cb;
 }
 
-.form-row {
-  display: flex;
-  flex-wrap: wrap;
-  margin-left: -10px;
-  margin-right: -10px;
-  width: calc(100% + 20px);
-}
-
-.form-col {
-  padding-left: 10px;
-  padding-right: 10px;
-  flex: 1 0 0%;
-  min-width: 0;
-}
-
-.form-col-6 {
-  flex: 0 0 50%;
-  max-width: 50%;
-}
-
-.form-col-4 {
-  flex: 0 0 33.333333%;
-  max-width: 33.333333%;
-}
-
-.form-col-8 {
-  flex: 0 0 66.666667%;
-  max-width: 66.666667%;
-}
-
+/* Responsive styles */
 @media screen and (max-width: 1400px) {
   .content-view {
     padding-left: 240px;
@@ -378,99 +389,89 @@ body {
 
   .section-title {
     font-size: 22px;
+    color: #074730;
   }
 
   .form-container {
     padding: 20px;
-  }
-
-  .form-col-4 {
-    flex: 0 0 50%;
-    max-width: 50%;
   }
 }
 
 @media screen and (max-width: 900px) {
   .content-view {
     padding-left: 0;
-    padding-top: 70px;
+    padding-top: 80px;
   }
 
   .section-title {
     padding-left: 10px;
+    margin-top: 10px;
+    color: #074730;
   }
 
-  .form-col-6 {
-    flex: 0 0 100%;
-    max-width: 100%;
-  }
-
-  .form-control,
-  .select-control {
-    height: 42px;
+  .form-container {
+    margin: 20px auto;
   }
 }
 
 @media screen and (max-width: 768px) {
   .content-view {
     padding: 15px;
-    padding-top: 65px;
+    padding-top: 85px;
   }
 
   .section-title {
     font-size: 20px;
     margin-bottom: 15px;
     padding-left: 5px;
+    margin-top: 5px;
+    color: #074730;
   }
 
   .form-container {
-    padding: 15px;
-  }
-
-  .form-control,
-  .select-control {
-    padding: 8px 10px;
-    font-size: 14px;
-  }
-
-  .form-row {
-    margin-left: -5px;
-    margin-right: -5px;
-    width: calc(100% + 10px);
-  }
-
-  .form-col-4,
-  .form-col-8 {
-    flex: 0 0 100%;
-    max-width: 100%;
-    padding-left: 5px;
-    padding-right: 5px;
-  }
-
-  .form-col {
-    padding-left: 5px;
-    padding-right: 5px;
+    padding: 20px;
   }
 
   .form-actions {
-    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .cancel-btn,
+  .update-btn {
+    width: 100%;
+  }
+
+  .success-message-box {
+    padding: 30px 20px;
+  }
+
+  .success-heading {
+    font-size: 20px;
+  }
+
+  .success-text {
+    font-size: 14px;
   }
 }
 
 @media screen and (max-width: 576px) {
   .content-view {
     padding: 10px;
-    padding-top: 60px;
+    padding-top: 75px;
   }
 
   .section-title {
     font-size: 18px;
     margin-bottom: 12px;
     text-align: center;
+    margin-top: 10px;
+    color: #074730;
   }
 
   .form-container {
     padding: 15px;
+    margin: 15px auto;
     border-radius: 6px;
   }
 
@@ -483,118 +484,51 @@ body {
     font-size: 14px;
   }
 
-  .form-actions {
-    flex-direction: column-reverse;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-
-  .cancel-btn,
-  .update-btn {
-    width: 100%;
-    height: 40px;
-  }
-
-  .success-heading {
-    font-size: 20px;
-  }
-
-  .success-text {
-    font-size: 14px;
-    margin-bottom: 20px;
-  }
-
-  .success-message-box {
-    padding: 20px 15px;
-    width: 95%;
-  }
-
-  .success-btn {
-    padding: 8px 15px;
-    display: block;
-    width: 100%;
-    margin: 10px auto;
+  .success-icon svg {
+    width: 60px;
+    height: 60px;
   }
 }
 
 @media screen and (max-width: 480px) {
   .content-view {
     padding: 8px;
-    padding-top: 55px;
-  }
-
-  .section-title {
-    font-size: 18px;
-    margin-bottom: 10px;
+    padding-top: 70px;
+    margin-top: 5px;
   }
 
   .form-container {
     padding: 12px;
-    border-radius: 6px;
+    margin: 10px auto;
   }
 
-  .form-group {
-    margin-bottom: 12px;
+  .success-message-box {
+    padding: 20px 15px;
   }
 
-  .form-group label {
+  .success-btn {
+    min-width: 120px;
+    padding: 8px 15px;
     font-size: 14px;
-    margin-bottom: 5px;
   }
 
   .form-control,
   .select-control {
-    padding: 8px;
-    font-size: 14px;
     height: 36px;
-  }
-
-  .error-message {
-    font-size: 12px;
-  }
-
-  .form-actions {
-    margin-top: 20px;
-  }
-
-  .cancel-btn,
-  .update-btn {
-    height: 38px;
-    font-size: 14px;
-  }
-
-  .select-dropdown {
-    max-height: 180px;
-  }
-
-  .select-option {
-    padding: 10px;
+    font-size: 13px;
+    padding: 6px 10px;
   }
 }
 
 @media screen and (max-width: 375px) {
   .content-view {
     padding: 5px;
-    padding-top: 50px;
-  }
-
-  .section-title {
-    font-size: 16px;
-    margin-bottom: 8px;
+    padding-top: 65px;
+    margin-top: 8px;
   }
 
   .form-container {
     padding: 10px;
-  }
-
-  .form-group label {
-    font-size: 13px;
-  }
-
-  .form-control,
-  .select-control {
-    height: 34px;
-    font-size: 13px;
   }
 
   .success-heading {
@@ -604,13 +538,9 @@ body {
   .success-text {
     font-size: 13px;
   }
-
-  .success-message-box {
-    padding: 15px 10px;
-  }
 }
 
-@media screen and (max-height: 500px) {
+@media screen and (max-height: 600px) {
   .success-overlay {
     align-items: flex-start;
     overflow-y: auto;
@@ -619,34 +549,14 @@ body {
 
   .success-message-box {
     margin: 10px auto;
-    padding: 15px;
-  }
-
-  .success-icon svg {
-    width: 40px;
-    height: 40px;
-  }
-
-  .success-icon {
-    margin-bottom: 10px;
-  }
-
-  .success-heading {
-    margin-bottom: 10px;
-  }
-
-  .success-text {
-    margin-bottom: 15px;
+    padding: 20px 15px;
   }
 }
 
 @media screen and (max-width: 900px) and (orientation: landscape) {
   .content-view {
-    padding-top: 60px;
-  }
-
-  .form-container {
-    max-width: 700px;
+    padding-top: 70px;
+    margin-top: 5px;
   }
 
   .form-actions {
@@ -658,26 +568,12 @@ body {
     width: auto;
     min-width: 120px;
   }
-
-  .form-col-4,
-  .form-col-6 {
-    flex: 0 0 50%;
-    max-width: 50%;
-  }
-
-  .success-message-box {
-    max-width: 400px;
-    padding: 20px;
-    margin: 10px auto;
-  }
 }
 
 @media print {
   .content-view {
     background-color: white;
     padding: 0;
-    padding-left: 0;
-    padding-top: 0;
   }
 
   .form-container {
@@ -693,90 +589,7 @@ body {
   }
 
   .section-title {
-    color: #333;
+    color: #074730;
     margin-bottom: 15px;
-  }
-}
-
-.content-view {
-  width: 100%;
-  min-height: 100vh;
-  padding: 20px;
-  padding-top: 79px;
-  padding-left: 260px;
-  transition: padding 0.3s ease;
-  position: relative;
-}
-
-@media screen and (max-width: 900px) {
-  .content-view {
-    padding-left: 0;
-    padding-top: 80px;
-  }
-
-  .section-title {
-    padding-left: 10px;
-    margin-top: 10px;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .content-view {
-    padding: 15px;
-    padding-top: 85px;
-  }
-
-  .section-title {
-    font-size: 20px;
-    margin-bottom: 15px;
-    padding-left: 5px;
-    margin-top: 5px;
-  }
-}
-
-@media screen and (max-width: 576px) {
-  .content-view {
-    padding: 10px;
-    padding-top: 75px;
-  }
-
-  .section-title {
-    font-size: 18px;
-    margin-bottom: 12px;
-    text-align: center;
-    margin-top: 10px;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .content-view {
-    padding: 8px;
-    padding-top: 70px;
-    margin-top: 5px;
-  }
-}
-
-@media screen and (max-width: 375px) {
-  .content-view {
-    padding: 5px;
-    padding-top: 65px;
-    margin-top: 8px;
-  }
-}
-
-@media screen and (max-width: 900px) and (orientation: landscape) {
-  .content-view {
-    padding-top: 70px;
-    margin-top: 5px;
-  }
-}
-
-@media screen and (max-height: 600px) {
-  .content-view {
-    padding-top: 80px;
-  }
-
-  body {
-    padding-bottom: 20px;
   }
 }

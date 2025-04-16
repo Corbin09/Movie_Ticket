@@ -84,4 +84,19 @@ public class ActorService {
         }
         return actorRepository.findById(id).orElse(null);
     }
+
+    public Actor findByName(String actorName) {
+        if (actorName == null || actorName.isEmpty()) {
+            return null;
+        }
+        List<Actor> actors = actorRepository.findByActorName(actorName);
+        return actors.isEmpty() ? null : actors.get(0); // Trả về actor đầu tiên hoặc null
+    }
+
+    public Actor saveActor(Actor newActor) {
+        if (newActor == null) {
+            return null;
+        }
+        return actorRepository.save(newActor);
+    }
 }
